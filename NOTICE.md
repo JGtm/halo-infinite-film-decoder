@@ -1,4 +1,4 @@
-# NOTICE — origin of the data files of `libs/film`
+# NOTICE — origin of the data files of `halo-infinite-film-decoder`
 
 This module is licensed AGPL-3.0 (see `README.md`). It contains two kinds of data files that are not source
 code: three small tables embedded in the binary, and test fixtures made of film bytes. This page says where
@@ -50,5 +50,5 @@ All three are identifiers and labels, not content of the game: no mesh, texture,
 ## Third-party code
 
 The module imports `github.com/klauspost/compress`, `github.com/pelletier/go-toml/v2` and `golang.org/x/sys`
-(see `go.mod`), and `libs/gamefiles` and `libs/himap` of the same repository. Through `libs/himap` its tests
-reach the vendored GPL-3.0 `ooz` decoder of `libs/gamefiles`; see `libs/gamefiles/ooz/NOTICE.md`.
+(see `go.mod`), and `halo-infinite-files-reader` and `halo-infinite-map-images`. Through `halo-infinite-map-images` its tests
+reach the vendored GPL-3.0 `ooz` decoder of `halo-infinite-files-reader`; see its `ooz/NOTICE.md`.

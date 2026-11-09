@@ -36,7 +36,7 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/JGtm/LevelUp/libs/film/internal/facts/fallback"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
 )
 
 // VehiclePartTurret : la seule valeur de `VehicleTrack.Part`.

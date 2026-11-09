@@ -18,7 +18,7 @@ import (
 )
 
 // briqueFuture : le chemin d import de la brique une fois devenue le module `libs/film`.
-const briqueFuture = "github.com/JGtm/LevelUp/libs/film"
+const briqueFuture = "github.com/JGtm/halo-infinite-film-decoder"
 
 // sourceImportant rend une source qui importe deux paquets de la brique sous `prefixe`, plus un
 // paquet hors de la brique, et qui cite la racine de la brique dans une chaine brute.
@@ -26,7 +26,7 @@ func sourceImportant(prefixe string) string {
 	return "package g\n\nimport (\n" +
 		"\t_ \"" + prefixe + "/internal/grammar\"\n" +
 		"\tsrc \"" + prefixe + "/internal/source\"\n" +
-		"\t_ \"github.com/JGtm/LevelUp/libs/gamefiles/mapvar\"\n" +
+		"\t_ \"github.com/JGtm/halo-infinite-files-reader/mapvar\"\n" +
 		")\n\nconst Racine = `" + prefixe + "`\n\nvar _ = src.S\n"
 }
 
@@ -61,11 +61,11 @@ func casSourceDeDemain(t *testing.T) {
 // frontiere d un chemin, change de prefixe.
 func casLitteralHorsDeLaBrique(t *testing.T) {
 	for _, lit := range []string{
-		`"github.com/JGtm/LevelUp/libs/gamefiles/mapvar"`,
-		`"github.com/JGtm/LevelUp/libs/filmx"`,
-		`"github.com/JGtm/LevelUp/libs/film_ancien/x"`,
+		`"github.com/JGtm/halo-infinite-files-reader/mapvar"`,
+		`"github.com/JGtm/halo-infinite-film-decoderx"`,
+		`"github.com/JGtm/halo-infinite-film-decoder_ancien/x"`,
 		`"levelup/go-api/internal/domain/highlightevent"`,
-		`"x github.com/JGtm/LevelUp/libs/film"`,
+		`"x github.com/JGtm/halo-infinite-film-decoder"`,
 		`"`,
 		`'a'`,
 	} {
@@ -121,7 +121,7 @@ func casDossierHistorique(t *testing.T) {
 
 // TestCadreHistorique_LaBriqueDeplaceeRendLaMemeEmpreinte : LA PREUVE DE BOUT EN BOUT. La meme
 // brique, posee une fois dans un module `levelup/go-api` et une fois comme module
-// `github.com/JGtm/LevelUp/libs/film`, rend la meme empreinte de couche et le meme perimetre —
+// `github.com/JGtm/halo-infinite-film-decoder`, rend la meme empreinte de couche et le meme perimetre —
 // amont, paquet importe hors couche et fichier embarque compris.
 func TestCadreHistorique_LaBriqueDeplaceeRendLaMemeEmpreinte(t *testing.T) {
 	couches := []Couche{
@@ -199,9 +199,9 @@ func ecrireFixture(t *testing.T, chemin, contenu string) {
 // les imports de la brique le jour ou elle change de module.
 func TestCheminModuleCourantEstLaRacineDeLaBrique(t *testing.T) {
 	paquet := reflect.TypeFor[Resultat]().PkgPath()
-	if paquet != cheminModuleCourant+"/revision" || path.Base(cheminModuleCourant) != "film" {
+	if paquet != cheminModuleCourant+"/revision" || path.Base(cheminModuleCourant) != "halo-infinite-film-decoder" {
 		t.Errorf("chemin du paquet %s, racine de brique lue %s : `revision` doit vivre directement "+
-			"sous la racine `film` de la brique", paquet, cheminModuleCourant)
+			"sous la racine `halo-infinite-film-decoder` de la brique", paquet, cheminModuleCourant)
 	}
 	m, err := ModuleDe(".")
 	if err != nil {

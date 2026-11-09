@@ -1,6 +1,6 @@
 package replay
 
-import "github.com/JGtm/LevelUp/libs/film/internal/grammar"
+import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 
 // killpos_opening.go — OÙ L'ENGAGEMENT A COMMENCÉ, ET POURQUOI CE N'EST QU'UN PROXY.
 //
