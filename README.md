@@ -8,7 +8,7 @@ assembles them into a 2D replay document.
 
 ## Status
 
-Experimental. The API is not stable before v1.0.0; minor versions may break. Versions are tagged `vX.Y.Z` in this repository.
+Used in production by LevelUp since October 2026. From v1.0.0 the exported API follows semantic versioning: a breaking change means a new major version. Versions are tagged `vX.Y.Z` in this repository.
 
 ## What it is
 
@@ -51,11 +51,11 @@ The four lower layers live under `internal/`, so the compiler closes them. What 
 ## Install
 
 ```
-go get github.com/JGtm/halo-infinite-film-decoder@v0.1.0
+go get github.com/JGtm/halo-infinite-film-decoder@v1.0.0
 ```
 
 Works from any Go module; no `replace` directive is needed. The module requires
-`github.com/JGtm/halo-infinite-files-reader` and `github.com/JGtm/halo-infinite-map-images` at their `v0.1.0`
+`github.com/JGtm/halo-infinite-files-reader` and `github.com/JGtm/halo-infinite-map-images` at their `v1.0.0`
 tags; `go get` brings them in.
 
 ## Example
