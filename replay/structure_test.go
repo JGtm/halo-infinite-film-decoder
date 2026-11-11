@@ -1481,8 +1481,13 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   sans record de création ni nom sortent avant le registre d'identité sur un film complet (les pistes et les
 	//   vies sans identité de ce slot ne se publient plus ; un repli se compte). Aucun champ neuf, aucune révision
 	//   de décodage ne monte : un v107 se lit « à republier ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 108 {
-		t.Fatalf("SchemaVersion = %d, attendu 108 : incrémenter exige une raison écrite ci-dessus "+
+	// - 109 (2026-11-12, destruction de véhicule) : champ neuf `vehicles[].destruction` (`by`, `cause`, `occupant`,
+	//   `killed` : le destructeur et la cause lus dans le dead-state de la fin `destroyed`, l'occupant et les occupants
+	//   tués déduits des épisodes et du fil des morts) et bloc `coverage.vehicles.destructions`. La forme cuite change :
+	//   le gel de forme exige la montée. Assemblage seul, aucune révision de décodage ne monte (les faits portent déjà
+	//   le dead-state entier) : un v108 se lit « à republier ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 109 {
+		t.Fatalf("SchemaVersion = %d, attendu 109 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

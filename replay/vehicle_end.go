@@ -95,7 +95,7 @@ func assignVehicleDeaths(ctx context.Context, lives []vehicleLife, deaths []type
 			t.closed++
 		}
 		if lives[i].deathUS == 0 || d.TimestampUS < lives[i].deathUS {
-			lives[i].deathUS, lives[i].deathTailDesync = d.TimestampUS, d.TailDesync
+			lives[i].deathUS, lives[i].deathTailDesync, lives[i].death = d.TimestampUS, d.TailDesync, d
 		}
 	}
 	logVehicleDeathTally(ctx, t)
