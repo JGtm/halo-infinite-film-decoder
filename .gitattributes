@@ -1,0 +1,8 @@
+# Fins de ligne : LF dans le dépôt et à l'extraction, y compris sous Windows. Les tests comparent des
+# références figées (goldens, tables, jeux de données) octet pour octet : un CRLF les fait échouer.
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.jpg binary
+*.ico binary
+*.gif binary
