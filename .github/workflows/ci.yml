@@ -6,8 +6,37 @@ on:
     tags: ['v*']
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
+  # Production du module sans cgo, sur les deux systèmes : vet et tests des couches du décodeur.
   test:
+    name: Tests des couches (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: go vet + go test (sans cgo)
+        shell: bash
+        run: |
+          set -e
+          go vet ./...
+          go test ./internal/profile/... ./internal/grammar/... ./internal/facts/... ./replay/... -timeout 600s -count=1
+        env:
+          CGO_ENABLED: "0"
+
+  # Module entier, Linux et cgo : tous les paquets, les instruments `research` (compilation seule,
+  # jamais exécutés) et l'autonomie du module.
+  full:
+    name: Module entier (ubuntu, cgo)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,7 +44,62 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - run: go vet ./...
       - run: go build ./...
-      - run: go test ./... -count=1
+        env:
+          CGO_ENABLED: "1"
+      - run: go test ./... -timeout 600s -count=1
+        env:
+          CGO_ENABLED: "1"
+      - name: go vet research
+        run: go vet -tags=research ./...
+        env:
+          CGO_ENABLED: "1"
+      - name: autonomie du module
+        run: |
+          if go list -deps -test ./... | grep -E 'levelup/go-api'; then
+            echo "::error::le module importe levelup/go-api"
+            exit 1
+          fi
+        env:
+          CGO_ENABLED: "1"
+
+  # D-5 (deux films décodés en parallèle ne partagent aucun état) est prouvé sous -race, sur le seul
+  # paquet grammar : mini-bobines du dépôt, aucune base. cgo obligatoire pour -race.
+  film-race:
+    name: Film race (grammar)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test -race -count=1 -run TestDeuxFilmsEnParallele ./internal/grammar/
+        env:
+          CGO_ENABLED: "1"
+
+  lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.12.2
+          args: --timeout 5m
+
+  vuln:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
       - run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...

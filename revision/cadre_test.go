@@ -17,7 +17,8 @@ import (
 	"testing"
 )
 
-// briqueFuture : le chemin d import de la brique une fois devenue le module `libs/film`.
+// briqueFuture : le chemin d import de la brique une fois publiee sous son module propre,
+// `github.com/JGtm/halo-infinite-film-decoder` (celui que le paquet porte desormais).
 const briqueFuture = "github.com/JGtm/halo-infinite-film-decoder"
 
 // sourceImportant rend une source qui importe deux paquets de la brique sous `prefixe`, plus un
@@ -49,7 +50,7 @@ func casSourceDeDemain(t *testing.T) {
 	}
 	if demain != hier {
 		t.Fatalf("LE FLUX DE JETONS DEPEND DU CHEMIN DU MODULE : la brique deplacee dans "+
-			"`libs/film` changerait les cinq empreintes sans qu un octet de grammaire ait bouge.\n"+
+			"`halo-infinite-film-decoder` changerait les cinq empreintes sans qu un octet de grammaire ait bouge.\n"+
 			"  hier   :\n%s\n  demain :\n%s", hier, demain)
 	}
 	if !strings.Contains(hier, `"`+cadreHistorique+`/internal/grammar"`) {
@@ -199,9 +200,9 @@ func ecrireFixture(t *testing.T, chemin, contenu string) {
 // les imports de la brique le jour ou elle change de module.
 func TestCheminModuleCourantEstLaRacineDeLaBrique(t *testing.T) {
 	paquet := reflect.TypeFor[Resultat]().PkgPath()
-	if paquet != cheminModuleCourant+"/revision" || path.Base(cheminModuleCourant) != "halo-infinite-film-decoder" {
+	if paquet != cheminModuleCourant+"/revision" || cheminModuleCourant != briqueFuture {
 		t.Errorf("chemin du paquet %s, racine de brique lue %s : `revision` doit vivre directement "+
-			"sous la racine `halo-infinite-film-decoder` de la brique", paquet, cheminModuleCourant)
+			"sous la racine de la brique, le module %s", paquet, cheminModuleCourant, briqueFuture)
 	}
 	m, err := ModuleDe(".")
 	if err != nil {

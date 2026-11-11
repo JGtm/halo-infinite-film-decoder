@@ -1,14 +1,14 @@
 # github.com/JGtm/halo-infinite-film-decoder
 
-This module was extracted from the LevelUp monorepo (`github.com/JGtm/LevelUp`), which remains the place where it is developed; released versions are published here.
-
 Decoder for Halo Infinite Theater films: it reads the chunks of a film (the recording the game keeps
 of a match), recovers the facts they carry (players, kill feed, weapons, objectives, positions) and
 assembles them into a 2D replay document.
 
 ## Status
 
-Used in production by LevelUp since October 2026. From v1.0.0 the exported API follows semantic versioning: a breaking change means a new major version. Versions are tagged `vX.Y.Z` in this repository.
+Used in production by LevelUp since October 2026. From v1.0.0 the exported API follows semantic
+versioning (a breaking change means a new major version). Published as a Go module in its own
+repository; versions are tagged `vX.Y.Z`.
 
 ## What it is
 
@@ -55,8 +55,8 @@ go get github.com/JGtm/halo-infinite-film-decoder@v1.0.0
 ```
 
 Works from any Go module; no `replace` directive is needed. The module requires
-`github.com/JGtm/halo-infinite-files-reader` and `github.com/JGtm/halo-infinite-map-images` at their `v1.0.0`
-tags; `go get` brings them in.
+`github.com/JGtm/halo-infinite-files-reader` and `github.com/JGtm/halo-infinite-map-images`; `go get`
+brings them in.
 
 ## Example
 
@@ -92,11 +92,11 @@ list is refused with `decfilm.ErrUnknownMapBounds`. The optional map props and s
 
 ## Requirements
 
-- Go 1.26.10 (`go.mod`).
+- Go 1.26.11 (`go.mod`).
 - No cgo to build or to use it: `CGO_ENABLED=0 go build ./...` and `go vet ./...` pass, no production
-  package links C code. A few tests import `halo-infinite-map-images`, which reaches the cgo `ooz` decoder through
-  `halo-infinite-files-reader`; running them needs `CGO_ENABLED=1` and a C++ compiler (see the
-  `halo-infinite-files-reader` README).
+  package links C code. A few tests import `github.com/JGtm/halo-infinite-map-images`, which reaches the cgo `ooz` decoder through
+  `github.com/JGtm/halo-infinite-files-reader`; running them needs `CGO_ENABLED=1` and a C++ compiler (see the `github.com/JGtm/halo-infinite-files-reader`
+  README).
 - Catalogues are provided by the caller: the map-bounds catalogue above, and the map data of the options.
   A film whose map has no entry is set aside, never decoded with another map's widths: `decfilm.Decode`
   returns `decfilm.ErrCarteAbsente`, and the position scans return `decfilm.ErrUnknownMapBounds`. The kill
@@ -127,21 +127,20 @@ the table does not know.
 
 ## License
 
-AGPL-3.0-only, see [`LICENSE`](LICENSE). The module itself imports no GPL code. Its tests reach `ooz` (GPL-3.0)
-through `halo-infinite-map-images` and `halo-infinite-files-reader`, so a binary that links those test
-dependencies is GPL-3.0-compatible only; see the `ooz/NOTICE.md` of `halo-infinite-files-reader`. The origin of the
+AGPL-3.0, the repository license (`LICENSE`, `NOTICE` at the repository root). The module itself imports
+no GPL code. Its tests reach `ooz` of `github.com/JGtm/halo-infinite-files-reader` (GPL-3.0) through `github.com/JGtm/halo-infinite-map-images`, so a binary that links
+those test dependencies is GPL-3.0-compatible only; see `ooz/NOTICE.md` of `github.com/JGtm/halo-infinite-files-reader`. The origin of the
 embedded tables and of the test films is in [`NOTICE.md`](NOTICE.md). This is a summary, not legal advice.
 
 ## Contributing
 
-Issues and pull requests on `github.com/JGtm/LevelUp` (the development repository), with the path prefix
-`libs/film/` in the title. Run: `go vet ./... && go test ./...`. The repository convention is French-language
+Issues and pull requests on this repository. From the module directory: `go vet ./... && go test ./...`. The repository convention is French-language
 code comments and many French identifiers, so expect them in the source. Regenerating a fixture or a golden
 file needs the maintainer's local film cache and is described in the `PROVENANCE.txt` next to each
 fixture; a layer's revision golden is rewritten by its gate (`LEVELUP_UPDATE_<NAME>=1 go test ...`, the
-exact command is in the failure message). Design: [ADR 0034](https://github.com/JGtm/LevelUp/blob/main/docs/adr/0034-film-decoder-profile-and-layers.md)
-(the decoder), [ADR 0037](https://github.com/JGtm/LevelUp/blob/main/docs/adr/0037-film-intermediate-representation.md) (the intermediate
-representation), [ADR 0041](https://github.com/JGtm/LevelUp/blob/main/docs/adr/0041-go-modules-under-libs.md) (modules under `libs/`) in that repository.
+exact command is in the failure message). Design: [ADR 0034](../../docs/adr/0034-film-decoder-profile-and-layers.md)
+(the decoder), [ADR 0037](../../docs/adr/0037-film-intermediate-representation.md) (the intermediate
+representation), [ADR 0041](../../docs/adr/0041-go-modules-under-libs.md) (modules under `libs/`).
 
 ## Not affiliated
 

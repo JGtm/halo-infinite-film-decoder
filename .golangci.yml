@@ -1,0 +1,105 @@
+# golangci-lint v2 : configuration de ce module, reduite de celle du depot LevelUp
+# (apps/go-api/.golangci.yml) aux motifs qui s'appliquent ici. Les regles propres a
+# l'application (internal/..., cmd/...) en sont retirees.
+version: "2"
+
+linters:
+  default: standard
+
+  enable:
+    - revive
+    - gocyclo
+    - funlen
+    - lll
+    - goconst
+    - unconvert
+    - unparam
+    - bodyclose
+    - noctx
+    - prealloc
+
+  disable:
+    - misspell   # code et commentaires en francais : faux positifs massifs
+    - godot
+    - wsl
+    - nlreturn
+
+  settings:
+    gocyclo:
+      min-complexity: 15
+
+    funlen:
+      lines: 80
+      statements: 80
+
+    lll:
+      line-length: 220
+
+    revive:
+      rules:
+        - name: argument-limit
+          arguments: [7]
+        - name: exported
+          arguments: ["checkPrivateReceivers"]
+        - name: var-naming
+
+    goconst:
+      min-len: 4
+      min-occurrences: 4
+
+    staticcheck:
+      checks: ["all", "-SA1019"]
+
+  exclusions:
+    paths:
+      - vendor
+      - bin
+      - scripts
+
+    rules:
+      # defer db.Close() / rows.Close() : l'erreur est informative
+      - linters: [errcheck]
+        text: "Error return value of `(.*\\.Close|rows\\.Close|stmt\\.Close)` is not checked"
+
+      - linters: [revive, staticcheck]
+        text: "(exported.*should have comment|ST1020|ST1021|ST1000)"
+
+      - linters: [revive, staticcheck]
+        text: 'comment on exported .* should be of the form'
+
+      - linters: [revive]
+        text: 'that stutters'
+
+      # Décodeur (`replay` et les couches `facts`, `source`, `grammar`, `profile` de `internal/`) :
+      # exempté de la seule longueur de ligne. Les lignes de plus de 220 caractères y sont de la prose
+      # (champs des registres de replis nommés, justifications de `//nolint`, commentaires d'une ligne),
+      # pas du code ; la complexité et la longueur des fonctions suivent le régime commun.
+      - path: "(replay|internal/(facts|source|grammar|profile))/"
+        linters:
+          - lll
+
+      # Tests : fonctions longues, duplication de constantes et fixtures sont idiomatiques.
+      - path: "_test\\.go"
+        linters:
+          - funlen
+          - lll
+          - gocyclo
+          - noctx
+          - goconst
+          - errcheck
+          - unparam
+          - bodyclose
+          - prealloc
+          - ineffassign
+          - revive
+          - unconvert
+          - staticcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+issues:
+  max-same-issues: 0
+  max-issues-per-linter: 0
