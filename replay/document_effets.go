@@ -28,7 +28,7 @@ import (
 const familleDeLEcranOccultant = "shroud_screen"
 
 // effetRayonDeReposM est la distance maximale, en metres monde, entre la position a la creation de la
-// candidate et le repos PUBLIE de la grenade (le dernier point de sa trajectoire a la grille de 100 ms, pas son
+// candidate et le repos PUBLIE de la grenade (le dernier point de sa trajectoire a la grille du document, pas son
 // dernier echantillon). Mesure sur 34 ecrans de 4 films : 0 a 1,96 m (mediane 0,6 m) ; la rivale la plus proche
 // mesuree est a 9,5 m. 3 m laisse une marge sur la mesure sans approcher la rivale.
 const effetRayonDeReposM = 3.0

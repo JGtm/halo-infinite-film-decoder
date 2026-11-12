@@ -3851,3 +3851,40 @@ package replay
 //
 // LE PARC         un artefact 109 : verdict `a redecoder` (les faits cuits au schema 20 se refusent sur leur en-tete : sans les morts de
 //                 bipede, une relecture publierait un `killed` vide). La recuisson est une decision de l utilisateur.
+
+// v111 (2026-11-12, cadence du rejeu : 100 ms -> 33 ms). La grille du document passe de 10 a 30,3 images par
+// seconde : `DefaultFrameIntervalMS` vaut 33, et `frameIntervalMs` le publie (`HistoricalFrameIntervalMS` reste 100
+// pour lire un document qui ne le porte pas). Aucun champ neuf, aucune forme qui change : c est le CONTENU CUIT qui
+// change, et avec lui tout ce qui se lit sur l axe `T`.
+//
+//	`tracks[].pts`, `vehicles[].samples`, `vehicles[].rides[].aim`, `objectiveObjects[].pts`, `zoneStates[].gauge`,
+//	                `projectiles[].p`   trois fois plus de points (x2,8 a x3,0 sur 12 films), chacun un pas de 33 ms.
+//	`frameCount`    x3,03 ; `durationMs` reste a `frameCount * 33` pres (au plus 73 ms d ecart avec l ancien).
+//	`projectiles`   des vols de moins de 100 ms, ecartes comme « un seul point de grille », se publient : plus de
+//	                traînees (`0076ebdc` 689 -> 1 004). Le pas maximal d un vol est une vitesse (100 m/s) appliquee au
+//	                pas de la grille, donc 3,3 m par pas ; plus de vols se coupent (`coverage.projectiles.truncated`
+//	                0 -> 1 sur `0076ebdc`, 4 -> 6 sur `be565134`, 1 -> 10 sur le film de reference `000d5950`) : la
+//	                regle compare la distance a la duree DU PAS, pas a la duree reelle entre deux echantillons retenus,
+//	                et l ecart entre les deux pese plus sur un pas fin.
+//	`t0FilmMs`      date le premier mouvement a la grille fine : de -96 a +5 ms. `t0FilmJumpMPS` (50 m/s) remplace
+//	                `t0FilmJumpM` (5 m par pas) : meme seuil a 100 ms, 1,65 m par pas a 33 ms ; `t0FilmCumulM` ne bouge
+//	                pas (0,5 m, marge de 1,4 sur le pire bruit mesure a 33 ms).
+//	`grappleLines`, `bursts`, `equipmentPlacements`, `coverage.*`   quelques ecarts de quantification : durees de
+//	                traction plus justes (l arrivee est l image la plus proche de l ancre), poses nees a la derniere image
+//	                (bord de film) comptees a l image de grille qui tombe avant ou apres le dernier releve.
+//
+// CE QUI NE CHANGE PAS (12 films du parc cuits un a un aux deux cadences, a partir des memes faits de film, dont
+// le fichier est identique octet pour octet) : le nombre et l identite des vies, des morts, des tirs, des
+// grenades, des ramassages, des prises et des portages d objectif, des etats de zone, des vehicules (destruction :
+// destructeur, cause, occupants), des capacites et des episodes d equipement, les scores finals d equipe et les
+// totaux par joueur sont IDENTIQUES ; chaque instant ne bouge que de la quantification de l ancienne grille (moins
+// de 100 ms). Les seuils du paquet sont en millisecondes ou en vitesse (`framesOfMS`), si bien que chaque decision
+// porte sur la meme duree. Les seuls calques dont le NOMBRE bouge : `projectiles`, `equipmentPlacements` (poses
+// nees a la derniere image), `bursts` et `stances` (une de moins sur un film chacun).
+//
+// CE QUI MONTE    `SchemaVersion` 110 -> 111, et avec lui `publication-111`. Aucune revision de grammaire, de faits
+// AVEC ELLE       ni de profil ne bouge : les faits persistes ne dependent pas de la cadence.
+//
+// LE PARC         un artefact 110 : verdict `a republier` (la couche de publication a change, les faits cuits restent
+//                 frais). Aucun redecodage de film : la recuisson depuis les faits donne le meme document qu un decodage
+//                 complet. Le poids du document est multiplie par 2,6 (brut) et 2,4 (gzip) a 33 ms.

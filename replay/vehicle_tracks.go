@@ -39,7 +39,7 @@ import (
 const vehicleCensusTolUS = uint64(20_000_000)
 
 // vehicleSampleStrideFrames est le PAS d echantillonnage d une trajectoire de vehicule, EN
-// FRAMES du document (une frame = `FrameIntervalMS`, 100 ms par defaut).
+// FRAMES du document (une frame = `FrameIntervalMS`, 33 ms par defaut).
 //
 // POURQUOI LA GRILLE DU DOCUMENT, ET PAS PLUS GROSSIER. Le film replique a ~60 Hz par entite ;
 // la publier telle quelle multiplierait par six le poids du calque pour un rendu que le client

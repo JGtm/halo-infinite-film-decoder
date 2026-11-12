@@ -99,7 +99,7 @@ const (
 	// flagPickupRadiusM : rayon, en metres monde, sous lequel une prise ramasse le drapeau LACHE
 	// le plus proche plutot que d'etre attribuee au socle le plus proche. Un drapeau lache ne se
 	// deplace pas : le ramasser, c'est etre a sa position — la tolerance ne couvre que le pas de
-	// la grille de rejeu (100 ms de course) et le rayon de ramassage du jeu.
+	// la grille de rejeu (un pas de 33 ms, 100 ms avant le schéma 110) et le rayon de ramassage du jeu.
 	flagPickupRadiusM = 8
 )
 

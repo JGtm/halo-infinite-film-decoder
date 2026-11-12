@@ -227,8 +227,8 @@ func flagFreeSampleLess(a, b flagFreeSample) bool {
 //
 // ECRIT AVANT LA MESURE (controle 3). Le lacher
 // est un evenement PHYSIQUE — le porteur tombe, l'objet est recree la — et non une transition de
-// compteur : l'axe du rejeu avance par pas de 100 ms, les deux horloges (match et film) sont
-// calees a la frame pres. Une seconde laisse dix pas de marge sans jamais rattraper le portage
+// compteur : l'axe du rejeu avance par pas de `frameIntervalMs`, les deux horloges (match et film) sont
+// calees a la frame pres. Une seconde laisse plusieurs pas de marge sans jamais rattraper le portage
 // PRECEDENT, qui dure des dizaines de secondes.
 //
 // LA DISTANCE N'EST PAS UN SEUIL NEUF : c'est `originDropMaxDist` (1,5 m), celui de la regle du

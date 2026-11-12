@@ -60,7 +60,7 @@ func (e empriseJouee) rejette(x, y, z float32) bool {
 }
 
 // continuiteMaxEcartUS : l ecart maximal, en microsecondes, entre deux positions d un meme slot pour
-// qu elles se relient (cinq images de 100 ms). Au-dela, le film s est tu, et un silence ne relie
+// qu elles se relient (500 ms). Au-dela, le film s est tu, et un silence ne relie
 // rien (cf. le repli F-2 des vehicules).
 const continuiteMaxEcartUS = 500_000
 

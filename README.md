@@ -27,7 +27,11 @@ The four lower layers live under `internal/`, so the compiler closes them. What 
 - `decfilm`, the facade: it re-exports what callers compile (`LoadDir`, `ScanDeaths`, `Decode`,
   `NamedEvents`, `StatRecords`, `LoadMapQuantCatalog`, `ReadMatchInfo`, ...) and decodes nothing itself.
 - `replay`: `BuildFromFilm` and `BuildFromFacts` turn a loaded film, or facts decoded earlier, into a
-  `ReplayDocument`. The document is the public output.
+  `ReplayDocument`. The document is the public output. Its time axis is a grid of `frameIntervalMs`
+  (`replay.DefaultFrameIntervalMS`: 33 ms, 30.3 images per second, since schema 110; 100 ms before). A
+  document published without that field reads at `replay.HistoricalFrameIntervalMS` (100 ms). Every
+  threshold of the package is a duration or a speed, converted with the document's step, so the grid is a
+  setting and not a decision.
 - the shared vocabulary: `types`, `highlightevent`, `objectiveevent`, `playerposition`, `identity`.
 - the embedded name tables, offline and with no game file: `damagetag` (damage source of a death),
   `killicon` (kill-feed icon of a source), `medalname` (medal identity), `filmshell` (weapons as the film

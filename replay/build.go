@@ -9,12 +9,17 @@ import (
 )
 
 // DefaultFrameIntervalMS est le pas de la grille de rééchantillonnage d'une construction qui n'en
-// demande pas, en millisecondes. Les records du film arrivent à ~60 Hz par entité : une grille
-// plus lâche que ce rythme allège le document (le client interpole) en divisant le volume de points.
+// demande pas, en millisecondes : 33 ms, soit 30,3 images par seconde (le pas entier le plus proche
+// de 1/30 s). Les records du film arrivent à ~60 Hz par entité : une grille plus lâche que ce rythme
+// allège le document (le client interpole) en réduisant le volume de points.
+//
+// Le document est passé de 100 ms (10 images par seconde) à 33 ms au schéma 110. Tout seuil du
+// paquet s'écrit en millisecondes (ou en vitesse) et se convertit avec le pas du document : changer
+// cette constante déplace la grille, pas les décisions.
 //
 // C'est un DÉFAUT DE CONSTRUCTION : il peut changer pour les documents à venir. Pour lire un
 // document déjà publié, voir [HistoricalFrameIntervalMS].
-const DefaultFrameIntervalMS = 100
+const DefaultFrameIntervalMS = 33
 
 // HistoricalFrameIntervalMS est le pas de grille des documents publiés SANS `frameIntervalMs` :
 // avant que le champ existe, tous l'étaient à 100 ms. Un lecteur de document absent de ce champ
@@ -29,7 +34,7 @@ const HistoricalFrameIntervalMS = 100
 //
 // Une durée nulle ou négative donne 0 frame (la marge nulle ne dépend pas du pas). Un pas absent ou
 // négatif prend [DefaultFrameIntervalMS], comme [Options] le fait pour la grille. À 100 ms par
-// frame, 100 ms valent 1 frame et 200 ms valent 2.
+// frame, 200 ms valent 2 frames ; à 33 ms, 6 (198 ms).
 func framesOfMS(ms, intervalMS int) int {
 	if ms <= 0 {
 		return 0

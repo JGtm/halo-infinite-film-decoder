@@ -16,8 +16,8 @@ import "github.com/JGtm/halo-infinite-film-decoder/types"
 //	  portage, bornee par les evenements nommes du statborg, avec le porteur resolu en xuid par
 //	  le pont par instants de mort. Rien n'est reconstruit : la regle ne fait que LIRE.
 //	LA PRECISION SUFFIT, ET ON PEUT LE DIRE. La grille du document est `frameIntervalMs`
-//	  (100 ms sur tout le parc) ; la fenetre mesuree vaut 1,5 s, soit QUINZE pas. La coupure
-//	  mesuree est large de 200 ms (1,4 s replie / 1,6 s compte) : deux pas de grille.
+//	  (100 ms jusqu'au schema 109, 33 ms depuis) ; la fenetre mesuree vaut 1,5 s, soit QUINZE pas a
+//	  100 ms. La coupure mesuree est large de 200 ms (1,4 s replie / 1,6 s compte) : deux pas de grille a 100 ms.
 //	TOUT LE PARC DEVIENT LISIBLE SANS RECUISSON. Les artefacts publient `flagCarries` depuis le
 //	  schema 14 ; calculer a la cuisson aurait exige de RE-CUIRE le parc pour une grandeur que
 //	  les octets deja ranges contiennent — et la cuisson en lot est interdite (bombe RAM).

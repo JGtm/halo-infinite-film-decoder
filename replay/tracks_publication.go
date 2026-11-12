@@ -405,7 +405,7 @@ func pointPublie(p grammar.BipedPosition, frame, lacuneMS int,
 	}
 	// Vitalité du MÊME record que la position (i4 / i5). La décimation garde le PREMIER
 	// échantillon de chaque frame : si deux records du même slot tombent dans la même
-	// frame de 100 ms et que seul le second porte le bouclier, il est perdu. Cela
+	// frame de la grille (100 ms avant le schéma 110) et que seul le second porte le bouclier, il est perdu. Cela
 	// n'invente rien — c'est une perte, pas une erreur — et le témoin publié est mesuré
 	// sur les positions NON décimées.
 	// Témoin : P(bouclier nul | 500 ms avant une mort connue) = 50,49 % contre 38,18 %

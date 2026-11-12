@@ -142,7 +142,7 @@ func buildProjectiles(tracks []types.ProjectileTrack, origin, step uint64,
 		attachDetonation(&proj, vol.dernier, origin, step, detos, fb)
 		kept = append(kept, withRaw{p: proj, raw: raw})
 	}
-	// Tri TOTAL : T0 est un index de frame de la grille 10 Hz, donc les ex æquo sont la règle,
+	// Tri TOTAL : T0 est un index de frame de la grille, donc les ex æquo sont la règle,
 	// pas l'exception. Départager par la première position publiée puis par la longueur rend
 	// l'ordre indépendant de celui des `tracks` reçues ; l'index brut ferme le dernier ex æquo
 	// pour que le LIEN publié par un lancer ne dépende pas non plus du rang d'arrivée.

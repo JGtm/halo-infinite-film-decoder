@@ -36,8 +36,8 @@ import (
 // Translocation est UNE téléportation exécutée, sur l'axe de frames du document.
 type Translocation struct {
 	// T est l'index de frame, sur le même axe que Point.T. L'événement précède la
-	// discontinuité de position de 5 à 80 ms : à la grille de 100 ms, l'arrivée est publiée
-	// à T ou T+1 (mesure R3 §2 : +0 ou +1 frame sur 18/18).
+	// discontinuité de position de 5 à 80 ms : à la grille de 100 ms (schéma 109 et avant), l'arrivée est
+	// publiée à T ou T+1 (mesure R3 §2 : +0 ou +1 frame sur 18/18) ; à 33 ms, elle l'est jusqu'à 3 frames plus tard.
 	T int `json:"t"`
 	// Slot désigne la Track du bipède qui se téléporte — une VIE, pas un joueur.
 	Slot uint32 `json:"slot"`

@@ -43,7 +43,7 @@ package replay
 // piste = UNE VIE, cf. `Track.XUID`), le premier point n'ouvre aucun pas ; un pas de plus de
 // `t0FilmWindowMS` est une RUPTURE (trou de replication — un joueur immobile n'a AUCUN point
 // entre la frame 0 et son depart, temoin sur 1b2d9e08 : le slot 512 a un point a t=0 puis plus
-// rien jusqu'a t=227) ; un pas de plus de `t0FilmJumpM` est une TELEPORTATION, rupture aussi ;
+// rien jusqu'a t=227) ; un pas de plus de `t0FilmJumpMPS` est une TELEPORTATION, rupture aussi ;
 // et MOUVEMENT = cumul des pas contigus au-dela de `t0FilmCumulM` dans une fenetre glissante.
 //
 // `t0_film_ms = originMs + frameDuPremierMouvement * frameIntervalMs` — `originMs` etant
