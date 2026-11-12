@@ -8,7 +8,7 @@ package replay
 // traine —, la ou l'autre fichier tient la CUISSON et la comparaison. Les deux regles que ce
 // fichier fait respecter viennent de l'arbitrage du pilote du 2026-09-13 :
 //
-//	1. le jeu entier tient sous son plafond, 3 Mio puis 5 Mio au pas de 33 ms (voir contractFixturesBudget) ;
+//	1. le jeu entier tient sous son plafond, 3 Mio puis 4,75 Mio au pas de 33 ms (voir contractFixturesBudget) ;
 //	2. UN SEUL JEU VIVANT — le dossier ne porte que la version courante, la regeneration
 //	   supprime la precedente.
 
@@ -29,13 +29,14 @@ import (
 // 5,86 Mio, la coupe des points de piste (arbitrage du pilote) les ramene a 2,01 Mio. Le detail
 // par fixture se lit dans TestContractFixturesTiennentDansLeBudget.
 //
-// RELEVE A 5 MIO LE 2026-11-12 (schema 110, decision a valider par le pilote) : le pas du document passe de
-// 100 ms a 33 ms, les calques qui suivent la grille (echantillons de vehicule, visee, projectiles, jauges de
-// zone) pesent trois fois plus et la coupe des points de piste, tenue a 500 ms, ne les touche pas. Le jeu
-// mesure 4,54 Mio, dont 1,00 Mio pour la reference intacte `000d5950` (0,41 Mio a 100 ms). Un point par seconde
-// au lieu de 500 ms donne 4,00 Mio : 1,00 Mio au-dessus de 3 Mio, la reference intacte pesant a elle seule
-// 1,00 Mio. Rien d'autre n'a ete coupe : ni calque, ni build.
-const contractFixturesBudget = 5 << 20
+// RELEVE A 4,75 MIO LE 2026-11-12 (schema 110) : le pas du document passe de 100 ms a 33 ms, les calques
+// qui suivent la grille (echantillons de vehicule, visee, projectiles, jauges de zone) pesent trois fois plus
+// et la coupe des points de piste, tenue a 500 ms, ne les touche pas. Deux mesures, jeu de huit fixtures :
+// 4,54 Mio a un point toutes les 500 ms (dont 1,00 Mio pour la reference intacte `000d5950`, 0,41 Mio a
+// 100 ms), 4,00 Mio a un point par seconde (1,00 Mio au-dessus de 3 Mio : la reference intacte pese a elle
+// seule 1,00 Mio). 500 ms est garde ; le plafond serre la mesure (4,75 Mio, 0,21 Mio de marge) pour que la
+// montee suivante pose la question. Rien d'autre n'a ete coupe : ni calque, ni build.
+const contractFixturesBudget = 4<<20 + 3<<18
 
 // TestContractFixturesTiennentDansLeBudget : le jeu entier tient-il sous le plafond, et
 // combien pese chaque fixture ?
@@ -52,12 +53,12 @@ func TestContractFixturesTiennentDansLeBudget(t *testing.T) {
 		total += n
 		t.Logf("%-10s %-10s %9d octets", f.build, f.film, n)
 	}
-	t.Logf("TOTAL %d fixtures : %d octets (%.2f Mio), plafond %d octets (%.0f Mio)",
+	t.Logf("TOTAL %d fixtures : %d octets (%.2f Mio), plafond %d octets (%.2f Mio)",
 		len(fixtures), total, float64(total)/(1<<20),
 		contractFixturesBudget, float64(contractFixturesBudget)/(1<<20))
 	if total > contractFixturesBudget {
 		t.Errorf("le jeu de fixtures pese %d octets (%.2f Mio), au-dela du plafond de %d octets "+
-			"(%.0f Mio) : couper (moins de calques publies, moins de builds) ou relever le "+
+			"(%.2f Mio) : couper (moins de calques publies, moins de builds) ou relever le "+
 			"plafond par decision ecrite, jamais par reflexe",
 			total, float64(total)/(1<<20), contractFixturesBudget,
 			float64(contractFixturesBudget)/(1<<20))
