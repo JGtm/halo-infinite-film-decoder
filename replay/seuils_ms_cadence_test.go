@@ -2,14 +2,22 @@ package replay
 
 // seuils_ms_cadence_test.go — LES SEUILS TEMPORELS SONT DES DUREES, PAS DES NOMBRES D'IMAGES.
 //
-// Chaque test rejoue la MEME situation reelle (les memes ecarts en millisecondes) a 100 ms et a
-// 33 ms par image : la decision doit etre identique. Un seuil ecrit en images changerait de sens
-// avec la cadence (un ecart de 150 ms serait refuse a 33 ms par un seuil « 2 images »).
+// Les tests « ...SurDesInstantsMultiplesDuPas » rejouent la MEME situation (les memes ecarts en
+// millisecondes) a 100 ms et a 33 ms par image, avec des instants multiples EXACTS des deux pas : la
+// decision y est identique. Un seuil ecrit en images changerait de sens avec la cadence (un ecart de
+// 150 ms serait refuse a 33 ms par un seuil « 2 images »).
+//
+// CE QU'ILS NE DISENT PAS : hors de cette phase, la decision n'est identique qu'A UNE IMAGE PRES. Le
+// document ne porte que des frames (`Shot.T`, `Projectile.T0`, `VehicleRide.T1`, `Tracked.T0`) : au
+// point de decision, les deux instants en millisecondes ne sont plus disponibles, et deux instants
+// separes de 100 ms tombent a 1 frame d'ecart a 100 ms mais jusqu'a 4 a 33 ms.
+// TestFenetresEnMsEgalesAUneImagePres ecrit cette propriete.
 
 import (
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
@@ -52,9 +60,9 @@ func TestPasHistoriqueDistinctDuDefautDeConstruction(t *testing.T) {
 	}
 }
 
-// TestToleranceDePositionDeZoneEnMsIndependanteDeLaCadence : un echantillon de position a 150 ms de
+// TestToleranceDePositionDeZoneSurDesInstantsMultiplesDuPas : un echantillon de position a 150 ms de
 // l'action est retenu, un echantillon a 250 ms est refuse, a toute cadence.
-func TestToleranceDePositionDeZoneEnMsIndependanteDeLaCadence(t *testing.T) {
+func TestToleranceDePositionDeZoneSurDesInstantsMultiplesDuPas(t *testing.T) {
 	zones := []Zone{zoneAt(0, 101, 0, 0, 0)}
 	for _, interval := range cadencesDeTest {
 		for _, c := range []struct {
@@ -108,9 +116,9 @@ func TestToleranceDePositionDeZoneParDefautVaut200ms(t *testing.T) {
 	}
 }
 
-// TestFenetreTirProjectileEnMsIndependanteDeLaCadence : un tir a 100 ms de la naissance du projectile
+// TestFenetreTirProjectileSurDesInstantsMultiplesDuPas : un tir a 100 ms de la naissance du projectile
 // le lie, un tir a 200 ms non, a toute cadence.
-func TestFenetreTirProjectileEnMsIndependanteDeLaCadence(t *testing.T) {
+func TestFenetreTirProjectileSurDesInstantsMultiplesDuPas(t *testing.T) {
 	for _, interval := range cadencesDeTest {
 		const naissanceMS = 1000
 		for _, c := range []struct {
@@ -133,9 +141,9 @@ func TestFenetreTirProjectileEnMsIndependanteDeLaCadence(t *testing.T) {
 	}
 }
 
-// TestNaissanceCommuneDeTourelleEnMsIndependanteDeLaCadence : un porteur ne 100 ms apres la piece est
+// TestNaissanceCommuneDeTourelleSurDesInstantsMultiplesDuPas : un porteur ne 100 ms apres la piece est
 // ne avec elle, un porteur ne 200 ms apres non, a toute cadence.
-func TestNaissanceCommuneDeTourelleEnMsIndependanteDeLaCadence(t *testing.T) {
+func TestNaissanceCommuneDeTourelleSurDesInstantsMultiplesDuPas(t *testing.T) {
 	for _, interval := range cadencesDeTest {
 		for _, c := range []struct {
 			nom      string
@@ -161,9 +169,9 @@ func TestNaissanceCommuneDeTourelleEnMsIndependanteDeLaCadence(t *testing.T) {
 	}
 }
 
-// TestToleranceDeNaissanceDesObjetsEngendresEnMsIndependanteDeLaCadence : une trajectoire nee 300 ms
+// TestToleranceDeNaissanceDesObjetsEngendresSurDesInstantsMultiplesDuPas : une trajectoire nee 300 ms
 // apres la pile qui nomme l'objet le situe, une nee 400 ms apres non, a toute cadence.
-func TestToleranceDeNaissanceDesObjetsEngendresEnMsIndependanteDeLaCadence(t *testing.T) {
+func TestToleranceDeNaissanceDesObjetsEngendresSurDesInstantsMultiplesDuPas(t *testing.T) {
 	if toleranceDeNaissanceMS != 300 {
 		t.Errorf("toleranceDeNaissanceMS = %d, attendu 300", toleranceDeNaissanceMS)
 	}
@@ -281,26 +289,78 @@ func TestArriveeDuGrappinBorneeParUnInstant(t *testing.T) {
 	}
 }
 
-// TestPoseDeBordDeLAxeEstPublieeAToutePas : une pose nee quelques millisecondes apres la fin de l'axe (la
-// derniere lecture du film) se publie a la derniere frame, a 33 comme a 100 ms ; une pose nee un pas entier
-// plus loin reste ecartee.
-func TestPoseDeBordDeLAxeEstPublieeAToutePas(t *testing.T) {
-	for _, interval := range cadencesDeTest {
-		clock := replayClock{origin: 1_000_000, step: uint64(interval) * 1000, frames: 100}
-		finUS := clock.origin + uint64(clock.frames)*clock.step
-		for _, c := range []struct {
-			nom     string
-			t0US    uint64
-			publiee bool
-		}{
-			{"2,5 ms apres la fin", finUS + 2_500, true},
-			{"4,5 ms apres la fin", finUS + 4_500, true},
-			{"un pas historique apres la fin", finUS + HistoricalFrameIntervalMS*1000, false},
-			{"une seconde apres la fin", finUS + 1_000_000, false},
-		} {
-			if got := naitAuBordDeLAxe(c.t0US, clock); got != c.publiee {
-				t.Errorf("pas %d ms, %s : publiee = %v, attendu %v", interval, c.nom, got, c.publiee)
+// TestPoseApresLaFinDeLAxeEstPublieeAToutePas : l'axe finit a la derniere position ; le dernier instantane du
+// film peut dater de quelques ms a plus de 100 ms apres, selon la grille. Une pose datee apres la fin de
+// l'axe se publie a la derniere frame, sans condition : meme nombre de poses a 33 et a 100 ms, pour un
+// decalage de 0, 5, 45, 120 ms ou une seconde.
+func TestPoseApresLaFinDeLAxeEstPublieeAToutePas(t *testing.T) {
+	life := types.LifeKey{Slot: 900, Gen: 1}
+	for _, decalageMS := range []uint64{0, 5, 45, 120, 1000} {
+		for _, interval := range cadencesDeTest {
+			clock := replayClock{origin: 1_000_000, step: uint64(interval) * 1000, frames: 100}
+			finUS := clock.origin + uint64(clock.frames)*clock.step
+			raw := []types.EquipmentPlacement{
+				pePose(life, 2_000_000),             // en milieu de film
+				pePose(life, finUS+decalageMS*1000), // apres la fin de l'axe
+			}
+			out, _ := buildEquipmentPlacements(equipmentInputs{Raw: raw, Stats: grammar.EquipmentPlacementStats{Scanned: true}}, clock)
+			if len(out) != 2 {
+				t.Errorf("pas %d ms, decalage %d ms : %d pose(s) publiee(s), attendu 2", interval, decalageMS, len(out))
+				continue
+			}
+			if dernier := out[len(out)-1]; dernier.T0 != clock.frames-1 || dernier.T1 != clock.frames-1 {
+				t.Errorf("pas %d ms, decalage %d ms : pose de bord a t0=%d t1=%d, attendu la derniere frame %d",
+					interval, decalageMS, dernier.T0, dernier.T1, clock.frames-1)
 			}
 		}
+	}
+}
+
+// TestFenetresEnMsEgalesAUneImagePres : pour les fenetres de rattachement dont la decision se prend sur
+// des frames (tir / naissance de projectile, naissance d'un objet engendre, marge a bord d'une
+// destruction), la decision a 100 et a 33 ms est celle de l'ecart en millisecondes a UNE IMAGE PRES : sure
+// pour un ecart d'au plus `limite - pas`, refusee pour un ecart de plus de `limite + pas`, et libre entre
+// les deux, ou la phase de la grille decide. Les instants ne sont pas disponibles au point de decision
+// (le document ne porte que des frames) ; la propriete exacte est donc celle-ci.
+func TestFenetresEnMsEgalesAUneImagePres(t *testing.T) {
+	type regle struct {
+		nom      string
+		limiteMS int
+		decide   func(pas, aMS, bMS int) bool // a puis b >= a
+	}
+	regles := []regle{
+		{"tir / naissance du projectile", projShotWindowMS, func(pas, a, b int) bool {
+			n, _ := linkShotsToProjectiles([]Projectile{projectileNeA(b/pas, 0, 0)}, []Shot{tirDe(a/pas, 1, "A", 0, 0)}, nil, pas)
+			return n == 1
+		}},
+		{"naissance d'un objet engendre", toleranceDeNaissanceMS, func(pas, a, b int) bool {
+			_, ok := reposNeAPeuPres([]reposEngendre{cand(b/pas, 7)}, a/pas, pas)
+			return ok
+		}},
+		{"marge a bord d'une destruction", vehicleDestructionAboardTolMS, func(pas, a, b int) bool {
+			ride := []VehicleRide{{T0: 0, T1: a / pas}}
+			return len(ridesAboardAt(ride, b/pas, framesOfMS(vehicleDestructionAboardTolMS, pas))) == 1
+		}},
+	}
+	for _, r := range regles {
+		for _, pas := range cadencesDeTest {
+			for _, phase := range []int{0, 13, 29, 32, 57, 90, 99} {
+				for ecart := 0; ecart <= r.limiteMS+2*pas; ecart += 3 {
+					a := 10_000 + phase
+					got := r.decide(pas, a, a+ecart)
+					switch {
+					case ecart <= r.limiteMS-pas && !got:
+						t.Errorf("%s, pas %d ms, phase %d, ecart %d ms : refuse, attendu accepte (ecart <= limite - pas)", r.nom, pas, phase, ecart)
+					case ecart > r.limiteMS+pas && got:
+						t.Errorf("%s, pas %d ms, phase %d, ecart %d ms : accepte, attendu refuse (ecart > limite + pas)", r.nom, pas, phase, ecart)
+					}
+				}
+			}
+		}
+	}
+	// Le cas hors phase qui documente la limite : un tir a 32 ms, une naissance a 132 ms (100 ms d'ecart,
+	// pile a la limite) se lient a 100 ms (frames 0 et 1) et pas a 33 ms (frames 0 et 4).
+	if !regles[0].decide(100, 32, 132) || regles[0].decide(33, 32, 132) {
+		t.Errorf("tir a 32 ms, naissance a 132 ms : attendu lie a 100 ms et pas a 33 ms (une image de quantification)")
 	}
 }
