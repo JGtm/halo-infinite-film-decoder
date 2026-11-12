@@ -65,7 +65,7 @@ import (
 // instant de la grille vaut ce nombre de millisecondes dans les cumuls de la ligne.
 //
 // 100 MS, LE PAS HISTORIQUE DU DOCUMENT DE REJEU ([HistoricalFrameIntervalMS]), FIXE ICI POUR LES MESURES
-// PUBLIEES (cette grille est la sienne, indépendante de celle du document depuis le schéma 110) : assez fin pour qu'un échange
+// PUBLIEES (cette grille est la sienne, indépendante de celle du document depuis le schéma 111) : assez fin pour qu'un échange
 // de quelques secondes compte plusieurs instants, assez gros pour qu'une vie de deux minutes
 // reste à 1 200 instants — et la fenêtre de visibilité (une seconde) en couvre dix.
 const PasDeLaGrilleDesViesMs = 100

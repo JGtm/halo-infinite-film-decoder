@@ -29,7 +29,7 @@ import (
 // 5,86 Mio, la coupe des points de piste (arbitrage du pilote) les ramene a 2,01 Mio. Le detail
 // par fixture se lit dans TestContractFixturesTiennentDansLeBudget.
 //
-// RELEVE A 4,75 MIO LE 2026-11-12 (schema 110) : le pas du document passe de 100 ms a 33 ms, les calques
+// RELEVE A 4,75 MIO LE 2026-11-12 (schema 111) : le pas du document passe de 100 ms a 33 ms, les calques
 // qui suivent la grille (echantillons de vehicule, visee, projectiles, jauges de zone) pesent trois fois plus
 // et la coupe des points de piste, tenue a 500 ms, ne les touche pas. Deux mesures, jeu de huit fixtures :
 // 4,54 Mio a un point toutes les 500 ms (dont 1,00 Mio pour la reference intacte `000d5950`, 0,41 Mio a

@@ -97,7 +97,7 @@ const (
 	// wantGrenadesAvailable : 70 lancers decodes — le DENOMINATEUR, et il ne bouge pas. Un
 	// rattachement qui s abstient se compte ; il ne se retire pas du disponible.
 	wantGrenadesAvailable = 70
-	// wantProjectiles : 608 trajectoires publiees sur 608 pistes decodees (463 avant le schema 110 : les vols
+	// wantProjectiles : 608 trajectoires publiees sur 608 pistes decodees (463 avant le schema 111 : les vols
 	// de moins de 100 ms se publient), dont 0 COUPEE a un pas impossible (projectileMaxStepM, 200 m/s).
 	//
 	// CORRIGE LE 2026-10-22 (lot detonations) : 436/580/3 (fige au 2026-09-11) etait PERIME

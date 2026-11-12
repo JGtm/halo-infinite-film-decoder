@@ -13,7 +13,7 @@ import (
 // de 1/30 s). Les records du film arrivent à ~60 Hz par entité : une grille plus lâche que ce rythme
 // allège le document (le client interpole) en réduisant le volume de points.
 //
-// Le document est passé de 100 ms (10 images par seconde) à 33 ms au schéma 110. Tout seuil du
+// Le document est passé de 100 ms (10 images par seconde) à 33 ms au schéma 111. Tout seuil du
 // paquet s'écrit en millisecondes (ou en vitesse) et se convertit avec le pas du document : changer
 // cette constante déplace la grille, pas les décisions.
 //

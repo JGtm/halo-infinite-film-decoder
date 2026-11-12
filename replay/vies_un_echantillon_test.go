@@ -90,7 +90,7 @@ const (
 // n est plus apparie a une mort ecrite, elle ferme desormais sur la fin du film ({0,0,0,0} : la
 // vie elle-meme a disparu de l echantillon, cf. le total ci-dessous).
 //
-// A 100 MS, LES TROIS VIES SONT TOUJOURS LA (schema 110, 2026-11-12). Le document est passe a 33 ms et,
+// A 100 MS, LES TROIS VIES SONT TOUJOURS LA (schema 111, 2026-11-12). Le document est passe a 33 ms et,
 // a ce pas, chaque vie compte plus d'un point de grille : l'oracle ne mesure plus rien. Il garde son
 // contenu en cuisant ses fixtures a 100 ms EXPLICITEMENT (`Options.FrameIntervalMS`), avec la table
 // d'avant ({1, 0, 1, 0} sur `11de8353`, {2, 0, 2, 0} sur `bcb6d393`, total {3, 0, 3, 0}), et pose a

@@ -56,7 +56,7 @@ func TestPasHistoriqueDistinctDuDefautDeConstruction(t *testing.T) {
 			HistoricalFrameIntervalMS)
 	}
 	if DefaultFrameIntervalMS != 33 {
-		t.Errorf("DefaultFrameIntervalMS = %d, attendu 33 (30,3 images par seconde, schema 110)", DefaultFrameIntervalMS)
+		t.Errorf("DefaultFrameIntervalMS = %d, attendu 33 (30,3 images par seconde, schema 111)", DefaultFrameIntervalMS)
 	}
 }
 

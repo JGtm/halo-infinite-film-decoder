@@ -83,7 +83,7 @@ const contractFixturesEnv = "REPLAY_CONTRACT_UPDATE"
 // sans descendre au point ou une piste n'aurait plus assez de points pour exercer les logiques du web.
 // La changer, c'est republier tout le jeu : passer par la porte de regeneration, jamais par une edition.
 //
-// UNE DUREE ET NON UN NOMBRE DE POINTS (2026-11-12, schema 110) : le pas du document est passe de 100 ms
+// UNE DUREE ET NON UN NOMBRE DE POINTS (2026-11-12, schema 111) : le pas du document est passe de 100 ms
 // a 33 ms ; l'ecart entre deux points gardes reste le meme, et le nombre de points sautes se derive du
 // pas ([contractFixturesStride]).
 const contractFixturesStrideMS = 500
