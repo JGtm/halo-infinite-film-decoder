@@ -254,7 +254,13 @@ const VersionCodecFaits = 2
 // rendrait cette liste vide sans erreur, et une liste vide se lirait comme « personne n est mort avec son vehicule » : c est
 // le refus SUR L EN-TETE qui doit le dire. Aucune revision de couche ne bouge (la marche rendait deja ces morts, la cuisson
 // les filtrait) : c est ce numero qui refuse les faits d avant.
-const SchemaDesFaits = 21
+// SCHEMA 22 (2026-11-12, creation des records NEW et charges de la vue A selon le build) : la section 5, le resultat de
+// killsource, change de contenu. Le profil calibre qu elle porte (`killsource.Result.ProfilCalibre`,
+// `grammar.GrammaireBalayage`) gagne `CreationParPorte` et `ProprieteGereeComplete` : ce que l ecrivain du build du film ecrit d un
+// record NEW (`profile.EcritureDuBuild`, `profile-2026-11-12.2`). Relu par `json.Unmarshal`, un profil du schema 21 rendrait ces deux
+// bascules fausses sans erreur, et un profil qui les croit fausses lit un film HI_1_11_0 a HI_1_13_0 comme avant : c est le refus SUR
+// L EN-TETE qui doit le dire. `grammar.Rev` (`grammar-2026-11-12.4`) et `profile.Rev` montent avec ce numero, comme aux schemas 11 et 15.
+const SchemaDesFaits = 22
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.

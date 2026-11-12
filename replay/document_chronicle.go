@@ -3918,3 +3918,41 @@ package replay
 // LE PARC         un artefact 110 : verdict `a republier` (la couche de publication a change, les faits cuits restent
 //                 frais). Aucun redecodage de film : la recuisson depuis les faits donne le meme document qu un decodage
 //                 complet. Le poids du document est multiplie par 2,6 (brut) et 2,4 (gzip) a 33 ms.
+
+// v112 (2026-11-12, creation des records NEW et charges de la vue A selon le build). Aucun champ neuf, aucune forme qui change :
+// c est le CONTENU CUIT qui change. La lecture d un record NEW (porte de composants, archetypes a masque de creation vide, etat
+// de creation de `ti=13`) et celle des trois charges de la vue A de disposition mesuree (genres 12, 14 et 106) dependent du build
+// du film (`profile.EcritureDuBuild`, `profile-2026-11-12.2`) : HI_1_11_0 a HI_1_13_0 lisent davantage de paquets, HI_1_9_0 et
+// HI_1_10_0 arretent leur vue A sur un message de ces genres au lieu de le lire sous une largeur qui n y est pas prouvee.
+//
+//	`coverage.continuousFire`   plus de paquets fermes, donc moins de trous : `bcb6d393` `closed` 21 847 -> 21 863, `holes` 17 -> 1,
+//	                `entries` 126 335 -> 126 414 (paquets fermes HI_1_11_0 99,498 % -> 99,699 %, HI_1_12_0 99,917 % -> 99,942 %,
+//	                HI_1_13_0 99,955 % -> 99,985 % sur 223 films du parc ; HI_1_10_0 96,084 % -> 96,081 %, HI_1_9_0 98,809 %
+//	                -> 98,803 %, HI_1_8_0 et HI_1_4_1 inchanges).
+//	`coverage.fallbacks`   moins de declenchements, les paquets etant lus : `bcb6d393` `repli_ancrage_bipede_apres_la_marche`
+//	                75 -> 0, `repli_liaison_par_anticipation` 22 -> 0.
+//	`stances`, `bursts`, `projectiles`, `weaponChanges`   quelques valeurs bougent sur deux films HI_1_11_0 (`e5adf7b2`
+//	                `stances` 149 954 -> 150 008 octets ; `a991ea77` `bursts` 5 794 -> 5 750, `projectiles` 456 929 -> 456 896,
+//	                `weaponChanges` 7 744 -> 7 686) ; sur trois films HI_1_12_0 et HI_1_13_0 (`bcb6d393`, `3685373c`, `d9781168`)
+//	                seuls `coverage`, `layers` et `schemaVersion` changent.
+//	`tracks`, `stances`   un paquet de moins lu sur trois films HI_1_9_0 et HI_1_10_0 : le paquet que la lecture des charges
+//	                mesurees fermait par la fin de sa vue A n est plus lu (`11de8353` `tracks` 12 863 670 -> 12 863 593 octets,
+//	                `cf5d83d5` `tracks` 11 707 909 -> 11 707 830, `1c5c10cc` `stances` 141 598 -> 141 549). Sur six films HI_1_10_0
+//	                (dont `084a804d` et `111fa685`) et deux films sans section d identification seuls `coverage`, `layers` et
+//	                `schemaVersion` changent.
+//	`coverage.decoder`, `layers`   les revisions `grammar-2026-11-12.4` et `profile-2026-11-12.2`.
+//
+// CE QUI NE CHANGE PAS (seize films HI_1_9_0 a HI_1_13_0, dont deux sans section d identification, cuits un a un avant et apres) :
+// la liste des morts publiees (instant, victime, tueur du kill-feed, source de degat, assistant, parts de degats, voie de lecture)
+// est IDENTIQUE ligne a ligne ; sur onze de ces films (HI_1_9_0 a HI_1_10_0, dont les deux sans section) elle l est aussi avec celle de
+// v1.2.4, et avec celle de v1.0.1 hors la voie de lecture d une mort (de 1 a 15 lignes par film). Le nombre des poussees (`knockbacks`)
+// et des rafales (`bursts`) ne change sur aucun des seize films. Les huit lectures de poussee fausses de `084a804d` (reference 0
+// absente, 32 bits constants) ne sont plus lues ; elles n etaient pas publiees (aucune poussee de meme reference n existe).
+//
+// CE QUI MONTE    `SchemaVersion` 111 -> 112, et avec lui `publication-112`. `grammar.Rev` -> `grammar-2026-11-12.4`, `profile.Rev` ->
+// AVEC ELLE       `profile-2026-11-12.2`, `SchemaDesFaits` 21 -> 22 (le profil calibre de la section 5 gagne deux bascules).
+//                 `killsource.Rev` et `objectives.Rev` restent : aucune de leurs sources ne change, leurs empreintes montent
+//                 avec les valeurs de couche qu elles hachent.
+//
+// LE PARC         un artefact 111 : verdict `a redecoder` (les faits cuits au schema 21 et aux revisions d avant se refusent sur
+//                 leur en-tete). La recuisson est une decision de l utilisateur.
