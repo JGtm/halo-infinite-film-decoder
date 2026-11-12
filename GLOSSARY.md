@@ -98,6 +98,9 @@ the term is visible. [`FORMAT.md`](FORMAT.md) explains the format these terms de
 | xuid | XUID | The 64-bit Xbox user id of a player. | xuid | `internal/grammar/player_table.go` |
 | vie (LifeKey) | life | One existence of a player's body, identified by (slot, generation). | life | `types/grammar_equipement.go` |
 | pont d'identité | identity bridge | The single stage of six readings (teleports, positions, biped creations, death feed, index table, clock) that links bodies and slots to players. | roster and holders (approx.) | `internal/grammar/pont_identite.go` |
+| mort d'objet, dead-state | object death, dead-state | The `object-dead-state` component (`i11`) of an entity, written when it dies. A vehicle's carries the killer's film index (`EnumB`) and the damage effect (`SrcTag0`); a biped's also carries the victim's film index (`EnumA`). | no equivalent | `internal/grammar/object_deaths.go` |
+| état de parenté, occupation | parent state, occupancy read | The `object-parent-state` component (`i10`) of a biped: a transition, attached to a parent entity (a vehicle or one of its mounted parts) or free. | no equivalent | `internal/grammar/vehicle_occupancy_march.go` |
+| occupant tué avec le véhicule | occupant killed with the vehicle | A biped whose dead-state is written in the vehicle's death packet (or in a later packet that also writes its free read) while its last parent state before it was attached to the vehicle or its parts. Read, with no time window and no distance. | no equivalent | `replay/vehicle_destruction_killed.go` |
 
 ## Positions
 

@@ -7,12 +7,10 @@ package replay
 import (
 	"context"
 	"encoding/json"
-	"slices"
 	"strings"
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/damagetag"
-	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
@@ -62,14 +60,10 @@ func documentDeTest(vies ...VehicleTrack) *ReplayDocument {
 	}
 }
 
-func poserLesDestructions(t *testing.T, doc *ReplayDocument, in vehicleDestructionInputs) *fallback.Compteur {
+func poserLesDestructions(t *testing.T, doc *ReplayDocument, in vehicleDestructionInputs) {
 	t.Helper()
-	in.fb = fallback.NouveauCompteur()
 	attachVehicleDestructions(context.Background(), doc, in)
-	return in.fb
 }
-
-func calage(ms int64) *int64 { return &ms }
 
 func TestDestructeurHumain(t *testing.T) {
 	doc := documentDeTest(vieDetruite(282, morteDeTest(28_200_000, 4, deadStateTagAbsent)))
@@ -221,43 +215,6 @@ func TestOccupantConnuOuInconnu(t *testing.T) {
 	}
 }
 
-// TestOccupantsTuesParProximiteDeMort : le repli rapporte les morts du fil dans la demi-seconde aux
-// occupants NOMMES ; il se compte, et sans calage il ne cherche rien.
-func TestOccupantsTuesParProximiteDeMort(t *testing.T) {
-	rides := []VehicleRide{rideDeTest(100, 300, xuidConducteur, 0), rideDeTest(100, 300, xuidPassager, 1), rideDeTest(100, 300, "", 2)}
-	// Instant film 28 200 ms, calage 1 000 ms : horloge du fil = 27 200 ms.
-	mort := morteDeTest(28_200_000, 3, deadStateTagAbsent)
-	deaths := []types.Death{
-		{XUID: 1001, TimeMS: 27_300}, // conducteur : 100 ms apres
-		{XUID: 1002, TimeMS: 26_600}, // passager : 600 ms avant, hors fenetre
-		{XUID: 1003, TimeMS: 27_200}, // joueur qui n etait pas a bord
-	}
-	doc := documentDeTest(vieDetruite(282, mort, rides...))
-	fb := poserLesDestructions(t, doc, vehicleDestructionInputs{roster: rosterDeTest(), deaths: deaths, calage: calage(1000)})
-	d := doc.Vehicles[0].Destruction
-	if d == nil || !slices.Equal(d.Killed, []string{xuidConducteur}) {
-		t.Fatalf("destruction = %+v, attendu killed = [%s]", d, xuidConducteur)
-	}
-	if c := doc.Coverage.Vehicles.Destructions; c.Killed != 1 || c.KilledOccupants != 1 || c.ClockUnknown != 0 {
-		t.Errorf("couverture = %+v", c)
-	}
-	if n := fbCount(fb, fallback.NomOccupantsTuesParProximiteDeMort); n != 1 {
-		t.Errorf("repli compte %d fois, attendu 1", n)
-	}
-
-	docSans := documentDeTest(vieDetruite(282, mort, rides...))
-	fbSans := poserLesDestructions(t, docSans, vehicleDestructionInputs{roster: rosterDeTest(), deaths: deaths})
-	if d := docSans.Vehicles[0].Destruction; d == nil || len(d.Killed) != 0 {
-		t.Errorf("sans calage, aucun occupant tue ne se publie : %+v", d)
-	}
-	if c := docSans.Coverage.Vehicles.Destructions; c.ClockUnknown != 1 || c.Killed != 0 {
-		t.Errorf("couverture sans calage = %+v, attendu clockUnknown=1", c)
-	}
-	if n := fbCount(fbSans, fallback.NomOccupantsTuesParProximiteDeMort); n != 0 {
-		t.Errorf("repli compte %d fois sans calage, attendu 0", n)
-	}
-}
-
 // TestUneDestructionSansRienDEtabliNePorteAucunBloc : ni destructeur, ni cause, ni occupant.
 func TestUneDestructionSansRienDEtabliNePorteAucunBloc(t *testing.T) {
 	doc := documentDeTest(vieDetruite(282, morteDeTest(28_200_000, -1, deadStateTagAbsent)))
@@ -335,29 +292,14 @@ func TestSansCouvertureDeVehiculesRienNEstPose(t *testing.T) {
 func TestLesFaitsPortentLeDestructeurEtLaCause(t *testing.T) {
 	cause := causeConnue(t)
 	w := &gwriter{}
-	encodeMortsDObjet(w, []types.ObjectDeath{*morteDeTest(28_200_000, 4, cause)}, grammar.ObjectDeathStats{})
+	encodeMortsDObjet(w, []types.ObjectDeath{*morteDeTest(28_200_000, 4, cause)}, nil, grammar.ObjectDeathStats{})
 	if w.echec != nil {
 		t.Fatal(w.echec)
 	}
-	morts, _ := decodeMortsDObjet(&greader{b: w.b})
+	morts, _, _ := decodeMortsDObjet(&greader{b: w.b})
 	if len(morts) != 1 || morts[0].Dead.EnumB != 4 || morts[0].Dead.EnumA != -1 || morts[0].Dead.SrcTag0 != cause ||
 		morts[0].TimestampUS != 28_200_000 {
 		t.Errorf("morts relues = %+v, attendu le destructeur 4 et la cause %d", morts, cause)
-	}
-}
-
-// TestFenetreDesOccupantsTuesEstSymetriqueEtBornee : une mort compte jusqu a 500 ms AVANT comme
-// APRES l instant de la destruction, bornes comprises, et plus au-dela.
-func TestFenetreDesOccupantsTuesEstSymetriqueEtBornee(t *testing.T) {
-	const at = 27_200
-	for _, c := range []struct {
-		ecart int64
-		tue   bool
-	}{{-501, false}, {-500, true}, {-300, true}, {300, true}, {500, true}, {501, false}} {
-		got := diedWithin([]types.Death{{XUID: 1001, TimeMS: at + c.ecart}}, 1001, at)
-		if got != c.tue {
-			t.Errorf("mort a %+d ms : tue = %v, attendu %v", c.ecart, got, c.tue)
-		}
 	}
 }
 

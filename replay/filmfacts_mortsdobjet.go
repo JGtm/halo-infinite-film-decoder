@@ -40,7 +40,7 @@ import (
 //
 // LE CADRE EST A LONGUEUR PREFIXEE, comme les sections du fichier : le blob reste relisible meme
 // si cette charge grossit.
-func encodeMortsDObjet(w *gwriter, morts []types.ObjectDeath, st grammar.ObjectDeathStats) {
+func encodeMortsDObjet(w *gwriter, morts, mortsDeBipedes []types.ObjectDeath, st grammar.ObjectDeathStats) {
 	// L OBSERVATEUR N EST PAS UN FAIT, ET IL N EST PAS SERIALISABLE (2026-09-18).
 	//
 	// `ObjectDeathStats.Config` est un [grammar.FrameConfig], qui porte `Obs *Observation` — des
@@ -51,8 +51,9 @@ func encodeMortsDObjet(w *gwriter, morts []types.ObjectDeath, st grammar.ObjectD
 	// precisement la classe de defaut que ce lot repare. On le met donc a nil A L ECRITURE, et
 	// `TestLObservateurNEstPasUnFaitPersiste` epingle qu il est le SEUL membre non serialisable.
 	charge, err := json.Marshal(chargeDesMortsDObjet{
-		Morts: morts,
-		Stats: versStatsSansCadre(st),
+		Morts:   morts,
+		Bipedes: mortsDeBipedes,
+		Stats:   versStatsSansCadre(st),
 		Cadre: cadreSerialisable{
 			HasExtraFields:      st.Config.HasExtraFields,
 			IDLowBits:           st.Config.IDLowBits,
@@ -73,17 +74,17 @@ func encodeMortsDObjet(w *gwriter, morts []types.ObjectDeath, st grammar.ObjectD
 	w.b = append(w.b, charge...)
 }
 
-func decodeMortsDObjet(r *greader) ([]types.ObjectDeath, grammar.ObjectDeathStats) {
+func decodeMortsDObjet(r *greader) (morts, mortsDeBipedes []types.ObjectDeath, st grammar.ObjectDeathStats) {
 	charge := r.tranche(int(r.u()))
 	if r.err != nil || len(charge) == 0 {
-		return nil, grammar.ObjectDeathStats{}
+		return nil, nil, grammar.ObjectDeathStats{}
 	}
 	var out chargeDesMortsDObjet
 	if err := json.Unmarshal(charge, &out); err != nil {
 		r.err = fmt.Errorf("morts d objet : %w", err)
-		return nil, grammar.ObjectDeathStats{}
+		return nil, nil, grammar.ObjectDeathStats{}
 	}
-	return out.Morts, versObjectDeathStats(out.Stats, grammar.FrameConfig{
+	return out.Morts, out.Bipedes, versObjectDeathStats(out.Stats, grammar.FrameConfig{
 		HasExtraFields:      out.Cadre.HasExtraFields,
 		IDLowBits:           out.Cadre.IDLowBits,
 		IDBase:              out.Cadre.IDBase,
@@ -108,10 +109,15 @@ func decodeMortsDObjet(r *greader) ([]types.ObjectDeath, grammar.ObjectDeathStat
 // `Cadre` porte donc les SIX champs de donnees du cadre, et l observateur ne traverse jamais le
 // disque. Le `json:"-"` sur `Stats.Config` est ce qui rend l exclusion visible au compilateur
 // comme au lecteur ; [TestLObservateurNEstPasUnFaitPersiste] epingle les deux moities.
+//
+// `Morts` sont les dead-states des vehicules (`ti=40`), `Bipedes` ceux des bipedes (`ti=35`) : ce
+// sont les deux listes de [VehicleScan] que la marche des trames rend, et le couple victime / tueur
+// du dead-state d un bipede est ce qui dit QUI est mort avec un vehicule detruit.
 type chargeDesMortsDObjet struct {
-	Morts []types.ObjectDeath
-	Stats statsSansCadre
-	Cadre cadreSerialisable
+	Morts   []types.ObjectDeath
+	Bipedes []types.ObjectDeath
+	Stats   statsSansCadre
+	Cadre   cadreSerialisable
 }
 
 // statsSansCadre : les NEUF champs de donnees de [grammar.ObjectDeathStats]. Le dixieme,

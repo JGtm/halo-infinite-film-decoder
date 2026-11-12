@@ -247,7 +247,14 @@ const VersionCodecFaits = 2
 // Relue par `json.Unmarshal`, une section 2 du schema 19 rendrait ces champs absents sans erreur, et un
 // fait « absent » ne se distingue pas d un fait que le film ne porte pas : c est le refus SUR L EN-TETE qui
 // doit le dire. Aucun consommateur : le document de rejeu ne publie rien de neuf, `SchemaVersion` ne bouge pas.
-const SchemaDesFaits = 20
+// SCHEMA 21 (2026-11-12, occupants tues lus) : la section 1 porte les dead-states des BIPEDES (`VehicleScan.BipedDeaths`,
+// `ti=35`, le meme composant que celui des vehicules : victime, tueur, effet de degat), a la suite de ceux des vehicules
+// dans la charge des morts d objet. Avec les lectures d occupation que les faits portaient deja, elles disent QUI est mort
+// avec un vehicule detruit (`replay/vehicle_destruction_killed.go`). Relue par `json.Unmarshal`, une charge du schema 20
+// rendrait cette liste vide sans erreur, et une liste vide se lirait comme « personne n est mort avec son vehicule » : c est
+// le refus SUR L EN-TETE qui doit le dire. Aucune revision de couche ne bouge (la marche rendait deja ces morts, la cuisson
+// les filtrait) : c est ce numero qui refuse les faits d avant.
+const SchemaDesFaits = 21
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.

@@ -8,8 +8,7 @@ package replay
 // porte le dead-state (`vehicleEndOf`), pas a la derniere image vue, et sur le meme axe que `Point.T`.
 // Il n est pas recopie dans le bloc : deux dates du meme fait finiraient par diverger.
 //
-// CE QUE LE FILM ECRIT, SANS FENETRE DE TEMPS NI PROXIMITE (mesure du 2026-11-11, 193 films, 4 465
-// morts de vehicule) :
+// CE QUE LE FILM ECRIT, SANS FENETRE DE TEMPS NI PROXIMITE :
 //
 //	destructeur   le SECOND champ du dead-state (`DeadState.EnumB`) est l index de joueur du film de
 //	              celui qui a detruit le vehicule : sur 1 465 occupants morts dans la demi-seconde, leur
@@ -21,26 +20,24 @@ package replay
 //	              de degat, le MEME espace que `SourceTruth.Tag` d un frag (resolu dans 97,5 % des cas).
 //	              `GlobalID` n y est pour rien : il est absent sur 100 % des morts de vehicule.
 //
-// CE QUE LE FILM N ECRIT PAS, ET QUI EST DEDUIT ICI : QUI ETAIT A BORD et QUI EN EST MORT. L occupant
-// est un episode du calque (`rides[]`) qui couvre l instant ; les occupants tues sont ceux d entre eux
-// dont le fil des morts porte la mort dans la demi-seconde — un REPLI NOMME ET COMPTE
-// (`repli_occupants_tues_par_proximite_de_mort`), jamais une lecture.
+// QUI ETAIT A BORD EST DEDUIT ICI, PAS ECRIT : l occupant est un episode du calque (`rides[]`) qui couvre
+// l instant. QUI EN EST MORT EST LU (vehicle_destruction_killed.go) : le bipede de l occupant ecrit son
+// propre dead-state, et son etat de parente (`object-parent-state`) dit s il etait rattache au vehicule ;
+// aucune fenetre de temps, aucune distance, aucun repli.
 //
 // UNE SEULE DESTRUCTION PAR VEHICULE. Les tourelles et pieces montees (`VehicleTrack.Part`) meurent
 // au meme instant que leur porteur, avec le meme destructeur : seule la vie du chassis porte le bloc.
 // Les pieces `destroyed` ne portent rien et se comptent (`coverage.vehicles.destructions.pieces`).
 //
-// PUR : aucune I/O, aucune lecture de film — il range ce que `VehicleScan.Deaths` a rendu.
+// PUR : aucune I/O, aucune lecture de film — il range ce que `VehicleScan.Deaths`, `BipedDeaths` et `Occupancy` ont rendu.
 
 import (
 	"cmp"
 	"context"
 	"log/slog"
 	"slices"
-	"strconv"
 
 	"github.com/JGtm/halo-infinite-film-decoder/damagetag"
-	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
@@ -62,9 +59,9 @@ type VehicleDestruction struct {
 	// preference. Absent : aucun episode NOMME ne couvre l instant. Il vient du calque des episodes
 	// (`rides[]`), dont la couverture est celle de la primitive d occupation (15,6 a 21,1 % des vies).
 	Occupant string `json:"occupant,omitempty"`
-	// Killed sont les xuids des occupants a bord dont le fil des morts porte la mort dans la
-	// demi-seconde de la destruction, tries. DEDUIT : cf. le repli nomme en tete de fichier. Absent :
-	// aucun occupant nomme n est mort a cet instant, ou l horloge du fil des morts n est pas calee.
+	// Killed sont les xuids des joueurs morts AVEC le vehicule, tries. LU : le dead-state de leur bipede
+	// et leur etat de parente, cf. vehicle_destruction_killed.go ; il ne depend ni de `rides[]` ni du fil
+	// des morts. Absent : le film n ecrit la mort avec le vehicule d aucun joueur nomme.
 	Killed []string `json:"killed,omitempty"`
 }
 
@@ -103,12 +100,15 @@ type VehicleDestructionCoverage struct {
 	CauseAbsent     int `json:"causeAbsent"`
 	// Occupant : destructions dont un episode nomme couvre l instant.
 	Occupant int `json:"occupant"`
-	// Killed : destructions qui portent au moins un occupant tue ; KilledOccupants leur nombre total
-	// (la valeur du repli). ClockUnknown : destructions dont les occupants tues n ont pas pu etre
-	// cherches, faute de calage du fil des morts sur l horloge du film.
-	Killed          int `json:"killed"`
-	KilledOccupants int `json:"killedOccupants"`
-	ClockUnknown    int `json:"clockUnknown"`
+	// Killed : destructions qui portent au moins un tue publie ; KilledOccupants le nombre total de
+	// tues publies. KilledNoIdentity : bipedes morts avec le vehicule dont le roster ne nomme aucun
+	// joueur (bot, index absent ou hors roster, index ambigu) : lus, non publies. KilledCleanup :
+	// bipedes qui satisfont la regle mais dont l effet de degat est le nettoyage de fin de manche
+	// ([effetNettoyageDeFinDeManche]) : ecartes.
+	Killed           int `json:"killed"`
+	KilledOccupants  int `json:"killedOccupants"`
+	KilledNoIdentity int `json:"killedNoIdentity"`
+	KilledCleanup    int `json:"killedCleanup"`
 }
 
 const (
@@ -119,9 +119,6 @@ const (
 	// de la destruction y est encore compte a bord : la sortie et la mort ne sont pas datees au meme
 	// instant. Convertie en images a la cadence du document.
 	vehicleDestructionAboardTolMS = 200
-	// vehicleDestructionKilledWindowMS borne, de part et d autre de la destruction, la mort d un
-	// occupant que le repli lui rapporte (horloge du fil des morts).
-	vehicleDestructionKilledWindowMS = int64(500)
 )
 
 // destroyerFate dit ce que la resolution de l index du destructeur a rendu.
@@ -134,15 +131,15 @@ const (
 	destroyerAmbiguous
 )
 
-// vehicleDestructionInputs porte ce que la pose lit hors du calque : le roster, le fil des morts, et
-// son calage sur l horloge du film (nil quand il n est pas connu).
+// vehicleDestructionInputs porte ce que la pose lit hors du calque : le roster, et les dead-states de
+// bipede et lectures d occupation du film.
 type vehicleDestructionInputs struct {
 	roster []RosterEntry
-	deaths []types.Death
-	calage *int64
-	fb     *fallback.Compteur
+	reads  occupantReads
 	// aboardTol est `vehicleDestructionAboardTolMS` en images du document, pose par la pose.
 	aboardTol int
+	// pieces range, par chassis porteur, les dead-states de ses pieces montees, pose par la pose.
+	pieces map[VehicleLifeRef][]vehicleDeath
 }
 
 // attachVehicleDestructions pose `Destruction` sur les vies `destroyed` du document et leur
@@ -152,6 +149,7 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 		return
 	}
 	in.aboardTol = framesOfMS(vehicleDestructionAboardTolMS, doc.FrameIntervalMS)
+	in.pieces = mountedPartDeaths(doc.Vehicles)
 	var cov VehicleDestructionCoverage
 	for i := range doc.Vehicles {
 		tr := &doc.Vehicles[i]
@@ -163,7 +161,7 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 			continue
 		}
 		cov.Destroyed++
-		if d := in.destructionOf(ctx, *tr, &cov); d != nil {
+		if d := in.destructionOf(*tr, &cov); d != nil {
 			tr.Destruction = d
 			cov.Published++
 		}
@@ -171,13 +169,12 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 	if cov.Destroyed == 0 && cov.Pieces == 0 {
 		return // aucune destruction : le document reste celui d avant, sans bloc de couverture
 	}
-	in.fb.DeclencheN(fallback.NomOccupantsTuesParProximiteDeMort, cov.KilledOccupants)
 	doc.Coverage.Vehicles.Destructions = &cov
 	logVehicleDestructions(ctx, cov)
 }
 
 // destructionOf assemble le bloc d une vie et compte ce qu il porte. Nil quand rien n est etabli.
-func (in vehicleDestructionInputs) destructionOf(ctx context.Context, tr VehicleTrack, cov *VehicleDestructionCoverage) *VehicleDestruction {
+func (in vehicleDestructionInputs) destructionOf(tr VehicleTrack, cov *VehicleDestructionCoverage) *VehicleDestruction {
 	var d VehicleDestruction
 	dead := tr.mort.Dead
 	var fate destroyerFate
@@ -192,11 +189,7 @@ func (in vehicleDestructionInputs) destructionOf(ctx context.Context, tr Vehicle
 	if d.Occupant != "" {
 		cov.Occupant++
 	}
-	d.Killed = in.killedAmong(ctx, aboard, tr.mort.TimestampUS, cov)
-	if len(d.Killed) > 0 {
-		cov.Killed++
-		cov.KilledOccupants += len(d.Killed)
-	}
+	d.Killed = in.killedWith(tr, cov)
 	if d.By == nil && d.Cause == nil && d.Occupant == "" && len(d.Killed) == 0 {
 		return nil
 	}
@@ -329,50 +322,6 @@ func destructionOccupant(aboard []VehicleRide) string {
 	return ""
 }
 
-// killedAmong est LE REPLI `repli_occupants_tues_par_proximite_de_mort` : ceux des occupants nommes
-// de `aboard` dont le fil des morts porte la mort a moins de `vehicleDestructionKilledWindowMS` de
-// l instant `deathUS` de la destruction (horloge du film). Sans calage du fil des morts sur l horloge
-// du film, rien n est cherche et la destruction est comptee `ClockUnknown`.
-func (in vehicleDestructionInputs) killedAmong(ctx context.Context, aboard []VehicleRide, deathUS uint64, cov *VehicleDestructionCoverage) []string {
-	var xuids []string
-	for _, r := range aboard {
-		if r.XUID != "" && !slices.Contains(xuids, r.XUID) {
-			xuids = append(xuids, r.XUID)
-		}
-	}
-	if len(xuids) == 0 {
-		return nil
-	}
-	if in.calage == nil {
-		cov.ClockUnknown++
-		return nil
-	}
-	at := int64(deathUS)/1000 - *in.calage
-	var out []string
-	for _, x := range xuids {
-		n, err := strconv.ParseUint(x, 10, 64)
-		if err != nil {
-			slog.WarnContext(ctx, "rejeu : xuid d occupant illisible, aucune mort cherchee", "xuid", x, "err", err)
-			continue
-		}
-		if diedWithin(in.deaths, n, at) {
-			out = append(out, x)
-		}
-	}
-	slices.Sort(out)
-	return out
-}
-
-// diedWithin dit si le fil des morts porte une mort de `xuid` dans la fenetre autour de `atMS`.
-func diedWithin(deaths []types.Death, xuid uint64, atMS int64) bool {
-	for _, d := range deaths {
-		if d.XUID == xuid && d.TimeMS >= atMS-vehicleDestructionKilledWindowMS && d.TimeMS <= atMS+vehicleDestructionKilledWindowMS {
-			return true
-		}
-	}
-	return false
-}
-
 // logVehicleDestructions dit ce que la pose a publie et refuse : un compteur muet est une erreur avalee.
 func logVehicleDestructions(ctx context.Context, c VehicleDestructionCoverage) {
 	if c.Destroyed == 0 && c.Pieces == 0 {
@@ -384,5 +333,5 @@ func logVehicleDestructions(ctx context.Context, c VehicleDestructionCoverage) {
 		"destructeurHorsRoster", c.KillerOutOfRoster, "destructeurAmbigu", c.KillerAmbiguous,
 		"cause", c.Cause, "causeNonResolue", c.CauseUnresolved, "causeAbsente", c.CauseAbsent,
 		"avecOccupant", c.Occupant, "avecTues", c.Killed, "tues", c.KilledOccupants,
-		"horlogeInconnue", c.ClockUnknown)
+		"tuesSansIdentite", c.KilledNoIdentity, "tuesDeNettoyage", c.KilledCleanup)
 }
