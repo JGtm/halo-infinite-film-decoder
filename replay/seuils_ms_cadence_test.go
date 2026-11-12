@@ -253,3 +253,27 @@ func TestVolRapideSeLitAToutePhaseDeLaGrille(t *testing.T) {
 		}
 	}
 }
+
+// TestPoseDeBordDeLAxeEstPublieeAToutePas : une pose nee quelques millisecondes apres la fin de l'axe (la
+// derniere lecture du film) se publie a la derniere frame, a 33 comme a 100 ms ; une pose nee un pas entier
+// plus loin reste ecartee.
+func TestPoseDeBordDeLAxeEstPublieeAToutePas(t *testing.T) {
+	for _, interval := range cadencesDeTest {
+		clock := replayClock{origin: 1_000_000, step: uint64(interval) * 1000, frames: 100}
+		finUS := clock.origin + uint64(clock.frames)*clock.step
+		for _, c := range []struct {
+			nom     string
+			t0US    uint64
+			publiee bool
+		}{
+			{"2,5 ms apres la fin", finUS + 2_500, true},
+			{"4,5 ms apres la fin", finUS + 4_500, true},
+			{"un pas historique apres la fin", finUS + HistoricalFrameIntervalMS*1000, false},
+			{"une seconde apres la fin", finUS + 1_000_000, false},
+		} {
+			if got := naitAuBordDeLAxe(c.t0US, clock); got != c.publiee {
+				t.Errorf("pas %d ms, %s : publiee = %v, attendu %v", interval, c.nom, got, c.publiee)
+			}
+		}
+	}
+}

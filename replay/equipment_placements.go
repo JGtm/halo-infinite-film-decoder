@@ -346,7 +346,7 @@ func buildEquipmentPlacements(
 	for i, p := range in.Raw {
 		t0 := frameOf(p.T0US, clock.origin, clock.step)
 		t1 := frameOf(p.T1US, clock.origin, clock.step)
-		if t1 < 0 || t0 >= clock.frames {
+		if t1 < 0 || t0 >= clock.frames && !naitAuBordDeLAxe(p.T0US, clock) {
 			continue // hors de l'axe publié : rien à dessiner
 		}
 		pl := EquipmentPlacement{
@@ -375,6 +375,21 @@ func buildEquipmentPlacements(
 		return cmp.Or(cmp.Compare(a.T0, b.T0), cmp.Compare(a.ID, b.ID))
 	})
 	return out, cov
+}
+
+// margeDeBordDePoseMS est la durée, après la fin de l'axe publié, jusqu'à laquelle une pose confirmée est
+// encore publiée (sur la dernière frame) : un pas de la grille historique. La dernière lecture du film
+// (l'image-clé de fin) tombe de quelques millisecondes après la dernière frame de la grille, du côté que
+// l'alignement de la grille décide : mesuré sur trois films, 2,5 à 4,5 ms après la fin d'une grille de 33 ms
+// ou de 100 ms, 7 à 15 poses confirmées chacun. Une borne en images publiait ces poses à 100 ms et pas à
+// 33 ms sur deux films, à 33 ms et pas à 100 ms sur le troisième ; une durée fixe les publie à toute cadence.
+const margeDeBordDePoseMS = HistoricalFrameIntervalMS
+
+// naitAuBordDeLAxe dit si une pose née à `t0US` est à moins de [margeDeBordDePoseMS] après la fin de l'axe :
+// elle est alors publiée à la dernière frame au lieu d'être écartée.
+func naitAuBordDeLAxe(t0US uint64, clock replayClock) bool {
+	finUS := clock.origin + uint64(clock.frames)*clock.step
+	return t0US < finUS+margeDeBordDePoseMS*1000
 }
 
 // replayClock porte l'axe de temps et la table de familles du document (règle des
