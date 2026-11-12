@@ -1,6 +1,10 @@
 package grammar
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
+)
 
 // vue_a_charges_test.go — les vecteurs des charges de la vue A (lot LN), ecrits avec les IMMEDIATS
 // du lecteur du jeu (litteraux, jamais les constantes du portage) : une largeur mal portee decale
@@ -65,6 +69,26 @@ func TestLesChargesLisentLesLargeursDuJeu(t *testing.T) {
 			w.bits(5, 3)  // R(3)
 			w.bit(1)      // FUN_14080d69c : present
 			w.bits(0, 32) // R(32)
+		}},
+		// Les trois charges de disposition MESUREE (vue_a_charges_mesurees.go), aux largeurs du decodeur
+		// tiers ecrites en litteraux.
+		{"biped_melee_clang (mesure)", chargeChocDeMelee, func(w *bitWriter) {
+			w.bit(0)                                                                    // joueur present
+			w.bits(7, 5)                                                                // R(5)
+			w.bit(0)                                                                    // joueur present
+			w.bits(1, 5)                                                                // R(5)
+			w.bit(1)                                                                    // tag present
+			w.bits(0, 32)                                                               // R(32)
+			w.ecrirePositionDeNiveau(true, 0, profile.LargeursAxeParDefautDuBuild(0xc)) // porte posee, niveau 0xc
+			w.bits(0, 19)                                                               // direction
+		}},
+		{"PlayEffectOnObject (mesure)", chargeEffetSurObjet, func(w *bitWriter) {
+			w.bits(0, 32) // R(32)
+		}},
+		{"ObjectCollisionDamage (mesure)", chargeCollisionDObjet, func(w *bitWriter) {
+			w.ecrirePositionDeNiveau(true, 0, profile.LargeursAxeParDefautDuBuild(0xc)) // porte posee, niveau 0xc
+			w.bits(0, 10)                                                               // direction
+			w.bits(0, 9)                                                                // index
 		}},
 	} {
 		var w bitWriter

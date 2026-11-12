@@ -254,5 +254,15 @@ package objectives
 // `replay-corpus-gate`, les mesures d objectifs (O-K, O-S, O-T) et de vies (O-V, V-) sont identiques a celles d avant ce
 // changement ; l empreinte du golden est recopiee au meme rang.
 
+// A REVISION CONSTANTE (classe de la vue A lue sur la seule table des genres, trois charges de la vue A, 2026-11-12) : la VALEUR de
+// `grammar.Rev` monte a `grammar-2026-11-12` ; aucune source de cette couche ne change. Les tests de la couche et ses fixtures
+// sont ceux d avant ; les mesures du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur ;
+// l empreinte du golden est recopiee au meme rang.
+
+// A REVISION CONSTANTE (table d entites d une image-cle retrouvee par les invariants de ses en-tetes, 2026-11-12) : la VALEUR de
+// `grammar.Rev` monte a `grammar-2026-11-12.2` ; aucune source de cette couche ne change. Les tests de la couche et ses fixtures
+// sont ceux d avant ; les mesures du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur ;
+// l empreinte du golden est recopiee au meme rang.
+
 // Rev est la revision de la sortie des objectifs.
 const Rev = "objectives-2026-10-17"

@@ -136,7 +136,8 @@ const (
 	// LiaisonImageCleElue : récupération — un record d'image-clé dont l'ancre a été ÉLUE
 	// (`repli_ancre_d_image_cle_par_election`).
 	LiaisonImageCleElue
-	// LiaisonDatum : récupération — la table de datums d'une image-clé, lue à position libre.
+	// LiaisonDatum : récupération — la table d'entités d'une image-clé, dont les en-têtes sont retrouvés par leurs
+	// invariants (eid complet et type), sans lire la création ni l'état des entrées.
 	LiaisonDatum
 	// LiaisonAnticipation : récupération — l'archétype qu'une image-clé ULTÉRIEURE donne à l'eid
 	// (`repli_liaison_par_anticipation`).

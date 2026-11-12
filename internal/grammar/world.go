@@ -108,7 +108,7 @@ func NewWorld(reg *Registry) *World {
 // archetype, sous la cle MEME que `FUN_1406caad8` compare (l eid entier — cf.
 // `keyframe_anticipe.go`). Anticiper, c est lier un slot sur la foi d une image-cle ULTERIEURE.
 //
-// La liaison posee est celle de la table de datums ([World.BindDatum]) : `Soft`, `GenAny`, vue
+// La liaison posee est de la forme de [World.lierCommeDatum] : `Soft`, `GenAny`, vue
 // INCONNUE, sans position. Elle ne dit que ce qu elle sait — l archetype.
 
 // PoserTableAnticipee installe (ou retire, avec nil) la table anticipee du film. Sans elle
@@ -299,27 +299,23 @@ func (w *World) vueDeLEspaceDeNoms(ns uint32) int8 {
 	return vueInconnue
 }
 
-// BindDatum enregistre une liaison venue de la TABLE DE DATUMS de l image-cle
-// (`keyframe_datums.go`) : le SEUL fait qu elle porte est `slot -> archetype`.
-//
-// C est la forme minimale de ce que la branche vive de la boucle de records interroge
-// (`FUN_1406cbaa0`, cas DELTA : garde `*(uint *)(slot * 200 + t) != eid`, archetype lu en
-// `+0x04`). Elle est donc :
-//
-//	`Soft`   — ce n est pas une ancre de confirmation pour l inference de chaine : la table dit
-//	           l archetype, pas la frontiere d un record ;
-//	`GenAny` — la generation n est pas relue ici (l identifiant complet de l image-cle et les
-//	           deux bits de tete d un delta ne sont pas le meme champ, lecon du 5.13.1) ;
-//	`Vue` INCONNUE — la table de datums est celle du DECODEUR PARTAGE, pas d une vue.
-//
-// Elle ne pose AUCUNE position : `PosValid` reste faux, et le premier chemin absolu du slot
-// l amorcera comme pour toute autre liaison.
-func (w *World) BindDatum(slot, typeIndex uint32) {
-	w.lierCommeDatum(slot, typeIndex, lecture.LiaisonDatum)
+// BindEntreeDeTable enregistre la liaison d une entree de la table d entites d une image-cle
+// (`keyframe_datums.go`) : l eid COMPLET et le type que l en-tete donne. C est la forme minimale de ce que la branche
+// vive de la boucle de records interroge (`FUN_1406cbaa0`, cas DELTA : garde `*(uint *)(slot * 200 + t) != eid`,
+// archetype lu en `+0x04`). Elle est `Soft` (la table dit l archetype, pas la frontiere d un record, donc pas une ancre
+// de confirmation pour l inference de chaine), de vue INCONNUE (la table est celle du DECODEUR PARTAGE, pas d une
+// vue), sans position (`PosValid` reste faux : le premier chemin absolu du slot l amorcera) ; mais sa GENERATION est
+// connue — c est l eid que la garde compare (`entree[0]` de `FUN_142e2bfd0`), donc [World.ArchetypeForEID] ne repond
+// qu a cet eid.
+func (w *World) BindEntreeDeTable(id, typeIndex uint32) {
+	w.slots[id&masqueDeSlot] = slotState{
+		TypeIndex: typeIndex, FullID: id, Soft: true, Vue: vueInconnue, Liaison: lecture.LiaisonDatum,
+	}
 }
 
-// lierCommeDatum pose une liaison de la forme de [World.BindDatum], avec sa provenance : la table
-// de datums lue a position libre, ou l anticipation ([World.LierParRepliDAnticipation]).
+// lierCommeDatum pose une liaison `Soft`, de GENERATION INCONNUE (les deux bits de tete d une image-cle et ceux d un delta
+// ne sont pas le meme champ, lecon du 5.13.1) et de vue inconnue, sans position, avec sa provenance : l anticipation
+// ([World.LierParRepliDAnticipation]).
 func (w *World) lierCommeDatum(slot, typeIndex uint32, l lecture.Liaison) {
 	s := slot & 0x3fffffff
 	w.slots[s] = slotState{

@@ -63,8 +63,8 @@ func TestLeVerdictDesNeufsRefuses(t *testing.T) {
 	if o.NeufsRefusesIndecis != 3 || len(o.neufsRefuses) != 0 {
 		t.Fatalf("indecis %d apres le solde, attendu 3", o.NeufsRefusesIndecis)
 	}
-	if got := archetypesDeclares([]KeyframeRec{{Slot: 5, TI: 9}}, map[uint32]uint32{5: 38, 6: 30}); got[5] != 9 || got[6] != 30 {
-		t.Fatalf("archetypes declares %v : la chaine prime sur la table, la table complete", got)
+	if got := archetypesDeclares([]KeyframeRec{{Slot: 5, TI: 9}, {Slot: 7, TI: 4}}, map[uint32]EnteteDeTable{5: {ID: 5 | 1<<30, TI: 38}, 6: {ID: 6 | 1<<30, TI: 30}}); got[5] != 38 || got[6] != 30 || got[7] != 4 {
+		t.Fatalf("archetypes declares %v : la table prime sur la chaine, la chaine complete", got)
 	}
 }
 
