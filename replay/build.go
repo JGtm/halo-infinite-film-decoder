@@ -32,15 +32,17 @@ const HistoricalFrameIntervalMS = 100
 // la seule conversion durée -> nombre de frames des seuils du paquet qui n'ont pas d'horloge à
 // leur portée ; un seuil s'écrit en millisecondes et se convertit ici avec le pas du document.
 //
-// Une durée nulle ou négative donne 0 frame (la marge nulle ne dépend pas du pas). Un pas absent ou
-// négatif prend [DefaultFrameIntervalMS], comme [Options] le fait pour la grille. À 100 ms par
-// frame, 200 ms valent 2 frames ; à 33 ms, 6 (198 ms).
+// Une durée nulle ou négative donne 0 frame (la marge nulle ne dépend pas du pas). UN PAS ABSENT OU
+// NÉGATIF EST CELUI D'UN DOCUMENT SANS `frameIntervalMs`, donc [HistoricalFrameIntervalMS] : jamais le
+// défaut de construction, qui s'applique avant la cuisson ([Options]) et qui a changé depuis. Dans la
+// cuisson le pas est toujours posé ; seul un appelant extérieur de l'API ([AttributeOptions]) peut
+// le laisser absent. À 100 ms par frame, 200 ms valent 2 frames ; à 33 ms, 6 (198 ms).
 func framesOfMS(ms, intervalMS int) int {
 	if ms <= 0 {
 		return 0
 	}
 	if intervalMS <= 0 {
-		intervalMS = DefaultFrameIntervalMS
+		intervalMS = HistoricalFrameIntervalMS
 	}
 	return ms / intervalMS
 }

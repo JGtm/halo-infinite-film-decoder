@@ -30,8 +30,8 @@ func TestFramesOfMS(t *testing.T) {
 		{"100 ms a 40 ms (jamais plus large que la duree)", 100, 40, 2},
 		{"duree nulle", 0, 100, 0},
 		{"duree negative", -50, 100, 0},
-		{"pas absent = pas de construction", 200, 0, 200 / DefaultFrameIntervalMS},
-		{"pas negatif = pas de construction", 200, -1, 200 / DefaultFrameIntervalMS},
+		{"pas absent = pas historique (document sans frameIntervalMs)", 200, 0, 200 / HistoricalFrameIntervalMS},
+		{"pas negatif = pas historique", 200, -1, 200 / HistoricalFrameIntervalMS},
 		{"pas plus grand que la duree", 100, 250, 0},
 	} {
 		if got := framesOfMS(c.ms, c.interval); got != c.attendu {
@@ -90,8 +90,12 @@ func TestToleranceDePositionDeZoneParDefautVaut200ms(t *testing.T) {
 		t.Errorf("DefaultMaxGapFrames = %d, attendu %d (200 ms au pas de %d ms)",
 			DefaultMaxGapFrames, attendu, DefaultFrameIntervalMS)
 	}
-	if got := (AttributeOptions{}).maxGapFrames(); got != attendu {
-		t.Errorf("tolerance par defaut = %d frames, attendu %d", got, attendu)
+	if got := (AttributeOptions{FrameIntervalMS: DefaultFrameIntervalMS}).maxGapFrames(); got != attendu {
+		t.Errorf("tolerance au pas de construction = %d frames, attendu %d", got, attendu)
+	}
+	// Un pas absent est celui d'un document sans frameIntervalMs : 100 ms, jamais le defaut de construction.
+	if got, want := (AttributeOptions{}).maxGapFrames(), DefaultMaxGapMS/HistoricalFrameIntervalMS; got != want {
+		t.Errorf("tolerance sans pas = %d frames, attendu %d (pas historique)", got, want)
 	}
 	if got := (AttributeOptions{FrameIntervalMS: 100}).maxGapFrames(); got != 2 {
 		t.Errorf("tolerance par defaut a 100 ms = %d frames, attendu 2", got)
