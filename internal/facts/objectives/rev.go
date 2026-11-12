@@ -264,5 +264,10 @@ package objectives
 // sont ceux d avant ; les mesures du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur ;
 // l empreinte du golden est recopiee au meme rang.
 
+// A REVISION CONSTANTE (infos de match lues dans `chunk_00`, 2026-11-12) : les VALEURS de `profile.Rev` (`profile-2026-11-12`) et de
+// `grammar.Rev` (`grammar-2026-11-12.3`) montent ; aucune source de cette couche ne change. Les tests de la couche et ses fixtures
+// sont ceux d avant ; les mesures du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur ;
+// l empreinte du golden est recopiee au meme rang.
+
 // Rev est la revision de la sortie des objectifs.
 const Rev = "objectives-2026-10-17"

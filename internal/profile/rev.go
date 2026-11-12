@@ -172,7 +172,16 @@ package profile
 // (19 bits d ecart sur Live Fire, 7 sur les canevas Forge a deux regions). Un index sans ligne (region
 // invalide, ou au-dela du nombre de regions) lit zero bit par axe, comme le jeu. Une entree sans table garde
 // la lecture d avant (la ligne de la region jouee pour tout index).
-const Rev = "profile-2026-11-10"
+// ENTREE `profile-2026-11-12` (2026-11-12, infos de match du film) : LE TYPE DES INFOS DE MATCH ENTRE AU PROFIL ; AUCUNE LIGNE
+// DE LA TABLE NE CHANGE.
+//
+// `infos_de_match.go` : [InfosDeMatch] (et [GUID], [OptionDeVariante], [DotationDeDepart]) est la valeur que la lecture de
+// `chunk_00` rend de la variante de partie (nom, description, score de victoire, durees, dotation, options), des deux
+// identifiants de la variante de carte et de l heure de debut ; `identite.go` : [FilmIdentity.InfosDeMatch]. Aucune largeur,
+// aucune borne, aucune provenance de la table ne change : la revision monte parce que la forme de l identite change, et que
+// l identite est persistee avec les faits du film (section 2 du fichier de faits).
+
+const Rev = "profile-2026-11-12"
 
 // L EMPREINTE DES SOURCES DE LA COUCHE VIT DANS UN GOLDEN, A COTE DE CETTE REVISION :
 // `testdata/profile_rev.golden` porte le couple (revision, empreinte) avec son historique, et

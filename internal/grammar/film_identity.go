@@ -181,6 +181,7 @@ func ReadFilmIdentity(chunk0 []byte) (profile.FilmIdentity, error) {
 	id.MatchStartUnix = lireHorodatage(chunk0, buildOff)
 	id.SimulationDeLEnregistreur, id.OptionsDePartieLues = lireSimulationDeLEnregistreur(chunk0, id.BodyBit)
 	id.Variante = lireLaVarianteDePartie(chunk0, id.BodyBit)
+	id.InfosDeMatch = lireLesInfosDeMatch(chunk0, id)
 	return id, nil
 }
 

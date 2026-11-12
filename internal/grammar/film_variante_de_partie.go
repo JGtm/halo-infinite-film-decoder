@@ -224,6 +224,24 @@ func marcherLeCorps(chunk0 []byte, bodyBit int) (profile.VarianteDePartie, int) 
 	if !l.ok {
 		return profile.VarianteDePartie{}, 0
 	}
+	var v profile.VarianteDePartie
+	if v.Presente = l.jusquALaVariante(bodyBit); v.Presente {
+		l.structure(champs(0, 1, 2, 3), func(_, ty int) bool { return l.listeDeVariantes(ty, &v) })
+	}
+	l.chaine(largeurChaineLongueDuCorps)
+	l.chaine(largeurChaineLongueDuCorps)
+	l.lire(32)
+	l.br.Skip(largeurQueueDuCorps)
+	if !l.ok || l.br.Deborde() {
+		return profile.VarianteDePartie{}, 0
+	}
+	v.Lue = true
+	return v, l.br.BitPos()
+}
+
+// jusquALaVariante place le curseur au bit `bodyBit`, lit le corps jusqu au bit qui precede la variante
+// et rend ce bit : la variante est ecrite quand il vaut 1, et le curseur est alors sur son premier bit.
+func (l *lecteurDuCorps) jusquALaVariante(bodyBit int) bool {
 	l.br.SetBitPos(bodyBit)
 	for _, n := range [...]uint{3, 3, 2, 7, 64, 32, 3, 32, 32, 32} {
 		l.lire(n)
@@ -238,19 +256,7 @@ func marcherLeCorps(chunk0 []byte, bodyBit int) (profile.VarianteDePartie, int) 
 	for _, n := range [...]uint{1, 1, 2, 1, 32, 32, 1} {
 		l.lire(n)
 	}
-	var v profile.VarianteDePartie
-	if v.Presente = l.lire(1) == 1; v.Presente {
-		l.structure(champs(0, 1, 2, 3), func(_, ty int) bool { return l.listeDeVariantes(ty, &v) })
-	}
-	l.chaine(largeurChaineLongueDuCorps)
-	l.chaine(largeurChaineLongueDuCorps)
-	l.lire(32)
-	l.br.Skip(largeurQueueDuCorps)
-	if !l.ok || l.br.Deborde() {
-		return profile.VarianteDePartie{}, 0
-	}
-	v.Lue = true
-	return v, l.br.BitPos()
+	return l.lire(1) == 1
 }
 
 // listeDeVariantes lit un champ de la structure de tete de la variante : une liste d au plus une
