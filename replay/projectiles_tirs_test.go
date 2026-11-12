@@ -26,11 +26,17 @@ func TestLinkShots_Nominal(t *testing.T) {
 	}
 }
 
-func TestLinkShots_FenetreDUneFrame(t *testing.T) {
+// TestLinkShots_FenetreEnDuree : la fenetre est projShotWindowMS convertie au pas de construction ; le
+// nombre de frames se derive du pas, il n'est pas fige (3 a 33 ms, 1 a 100 ms).
+func TestLinkShots_FenetreEnDuree(t *testing.T) {
+	w := framesOfMS(projShotWindowMS, DefaultFrameIntervalMS)
+	if w < 1 {
+		t.Fatalf("fenetre de %d frames : le pas de %d ms depasse %d ms", w, DefaultFrameIntervalMS, projShotWindowMS)
+	}
 	for _, tc := range []struct {
 		frameTir int
 		lie      bool
-	}{{9, true}, {10, true}, {11, true}, {8, false}, {12, false}} {
+	}{{10 - w, true}, {10, true}, {10 + w, true}, {10 - w - 1, false}, {10 + w + 1, false}} {
 		projs := []Projectile{projectileNeA(10, 0, 0)}
 		linked, _ := linkShotsToProjectiles(projs, []Shot{tirDe(tc.frameTir, 1, "A", 0, 0)}, nil, DefaultFrameIntervalMS)
 		if (linked == 1) != tc.lie {

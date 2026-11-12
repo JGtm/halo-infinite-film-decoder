@@ -3851,3 +3851,70 @@ package replay
 //
 // LE PARC         un artefact 109 : verdict `a redecoder` (les faits cuits au schema 20 se refusent sur leur en-tete : sans les morts de
 //                 bipede, une relecture publierait un `killed` vide). La recuisson est une decision de l utilisateur.
+
+// v111 (2026-11-12, cadence du rejeu : 100 ms -> 33 ms). La grille du document passe de 10 a 30,3 images par
+// seconde : `DefaultFrameIntervalMS` vaut 33, et `frameIntervalMs` le publie (`HistoricalFrameIntervalMS` reste 100
+// pour lire un document qui ne le porte pas). Aucun champ neuf, aucune forme qui change : c est le CONTENU CUIT qui
+// change, et avec lui tout ce qui se lit sur l axe `T`.
+//
+//	`tracks[].pts`, `vehicles[].samples`, `vehicles[].rides[].aim`, `objectiveObjects[].pts`, `zoneStates[].gauge`,
+//	                `projectiles[].p`   trois fois plus de points (x2,8 a x3,0 sur 12 films), chacun un pas de 33 ms.
+//	`frameCount`    x3,03 ; `durationMs` reste a `frameCount * 33` pres (au plus 73 ms d ecart avec l ancien).
+//	`projectiles`   des vols de moins de 100 ms, ecartes comme « un seul point de grille », se publient : plus de
+//	                traînees (`0076ebdc` 689 -> 1 005). La borne d un vol change : c est une VITESSE appliquee a la
+//	                duree REELLE entre deux echantillons retenus (au moins un record de 16 ms), et elle passe de 100 a
+//	                200 m/s. L ancienne borne en metres PAR PAS de la grille coupait un meme vol selon la phase de la
+//	                grille (a 100 ms) et tout vol rapide des son premier pas (a 33 ms : 3,3 m par pas pour des vols
+//	                de 4 m), et 100 m/s coupait de VRAIS vols : le jeu a des projectiles a 112-125 m/s (2,00 m par
+//	                record). `coverage.projectiles.truncated`, 12 films : 4 vols coupes a 100 ms et 9 a 33 ms avant la
+//	                borne (`be565134` 4 puis 6, `0076ebdc`, `de3cec8b` et `e157a672` 1 a 33 ms), 0 aux deux cadences apres.
+//	                A 100 ms, `be565134` publie 288 vols au lieu de 285 (4 vols complets, dont 3 jusque la absents). Sur
+//	                8 films de reference, 11 vols se coupent a 100 ms et 13 a 33 ms, tous sur un saut de 8 a 1 388 m entre
+//	                deux records ; les deux de plus a 33 ms sont des sauts que la grille de 100 ms ne retient pas.
+//	`t0FilmMs`      date le premier mouvement a la grille fine : de -96 a +5 ms. `t0FilmJumpMPS` (50 m/s) remplace
+//	                `t0FilmJumpM` (5 m par pas) et s applique a la duree ECOULEE entre deux points (`(b.T-a.T)` pas, pas
+//	                un pas) : meme seuil a 100 ms pour un pas, et un trou de replication ne fait plus d une marche une
+//	                teleportation ; la fenetre de cumul se mesure en instants (1 000 ms). `t0FilmCumulM` ne bouge pas
+//	                (0,5 m, marge de 1,4 sur le pire bruit mesure a 33 ms).
+//	`equipmentPlacements`   une pose DATEE APRES LA FIN DE L AXE n etait publiee que si la fin de la grille tombait
+//	                apres le dernier instantane du film. Ces poses ne sont pas « nees » a cet instant : ce sont les objets
+//	                presents au dernier instantane (leurs vies sont decodees sur 0,5 a 4 s et datees par l instantane), sans
+//	                fin lue (`end` `open`) ni origine. L axe s arrete a la derniere position, et le dernier instantane
+//	                tombe a un nombre de ms de sa fin que la grille decide : 15 et 14 poses a 100 ms et pas a 33 ms sur
+//	                deux films, 7 a 33 ms et pas a 100 ms sur un troisieme, 54 a aucune cadence sur un quatrieme. Toute pose
+//	                datee apres la fin de l axe se publie a la derniere frame, sans condition (une pose ne peut pas naitre
+//	                apres la fin du film). Meme nombre de poses a toute cadence. Sortie a 100 ms : +7 et +54 poses sur deux
+//	                films, identique ailleurs.
+//	`grappleLines`  l arrivee est le point le plus proche de l ancre dans les 2,5 s apres l accroche ; la fenetre
+//	                s ajoutait 2,5 s arrondies a une frame (75 a 33 ms, 25 exactes a 100) a la frame, arrondie, de
+//	                l accroche, donc raccourcie de 25 ms a 33 ms : l arrivee tombait sur un autre creux de distance
+//	                (`0076ebdc` 102 500 -> 100 980 ms). La fenetre se ferme maintenant a l instant accroche + 2,5 s ;
+//	                sortie a 100 ms identique. Reste une arrivee qui bouge de quelques centaines de ms quand
+//	                la distance a l ancre est un plateau a 2 cm pres (`de3cec8b` : 324 ms).
+//	`bursts`, `stances`   une de moins sur un film chacun : un record qui commence quelques ms APRES la fin de
+//	                l episode de vehicule (rafale) ou de la vie (sprint) y tombait dans la meme frame de 100 ms ;
+//	                a 33 ms il est apres, et n est plus attribue (`coverage.continuousFire.noTrack`).
+//	`bursts` (`holes`)   les trous d une rafale (passages ou la gachette n est pas lue ; le rejeu s y tait) ne se
+//	                publient que s ils couvrent une frame entiere : 3 trous a 100 ms, 20 a 33 ms sur les 8 films de
+//	                reference, 176 a 10 ms. Les coups sont comptes hors des trous : 8 564 a 100 ms, 8 511 a 33 ms (-0,6 %),
+//	                8 452 a 10 ms. La baisse est cette politique appliquee a une grille qui resout plus de trous (les
+//	                coups d un passage non lu ne sont plus affirmes), pas un coup lu qui disparait : sans trous, le
+//	                compte tient entre 8 787 et 8 827 a 100 et a 33 ms (bornes de rafale a la frame pres).
+//	`coverage.*`    quelques ecarts de quantification ou de bord (`birthLoadouts.snapped`, `pickups.origin*`).
+//
+// CE QUI NE CHANGE PAS (12 films du parc cuits un a un aux deux cadences, a partir des memes faits de film, dont
+// le fichier est identique octet pour octet) : le nombre et l identite des vies, des morts, des tirs, des
+// grenades, des ramassages, des prises et des portages d objectif, des etats de zone, des vehicules (destruction :
+// destructeur, cause, occupants), des capacites et des episodes d equipement, les scores finals d equipe et les
+// totaux par joueur sont IDENTIQUES ; chaque instant ne bouge que de la quantification de l ancienne grille (moins
+// de 100 ms). Les seuils du paquet sont en millisecondes ou en vitesse (`framesOfMS`), si bien que chaque decision
+// porte sur la meme duree ; un pas absent se lit a 100 ms (`HistoricalFrameIntervalMS`), pas au defaut de construction.
+// Les calques dont le NOMBRE bouge entre 100 et 33 ms : `projectiles` (vols de moins de 100 ms), `bursts` et
+// `stances` (une de moins sur un film chacun, voir ci-dessus) ; les poses ont le meme nombre aux deux cadences.
+//
+// CE QUI MONTE    `SchemaVersion` 110 -> 111, et avec lui `publication-111`. Aucune revision de grammaire, de faits
+// AVEC ELLE       ni de profil ne bouge : les faits persistes ne dependent pas de la cadence.
+//
+// LE PARC         un artefact 110 : verdict `a republier` (la couche de publication a change, les faits cuits restent
+//                 frais). Aucun redecodage de film : la recuisson depuis les faits donne le meme document qu un decodage
+//                 complet. Le poids du document est multiplie par 2,6 (brut) et 2,4 (gzip) a 33 ms.

@@ -27,7 +27,7 @@ func (a *assemblage) horloge() replayClock {
 // a une trajectoire publiee, et le nommage d une vie est ce qui relie un slot a un joueur.
 func (a *assemblage) poserLesPistes() {
 	// Les tirs sont rattachés sur les positions NON décimées (le rattachement se joue à
-	// ~120 ms, la grille du rejeu est à 100 ms : décimer d'abord perdrait des tireurs).
+	// ~120 ms, la grille du rejeu est à 33 ms, 100 ms avant le schéma 111 : décimer d'abord perdrait des tireurs).
 	// LE PONT slot -> joueur vient du seul fil des morts (cf. owners.go). Il conditionne les
 	// tirs ET les lancers : le construire une seule fois, et le partager.
 	// Les TIRS entrent dans la construction du pont — non pour désigner un tireur (l'événement

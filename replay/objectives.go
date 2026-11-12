@@ -52,7 +52,7 @@ type ObjectiveAction struct {
 	// qu'une partie (etat de l'art §22.2).
 	Stat string `json:"stat"`
 	// TimeMS est l'instant exact sur l'horloge du film. Conserve a cote de T parce que la
-	// grille de frames PERD de la precision (100 ms par defaut) : le client qui veut
+	// grille de frames PERD de la precision (33 ms par defaut) : le client qui veut
 	// ordonner deux actions de la meme frame en a besoin.
 	TimeMS int `json:"timeMs"`
 }

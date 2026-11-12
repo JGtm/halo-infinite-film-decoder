@@ -52,8 +52,9 @@ import (
 //     joueur immobile pendant le decompte n'a AUCUN point entre la frame 0 et son depart
 //     (temoin sur 1b2d9e08 : le slot 512 a un point a t=0 puis plus rien jusqu'a t=227).
 //     Compter ce pas comme un deplacement daterait le coup d'envoi a la frame 0 de tout film ;
-//  3. un pas de plus de `t0FilmJumpM` est une TELEPORTATION (apparition, arrivee tardive), pas
-//     une locomotion : rupture aussi.
+//  3. un pas qui va plus vite que `t0FilmJumpMPS` est une TELEPORTATION (apparition, arrivee
+//     tardive), pas une locomotion : rupture aussi. Le seuil est une VITESSE, appliquee a la duree
+//     reelle ecoulee entre les deux points ([t0FilmJumpM]), qui peut valoir plusieurs pas.
 //
 // MOUVEMENT = le cumul des pas CONTIGUS depasse `t0FilmCumulM` dans une fenetre glissante de
 // `t0FilmWindowMS`. Un jitter d'une seule image ne suffit donc pas.
@@ -67,11 +68,15 @@ import (
 
 // --- Seuils du detecteur, ecrits AVANT la mesure et confirmes par elle ---
 const (
-	// t0FilmJumpM : au-dela, le pas est une teleportation, pas une locomotion.
-	t0FilmJumpM = 5.0
+	// t0FilmJumpMPS : au-dela de cette vitesse, un pas est une teleportation, pas une locomotion
+	// (50 m/s : 5 m par pas de 100 ms, 1,65 m par pas de 33 ms). C'est une vitesse, pas une
+	// distance par image : le sens « teleportation » ne depend pas de la cadence de la grille.
+	t0FilmJumpMPS = 50.0
 	// t0FilmCumulM : le deplacement cumule qui fait un mouvement. Le plancher de bruit mesure
 	// sur la fenetre de decompte des matchs sains donne un cumul maximal median de 0,06 m —
-	// ce seuil est huit fois au-dessus de ce bruit.
+	// ce seuil est huit fois au-dessus de ce bruit. Le cumul de bruit croit avec le nombre de pas de
+	// la fenetre : a 33 ms le pire film du corpus (le plus grand match a vehicules) monte a 0,36 m, soit
+	// une marge de 1,4 ; a 0,3 m ce film date un faux coup d'envoi. 0,5 m reste donc le seuil.
 	t0FilmCumulM = 0.5
 	// t0FilmWindowMS : largeur de la fenetre glissante de cumul, ET duree maximale d'un pas
 	// exploitable (au-dela, le film n'a rien replique : c'est une rupture).
@@ -147,6 +152,14 @@ type t0FilmStep struct {
 	rupture bool
 }
 
+// t0FilmJumpM est la distance au-dela de laquelle deux points separes de `elapsedMS` millisecondes sont une
+// teleportation : [t0FilmJumpMPS] fois cette duree. Elle est ecoulee REELLE, `(b.T-a.T)` pas, et non un pas :
+// un trou d'une frame ou plus (un joueur immobile ne replique rien) ferait d'une marche normale une fausse
+// teleportation. Exact a 100 ms (5 m pour un pas).
+func t0FilmJumpM(elapsedMS int) float64 {
+	return t0FilmJumpMPS * float64(elapsedMS) / 1000
+}
+
 // t0FilmSteps ramene une piste a la suite de ses pas. Le premier point n'ouvre aucun pas.
 func t0FilmSteps(pts []T0FilmPoint, frameIntervalMS int) []t0FilmStep {
 	if len(pts) < 2 || frameIntervalMS <= 0 {
@@ -163,7 +176,7 @@ func t0FilmSteps(pts []T0FilmPoint, frameIntervalMS int) []t0FilmStep {
 			startFrame: a.T,
 			endFrame:   b.T,
 			dist:       d,
-			rupture:    (b.T-a.T)*frameIntervalMS > t0FilmWindowMS || d > t0FilmJumpM,
+			rupture:    (b.T-a.T)*frameIntervalMS > t0FilmWindowMS || d > t0FilmJumpM((b.T-a.T)*frameIntervalMS),
 		})
 	}
 	return out
@@ -173,15 +186,15 @@ func t0FilmSteps(pts []T0FilmPoint, frameIntervalMS int) []t0FilmStep {
 // fondatrice l'emprunte au lieu d'en garder une copie (regle du depot : au plus deux copies
 // d'un meme motif, et une factorisation sans reemploi re-diverge).
 type t0FilmWindow struct {
-	// widthFrames est la largeur de la fenetre, exprimee dans l'unite des `Point.T`.
-	widthFrames int
-	starts      []int
-	dists       []float64
-	sum         float64
+	// intervalMS est la duree d'une unite de `Point.T` ; la fenetre se mesure en instants ([t0FilmWindowMS]).
+	intervalMS int
+	starts     []int
+	dists      []float64
+	sum        float64
 }
 
 func newT0FilmWindow(frameIntervalMS int) t0FilmWindow {
-	return t0FilmWindow{widthFrames: t0FilmWindowMS / frameIntervalMS}
+	return t0FilmWindow{intervalMS: frameIntervalMS}
 }
 
 // push absorbe un pas et rend le cumul CONTIGU de la fenetre apres absorption. Un pas de
@@ -195,7 +208,7 @@ func (w *t0FilmWindow) push(s t0FilmStep) float64 {
 	w.dists = append(w.dists, s.dist)
 	w.sum += s.dist
 	// La fenetre se mesure du DEBUT du pas le plus ancien a la FIN du pas courant.
-	for len(w.dists) > 1 && (s.endFrame-w.starts[0]) > w.widthFrames {
+	for len(w.dists) > 1 && (s.endFrame-w.starts[0])*w.intervalMS > t0FilmWindowMS {
 		w.sum -= w.dists[0]
 		w.starts, w.dists = w.starts[1:], w.dists[1:]
 	}

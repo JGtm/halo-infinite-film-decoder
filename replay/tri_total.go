@@ -57,7 +57,7 @@ func trierRentrees(out []flagHomecoming) {
 }
 
 // trierGrenades range les lancers publies dans un ordre TOTAL : deux lancers tombent souvent sur la
-// meme frame de la grille (10 Hz), et un departage arbitraire suffit a changer l artefact. La cle
+// meme frame de la grille, et un departage arbitraire suffit a changer l artefact. La cle
 // s arretait a la position (frame, index, slot, x, y) : deux lancers d un meme joueur a la meme
 // position — l un lu par la naissance du projectile, l autre par le bipede — y restaient ex aequo
 // en portant un rang de palette, une source ou un projectile differents (lot J10.1, 2026-09-27,
@@ -80,7 +80,7 @@ func projDe(g Grenade) int {
 }
 
 // trierTirs range les tirs publies par frame, les tirs d une meme frame dans l ORDRE DU FILM (lot
-// J10.1, 2026-09-27, DT-9). Une frame de la grille (100 ms) porte souvent plusieurs tirs, parfois
+// J10.1, 2026-09-27, DT-9). Une frame de la grille porte souvent plusieurs tirs, parfois
 // d un meme tireur au meme point : aucun champ publie ne les separe, leur seule cle unique est leur
 // rang dans le flux des evenements de tir, que le tri STABLE conserve.
 func trierTirs(out []Shot) {

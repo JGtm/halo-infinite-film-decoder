@@ -53,7 +53,7 @@ func markInventoryDeadReadings(inv []Inventory, deaths []types.Death, reg Identi
 			continue
 		}
 		// L'INSTANT SE RECONSTRUIT DEPUIS LA GRILLE, et l'arrondi n'a aucune portée ici : un pas
-		// de grille vaut ~100 ms, la fenêtre 8 000. Relire l'horodatage brut du record obligerait
+		// de grille vaut quelques dizaines de ms, la fenêtre 8 000. Relire l'horodatage brut du record obligerait
 		// à faire voyager les entrées du décodeur jusqu'ici pour gagner un centième de fenêtre.
 		tMS := int64((clk.origin + uint64(inv[i].T)*clk.step) / 1000)
 		if since, has := invSinceLastDeathMS(byXUID[xuid], tMS); has && since <= invDeadWindowMS {

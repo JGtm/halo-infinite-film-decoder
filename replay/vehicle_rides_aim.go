@@ -70,7 +70,7 @@ func vehicleAimBySlot(aims []grammar.BipedAim) map[uint32][]grammar.BipedAim {
 //
 // MEME PAS ET MEME REGLE QUE LES AUTRES SERIES DU CALQUE (`vehicleSamplesOf`, `decimateTracks`) :
 // un point par frame, LE PREMIER OBSERVE GAGNE. Le film replique la visee a 5 a 46 lectures par
-// seconde ; la grille du document en compte 10 par seconde (`FrameIntervalMS` = 100 ms), publier
+// seconde ; la grille du document en compte 30 par seconde (`FrameIntervalMS` = 33 ms), publier
 // le flux brut multiplierait le poids du calque pour un rendu que le client n affiche pas plus
 // finement.
 //

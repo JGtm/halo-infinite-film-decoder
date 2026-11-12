@@ -49,14 +49,15 @@ import (
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
+	"github.com/JGtm/halo-infinite-film-decoder/replay"
 )
 
 // nombreDeTags : le tag du handle tient sur deux bits.
 const nombreDeTags = 4
 
-// pasDeFrameUS : le pas de la grille du rejeu (`replay.DefaultFrameIntervalMS` = 100 ms), en
-// microsecondes. Seconde copie de la valeur, pour reconstituer `durationMs` sans cuisson.
-const pasDeFrameUS = 100 * 1000
+// pasDeFrameUS : le pas de la grille du rejeu, [replay.DefaultFrameIntervalMS], en microsecondes, pour
+// reconstituer `durationMs` sans cuisson. Lu de la constante du paquet : aucune copie de la valeur.
+const pasDeFrameUS = replay.DefaultFrameIntervalMS * 1000
 
 // cleDeVie : une vie, (slot, generation du handle).
 type cleDeVie struct{ slot, gen uint32 }

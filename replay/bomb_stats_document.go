@@ -13,7 +13,7 @@ package replay
 //	Objectives            PORTÉ  `doc.Objectives` a bien Stat / XUID / TimeMS ;
 //	Armings               PORTÉ  `doc.BombArmings`, MÊME type, MÊME horloge (celle du film) ;
 //	Carry                 NON    `doc.BombCarries` est une projection sur la grille de FRAMES
-//	                             (100 ms), qui ÉCARTE les périodes non pontées, ne distingue
+//	                             (`frameIntervalMs`), qui ÉCARTE les périodes non pontées, ne distingue
 //	                             pas un lâcher d'une mort, et ne publie pas `CarryMSByXUID` ;
 //	FilmToMatchOffsetMS   NON    ni `originMs` ni `t0FilmMs` ne l'expriment ;
 //	Kills                 NON    la paire tueur/victime n'est nulle part dans le document.

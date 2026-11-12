@@ -76,13 +76,23 @@ import (
 // contractFixturesEnv : la seconde condition explicite de la regeneration (cf. en-tete).
 const contractFixturesEnv = "REPLAY_CONTRACT_UPDATE"
 
-// contractFixturesStride : un point de piste sur combien, pour les fixtures PAR BUILD.
+// contractFixturesStrideMS : l'ecart de temps que les fixtures PAR BUILD gardent entre deux points d'une piste.
 //
-// LA VALEUR EST UN ARBITRAGE, PAS UN REGLAGE (pilote, 2026-09-13) : 5 est ce qui ramene le jeu
-// sous le plafond avec de la marge (2,01 Mio mesures contre 3 Mio) sans descendre au point ou
-// une piste n'aurait plus assez de points pour exercer les logiques du web. La changer, c'est
-// republier tout le jeu : passer par la porte de regeneration, jamais par une edition.
-const contractFixturesStride = 5
+// LA VALEUR EST UN ARBITRAGE, PAS UN REGLAGE (pilote, 2026-09-13) : 500 ms est ce qui ramene le jeu
+// sous le plafond avec de la marge (2,01 Mio mesures contre 3 Mio, a un point sur cinq au pas de 100 ms)
+// sans descendre au point ou une piste n'aurait plus assez de points pour exercer les logiques du web.
+// La changer, c'est republier tout le jeu : passer par la porte de regeneration, jamais par une edition.
+//
+// UNE DUREE ET NON UN NOMBRE DE POINTS (2026-11-12, schema 111) : le pas du document est passe de 100 ms
+// a 33 ms ; l'ecart entre deux points gardes reste le meme, et le nombre de points sautes se derive du
+// pas ([contractFixturesStride]).
+const contractFixturesStrideMS = 500
+
+// contractFixturesStride : un point de piste sur combien, pour les fixtures PAR BUILD, derive du pas de
+// construction : [contractFixturesStrideMS] converti en images, au moins une (15 a 33 ms, 5 a 100 ms).
+func contractFixturesStride() int {
+	return max(1, framesOfMS(contractFixturesStrideMS, DefaultFrameIntervalMS))
+}
 
 // contractFixture : un document cuit publie au web.
 type contractFixture struct {
@@ -159,9 +169,9 @@ func contractFixtures() []contractFixture {
 	builds := goldenBuilds()
 	out := make([]contractFixture, 0, len(builds))
 	for _, b := range builds {
-		// `000d5950` INTACT, les autres a un point sur cinq (cf. en-tete) : la reference
+		// `000d5950` INTACT, les autres a un point toutes les 500 ms (cf. en-tete) : la reference
 		// historique du chantier ne se coupe pas, le budget se tient sur les sept autres.
-		stride := contractFixturesStride
+		stride := contractFixturesStride()
 		if b.Short8 == goldenFilm {
 			stride = 1
 		}

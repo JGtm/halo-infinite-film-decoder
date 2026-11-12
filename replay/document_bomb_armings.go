@@ -45,7 +45,7 @@ type BombArming struct {
 	// T est l'index de frame de l'instant ARMÉ (`bomb_armed`), sur le même axe que Point.T.
 	T int `json:"t"`
 	// TimeMS est l'instant armé exact sur l'horloge du film — même convention que
-	// ObjectiveAction.TimeMS : la grille de frames perd de la précision (100 ms par défaut).
+	// ObjectiveAction.TimeMS : la grille de frames perd de la précision (33 ms par défaut).
 	TimeMS int `json:"timeMs"`
 	// StartT est l'index de frame du début du hold d'armement (`bomb_arming_start`).
 	StartT int `json:"startT"`

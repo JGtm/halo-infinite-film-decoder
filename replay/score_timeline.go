@@ -123,7 +123,7 @@ func (s scoreSeriesSet) final(slot int) (int64, bool) {
 //	             (23 points pour 11 frags chez un joueur de `530820e5`). On garde la PREMIERE
 //	             emission d'un palier : c'est l'instant ou la valeur a ete atteinte.
 //	PAR FRAME    la derniere valeur d'une frame gagne — plusieurs changements peuvent tomber
-//	             dans le meme pas de 100 ms, et ce que le client dessine a cette frame est
+//	             dans le meme pas de la grille, et ce que le client dessine a cette frame est
 //	             l'etat a sa fin.
 //
 // La deduplication ne se fait JAMAIS sur `T` seul : deux valeurs differentes dans la meme frame

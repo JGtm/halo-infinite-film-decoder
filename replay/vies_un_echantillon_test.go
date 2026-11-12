@@ -89,7 +89,17 @@ const (
 // v29 de CE lot (sans rapport avec le fil des morts) l a rattrape : sa vie d un seul echantillon
 // n est plus apparie a une mort ecrite, elle ferme desormais sur la fin du film ({0,0,0,0} : la
 // vie elle-meme a disparu de l echantillon, cf. le total ci-dessous).
-func viesDUnEchantillonAttendues() map[string][4]int {
+//
+// A 100 MS, LES TROIS VIES SONT TOUJOURS LA (schema 111, 2026-11-12). Le document est passe a 33 ms et,
+// a ce pas, chaque vie compte plus d'un point de grille : l'oracle ne mesure plus rien. Il garde son
+// contenu en cuisant ses fixtures a 100 ms EXPLICITEMENT (`Options.FrameIntervalMS`), avec la table
+// d'avant ({1, 0, 1, 0} sur `11de8353`, {2, 0, 2, 0} sur `bcb6d393`, total {3, 0, 3, 0}), et pose a
+// cote l'assertion du pas de construction : aucune vie d'un seul echantillon a 33 ms. Les trois vies ne
+// sont pas perdues, elles sont mieux echantillonnees.
+func viesDUnEchantillonAttendues(pasMS int) map[string][4]int {
+	if pasMS != 100 {
+		return map[string][4]int{} // tous les builds a {0, 0, 0, 0}
+	}
 	return map[string][4]int{
 		"000d5950": {0, 0, 0, 0},
 		"a521164d": {0, 0, 0, 0},
@@ -103,12 +113,22 @@ func viesDUnEchantillonAttendues() map[string][4]int {
 }
 
 func TestViesDUnEchantillonOntLeurOracle(t *testing.T) {
+	for _, c := range []struct {
+		pasMS int
+		total [4]int
+	}{{HistoricalFrameIntervalMS, [4]int{3, 0, 3, 0}}, {DefaultFrameIntervalMS, [4]int{}}} {
+		t.Run(fmt.Sprintf("pas_%dms", c.pasMS), func(t *testing.T) { viesDUnEchantillonAuPas(t, c.pasMS, c.total) })
+	}
+}
+
+func viesDUnEchantillonAuPas(t *testing.T, pasMS int, attenduTotal [4]int) {
 	var total [4]int
 	for _, b := range goldenBuilds() {
 		g, entry := chargerGoldenBuild(t, b)
 		opt := g.options()
 		opt.Labels = goldenCatalog(t)
 		opt.MapQuant = &entry
+		opt.FrameIntervalMS = pasMS
 		doc := BuildFromPositions(context.Background(), b.Short8, "halo_infinite", g.Positions, g.Fire, opt)
 		if doc.Coverage != nil && doc.Coverage.Tracks != nil &&
 			doc.Coverage.Tracks.RefusedMinPoints != 0 {
@@ -122,15 +142,15 @@ func TestViesDUnEchantillonOntLeurOracle(t *testing.T) {
 		for _, l := range got.lignes {
 			t.Log(l)
 		}
-		if want := viesDUnEchantillonAttendues()[b.Short8]; got.comptes != want {
-			t.Errorf("%s : {total, mort, fin, orphelines} = %v, mesure du 2026-09-14 %v",
-				b.Short8, got.comptes, want)
+		if want := viesDUnEchantillonAttendues(pasMS)[b.Short8]; got.comptes != want {
+			t.Errorf("%s : {total, mort, fin, orphelines} = %v, mesure %v (pas %d ms)",
+				b.Short8, got.comptes, want, pasMS)
 		}
 	}
 	t.Logf("TOTAL sur les huit builds : %d vie(s) d'un echantillon · %d mort ecrite · %d fin de "+
 		"film · %d ORPHELINE(S)", total[0], total[1], total[2], total[3])
-	if total != [4]int{3, 0, 3, 0} {
-		t.Errorf("total {3, 0, 3, 0} attendu, mesure %v", total)
+	if total != attenduTotal {
+		t.Errorf("total %v attendu au pas de %d ms, mesure %v", attenduTotal, pasMS, total)
 	}
 	if total[3] != 0 {
 		t.Errorf("%d vie(s) ORPHELINE(S) : ni mort ecrite, ni fin de manche, ni fin de film. "+

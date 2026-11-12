@@ -129,7 +129,7 @@ func TestObjetEngendreCleRecyclee(t *testing.T) {
 // cand construit une trajectoire de repos née à la frame `n`, reconnaissable par son `land`.
 func cand(n, land int) reposEngendre { return reposEngendre{naissance: n, land: land} }
 
-// TestReposNeAPeuPresBornes : la borne est INCLUSE à toleranceDeNaissanceMS (3 frames au pas de
+// TestReposNeAPeuPresBornes : la borne est INCLUSE à toleranceDeNaissanceMS (convertie au pas de
 // construction) et refuse la suivante, avant comme après la frame de l'objet.
 func TestReposNeAPeuPresBornes(t *testing.T) {
 	const t0 = 1000
@@ -151,9 +151,11 @@ func TestReposNeAPeuPresBornes(t *testing.T) {
 			t.Errorf("%s : situe=%v, attendu %v (%+v)", c.nom, ok, c.attendu, r)
 		}
 	}
-	if borne != 3 {
-		t.Errorf("la tolerance vaut %d frames : les bornes ci-dessus sont ecrites pour 3 (4 refuse, 3 accepte)",
-			borne)
+	// La borne est la duree convertie ARRONDIE VERS LE BAS : elle n'excede jamais la duree, et la frame
+	// suivante l'excede. Le nombre de frames se derive du pas, il n'est pas fige.
+	if borne*DefaultFrameIntervalMS > toleranceDeNaissanceMS || (borne+1)*DefaultFrameIntervalMS <= toleranceDeNaissanceMS {
+		t.Errorf("la tolerance vaut %d frames de %d ms : pas l'arrondi vers le bas de %d ms",
+			borne, DefaultFrameIntervalMS, toleranceDeNaissanceMS)
 	}
 	if _, ok := reposNeAPeuPres(nil, t0, DefaultFrameIntervalMS); ok {
 		t.Error("aucune candidate : rien ne se situe")

@@ -111,7 +111,8 @@ type AttributeOptions struct {
 	// frames. <= 0 prend DefaultMaxGapMS, converti avec FrameIntervalMS.
 	MaxGapFrames int
 	// FrameIntervalMS : pas de la grille des frames de l'action et des pistes, en millisecondes.
-	// <= 0 prend DefaultFrameIntervalMS.
+	// <= 0 prend HistoricalFrameIntervalMS : des actions et des pistes sans pas sont celles d'un document
+	// publié sans `frameIntervalMs`, donc à 100 ms.
 	FrameIntervalMS int
 	// MaxDistanceM : distance maximale AU VOLUME de la zone, en metres.
 	//

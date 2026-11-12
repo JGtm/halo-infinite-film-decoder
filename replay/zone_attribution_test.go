@@ -177,8 +177,8 @@ func TestLaToleranceDEchantillonnageEstBornee(t *testing.T) {
 		attribuee    bool
 		ecartAttendu int
 	}{
-		{"echantillon a 2 frames (dans la tolerance)", 48, true, 2},
-		{"echantillon a 3 frames (au-dela)", 47, false, 0},
+		{"echantillon a la tolerance", 50 - DefaultMaxGapFrames, true, DefaultMaxGapFrames},
+		{"echantillon une frame au-dela", 50 - DefaultMaxGapFrames - 1, false, 0},
 	}
 	for _, c := range cas {
 		tracks := []Track{track("2533", pointAt(c.frameEchant, 1, 0, 0))}

@@ -276,3 +276,23 @@ func TestT0FilmTracksOfConserveIdentiteEtPoints(t *testing.T) {
 		t.Errorf("premier point = %+v, attendu {T:3 X:1 Y:2 Z:3}", p)
 	}
 }
+
+// TestTeleportationSeJugeSurLaDureEcoulee : deux points separes de plusieurs pas (un trou de replication)
+// qui avancent a 25 m/s sont une locomotion, a toute cadence ; le meme deplacement a 80 m/s est une
+// teleportation. Un seuil en distance par PAS en faisait une teleportation des que le trou depassait une frame.
+func TestTeleportationSeJugeSurLaDureEcoulee(t *testing.T) {
+	for _, interval := range []int{100, 33} {
+		for _, c := range []struct {
+			vitesse float64 // m/s
+			rupture bool
+		}{{25, false}, {80, true}} {
+			ecartFrames := 3
+			dist := float32(c.vitesse * float64(ecartFrames*interval) / 1000)
+			pts := []T0FilmPoint{{T: 0}, {T: ecartFrames, X: dist}}
+			steps := t0FilmSteps(pts, interval)
+			if len(steps) != 1 || steps[0].rupture != c.rupture {
+				t.Errorf("pas %d ms, %.0f m/s sur %d pas : rupture = %v, attendu %v", interval, c.vitesse, ecartFrames, steps, c.rupture)
+			}
+		}
+	}
+}

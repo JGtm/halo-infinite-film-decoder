@@ -1491,8 +1491,11 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   et son compteur `coverage.vehicles.destructions.clockUnknown` disparaissent, `killedNoIdentity` et `killedCleanup`
 	//   s'ajoutent. `SchemaDesFaits` monte (20 -> 21 : les faits portent les morts de bipède) : un v109 se lit « à redécoder ».
 	//   Détail : `document_chronicle.go`.
-	if SchemaVersion != 110 {
-		t.Fatalf("SchemaVersion = %d, attendu 110 : incrémenter exige une raison écrite ci-dessus "+
+	// - 111 (2026-11-12, cadence du rejeu) : la grille passe de 100 ms à 33 ms (`DefaultFrameIntervalMS`). Aucun
+	//   champ neuf ; le contenu cuit change (trois fois plus de points, plus de vols de projectile, `t0FilmMs` plus
+	//   fin). Aucune révision de décodage ne monte : un v110 se lit « à republier ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 111 {
+		t.Fatalf("SchemaVersion = %d, attendu 111 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }
