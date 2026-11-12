@@ -5,20 +5,20 @@
 # l ASSEMBLAGE ; le DECODAGE est verrouille a part par la mini-bobine.
 
 ## AXE DE TEMPS
-5265 frames · intervalle 100 ms · duree 526500 ms
-schema 110 · titre halo_infinite
+15954 frames · intervalle 33 ms · duree 526482 ms
+schema 111 · titre halo_infinite
 version majeure du film : 39
 origine de la frame 0 sur l horloge du fil : 47630 ms
-coup d envoi date par le film : 70230 ms · 212/212 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 22600 ms
+coup d envoi date par le film : 70235 ms · 212/212 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 22605 ms
 
 ## TRACES PUBLIEES — une trace est UNE VIE, pas un joueur (le slot migre a chaque reapparition)
-212 trace(s) · 90438 point(s) de grille
+212 trace(s) · 264772 point(s) de grille
 seuil de publication 1 point(s) : 0 vie(s) REFUSEE(S) portant 0 point(s) — si le film ecrit une position, elle se publie
 33 lacune(s) de replication DANS une vie, 673346 ms au total — un trou n'est pas une fin de vie, la piste ne s'y interpole simplement pas
 212 trace(s) NOMMEE(S) par le pont (fil des morts, fermetures, sieges de bot, relais, puis
 occupation du slot dans le TEMPS) · 0 sans identite — un DEFAUT de nommage a instruire,
 jamais une categorie de donnee (decision produit du 2026-09-07)
-52327 point(s) portent un cap de visee · 52327 une elevation de visee · 14833 un bouclier · 420 une fraction de vie
+153834 point(s) portent un cap de visee · 153834 une elevation de visee · 43462 un bouclier · 1281 une fraction de vie
 
 ### ROSTER — le xuid IDENTIFIE, l index ORDONNE ; ils ne sont pas interchangeables
 25 joueur(s)
@@ -71,9 +71,9 @@ par source : projectile=147 (aucun pont) · biped=8 (le pont a servi)
 par type : Dynamo=65 · Frag=37 · Plasma=23 · Spike=30
 
 ## PROJECTILES — le dernier point est la DERNIERE POSITION REPLIQUEE, jamais un impact
-707 trajectoire(s) · 7418 point(s) de grille
-101 se terminent sur `projectile-at-rest-state` — le SEUL champ qui certifie une fin de vol
-couverture : 720 piste(s) decodee(s) · 707 publiee(s) · 10 coupee(s) a un pas impossible
+719 trajectoire(s) · 20589 point(s) de grille
+110 se terminent sur `projectile-at-rest-state` — le SEUL champ qui certifie une fin de vol
+couverture : 720 piste(s) decodee(s) · 719 publiee(s) · 1 coupee(s) a un pas impossible
 
 ## INVENTAIRE — lu aux images-cles, jamais interpole entre deux
 573 etat(s) publie(s) · 489 avec grenades lues · 489 avec munitions lues
@@ -104,260 +104,260 @@ couverture : 212 vie(s) publiee(s) · camo 0 vie(s) / 0 episode(s) · surbouclie
 
 ## IMPULSIONS DE CAPACITE — l usage MESURE du propulseur, attribue par le rang de la vie
 47 lecture(s) -> 24 geste(s) -> 23 publiee(s) · 0 sans identite · 1 famille non mesuree · 0 attribution indisponible · 0 avant l origine · 0 sans piste publiee · composant absent=false
-  slot=512 t=245 thruster
-  slot=512 t=281 thruster
-  slot=520 t=333 thruster
-  slot=512 t=352 thruster
-  slot=512 t=392 thruster
-  slot=535 t=542 thruster
-  slot=535 t=589 thruster
-  slot=551 t=980 thruster
-  slot=546 t=981 thruster
-  slot=563 t=1761 thruster
-  slot=574 t=1797 thruster
-  slot=574 t=1835 thruster
-  slot=563 t=1988 thruster
-  slot=576 t=2043 thruster
-  slot=626 t=2916 thruster
-  slot=626 t=3116 thruster
-  slot=644 t=3716 thruster
-  slot=683 t=4431 thruster
-  slot=680 t=4477 thruster
-  slot=680 t=4570 thruster
-  slot=678 t=4644 thruster
-  slot=678 t=4683 thruster
-  slot=719 t=5207 thruster
+  slot=512 t=743 thruster
+  slot=512 t=852 thruster
+  slot=520 t=1011 thruster
+  slot=512 t=1069 thruster
+  slot=512 t=1188 thruster
+  slot=535 t=1642 thruster
+  slot=535 t=1785 thruster
+  slot=551 t=2970 thruster
+  slot=546 t=2975 thruster
+  slot=563 t=5338 thruster
+  slot=574 t=5446 thruster
+  slot=574 t=5562 thruster
+  slot=563 t=6027 thruster
+  slot=576 t=6192 thruster
+  slot=626 t=8838 thruster
+  slot=626 t=9444 thruster
+  slot=644 t=11262 thruster
+  slot=683 t=13427 thruster
+  slot=680 t=13567 thruster
+  slot=680 t=13851 thruster
+  slot=678 t=14074 thruster
+  slot=678 t=14192 thruster
+  slot=719 t=15781 thruster
 
 ## CHARGES D EQUIPEMENT — les lectures du film, jamais un compte d usages derive
 166 lecture(s) -> 166 publiee(s) · 0 sans identite · 0 famille non mesuree · 0 attribution indisponible · 0 avant l origine · 0 sans piste publiee · composant absent=false
-  slot=512 t=245 thruster charges=4
-  slot=532 t=252 grapple charges=4
-  slot=532 t=261 grapple charges=4
-  slot=525 t=262 grapple charges=4
-  slot=525 t=271 grapple charges=4
-  slot=512 t=281 thruster charges=3
-  slot=520 t=333 thruster charges=4
-  slot=512 t=352 thruster charges=2
-  slot=512 t=392 thruster charges=1
-  slot=525 t=413 grapple charges=3
-  slot=525 t=424 grapple charges=3
-  slot=525 t=508 grapple charges=3
-  slot=535 t=542 thruster charges=4
-  slot=535 t=589 thruster charges=3
-  slot=525 t=596 grapple charges=2
-  slot=525 t=606 grapple charges=2
-  slot=535 t=641 grapple charges=4
-  slot=541 t=682 grapple charges=4
-  slot=541 t=695 grapple charges=4
-  slot=543 t=842 grapple charges=4
-  slot=551 t=980 thruster charges=4
-  slot=546 t=981 thruster charges=4
-  slot=549 t=1281 grapple charges=4
-  slot=561 t=1283 grapple charges=4
-  slot=549 t=1289 grapple charges=4
-  slot=566 t=1398 grapple charges=4
-  slot=566 t=1444 grapple charges=3
-  slot=545 t=1451 thruster charges=4
-  slot=566 t=1455 grapple charges=3
-  slot=570 t=1524 grapple charges=4
-  slot=570 t=1535 grapple charges=4
-  slot=571 t=1557 grapple charges=3
-  slot=570 t=1658 grapple charges=3
-  slot=570 t=1666 grapple charges=3
-  slot=580 t=1692 grapple charges=4
-  slot=563 t=1761 thruster charges=4
-  slot=574 t=1797 thruster charges=4
-  slot=574 t=1835 thruster charges=3
-  slot=586 t=1866 grapple charges=3
-  slot=586 t=1879 grapple charges=2
-  slot=590 t=1880 grapple charges=4
-  slot=580 t=1955 grapple charges=3
-  slot=580 t=1964 grapple charges=3
-  slot=563 t=1988 thruster charges=3
-  slot=580 t=2002 grapple charges=3
-  slot=580 t=2013 grapple charges=2
-  slot=590 t=2017 grapple charges=3
-  slot=580 t=2025 grapple charges=2
-  slot=590 t=2027 grapple charges=3
-  slot=576 t=2043 thruster charges=4
-  slot=580 t=2113 grapple charges=1
-  slot=580 t=2123 grapple charges=1
-  slot=593 t=2129 grapple charges=2
-  slot=580 t=2159 grapple charges=0
-  slot=580 t=2170 grapple charges=0
-  slot=598 t=2261 grapple charges=4
-  slot=598 t=2267 grapple charges=4
-  slot=580 t=2302 grapple charges=4
-  slot=580 t=2448 grapple charges=3
-  slot=580 t=2455 grapple charges=3
-  slot=613 t=2474 grapple charges=4
-  slot=613 t=2488 grapple charges=4
-  slot=580 t=2502 grapple charges=2
-  slot=580 t=2509 grapple charges=2
-  slot=613 t=2511 grapple charges=3
-  slot=613 t=2523 grapple charges=3
-  slot=613 t=2554 grapple charges=2
-  slot=613 t=2568 grapple charges=2
-  slot=580 t=2568 grapple charges=1
-  slot=580 t=2576 grapple charges=1
-  slot=613 t=2633 grapple charges=1
-  slot=613 t=2640 grapple charges=1
-  slot=580 t=2676 grapple charges=0
-  slot=613 t=2677 grapple charges=0
-  slot=613 t=2685 grapple charges=0
-  slot=623 t=2750 grapple charges=4
-  slot=623 t=2763 grapple charges=4
-  slot=625 t=2800 grapple charges=4
-  slot=625 t=2809 grapple charges=4
-  slot=627 t=2830 grapple charges=4
-  slot=627 t=2842 grapple charges=4
-  slot=619 t=2844 grapple charges=4
-  slot=626 t=2916 thruster charges=4
-  slot=632 t=2938 grapple charges=4
-  slot=627 t=2939 grapple charges=3
-  slot=627 t=2953 grapple charges=3
-  slot=632 t=3025 grapple charges=3
-  slot=619 t=3026 grapple charges=3
-  slot=619 t=3033 grapple charges=3
-  slot=626 t=3116 thruster charges=3
-  slot=632 t=3162 grapple charges=2
-  slot=632 t=3174 grapple charges=2
-  slot=631 t=3258 grapple charges=4
-  slot=631 t=3265 grapple charges=4
-  slot=642 t=3279 grapple charges=4
-  slot=642 t=3283 grapple charges=4
-  slot=643 t=3328 grapple charges=4
-  slot=643 t=3337 grapple charges=4
-  slot=631 t=3342 grapple charges=3
-  slot=631 t=3353 grapple charges=3
-  slot=641 t=3375 grapple charges=2
-  slot=631 t=3411 grapple charges=2
-  slot=631 t=3420 grapple charges=2
-  slot=643 t=3504 grapple charges=3
-  slot=643 t=3515 grapple charges=3
-  slot=643 t=3586 grapple charges=2
-  slot=643 t=3601 grapple charges=2
-  slot=643 t=3664 grapple charges=1
-  slot=644 t=3672 thruster charges=4
-  slot=643 t=3675 grapple charges=1
-  slot=644 t=3716 thruster charges=3
-  slot=643 t=3744 grapple charges=0
-  slot=643 t=3757 grapple charges=0
-  slot=654 t=3761 grapple charges=4
-  slot=654 t=3770 grapple charges=4
-  slot=664 t=3882 grapple charges=4
-  slot=664 t=3891 grapple charges=4
-  slot=654 t=3913 grapple charges=4
-  slot=654 t=3928 grapple charges=4
-  slot=654 t=3941 grapple charges=3
-  slot=654 t=3949 grapple charges=3
-  slot=666 t=4092 grapple charges=4
-  slot=683 t=4431 thruster charges=4
-  slot=680 t=4477 thruster charges=4
-  slot=689 t=4507 grapple charges=4
-  slot=689 t=4518 grapple charges=4
-  slot=689 t=4566 grapple charges=3
-  slot=680 t=4570 thruster charges=3
-  slot=689 t=4577 grapple charges=3
-  slot=688 t=4596 grapple charges=4
-  slot=693 t=4607 grapple charges=3
-  slot=699 t=4636 grapple charges=4
-  slot=678 t=4636 thruster charges=3
-  slot=678 t=4644 thruster charges=2
-  slot=699 t=4646 grapple charges=4
-  slot=678 t=4683 thruster charges=1
-  slot=693 t=4686 grapple charges=3
-  slot=693 t=4694 grapple charges=2
-  slot=693 t=4705 grapple charges=2
-  slot=699 t=4728 grapple charges=4
-  slot=699 t=4735 grapple charges=3
-  slot=693 t=4743 grapple charges=1
-  slot=699 t=4748 grapple charges=3
-  slot=693 t=4752 grapple charges=1
-  slot=703 t=4913 grapple charges=3
-  slot=710 t=4972 grapple charges=4
-  slot=710 t=4983 grapple charges=4
-  slot=703 t=5008 grapple charges=2
-  slot=703 t=5019 grapple charges=2
-  slot=710 t=5076 grapple charges=3
-  slot=718 t=5078 grapple charges=4
-  slot=718 t=5088 grapple charges=4
-  slot=710 t=5089 grapple charges=3
-  slot=718 t=5121 grapple charges=3
-  slot=718 t=5133 grapple charges=3
-  slot=710 t=5143 grapple charges=2
-  slot=710 t=5153 grapple charges=2
-  slot=718 t=5154 grapple charges=2
-  slot=718 t=5165 grapple charges=2
-  slot=703 t=5179 grapple charges=1
-  slot=703 t=5183 grapple charges=1
-  slot=710 t=5193 grapple charges=1
-  slot=710 t=5203 grapple charges=1
-  slot=719 t=5207 thruster charges=4
-  slot=710 t=5259 grapple charges=0
-  slot=710 t=5259 grapple charges=0
+  slot=512 t=743 thruster charges=4
+  slot=532 t=764 grapple charges=4
+  slot=532 t=793 grapple charges=4
+  slot=525 t=795 grapple charges=4
+  slot=525 t=822 grapple charges=4
+  slot=512 t=852 thruster charges=3
+  slot=520 t=1011 thruster charges=4
+  slot=512 t=1069 thruster charges=2
+  slot=512 t=1188 thruster charges=1
+  slot=525 t=1251 grapple charges=3
+  slot=525 t=1285 grapple charges=3
+  slot=525 t=1540 grapple charges=3
+  slot=535 t=1642 thruster charges=4
+  slot=535 t=1785 thruster charges=3
+  slot=525 t=1807 grapple charges=2
+  slot=525 t=1838 grapple charges=2
+  slot=535 t=1943 grapple charges=4
+  slot=541 t=2069 grapple charges=4
+  slot=541 t=2106 grapple charges=4
+  slot=543 t=2551 grapple charges=4
+  slot=551 t=2970 thruster charges=4
+  slot=546 t=2975 thruster charges=4
+  slot=549 t=3882 grapple charges=4
+  slot=561 t=3889 grapple charges=4
+  slot=549 t=3908 grapple charges=4
+  slot=566 t=4238 grapple charges=4
+  slot=566 t=4376 grapple charges=3
+  slot=545 t=4399 thruster charges=4
+  slot=566 t=4411 grapple charges=3
+  slot=570 t=4620 grapple charges=4
+  slot=570 t=4653 grapple charges=4
+  slot=571 t=4718 grapple charges=3
+  slot=570 t=5027 grapple charges=3
+  slot=570 t=5049 grapple charges=3
+  slot=580 t=5130 grapple charges=4
+  slot=563 t=5338 thruster charges=4
+  slot=574 t=5446 thruster charges=4
+  slot=574 t=5562 thruster charges=3
+  slot=586 t=5657 grapple charges=3
+  slot=586 t=5694 grapple charges=2
+  slot=590 t=5698 grapple charges=4
+  slot=580 t=5925 grapple charges=3
+  slot=580 t=5952 grapple charges=3
+  slot=563 t=6027 thruster charges=3
+  slot=580 t=6069 grapple charges=3
+  slot=580 t=6101 grapple charges=2
+  slot=590 t=6115 grapple charges=3
+  slot=580 t=6139 grapple charges=2
+  slot=590 t=6143 grapple charges=3
+  slot=576 t=6192 thruster charges=4
+  slot=580 t=6405 grapple charges=1
+  slot=580 t=6433 grapple charges=1
+  slot=593 t=6453 grapple charges=2
+  slot=580 t=6544 grapple charges=0
+  slot=580 t=6576 grapple charges=0
+  slot=598 t=6852 grapple charges=4
+  slot=598 t=6871 grapple charges=4
+  slot=580 t=6976 grapple charges=4
+  slot=580 t=7418 grapple charges=3
+  slot=580 t=7441 grapple charges=3
+  slot=613 t=7499 grapple charges=4
+  slot=613 t=7539 grapple charges=4
+  slot=580 t=7582 grapple charges=2
+  slot=580 t=7603 grapple charges=2
+  slot=613 t=7611 grapple charges=3
+  slot=613 t=7645 grapple charges=3
+  slot=613 t=7741 grapple charges=2
+  slot=613 t=7782 grapple charges=2
+  slot=580 t=7784 grapple charges=1
+  slot=580 t=7806 grapple charges=1
+  slot=613 t=7979 grapple charges=1
+  slot=613 t=8001 grapple charges=1
+  slot=580 t=8111 grapple charges=0
+  slot=613 t=8114 grapple charges=0
+  slot=613 t=8138 grapple charges=0
+  slot=623 t=8333 grapple charges=4
+  slot=623 t=8375 grapple charges=4
+  slot=625 t=8486 grapple charges=4
+  slot=625 t=8514 grapple charges=4
+  slot=627 t=8576 grapple charges=4
+  slot=627 t=8614 grapple charges=4
+  slot=619 t=8619 grapple charges=4
+  slot=626 t=8838 thruster charges=4
+  slot=632 t=8903 grapple charges=4
+  slot=627 t=8906 grapple charges=3
+  slot=627 t=8950 grapple charges=3
+  slot=632 t=9169 grapple charges=3
+  slot=619 t=9170 grapple charges=3
+  slot=619 t=9191 grapple charges=3
+  slot=626 t=9444 thruster charges=3
+  slot=632 t=9583 grapple charges=2
+  slot=632 t=9618 grapple charges=2
+  slot=631 t=9875 grapple charges=4
+  slot=631 t=9896 grapple charges=4
+  slot=642 t=9937 grapple charges=4
+  slot=642 t=9949 grapple charges=4
+  slot=643 t=10086 grapple charges=4
+  slot=643 t=10115 grapple charges=4
+  slot=631 t=10129 grapple charges=3
+  slot=631 t=10160 grapple charges=3
+  slot=641 t=10227 grapple charges=2
+  slot=631 t=10336 grapple charges=2
+  slot=631 t=10363 grapple charges=2
+  slot=643 t=10620 grapple charges=3
+  slot=643 t=10652 grapple charges=3
+  slot=643 t=10868 grapple charges=2
+  slot=643 t=10912 grapple charges=2
+  slot=643 t=11104 grapple charges=1
+  slot=644 t=11127 thruster charges=4
+  slot=643 t=11138 grapple charges=1
+  slot=644 t=11262 thruster charges=3
+  slot=643 t=11347 grapple charges=0
+  slot=643 t=11387 grapple charges=0
+  slot=654 t=11399 grapple charges=4
+  slot=654 t=11424 grapple charges=4
+  slot=664 t=11764 grapple charges=4
+  slot=664 t=11793 grapple charges=4
+  slot=654 t=11860 grapple charges=4
+  slot=654 t=11905 grapple charges=4
+  slot=654 t=11943 grapple charges=3
+  slot=654 t=11967 grapple charges=3
+  slot=666 t=12401 grapple charges=4
+  slot=683 t=13427 thruster charges=4
+  slot=680 t=13567 thruster charges=4
+  slot=689 t=13658 grapple charges=4
+  slot=689 t=13693 grapple charges=4
+  slot=689 t=13838 grapple charges=3
+  slot=680 t=13851 thruster charges=3
+  slot=689 t=13872 grapple charges=3
+  slot=688 t=13928 grapple charges=4
+  slot=693 t=13963 grapple charges=3
+  slot=699 t=14050 grapple charges=4
+  slot=678 t=14051 thruster charges=3
+  slot=678 t=14074 thruster charges=2
+  slot=699 t=14081 grapple charges=4
+  slot=678 t=14192 thruster charges=1
+  slot=693 t=14202 grapple charges=3
+  slot=693 t=14226 grapple charges=2
+  slot=693 t=14257 grapple charges=2
+  slot=699 t=14328 grapple charges=4
+  slot=699 t=14349 grapple charges=3
+  slot=693 t=14372 grapple charges=1
+  slot=699 t=14389 grapple charges=3
+  slot=693 t=14401 grapple charges=1
+  slot=703 t=14890 grapple charges=3
+  slot=710 t=15069 grapple charges=4
+  slot=710 t=15100 grapple charges=4
+  slot=703 t=15176 grapple charges=2
+  slot=703 t=15211 grapple charges=2
+  slot=710 t=15383 grapple charges=3
+  slot=718 t=15388 grapple charges=4
+  slot=718 t=15420 grapple charges=4
+  slot=710 t=15421 grapple charges=3
+  slot=718 t=15518 grapple charges=3
+  slot=718 t=15555 grapple charges=3
+  slot=710 t=15587 grapple charges=2
+  slot=710 t=15615 grapple charges=2
+  slot=718 t=15619 grapple charges=2
+  slot=718 t=15652 grapple charges=2
+  slot=703 t=15694 grapple charges=1
+  slot=703 t=15706 grapple charges=1
+  slot=710 t=15736 grapple charges=1
+  slot=710 t=15768 grapple charges=1
+  slot=719 t=15781 thruster charges=4
+  slot=710 t=15937 grapple charges=0
+  slot=710 t=15938 grapple charges=0
 
 ## GRAPPIN — tractions datees par vie, l ancre en coordonnees monde (fenetre MESUREE)
 59 traction(s) sur 27 vie(s) · lectures : 74 tir(s) + 59 accroche(s) · 15 rate(s) · 0 corps non decodable(s)
-  slot=525 t=[260, 276] ancre=(-57.14, -37.71, 69.04)
-  slot=525 t=[411, 425] ancre=(-82.48, -47.23, 69.92)
-  slot=525 t=[594, 607] ancre=(-94.69, -55.45, 65.56)
-  slot=541 t=[681, 696] ancre=(-114.18, -34.82, 68.48)
-  slot=549 t=[1279, 1290] ancre=(-80.18, -48.06, 69.82)
-  slot=561 t=[1281, 1305] ancre=(-77.26, -47.59, 65.37)
-  slot=566 t=[1442, 1456] ancre=(-89.53, -47.75, 68.59)
-  slot=570 t=[1523, 1536] ancre=(-85.97, -48.93, 69.82)
-  slot=570 t=[1657, 1671] ancre=(-103.19, -45.43, 68.65)
-  slot=590 t=[1878, 1892] ancre=(-76.81, -53.77, 70.98)
-  slot=580 t=[1953, 1965] ancre=(-64.49, -25.86, 67.21)
-  slot=580 t=[2011, 2026] ancre=(-78.09, -15.98, 62.05)
-  slot=590 t=[2016, 2028] ancre=(-72.87, -45.18, 69.91)
-  slot=580 t=[2112, 2125] ancre=(-94.68, -28.30, 67.66)
-  slot=580 t=[2158, 2171] ancre=(-108.64, -34.52, 68.88)
-  slot=598 t=[2259, 2270] ancre=(-103.59, -44.89, 63.30)
-  slot=580 t=[2446, 2459] ancre=(-79.06, -37.80, 69.91)
-  slot=613 t=[2473, 2488] ancre=(-81.10, -27.79, 63.18)
-  slot=580 t=[2500, 2513] ancre=(-73.60, -42.90, 68.71)
-  slot=613 t=[2510, 2524] ancre=(-79.50, -38.48, 69.91)
-  slot=613 t=[2553, 2571] ancre=(-72.99, -44.92, 69.91)
-  slot=590 t=[2554, 2555] ancre=(-78.22, -36.67, 69.91)
-  slot=580 t=[2567, 2578] ancre=(-64.49, -38.18, 69.09)
-  slot=613 t=[2631, 2645] ancre=(-70.13, -44.52, 63.58)
-  slot=580 t=[2674, 2683] ancre=(-75.41, -36.39, 67.59)
-  slot=613 t=[2675, 2686] ancre=(-58.49, -45.62, 67.21)
-  slot=623 t=[2748, 2765] ancre=(-95.94, -30.89, 69.06)
-  slot=625 t=[2798, 2811] ancre=(-83.53, -51.99, 61.76)
-  slot=627 t=[2828, 2848] ancre=(-100.02, -45.47, 66.84)
-  slot=627 t=[2937, 2955] ancre=(-79.73, -36.93, 66.60)
-  slot=619 t=[3024, 3033] ancre=(-117.33, -57.55, 64.55)
-  slot=632 t=[3024, 3036] ancre=(-74.31, -45.25, 68.89)
-  slot=632 t=[3160, 3175] ancre=(-89.64, -47.37, 67.19)
-  slot=631 t=[3257, 3273] ancre=(-81.27, -17.34, 60.81)
-  slot=642 t=[3277, 3284] ancre=(-70.17, -27.54, 63.32)
-  slot=643 t=[3326, 3338] ancre=(-91.09, -62.74, 64.15)
-  slot=631 t=[3340, 3354] ancre=(-81.63, -28.30, 63.20)
-  slot=643 t=[3503, 3516] ancre=(-98.93, -50.23, 66.05)
-  slot=643 t=[3584, 3602] ancre=(-99.42, -42.90, 69.41)
-  slot=643 t=[3662, 3676] ancre=(-96.74, -51.56, 64.50)
-  slot=643 t=[3743, 3760] ancre=(-97.70, -44.13, 66.60)
-  slot=654 t=[3760, 3770] ancre=(-83.55, -18.09, 64.43)
-  slot=664 t=[3880, 3892] ancre=(-92.45, -42.91, 68.04)
-  slot=654 t=[3939, 3949] ancre=(-93.27, -25.59, 62.21)
-  slot=689 t=[4505, 4519] ancre=(-103.72, -45.43, 67.86)
-  slot=689 t=[4565, 4578] ancre=(-106.23, -28.41, 68.42)
-  slot=688 t=[4594, 4602] ancre=(-68.31, -32.85, 65.16)
-  slot=693 t=[4693, 4706] ancre=(-79.83, -33.27, 66.85)
-  slot=699 t=[4733, 4749] ancre=(-79.80, -39.62, 67.22)
-  slot=693 t=[4741, 4753] ancre=(-76.20, -29.21, 70.65)
-  slot=703 t=[5006, 5025] ancre=(-73.35, -30.91, 66.85)
-  slot=710 t=[5075, 5086] ancre=(-103.52, -32.88, 65.12)
-  slot=718 t=[5076, 5090] ancre=(-76.99, -51.81, 69.82)
-  slot=718 t=[5119, 5133] ancre=(-89.67, -39.80, 64.31)
-  slot=710 t=[5142, 5153] ancre=(-107.70, -35.69, 65.58)
-  slot=718 t=[5152, 5166] ancre=(-93.71, -32.82, 69.45)
-  slot=703 t=[5177, 5195] ancre=(-100.55, -48.65, 63.32)
-  slot=710 t=[5191, 5204] ancre=(-112.78, -34.55, 66.96)
-  slot=710 t=[5257, 5259] ancre=(-117.41, -42.72, 64.98)
+  slot=525 t=[790, 837] ancre=(-57.14, -37.71, 69.04)
+  slot=525 t=[1246, 1288] ancre=(-82.48, -47.23, 69.92)
+  slot=525 t=[1802, 1840] ancre=(-94.69, -55.45, 65.56)
+  slot=541 t=[2064, 2108] ancre=(-114.18, -34.82, 68.48)
+  slot=549 t=[3877, 3910] ancre=(-80.18, -48.06, 69.82)
+  slot=561 t=[3884, 3953] ancre=(-77.26, -47.59, 65.37)
+  slot=566 t=[4371, 4413] ancre=(-89.53, -47.75, 68.59)
+  slot=570 t=[4615, 4656] ancre=(-85.97, -48.93, 69.82)
+  slot=570 t=[5021, 5065] ancre=(-103.19, -45.43, 68.65)
+  slot=590 t=[5693, 5734] ancre=(-76.81, -53.77, 70.98)
+  slot=580 t=[5919, 5954] ancre=(-64.49, -25.86, 67.21)
+  slot=580 t=[6096, 6141] ancre=(-78.09, -15.98, 62.05)
+  slot=590 t=[6110, 6147] ancre=(-72.87, -45.18, 69.91)
+  slot=580 t=[6400, 6439] ancre=(-94.68, -28.30, 67.66)
+  slot=580 t=[6539, 6579] ancre=(-108.64, -34.52, 68.88)
+  slot=598 t=[6847, 6879] ancre=(-103.59, -44.89, 63.30)
+  slot=580 t=[7413, 7451] ancre=(-79.06, -37.80, 69.91)
+  slot=613 t=[7494, 7538] ancre=(-81.10, -27.79, 63.18)
+  slot=580 t=[7577, 7614] ancre=(-73.60, -42.90, 68.71)
+  slot=613 t=[7606, 7647] ancre=(-79.50, -38.48, 69.91)
+  slot=613 t=[7736, 7791] ancre=(-72.99, -44.92, 69.91)
+  slot=590 t=[7740, 7745] ancre=(-78.22, -36.67, 69.91)
+  slot=580 t=[7779, 7812] ancre=(-64.49, -38.18, 69.09)
+  slot=613 t=[7974, 8017] ancre=(-70.13, -44.52, 63.58)
+  slot=580 t=[8105, 8130] ancre=(-75.41, -36.39, 67.59)
+  slot=613 t=[8109, 8139] ancre=(-58.49, -45.62, 67.21)
+  slot=623 t=[8328, 8378] ancre=(-95.94, -30.89, 69.06)
+  slot=625 t=[8481, 8517] ancre=(-83.53, -51.99, 61.76)
+  slot=627 t=[8571, 8629] ancre=(-100.02, -45.47, 66.84)
+  slot=627 t=[8901, 8955] ancre=(-79.73, -36.93, 66.60)
+  slot=632 t=[9164, 9200] ancre=(-74.31, -45.25, 68.89)
+  slot=619 t=[9165, 9193] ancre=(-117.33, -57.55, 64.55)
+  slot=632 t=[9578, 9622] ancre=(-89.64, -47.37, 67.19)
+  slot=631 t=[9870, 9919] ancre=(-81.27, -17.34, 60.81)
+  slot=642 t=[9932, 9954] ancre=(-70.17, -27.54, 63.32)
+  slot=643 t=[10081, 10116] ancre=(-91.09, -62.74, 64.15)
+  slot=631 t=[10124, 10165] ancre=(-81.63, -28.30, 63.20)
+  slot=643 t=[10615, 10654] ancre=(-98.93, -50.23, 66.05)
+  slot=643 t=[10863, 10914] ancre=(-99.42, -42.90, 69.41)
+  slot=643 t=[11098, 11138] ancre=(-96.74, -51.56, 64.50)
+  slot=643 t=[11342, 11393] ancre=(-97.70, -44.13, 66.60)
+  slot=654 t=[11394, 11425] ancre=(-83.55, -18.09, 64.43)
+  slot=664 t=[11759, 11795] ancre=(-92.45, -42.91, 68.04)
+  slot=654 t=[11938, 11968] ancre=(-93.27, -25.59, 62.21)
+  slot=689 t=[13652, 13694] ancre=(-103.72, -45.43, 67.86)
+  slot=689 t=[13833, 13874] ancre=(-106.23, -28.41, 68.42)
+  slot=688 t=[13923, 13947] ancre=(-68.31, -32.85, 65.16)
+  slot=693 t=[14221, 14259] ancre=(-79.83, -33.27, 66.85)
+  slot=699 t=[14344, 14390] ancre=(-79.80, -39.62, 67.22)
+  slot=693 t=[14367, 14403] ancre=(-76.20, -29.21, 70.65)
+  slot=703 t=[15171, 15227] ancre=(-73.35, -30.91, 66.85)
+  slot=710 t=[15378, 15411] ancre=(-103.52, -32.88, 65.12)
+  slot=718 t=[15382, 15423] ancre=(-76.99, -51.81, 69.82)
+  slot=718 t=[15513, 15555] ancre=(-89.67, -39.80, 64.31)
+  slot=710 t=[15582, 15616] ancre=(-107.70, -35.69, 65.58)
+  slot=718 t=[15614, 15655] ancre=(-93.71, -32.82, 69.45)
+  slot=703 t=[15689, 15742] ancre=(-100.55, -48.65, 63.32)
+  slot=710 t=[15731, 15770] ancre=(-112.78, -34.55, 66.96)
+  slot=710 t=[15931, 15938] ancre=(-117.41, -42.72, 64.98)
 
 ## OBJETS D EQUIPEMENT — objets DEPLOYES et objets LACHES a la mort, par famille et origine
 calibre=true decoupage="8/3" · 663 vie(s) d objet · 1075 ancre(s) -> 591 confirmee(s) par l oracle de position -> 591 pose(s)
@@ -402,597 +402,597 @@ provenance : 86 evenement(s) 103 lu(s) sur 7951 liste(s) d evenements non vides
   famille x origine wall/deployed                22
   famille x origine wall/dropped                 31
   famille x origine wall/unknown                 2
-  thruster dropped 0x430dda48 t=[418, 426] pos=(-86.42, -50.76, 66.22) poseur=512 cap=309.9 deg
-  grenade_dynamo dropped 0xaada07f3 t=[418, 444] pos=(-86.77, -50.83, 66.13) poseur=512 cap=309.9 deg
-  wall deployed 0x686b40c9 t=[425, 429] pos=(-76.37, -34.28, 67.34) poseur=526 cap=185.8 deg
-  sensor dropped 0x72b63d69 t=[452, 472] pos=(-77.88, -35.56, 68.53) poseur=528 cap=176.0 deg
-  grenade_frag dropped 0xbcabbe43 t=[452, 494] pos=(-77.85, -35.48, 68.36) poseur=528 cap=176.0 deg
-  grenade_frag dropped 0xbcabbe43 t=[452, 494] pos=(-77.86, -35.51, 68.36) poseur=528 cap=176.0 deg
-  grapple dropped 0x273fe0eb t=[454, 462] pos=(-95.50, -35.18, 67.58) poseur=514 cap=358.1 deg
-  repulsor dropped 0x7ca85adc t=[457, 465] pos=(-91.32, -48.82, 65.24) poseur=521 cap=3.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[457, 485] pos=(-91.19, -48.87, 65.69) poseur=521 cap=3.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[457, 501] pos=(-91.19, -48.87, 65.69) poseur=521 cap=3.6 deg
-  grapple dropped 0x273fe0eb t=[494, 500] pos=(-90.71, -49.14, 65.74) poseur=525 cap=356.8 deg
-  repulsor dropped 0x7ca85adc t=[508, 516] pos=(-89.99, -49.18, 65.71) poseur=525 cap=116.7 deg
-  grapple dropped 0x273fe0eb t=[512, 521] pos=(-97.93, -37.92, 67.56) poseur=532 cap=56.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[512, 514] pos=(-97.81, -37.89, 67.42) poseur=532 cap=56.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[512, 545] pos=(-97.80, -37.92, 67.42) poseur=532 cap=56.6 deg
-  wall unknown 0x2974c233 t=[517, 526] pos=(-97.28, -61.08, 66.15) poseur=518 cap=65.2 deg
-  wall dropped 0x2974c233 t=[534, 544] pos=(-73.47, -36.02, 68.05) poseur=526 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[534, 571] pos=(-73.60, -35.99, 67.85) poseur=526 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[534, 574] pos=(-73.60, -35.92, 67.85) poseur=526 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[552, 572] pos=(-72.02, -36.27, 67.45) poseur=533 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[571, 587] pos=(-66.81, -37.65, 68.82) poseur=524 cap=43.2 deg
-  grenade_spike dropped 0x0f5716ff t=[571, 583] pos=(-66.80, -37.65, 68.82) poseur=524 cap=43.2 deg
-  repulsor dropped 0x7ca85adc t=[571, 588] pos=(-66.88, -37.61, 68.85) poseur=524 cap=43.2 deg
-  wall dropped 0x2974c233 t=[605, 613] pos=(-71.29, -39.23, 67.55) poseur=534 cap=114.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[605, 668] pos=(-71.17, -39.11, 67.40) poseur=534 cap=114.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[605, 632] pos=(-71.19, -39.13, 67.40) poseur=534 cap=114.6 deg
-  wall dropped 0x2974c233 t=[623, 631] pos=(-106.86, -49.58, 64.01) poseur=537 cap=345.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[623, 648] pos=(-106.78, -49.65, 63.79) poseur=537 cap=345.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[623, 648] pos=(-106.78, -49.66, 63.79) poseur=537 cap=345.9 deg
-  thruster dropped 0x430dda48 t=[641, 649] pos=(-97.36, -38.01, 67.50) poseur=535 cap=20.4 deg
-  repulsor dropped 0x7ca85adc t=[646, 655] pos=(-71.82, -37.90, 67.51) poseur=519 cap=2.1 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[646, 683] pos=(-71.84, -37.94, 67.44) poseur=519 cap=2.1 deg
-  grenade_spike dropped 0x0f5716ff t=[654, 663] pos=(-68.41, -39.53, 68.25) poseur=523 cap=154.5 deg
-  grenade_spike dropped 0x0f5716ff t=[654, 666] pos=(-68.39, -39.52, 68.26) poseur=523 cap=154.5 deg
-  sensor dropped 0x72b63d69 t=[654, 679] pos=(-68.41, -39.66, 68.36) poseur=523 cap=154.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[654, 695] pos=(-68.39, -39.53, 68.25) poseur=523 cap=154.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[654, 699] pos=(-68.41, -39.53, 68.25) poseur=523 cap=154.5 deg
-  grenade_spike dropped 0x0f5716ff t=[704, 712] pos=(-90.66, -36.30, 64.27) poseur=535 cap=260.0 deg
-  grenade_spike dropped 0x0f5716ff t=[704, 712] pos=(-90.66, -36.30, 64.27) poseur=535 cap=260.0 deg
-  grapple dropped 0x273fe0eb t=[704, 714] pos=(-90.47, -36.38, 64.48) poseur=535 cap=260.0 deg
-  grapple dropped 0x273fe0eb t=[709, 725] pos=(-89.51, -37.71, 65.53) poseur=525 cap=90.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[709, 735] pos=(-89.47, -37.69, 65.39) poseur=525 cap=90.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[709, 759] pos=(-89.46, -37.69, 65.38) poseur=525 cap=90.3 deg
-  sensor dropped 0x72b63d69 t=[769, 787] pos=(-69.13, -46.59, 63.92) poseur=538 cap=297.2 deg
-  grenade_spike dropped 0x0f5716ff t=[775, 786] pos=(-104.37, -30.93, 63.82) poseur=541 cap=69.0 deg
-  grenade_spike dropped 0x0f5716ff t=[775, 787] pos=(-104.35, -30.95, 63.82) poseur=541 cap=69.0 deg
-  grapple dropped 0x273fe0eb t=[775, 781] pos=(-104.48, -31.00, 63.48) poseur=541 cap=69.0 deg
-  grenade_spike dropped 0x0f5716ff t=[783, 797] pos=(-87.90, -20.60, 64.82) poseur=517 cap=263.4 deg
-  grenade_spike dropped 0x0f5716ff t=[783, 792] pos=(-87.90, -20.58, 64.81) poseur=517 cap=263.4 deg
-  sensor dropped 0x72b63d69 t=[783, 816] pos=(-87.83, -20.55, 64.93) poseur=517 cap=263.4 deg
-  grenade_spike dropped 0x0f5716ff t=[839, 855] pos=(-74.08, -44.29, 64.64) poseur=529 cap=173.5 deg
-  grenade_spike dropped 0x0f5716ff t=[839, 856] pos=(-74.08, -44.29, 64.64) poseur=529 cap=173.5 deg
-  shroud_screen dropped 0x4396db42 t=[839, 860] pos=(-74.14, -44.32, 64.85) poseur=529 cap=173.5 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[839, 868] pos=(-74.08, -44.28, 64.64) poseur=529 cap=173.5 deg
-  repulsor dropped 0x7ca85adc t=[842, 854] pos=(-104.31, -30.12, 63.88) poseur=543 cap=aucun
-  shroud_screen unknown 0x4396db42 t=[863, 886] pos=(-109.31, -33.15, 63.88) poseur=547 cap=278.7 deg
-  grenade_frag unknown 0xbcabbe43 t=[863, 871] pos=(-109.22, -33.14, 63.79) poseur=547 cap=278.7 deg
-  grenade_frag unknown 0xbcabbe43 t=[863, 876] pos=(-109.24, -33.15, 63.78) poseur=547 cap=278.7 deg
-  wall deployed 0x686b40c9 t=[867, 872] pos=(-75.55, -33.89, 67.50) poseur=546 cap=184.3 deg
-  thruster dropped 0x430dda48 t=[883, 897] pos=(-93.99, -35.05, 67.51) poseur=516 cap=357.1 deg
-  grenade_frag dropped 0xbcabbe43 t=[883, 928] pos=(-94.00, -35.15, 67.40) poseur=516 cap=357.1 deg
-  grenade_frag dropped 0xbcabbe43 t=[883, 935] pos=(-93.99, -35.16, 67.40) poseur=516 cap=357.1 deg
-  wall dropped 0x2974c233 t=[904, 913] pos=(-94.93, -35.49, 67.63) poseur=544 cap=0.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[904, 958] pos=(-94.88, -35.55, 67.48) poseur=544 cap=0.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[904, 954] pos=(-94.88, -35.52, 67.48) poseur=544 cap=0.6 deg
-  wall deployed 0x686b40c9 t=[915, 921] pos=(-97.11, -36.41, 67.51) poseur=542 cap=27.5 deg
-  grapple unknown 0x273fe0eb t=[927, 936] pos=(-75.37, -44.25, 64.85) poseur=513 cap=304.8 deg
-  grenade_spike dropped 0x0f5716ff t=[939, 947] pos=(-74.98, -43.74, 64.69) poseur=513 cap=303.3 deg
-  grenade_spike dropped 0x0f5716ff t=[939, 947] pos=(-74.97, -43.71, 64.69) poseur=513 cap=303.3 deg
-  repulsor dropped 0x7ca85adc t=[939, 946] pos=(-74.98, -43.59, 64.31) poseur=513 cap=303.3 deg
-  grenade_frag dropped 0xbcabbe43 t=[939, 981] pos=(-75.00, -43.73, 64.69) poseur=513 cap=303.3 deg
-  thruster unknown 0x430dda48 t=[940, 948] pos=(-54.27, -51.02, 63.78) poseur=-1 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[940, 951] pos=(-54.29, -51.09, 63.41) poseur=-1 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[940, 962] pos=(-54.26, -51.17, 63.42) poseur=-1 cap=aucun
-  wall deployed 0x686b40c9 t=[1006, 1009] pos=(-98.25, -43.16, 67.21) poseur=542 cap=306.8 deg
-  wall deployed 0x686b40c9 t=[1022, 1027] pos=(-76.50, -45.73, 64.74) poseur=539 cap=150.5 deg
-  wall deployed 0x686b40c9 t=[1031, 1036] pos=(-78.26, -49.03, 65.66) poseur=548 cap=187.6 deg
-  wall deployed 0x686b40c9 t=[1092, 1095] pos=(-98.94, -43.31, 67.26) poseur=542 cap=341.4 deg
-  thruster dropped 0x430dda48 t=[1101, 1113] pos=(-94.61, -34.36, 67.19) poseur=551 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[1101, 1157] pos=(-94.50, -34.47, 67.42) poseur=551 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[1101, 1157] pos=(-94.51, -34.44, 67.42) poseur=551 cap=aucun
-  wall dropped 0x2974c233 t=[1103, 1114] pos=(-85.84, -52.10, 67.39) poseur=548 cap=273.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1103, 1127] pos=(-85.97, -52.13, 67.32) poseur=548 cap=273.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1103, 1124] pos=(-85.97, -52.14, 67.32) poseur=548 cap=273.0 deg
-  grenade_spike dropped 0x0f5716ff t=[1114, 1129] pos=(-96.91, -30.48, 63.70) poseur=547 cap=127.7 deg
-  grenade_spike dropped 0x0f5716ff t=[1114, 1139] pos=(-96.92, -30.47, 63.70) poseur=547 cap=127.7 deg
-  shroud_screen dropped 0x4396db42 t=[1114, 1136] pos=(-96.98, -30.55, 63.79) poseur=547 cap=127.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1114, 1135] pos=(-96.91, -30.46, 63.70) poseur=547 cap=127.7 deg
-  grenade_spike dropped 0x0f5716ff t=[1120, 1133] pos=(-98.51, -29.17, 64.28) poseur=543 cap=32.7 deg
-  grenade_spike dropped 0x0f5716ff t=[1120, 1140] pos=(-98.55, -29.17, 64.27) poseur=543 cap=32.7 deg
-  grapple dropped 0x273fe0eb t=[1120, 1130] pos=(-98.56, -29.06, 64.53) poseur=543 cap=32.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[1120, 1172] pos=(-98.51, -29.14, 64.28) poseur=543 cap=32.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[1120, 1149] pos=(-98.58, -29.16, 64.28) poseur=543 cap=32.7 deg
-  thruster dropped 0x430dda48 t=[1137, 1145] pos=(-99.25, -31.80, 67.52) poseur=536 cap=24.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[1137, 1185] pos=(-99.20, -31.84, 67.43) poseur=536 cap=24.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[1137, 1209] pos=(-99.18, -31.85, 67.43) poseur=536 cap=24.7 deg
-  shroud_screen dropped 0x4396db42 t=[1150, 1171] pos=(-97.35, -30.12, 63.95) poseur=552 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[1150, 1185] pos=(-97.38, -30.22, 63.87) poseur=552 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[1150, 1200] pos=(-97.33, -30.24, 63.87) poseur=552 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[1163, 1180] pos=(-78.27, -49.11, 65.58) poseur=515 cap=182.9 deg
-  sensor dropped 0x72b63d69 t=[1163, 1184] pos=(-78.33, -49.28, 65.69) poseur=515 cap=182.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[1163, 1194] pos=(-78.27, -49.12, 65.58) poseur=515 cap=182.9 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1192, 1218] pos=(-97.46, -41.60, 67.09) poseur=542 cap=214.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1192, 1223] pos=(-97.45, -41.60, 67.09) poseur=542 cap=214.3 deg
-  repulsor dropped 0x7ca85adc t=[1237, 1242] pos=(-77.96, -34.66, 67.02) poseur=553 cap=212.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1237, 1267] pos=(-78.06, -34.62, 67.36) poseur=553 cap=212.8 deg
-  grenade_spike dropped 0x0f5716ff t=[1269, 1279] pos=(-87.38, -29.35, 63.80) poseur=556 cap=194.5 deg
-  grenade_spike dropped 0x0f5716ff t=[1269, 1296] pos=(-87.38, -29.32, 63.79) poseur=556 cap=194.5 deg
-  repulsor dropped 0x7ca85adc t=[1269, 1277] pos=(-87.21, -29.56, 63.47) poseur=556 cap=194.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[1269, 1297] pos=(-87.38, -29.34, 63.79) poseur=556 cap=194.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[1269, 1298] pos=(-87.38, -29.36, 63.80) poseur=556 cap=194.5 deg
-  thruster dropped 0x430dda48 t=[1273, 1286] pos=(-75.56, -44.52, 64.81) poseur=546 cap=aucun
-  shroud_screen dropped 0x4396db42 t=[1302, 1328] pos=(-76.85, -44.76, 64.90) poseur=546 cap=194.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[1302, 1351] pos=(-76.90, -44.85, 64.72) poseur=546 cap=194.9 deg
-  grapple dropped 0x273fe0eb t=[1313, 1323] pos=(-71.19, -47.88, 65.23) poseur=549 cap=166.9 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1313, 1331] pos=(-71.27, -47.78, 65.18) poseur=549 cap=166.9 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1313, 1331] pos=(-71.26, -47.78, 65.18) poseur=549 cap=166.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[1313, 1321] pos=(-71.24, -47.78, 65.18) poseur=549 cap=166.9 deg
-  grapple dropped 0x273fe0eb t=[1315, 1324] pos=(-76.06, -47.50, 65.59) poseur=561 cap=346.8 deg
-  repair_field dropped 0x32d97758 t=[1315, 1331] pos=(-75.51, -45.65, 64.87) poseur=550 cap=241.4 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1315, 1335] pos=(-75.56, -45.58, 64.75) poseur=550 cap=241.4 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1315, 1329] pos=(-75.55, -45.65, 64.74) poseur=550 cap=241.4 deg
-  wall deployed 0x686b40c9 t=[1316, 1319] pos=(-97.72, -61.84, 65.28) poseur=539 cap=104.3 deg
-  grenade_spike dropped 0x0f5716ff t=[1357, 1367] pos=(-105.78, -41.29, 63.80) poseur=564 cap=248.0 deg
-  grenade_spike dropped 0x0f5716ff t=[1357, 1367] pos=(-105.75, -41.29, 63.80) poseur=564 cap=248.0 deg
-  grapple dropped 0x273fe0eb t=[1357, 1364] pos=(-105.69, -41.24, 64.01) poseur=564 cap=248.0 deg
-  wall deployed 0x686b40c9 t=[1381, 1388] pos=(-105.79, -33.33, 63.63) poseur=567 cap=66.3 deg
-  sensor dropped 0x72b63d69 t=[1398, 1428] pos=(-72.70, -47.16, 63.91) poseur=566 cap=aucun
-  thruster dropped 0x430dda48 t=[1417, 1427] pos=(-105.57, -22.11, 64.18) poseur=560 cap=8.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1417, 1427] pos=(-105.42, -22.08, 64.20) poseur=560 cap=8.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1417, 1456] pos=(-105.47, -22.06, 64.20) poseur=560 cap=8.0 deg
-  repair_field dropped 0x32d97758 t=[1441, 1461] pos=(-107.92, -64.41, 66.11) poseur=559 cap=8.3 deg
-  sensor dropped 0x72b63d69 t=[1451, 1477] pos=(-76.62, -44.65, 64.80) poseur=545 cap=aucun
-  sensor dropped 0x72b63d69 t=[1461, 1475] pos=(-95.03, -48.20, 64.44) poseur=555 cap=351.1 deg
-  wall deployed 0x686b40c9 t=[1477, 1481] pos=(-96.23, -34.19, 67.43) poseur=567 cap=352.7 deg
-  wall deployed 0x686b40c9 t=[1482, 1486] pos=(-107.43, -66.38, 64.79) poseur=539 cap=150.2 deg
-  grenade_spike dropped 0x0f5716ff t=[1484, 1497] pos=(-106.98, -66.38, 64.83) poseur=539 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[1484, 1489] pos=(-106.96, -66.41, 64.83) poseur=539 cap=aucun
-  grapple dropped 0x273fe0eb t=[1516, 1523] pos=(-97.72, -45.22, 64.37) poseur=566 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[1516, 1529] pos=(-97.57, -45.35, 64.55) poseur=566 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[1516, 1524] pos=(-97.62, -45.37, 64.55) poseur=566 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[1516, 1553] pos=(-97.62, -45.33, 64.55) poseur=566 cap=aucun
-  repair_field unknown 0x32d97758 t=[1523, 1539] pos=(-82.66, -8.12, 62.88) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[1523, 1549] pos=(-83.23, -8.03, 62.46) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[1523, 1539] pos=(-83.20, -8.03, 62.49) poseur=-1 cap=aucun
-  wall dropped 0x2974c233 t=[1557, 1564] pos=(-96.77, -45.25, 64.81) poseur=571 cap=290.5 deg
-  grapple dropped 0x273fe0eb t=[1566, 1576] pos=(-95.16, -46.83, 65.82) poseur=571 cap=203.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1566, 1580] pos=(-95.22, -46.70, 65.62) poseur=571 cap=203.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1566, 1582] pos=(-95.23, -46.70, 65.63) poseur=571 cap=203.0 deg
-  grenade_spike dropped 0x0f5716ff t=[1577, 1591] pos=(-106.03, -65.22, 66.44) poseur=558 cap=27.8 deg
-  grenade_spike dropped 0x0f5716ff t=[1577, 1598] pos=(-106.00, -65.24, 66.45) poseur=558 cap=27.8 deg
-  grapple dropped 0x273fe0eb t=[1577, 1585] pos=(-106.14, -65.19, 66.15) poseur=558 cap=27.8 deg
-  repair_field dropped 0x32d97758 t=[1577, 1593] pos=(-106.12, -65.20, 66.58) poseur=558 cap=27.8 deg
-  grenade_frag dropped 0xbcabbe43 t=[1577, 1603] pos=(-106.00, -65.23, 66.45) poseur=558 cap=27.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1577, 1605] pos=(-106.24, -65.20, 66.09) poseur=558 cap=27.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1577, 1606] pos=(-106.26, -65.20, 66.09) poseur=558 cap=27.8 deg
-  wall dropped 0x2974c233 t=[1593, 1602] pos=(-86.65, -18.74, 64.11) poseur=554 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[1593, 1616] pos=(-86.58, -18.67, 63.75) poseur=554 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[1593, 1621] pos=(-86.59, -18.65, 63.75) poseur=554 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[1606, 1620] pos=(-90.85, -49.66, 65.65) poseur=545 cap=168.0 deg
-  thruster dropped 0x430dda48 t=[1606, 1612] pos=(-90.68, -49.61, 65.29) poseur=545 cap=168.0 deg
-  grenade_spike dropped 0x0f5716ff t=[1631, 1639] pos=(-94.95, -51.46, 65.52) poseur=567 cap=237.3 deg
-  grenade_spike dropped 0x0f5716ff t=[1631, 1639] pos=(-94.96, -51.46, 65.51) poseur=567 cap=237.3 deg
-  wall dropped 0x2974c233 t=[1631, 1638] pos=(-94.99, -51.53, 65.78) poseur=567 cap=237.3 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1631, 1640] pos=(-94.95, -51.43, 65.52) poseur=567 cap=237.3 deg
-  grapple dropped 0x273fe0eb t=[1641, 1650] pos=(-73.12, -26.78, 63.95) poseur=568 cap=335.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1641, 1670] pos=(-73.12, -26.85, 63.84) poseur=568 cap=335.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1641, 1673] pos=(-73.12, -26.85, 63.84) poseur=568 cap=335.3 deg
-  repair_field dropped 0x32d97758 t=[1643, 1670] pos=(-104.61, -22.17, 63.93) poseur=576 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[1689, 1700] pos=(-68.25, -41.96, 63.83) poseur=531 cap=62.4 deg
-  wall dropped 0x2974c233 t=[1689, 1697] pos=(-68.28, -42.01, 63.93) poseur=531 cap=62.4 deg
-  sensor dropped 0x72b63d69 t=[1692, 1718] pos=(-75.17, -47.60, 64.81) poseur=580 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[1742, 1764] pos=(-66.85, -43.88, 63.77) poseur=577 cap=205.1 deg
-  grenade_spike dropped 0x0f5716ff t=[1742, 1745] pos=(-66.84, -43.88, 63.77) poseur=577 cap=205.1 deg
-  wall dropped 0x2974c233 t=[1742, 1749] pos=(-66.77, -43.93, 63.52) poseur=577 cap=205.1 deg
-  grapple dropped 0x273fe0eb t=[1747, 1751] pos=(-97.36, -36.17, 67.15) poseur=570 cap=133.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1747, 1755] pos=(-97.33, -36.05, 67.31) poseur=570 cap=133.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[1747, 1756] pos=(-97.33, -36.03, 67.31) poseur=570 cap=133.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[1747, 1798] pos=(-97.33, -36.03, 67.31) poseur=570 cap=133.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[1747, 1790] pos=(-97.33, -36.01, 67.31) poseur=570 cap=133.6 deg
-  grenade_spike dropped 0x0f5716ff t=[1812, 1829] pos=(-67.11, -31.74, 63.63) poseur=569 cap=248.7 deg
-  grenade_spike dropped 0x0f5716ff t=[1812, 1827] pos=(-67.09, -31.76, 63.63) poseur=569 cap=248.7 deg
-  repair_field dropped 0x32d97758 t=[1812, 1834] pos=(-67.05, -31.44, 63.83) poseur=569 cap=248.7 deg
-  repulsor dropped 0x7ca85adc t=[1822, 1831] pos=(-87.34, -18.82, 63.94) poseur=581 cap=189.3 deg
-  grenade_spike dropped 0x0f5716ff t=[1851, 1865] pos=(-86.77, -49.62, 65.58) poseur=585 cap=154.4 deg
-  grenade_spike dropped 0x0f5716ff t=[1851, 1867] pos=(-86.77, -49.61, 65.58) poseur=585 cap=154.4 deg
-  thruster dropped 0x430dda48 t=[1851, 1897] pos=(-86.63, -49.66, 65.42) poseur=585 cap=154.4 deg
-  repair_field dropped 0x32d97758 t=[1866, 1884] pos=(-97.59, -36.06, 67.52) poseur=586 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[1877, 1900] pos=(-116.89, -51.16, 66.20) poseur=575 cap=260.4 deg
-  repair_field dropped 0x32d97758 t=[1877, 1889] pos=(-116.76, -51.25, 66.26) poseur=575 cap=260.4 deg
-  thruster dropped 0x430dda48 t=[1888, 1901] pos=(-126.21, -63.71, 63.49) poseur=574 cap=11.8 deg
-  grenade_spike dropped 0x0f5716ff t=[1925, 1945] pos=(-68.62, -24.12, 64.40) poseur=562 cap=34.1 deg
-  grenade_spike dropped 0x0f5716ff t=[1925, 1943] pos=(-68.60, -24.11, 64.41) poseur=562 cap=34.1 deg
-  repulsor dropped 0x7ca85adc t=[1925, 1935] pos=(-68.59, -23.73, 64.54) poseur=562 cap=34.1 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[1925, 1965] pos=(-68.57, -24.06, 64.42) poseur=562 cap=34.1 deg
-  repair_field dropped 0x32d97758 t=[2031, 2047] pos=(-80.56, -13.16, 62.21) poseur=591 cap=327.7 deg
-  repair_field dropped 0x32d97758 t=[2056, 2073] pos=(-110.79, -37.03, 67.60) poseur=579 cap=342.4 deg
-  grenade_spike dropped 0x0f5716ff t=[2072, 2084] pos=(-111.48, -38.15, 67.47) poseur=589 cap=291.8 deg
-  grenade_spike dropped 0x0f5716ff t=[2072, 2089] pos=(-111.45, -38.14, 67.47) poseur=589 cap=291.8 deg
-  grapple dropped 0x273fe0eb t=[2072, 2078] pos=(-105.62, -39.34, 67.08) poseur=586 cap=166.0 deg
-  shroud_screen dropped 0x4396db42 t=[2072, 2098] pos=(-111.51, -38.05, 67.56) poseur=589 cap=291.8 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2072, 2093] pos=(-105.72, -39.23, 67.45) poseur=586 cap=166.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2072, 2092] pos=(-105.71, -39.17, 67.46) poseur=586 cap=166.0 deg
-  grenade_frag dropped 0xbcabbe43 t=[2072, 2118] pos=(-105.71, -39.23, 67.45) poseur=586 cap=166.0 deg
-  grenade_frag dropped 0xbcabbe43 t=[2072, 2124] pos=(-105.72, -39.26, 67.45) poseur=586 cap=166.0 deg
-  sensor dropped 0x72b63d69 t=[2074, 2098] pos=(-107.99, -58.89, 65.53) poseur=587 cap=122.4 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2074, 2102] pos=(-107.91, -58.82, 65.46) poseur=587 cap=122.4 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2074, 2106] pos=(-107.94, -58.80, 65.46) poseur=587 cap=122.4 deg
-  grenade_spike dropped 0x0f5716ff t=[2101, 2112] pos=(-108.80, -40.02, 67.33) poseur=572 cap=aucun
-  sensor dropped 0x72b63d69 t=[2101, 2121] pos=(-108.98, -40.18, 67.54) poseur=572 cap=aucun
-  wall dropped 0x2974c233 t=[2121, 2129] pos=(-113.20, -32.93, 63.61) poseur=583 cap=197.5 deg
-  repair_field dropped 0x32d97758 t=[2129, 2141] pos=(-88.59, -49.36, 65.14) poseur=518 cap=333.9 deg
-  repulsor dropped 0x7ca85adc t=[2129, 2138] pos=(-105.95, -38.90, 67.48) poseur=593 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[2129, 2152] pos=(-88.38, -49.37, 65.50) poseur=518 cap=333.9 deg
-  repair_field dropped 0x32d97758 t=[2130, 2148] pos=(-102.71, -27.29, 64.54) poseur=594 cap=237.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2130, 2145] pos=(-102.70, -27.38, 64.51) poseur=594 cap=237.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2130, 2155] pos=(-102.71, -27.38, 64.51) poseur=594 cap=237.7 deg
-  thruster unknown 0x430dda48 t=[2142, 2150] pos=(-110.44, -54.87, 63.91) poseur=588 cap=8.7 deg
-  thruster dropped 0x430dda48 t=[2146, 2156] pos=(-111.81, -55.50, 66.12) poseur=584 cap=345.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2146, 2176] pos=(-111.78, -55.61, 66.11) poseur=584 cap=345.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2146, 2179] pos=(-111.78, -55.61, 66.11) poseur=584 cap=345.7 deg
-  repulsor dropped 0x7ca85adc t=[2151, 2162] pos=(-107.57, -38.23, 68.15) poseur=573 cap=356.4 deg
-  wall dropped 0x2974c233 t=[2162, 2183] pos=(-113.32, -54.80, 63.34) poseur=588 cap=177.2 deg
-  thruster dropped 0x430dda48 t=[2176, 2184] pos=(-106.98, -39.53, 67.57) poseur=563 cap=87.2 deg
-  grenade_frag dropped 0xbcabbe43 t=[2176, 2224] pos=(-106.84, -39.48, 67.37) poseur=563 cap=87.2 deg
-  grenade_frag dropped 0xbcabbe43 t=[2176, 2212] pos=(-106.85, -39.49, 67.37) poseur=563 cap=87.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2176, 2208] pos=(-106.85, -39.49, 67.37) poseur=563 cap=87.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2176, 2205] pos=(-106.85, -39.52, 67.37) poseur=563 cap=87.2 deg
-  grapple dropped 0x273fe0eb t=[2211, 2224] pos=(-100.44, -39.96, 68.46) poseur=593 cap=167.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[2211, 2262] pos=(-100.47, -39.82, 68.27) poseur=593 cap=167.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[2211, 2264] pos=(-100.47, -39.84, 68.27) poseur=593 cap=167.9 deg
-  repulsor dropped 0x7ca85adc t=[2220, 2229] pos=(-73.25, -40.20, 67.52) poseur=595 cap=90.2 deg
-  grapple dropped 0x273fe0eb t=[2272, 2280] pos=(-104.46, -44.06, 63.48) poseur=598 cap=115.4 deg
-  grenade_frag dropped 0xbcabbe43 t=[2272, 2314] pos=(-104.37, -43.96, 63.59) poseur=598 cap=115.4 deg
-  grenade_frag dropped 0xbcabbe43 t=[2272, 2323] pos=(-104.38, -43.95, 63.59) poseur=598 cap=115.4 deg
-  repulsor dropped 0x7ca85adc t=[2302, 2308] pos=(-104.65, -43.27, 63.87) poseur=580 cap=aucun
-  thruster dropped 0x430dda48 t=[2313, 2319] pos=(-79.64, -13.84, 62.16) poseur=606 cap=aucun
-  wall dropped 0x2974c233 t=[2317, 2327] pos=(-73.94, -38.11, 68.29) poseur=597 cap=280.9 deg
-  repulsor dropped 0x7ca85adc t=[2332, 2338] pos=(-72.87, -43.09, 67.47) poseur=599 cap=102.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2332, 2366] pos=(-72.80, -43.02, 67.39) poseur=599 cap=102.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2332, 2366] pos=(-72.78, -43.06, 67.38) poseur=599 cap=102.6 deg
-  grapple dropped 0x273fe0eb t=[2391, 2398] pos=(-76.78, -35.58, 67.49) poseur=605 cap=2.2 deg
-  wall deployed 0x686b40c9 t=[2403, 2408] pos=(-78.88, -42.26, 65.01) poseur=609 cap=156.4 deg
-  wall dropped 0x2974c233 t=[2416, 2448] pos=(-99.62, -48.72, 64.89) poseur=596 cap=72.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2416, 2517] pos=(-99.58, -48.53, 64.74) poseur=596 cap=72.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2416, 2463] pos=(-99.58, -48.56, 64.74) poseur=596 cap=72.2 deg
-  grenade_spike dropped 0x0f5716ff t=[2461, 2466] pos=(-74.79, -41.44, 67.39) poseur=557 cap=16.3 deg
-  grenade_spike dropped 0x0f5716ff t=[2461, 2466] pos=(-74.82, -41.40, 67.39) poseur=557 cap=16.3 deg
-  wall dropped 0x2974c233 t=[2461, 2467] pos=(-78.81, -37.93, 67.37) poseur=604 cap=90.7 deg
-  repulsor dropped 0x7ca85adc t=[2461, 2470] pos=(-75.03, -41.46, 67.48) poseur=557 cap=16.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2461, 2490] pos=(-75.07, -41.39, 67.39) poseur=557 cap=16.3 deg
-  repair_field dropped 0x32d97758 t=[2530, 2548] pos=(-68.35, -39.70, 68.51) poseur=603 cap=225.6 deg
-  grapple dropped 0x273fe0eb t=[2556, 2565] pos=(-78.95, -39.63, 66.84) poseur=590 cap=80.2 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2556, 2581] pos=(-78.81, -39.60, 66.66) poseur=590 cap=80.2 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2556, 2575] pos=(-78.80, -39.60, 66.66) poseur=590 cap=80.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2556, 2582] pos=(-78.81, -39.60, 66.66) poseur=590 cap=80.2 deg
-  sensor dropped 0x72b63d69 t=[2561, 2584] pos=(-86.91, -52.57, 62.86) poseur=602 cap=87.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2561, 2615] pos=(-86.87, -52.57, 62.72) poseur=602 cap=87.3 deg
-  wall dropped 0x2974c233 t=[2581, 2589] pos=(-105.21, -38.41, 67.62) poseur=592 cap=167.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2581, 2597] pos=(-105.24, -38.39, 67.58) poseur=592 cap=167.0 deg
-  sensor dropped 0x72b63d69 t=[2582, 2602] pos=(-62.50, -40.67, 67.55) poseur=612 cap=120.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2582, 2603] pos=(-62.43, -40.59, 67.34) poseur=612 cap=120.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2582, 2594] pos=(-62.43, -40.57, 67.34) poseur=612 cap=120.5 deg
-  sensor dropped 0x72b63d69 t=[2589, 2610] pos=(-66.41, -45.15, 63.94) poseur=609 cap=219.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2589, 2607] pos=(-66.51, -45.04, 63.74) poseur=609 cap=219.0 deg
-  grenade_spike dropped 0x0f5716ff t=[2646, 2654] pos=(-94.43, -35.60, 67.48) poseur=578 cap=137.9 deg
-  repulsor dropped 0x7ca85adc t=[2646, 2651] pos=(-94.38, -35.80, 67.06) poseur=578 cap=137.9 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2646, 2678] pos=(-94.44, -35.65, 67.48) poseur=578 cap=137.9 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2646, 2675] pos=(-94.47, -35.66, 67.48) poseur=578 cap=137.9 deg
-  sensor dropped 0x72b63d69 t=[2670, 2696] pos=(-69.79, -62.48, 65.16) poseur=610 cap=94.8 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2670, 2673] pos=(-69.87, -62.39, 65.67) poseur=610 cap=94.8 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2670, 2673] pos=(-69.87, -62.41, 65.67) poseur=610 cap=94.8 deg
-  repulsor dropped 0x7ca85adc t=[2688, 2699] pos=(-77.96, -34.61, 68.61) poseur=614 cap=356.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2688, 2719] pos=(-77.95, -34.69, 68.52) poseur=614 cap=356.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2688, 2717] pos=(-77.95, -34.68, 68.52) poseur=614 cap=356.6 deg
-  grenade_spike dropped 0x0f5716ff t=[2698, 2708] pos=(-78.20, -36.17, 67.47) poseur=580 cap=235.2 deg
-  grenade_spike dropped 0x0f5716ff t=[2698, 2728] pos=(-78.20, -36.21, 67.47) poseur=580 cap=235.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2698, 2730] pos=(-78.22, -36.20, 67.47) poseur=580 cap=235.2 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[2698, 2733] pos=(-78.20, -36.20, 67.47) poseur=580 cap=235.2 deg
-  repair_field dropped 0x32d97758 t=[2703, 2724] pos=(-71.24, -20.70, 62.50) poseur=606 cap=182.7 deg
-  repulsor dropped 0x7ca85adc t=[2711, 2718] pos=(-63.04, -39.67, 67.48) poseur=615 cap=aucun
-  thruster dropped 0x430dda48 t=[2727, 2743] pos=(-76.37, -36.01, 67.46) poseur=600 cap=173.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2727, 2741] pos=(-76.45, -35.96, 67.37) poseur=600 cap=173.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2727, 2741] pos=(-76.44, -35.96, 67.37) poseur=600 cap=173.6 deg
-  thruster dropped 0x430dda48 t=[2742, 2750] pos=(-97.43, -30.19, 66.94) poseur=621 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[2742, 2786] pos=(-97.73, -30.15, 66.89) poseur=621 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[2742, 2794] pos=(-97.72, -30.10, 66.89) poseur=621 cap=aucun
-  sensor dropped 0x72b63d69 t=[2746, 2765] pos=(-59.92, -42.30, 67.69) poseur=615 cap=101.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[2746, 2788] pos=(-59.86, -42.33, 67.48) poseur=615 cap=101.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[2746, 2788] pos=(-59.89, -42.34, 67.48) poseur=615 cap=101.6 deg
-  grenade_spike dropped 0x0f5716ff t=[2770, 2785] pos=(-97.42, -40.50, 67.39) poseur=581 cap=248.6 deg
-  grenade_spike dropped 0x0f5716ff t=[2770, 2779] pos=(-97.39, -40.52, 67.39) poseur=581 cap=248.6 deg
-  wall dropped 0x2974c233 t=[2770, 2777] pos=(-97.22, -40.54, 67.58) poseur=581 cap=248.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2770, 2778] pos=(-97.39, -40.52, 67.39) poseur=581 cap=248.6 deg
-  grapple dropped 0x273fe0eb t=[2807, 2817] pos=(-98.55, -40.28, 67.54) poseur=623 cap=76.2 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2807, 2829] pos=(-98.52, -40.23, 67.47) poseur=623 cap=76.2 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2807, 2823] pos=(-98.53, -40.18, 67.46) poseur=623 cap=76.2 deg
-  grapple unknown 0x273fe0eb t=[2837, 2847] pos=(-76.85, -55.72, 64.16) poseur=617 cap=156.8 deg
-  sensor dropped 0x72b63d69 t=[2844, 2865] pos=(-98.18, -39.16, 67.50) poseur=619 cap=264.8 deg
-  repair_field dropped 0x32d97758 t=[2928, 2938] pos=(-102.23, -43.81, 67.53) poseur=622 cap=253.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2928, 2936] pos=(-102.32, -43.87, 67.44) poseur=622 cap=253.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[2928, 2945] pos=(-102.33, -43.88, 67.44) poseur=622 cap=253.7 deg
-  repair_field dropped 0x32d97758 t=[2938, 2954] pos=(-75.49, -56.44, 63.90) poseur=632 cap=aucun
-  repulsor dropped 0x7ca85adc t=[2974, 2982] pos=(-97.83, -40.89, 67.48) poseur=624 cap=aucun
-  wall deployed 0x686b40c9 t=[2987, 2990] pos=(-98.44, -43.27, 67.22) poseur=624 cap=307.9 deg
-  grenade_spike unknown 0x0f5716ff t=[2998, 3004] pos=(-102.23, -44.07, 67.33) poseur=634 cap=215.9 deg
-  grenade_spike unknown 0x0f5716ff t=[2998, 3007] pos=(-102.25, -44.07, 67.32) poseur=634 cap=215.9 deg
-  wall unknown 0x2974c233 t=[3002, 3010] pos=(-77.81, -48.86, 64.95) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[3002, 3088] pos=(-77.88, -48.83, 64.82) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[3002, 3077] pos=(-77.88, -48.83, 64.82) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[3002, 3070] pos=(-77.91, -48.82, 64.84) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[3002, 3072] pos=(-77.88, -48.83, 64.82) poseur=-1 cap=aucun
-  grapple dropped 0x273fe0eb t=[3029, 3041] pos=(-67.26, -39.91, 64.77) poseur=620 cap=49.2 deg
-  repair_field dropped 0x32d97758 t=[3041, 3063] pos=(-85.81, -51.06, 66.00) poseur=628 cap=152.8 deg
-  grapple dropped 0x273fe0eb t=[3042, 3049] pos=(-72.97, -41.60, 67.84) poseur=627 cap=200.3 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3042, 3048] pos=(-72.92, -41.68, 67.68) poseur=627 cap=200.3 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3042, 3061] pos=(-72.92, -41.62, 67.68) poseur=627 cap=200.3 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3042, 3080] pos=(-72.89, -41.67, 67.68) poseur=627 cap=200.3 deg
-  grenade_spike dropped 0x0f5716ff t=[3091, 3102] pos=(-80.04, -49.10, 65.70) poseur=582 cap=176.4 deg
-  repulsor dropped 0x7ca85adc t=[3091, 3099] pos=(-79.93, -49.14, 65.24) poseur=582 cap=176.4 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3091, 3094] pos=(-80.07, -49.07, 65.69) poseur=582 cap=176.4 deg
-  thruster dropped 0x430dda48 t=[3130, 3150] pos=(-76.09, -49.03, 65.63) poseur=635 cap=182.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3130, 3198] pos=(-76.14, -49.00, 65.52) poseur=635 cap=182.6 deg
-  thruster dropped 0x430dda48 t=[3140, 3158] pos=(-122.27, -55.74, 63.91) poseur=626 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[3140, 3157] pos=(-122.37, -55.67, 63.62) poseur=626 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[3140, 3159] pos=(-122.35, -55.68, 63.63) poseur=626 cap=aucun
-  wall dropped 0x2974c233 t=[3154, 3161] pos=(-97.40, -40.99, 67.50) poseur=624 cap=aucun
-  wall deployed 0x686b40c9 t=[3182, 3189] pos=(-75.01, -48.11, 64.89) poseur=638 cap=194.7 deg
-  shroud_screen dropped 0x4396db42 t=[3189, 3231] pos=(-95.41, -51.78, 65.75) poseur=634 cap=42.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3189, 3214] pos=(-95.36, -51.93, 65.68) poseur=634 cap=42.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3189, 3215] pos=(-95.36, -51.93, 65.68) poseur=634 cap=42.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3189, 3231] pos=(-95.36, -51.93, 65.69) poseur=634 cap=42.7 deg
-  wall dropped 0x2974c233 t=[3192, 3219] pos=(-82.26, -44.47, 61.24) poseur=616 cap=aucun
-  shroud_screen dropped 0x4396db42 t=[3218, 3242] pos=(-95.65, -51.13, 65.78) poseur=640 cap=89.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[3218, 3254] pos=(-95.58, -51.09, 65.67) poseur=640 cap=89.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[3218, 3242] pos=(-95.58, -51.10, 65.67) poseur=640 cap=89.7 deg
-  wall dropped 0x2974c233 t=[3246, 3252] pos=(-66.02, -39.26, 63.90) poseur=642 cap=aucun
-  grapple dropped 0x273fe0eb t=[3260, 3283] pos=(-95.63, -52.43, 65.58) poseur=632 cap=183.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3260, 3275] pos=(-95.67, -52.47, 65.44) poseur=632 cap=183.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3260, 3275] pos=(-95.65, -52.49, 65.44) poseur=632 cap=183.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3260, 3287] pos=(-95.65, -52.50, 65.44) poseur=632 cap=183.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3260, 3288] pos=(-95.68, -52.44, 65.44) poseur=632 cap=183.7 deg
-  wall dropped 0x2974c233 t=[3282, 3289] pos=(-91.22, -49.19, 65.84) poseur=638 cap=202.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3282, 3311] pos=(-91.29, -49.15, 65.81) poseur=638 cap=202.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3282, 3308] pos=(-91.31, -49.15, 65.81) poseur=638 cap=202.6 deg
-  grenade_spike dropped 0x0f5716ff t=[3285, 3301] pos=(-68.25, -28.44, 64.30) poseur=642 cap=154.7 deg
-  grenade_spike dropped 0x0f5716ff t=[3285, 3296] pos=(-68.22, -28.44, 64.31) poseur=642 cap=154.7 deg
-  grapple dropped 0x273fe0eb t=[3285, 3296] pos=(-68.43, -28.41, 64.38) poseur=642 cap=154.7 deg
-  grenade_spike dropped 0x0f5716ff t=[3331, 3361] pos=(-96.73, -44.97, 65.33) poseur=637 cap=4.1 deg
-  grenade_spike dropped 0x0f5716ff t=[3331, 3350] pos=(-96.76, -44.93, 65.33) poseur=637 cap=4.1 deg
-  repair_field dropped 0x32d97758 t=[3331, 3367] pos=(-96.73, -44.85, 65.37) poseur=637 cap=4.1 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3331, 3361] pos=(-96.71, -44.96, 65.33) poseur=637 cap=4.1 deg
-  wall dropped 0x2974c233 t=[3349, 3359] pos=(-95.10, -63.17, 65.37) poseur=646 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[3349, 3402] pos=(-95.13, -63.31, 65.21) poseur=646 cap=aucun
-  thruster unknown 0x430dda48 t=[3355, 3365] pos=(-74.42, -30.10, 66.34) poseur=630 cap=35.5 deg
-  grenade_frag unknown 0xbcabbe43 t=[3355, 3395] pos=(-74.58, -30.00, 66.55) poseur=630 cap=35.5 deg
-  grenade_frag unknown 0xbcabbe43 t=[3355, 3399] pos=(-74.55, -30.00, 66.55) poseur=630 cap=35.5 deg
-  sensor dropped 0x72b63d69 t=[3375, 3389] pos=(-95.72, -52.49, 65.72) poseur=641 cap=aucun
-  repulsor dropped 0x7ca85adc t=[3422, 3434] pos=(-95.40, -52.04, 65.68) poseur=608 cap=287.5 deg
-  repulsor dropped 0x7ca85adc t=[3425, 3433] pos=(-93.06, -49.62, 65.56) poseur=613 cap=327.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3425, 3437] pos=(-93.10, -49.66, 65.30) poseur=613 cap=327.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[3425, 3469] pos=(-93.10, -49.65, 65.30) poseur=613 cap=327.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[3425, 3454] pos=(-93.11, -49.68, 65.30) poseur=613 cap=327.5 deg
-  wall deployed 0x686b40c9 t=[3457, 3459] pos=(-107.10, -41.82, 63.46) poseur=629 cap=106.0 deg
-  wall dropped 0x2974c233 t=[3462, 3469] pos=(-106.88, -41.89, 63.75) poseur=629 cap=96.1 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3462, 3474] pos=(-106.82, -41.78, 63.67) poseur=629 cap=96.1 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3462, 3474] pos=(-106.84, -41.79, 63.67) poseur=629 cap=96.1 deg
-  grenade_spike dropped 0x0f5716ff t=[3464, 3473] pos=(-78.25, -34.95, 67.43) poseur=630 cap=140.9 deg
-  grenade_spike dropped 0x0f5716ff t=[3464, 3470] pos=(-78.22, -34.94, 67.43) poseur=630 cap=140.9 deg
-  repair_field dropped 0x32d97758 t=[3464, 3480] pos=(-78.25, -34.98, 67.54) poseur=630 cap=140.9 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3464, 3496] pos=(-78.23, -34.94, 67.43) poseur=630 cap=140.9 deg
-  shroud_screen dropped 0x4396db42 t=[3467, 3508] pos=(-106.62, -60.35, 66.42) poseur=601 cap=aucun
-  grapple dropped 0x273fe0eb t=[3513, 3520] pos=(-92.08, -49.64, 65.74) poseur=644 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[3521, 3532] pos=(-100.14, -46.90, 63.70) poseur=641 cap=19.0 deg
-  grapple dropped 0x273fe0eb t=[3521, 3528] pos=(-100.21, -46.92, 63.47) poseur=641 cap=19.0 deg
-  grenade_frag dropped 0xbcabbe43 t=[3521, 3559] pos=(-100.13, -46.92, 63.70) poseur=641 cap=19.0 deg
-  grenade_frag dropped 0xbcabbe43 t=[3521, 3564] pos=(-100.13, -46.91, 63.70) poseur=641 cap=19.0 deg
-  shroud_screen dropped 0x4396db42 t=[3529, 3555] pos=(-85.93, -26.98, 60.98) poseur=650 cap=171.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3529, 3640] pos=(-85.83, -26.89, 60.89) poseur=650 cap=171.6 deg
-  wall deployed 0x686b40c9 t=[3573, 3578] pos=(-94.00, -50.89, 66.27) poseur=644 cap=192.0 deg
-  wall dropped 0x2974c233 t=[3602, 3610] pos=(-88.38, -49.51, 65.34) poseur=649 cap=aucun
-  grapple dropped 0x273fe0eb t=[3651, 3659] pos=(-80.70, -49.07, 65.31) poseur=631 cap=166.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3651, 3675] pos=(-80.66, -48.92, 65.61) poseur=631 cap=166.8 deg
-  grenade_spike dropped 0x0f5716ff t=[3657, 3666] pos=(-105.97, -46.41, 63.81) poseur=648 cap=207.3 deg
-  grenade_spike dropped 0x0f5716ff t=[3657, 3667] pos=(-105.93, -46.49, 63.81) poseur=648 cap=207.3 deg
-  repulsor dropped 0x7ca85adc t=[3657, 3663] pos=(-105.83, -46.34, 63.41) poseur=648 cap=207.3 deg
-  wall dropped 0x2974c233 t=[3672, 3678] pos=(-91.35, -49.30, 65.73) poseur=644 cap=160.0 deg
-  repulsor dropped 0x7ca85adc t=[3698, 3705] pos=(-84.57, -20.55, 63.48) poseur=653 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[3706, 3716] pos=(-83.20, -20.13, 63.82) poseur=659 cap=354.6 deg
-  grenade_spike dropped 0x0f5716ff t=[3706, 3740] pos=(-83.24, -20.16, 63.82) poseur=659 cap=354.6 deg
-  thruster dropped 0x430dda48 t=[3706, 3716] pos=(-83.14, -20.02, 63.62) poseur=659 cap=354.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3706, 3752] pos=(-83.20, -20.16, 63.82) poseur=659 cap=354.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3706, 3745] pos=(-83.22, -20.13, 63.82) poseur=659 cap=354.6 deg
-  grapple dropped 0x273fe0eb t=[3707, 3725] pos=(-78.08, -25.52, 65.13) poseur=658 cap=132.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[3707, 3752] pos=(-77.95, -25.49, 65.06) poseur=658 cap=132.0 deg
-  sensor dropped 0x72b63d69 t=[3725, 3747] pos=(-96.71, -49.72, 64.94) poseur=647 cap=226.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3725, 3742] pos=(-96.80, -49.72, 64.85) poseur=647 cap=226.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3725, 3746] pos=(-96.80, -49.72, 64.85) poseur=647 cap=226.5 deg
-  sensor dropped 0x72b63d69 t=[3755, 3776] pos=(-101.16, -63.72, 65.63) poseur=657 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[3755, 3792] pos=(-101.12, -63.67, 65.47) poseur=657 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[3755, 3795] pos=(-101.13, -63.69, 65.47) poseur=657 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[3816, 3883] pos=(-95.39, -47.10, 64.74) poseur=624 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[3816, 3883] pos=(-95.39, -47.09, 64.75) poseur=624 cap=aucun
-  sensor dropped 0x72b63d69 t=[3828, 3845] pos=(-95.33, -23.15, 61.18) poseur=645 cap=354.2 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3828, 3845] pos=(-95.30, -23.27, 61.16) poseur=645 cap=354.2 deg
-  grenade_dynamo dropped 0xaada07f3 t=[3828, 3839] pos=(-95.32, -23.27, 61.16) poseur=645 cap=354.2 deg
-  grenade_spike dropped 0x0f5716ff t=[3832, 3842] pos=(-95.27, -47.85, 64.74) poseur=624 cap=aucun
-  repulsor dropped 0x7ca85adc t=[3832, 3842] pos=(-95.20, -47.78, 64.79) poseur=624 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[3832, 3857] pos=(-95.24, -47.84, 64.74) poseur=624 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[3832, 3863] pos=(-95.24, -47.84, 64.75) poseur=624 cap=aucun
-  thruster dropped 0x430dda48 t=[3850, 3872] pos=(-80.70, -49.12, 65.73) poseur=664 cap=170.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3884, 3889] pos=(-100.69, -38.75, 64.55) poseur=643 cap=217.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3884, 3889] pos=(-100.68, -38.73, 64.55) poseur=643 cap=217.6 deg
-  thruster dropped 0x430dda48 t=[3908, 3920] pos=(-92.76, -50.20, 65.72) poseur=644 cap=aucun
-  grapple dropped 0x273fe0eb t=[3924, 3934] pos=(-94.88, -34.37, 67.59) poseur=664 cap=210.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3924, 3969] pos=(-95.12, -34.43, 67.49) poseur=664 cap=210.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[3924, 3967] pos=(-95.10, -34.43, 67.49) poseur=664 cap=210.6 deg
-  shroud_screen dropped 0x4396db42 t=[3940, 3962] pos=(-110.27, -15.64, 61.68) poseur=611 cap=320.4 deg
-  grapple unknown 0x273fe0eb t=[3991, 4000] pos=(-99.86, -28.85, 63.95) poseur=668 cap=288.6 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[3991, 4023] pos=(-99.83, -28.78, 63.82) poseur=668 cap=288.6 deg
-  sensor unknown 0x72b63d69 t=[3994, 4016] pos=(-78.02, -33.99, 67.57) poseur=-1 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[3994, 4011] pos=(-78.12, -33.90, 67.43) poseur=-1 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[3994, 4003] pos=(-78.15, -33.90, 67.42) poseur=-1 cap=aucun
-  sensor dropped 0x72b63d69 t=[4004, 4030] pos=(-114.18, -67.18, 64.93) poseur=633 cap=aucun
-  sensor dropped 0x72b63d69 t=[4004, 4023] pos=(-114.49, -30.19, 64.15) poseur=636 cap=52.3 deg
-  grenade_frag dropped 0xbcabbe43 t=[4004, 4030] pos=(-114.15, -67.29, 64.82) poseur=633 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[4004, 4079] pos=(-114.16, -67.32, 64.82) poseur=633 cap=aucun
-  repulsor dropped 0x7ca85adc t=[4031, 4040] pos=(-85.36, -13.96, 60.27) poseur=660 cap=94.9 deg
-  sensor dropped 0x72b63d69 t=[4036, 4061] pos=(-114.70, -21.64, 62.33) poseur=655 cap=300.7 deg
-  grapple dropped 0x273fe0eb t=[4078, 4088] pos=(-100.06, -27.20, 64.35) poseur=668 cap=359.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4078, 4090] pos=(-100.03, -27.30, 64.19) poseur=668 cap=359.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4078, 4090] pos=(-100.00, -27.30, 64.19) poseur=668 cap=359.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4078, 4081] pos=(-100.00, -27.29, 64.19) poseur=668 cap=359.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4078, 4121] pos=(-100.03, -27.27, 64.19) poseur=668 cap=359.0 deg
-  thruster dropped 0x430dda48 t=[4092, 4112] pos=(-95.78, -34.94, 67.52) poseur=666 cap=356.4 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4154, 4239] pos=(-103.94, -23.01, 64.14) poseur=656 cap=132.6 deg
-  repulsor dropped 0x7ca85adc t=[4180, 4196] pos=(-114.09, -28.44, 64.24) poseur=674 cap=291.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4180, 4238] pos=(-114.21, -28.49, 63.83) poseur=674 cap=291.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4180, 4239] pos=(-114.21, -28.49, 63.83) poseur=674 cap=291.0 deg
-  grenade_spike dropped 0x0f5716ff t=[4188, 4196] pos=(-96.12, -58.09, 64.07) poseur=670 cap=308.9 deg
-  grenade_spike dropped 0x0f5716ff t=[4188, 4199] pos=(-96.13, -58.09, 64.08) poseur=670 cap=308.9 deg
-  grapple dropped 0x273fe0eb t=[4188, 4195] pos=(-96.04, -58.06, 64.42) poseur=670 cap=308.9 deg
-  sensor dropped 0x72b63d69 t=[4188, 4210] pos=(-96.05, -58.04, 64.16) poseur=670 cap=308.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[4188, 4213] pos=(-95.81, -58.04, 64.25) poseur=644 cap=121.2 deg
-  grenade_frag dropped 0xbcabbe43 t=[4188, 4219] pos=(-95.80, -58.02, 64.24) poseur=644 cap=121.2 deg
-  repair_field dropped 0x32d97758 t=[4227, 4240] pos=(-100.34, -27.27, 63.95) poseur=671 cap=299.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4227, 4239] pos=(-100.38, -27.36, 63.80) poseur=671 cap=299.0 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4227, 4238] pos=(-100.40, -27.36, 63.80) poseur=671 cap=299.0 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4227, 4261] pos=(-100.40, -27.34, 63.80) poseur=671 cap=299.0 deg
-  grapple dropped 0x273fe0eb t=[4240, 4249] pos=(-95.56, -22.87, 60.45) poseur=666 cap=323.1 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4240, 4261] pos=(-95.58, -23.01, 60.39) poseur=666 cap=323.1 deg
-  grenade_frag dropped 0xbcabbe43 t=[4240, 4268] pos=(-95.56, -23.05, 60.39) poseur=666 cap=323.1 deg
-  grenade_frag dropped 0xbcabbe43 t=[4240, 4279] pos=(-95.57, -23.03, 60.39) poseur=666 cap=323.1 deg
-  grenade_spike dropped 0x0f5716ff t=[4284, 4293] pos=(-103.19, -27.52, 64.34) poseur=662 cap=319.4 deg
-  grenade_spike dropped 0x0f5716ff t=[4284, 4291] pos=(-103.18, -27.51, 64.34) poseur=662 cap=319.4 deg
-  repulsor dropped 0x7ca85adc t=[4284, 4298] pos=(-103.31, -27.47, 64.45) poseur=662 cap=319.4 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4284, 4315] pos=(-103.46, -27.50, 64.34) poseur=662 cap=319.4 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4284, 4289] pos=(-103.49, -27.52, 64.34) poseur=662 cap=319.4 deg
-  sensor dropped 0x72b63d69 t=[4287, 4310] pos=(-94.93, -34.72, 67.52) poseur=673 cap=169.1 deg
-  sensor dropped 0x72b63d69 t=[4303, 4328] pos=(-65.38, -18.21, 61.71) poseur=679 cap=63.1 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4303, 4336] pos=(-65.26, -18.25, 61.45) poseur=679 cap=63.1 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4303, 4335] pos=(-65.26, -18.25, 61.45) poseur=679 cap=63.1 deg
-  repair_field dropped 0x32d97758 t=[4319, 4337] pos=(-96.47, -32.59, 67.45) poseur=665 cap=169.9 deg
-  grenade_spike dropped 0x0f5716ff t=[4336, 4350] pos=(-96.87, -28.35, 64.94) poseur=676 cap=154.6 deg
-  grenade_spike dropped 0x0f5716ff t=[4336, 4352] pos=(-96.85, -28.34, 64.94) poseur=676 cap=154.6 deg
-  sensor dropped 0x72b63d69 t=[4336, 4357] pos=(-96.95, -28.44, 65.05) poseur=676 cap=154.6 deg
-  shroud_screen unknown 0x4396db42 t=[4348, 4396] pos=(-96.92, -34.19, 67.54) poseur=673 cap=50.4 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[4348, 4390] pos=(-96.91, -34.04, 67.44) poseur=673 cap=50.4 deg
-  grenade_spike dropped 0x0f5716ff t=[4355, 4374] pos=(-96.74, -34.83, 67.41) poseur=673 cap=3.9 deg
-  grenade_spike dropped 0x0f5716ff t=[4355, 4361] pos=(-96.80, -34.84, 67.42) poseur=673 cap=3.9 deg
-  thruster dropped 0x430dda48 t=[4355, 4371] pos=(-96.85, -34.59, 67.57) poseur=673 cap=3.9 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4355, 4372] pos=(-96.76, -34.83, 67.41) poseur=673 cap=3.9 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4355, 4364] pos=(-96.76, -34.83, 67.41) poseur=673 cap=3.9 deg
-  grenade_spike unknown 0x0f5716ff t=[4360, 4372] pos=(-75.54, -0.66, 62.78) poseur=-1 cap=aucun
-  grenade_spike unknown 0x0f5716ff t=[4360, 4370] pos=(-75.54, -0.65, 62.77) poseur=-1 cap=aucun
-  shroud_screen unknown 0x4396db42 t=[4360, 4399] pos=(-76.11, -0.86, 62.75) poseur=-1 cap=aucun
-  sensor unknown 0x72b63d69 t=[4360, 4383] pos=(-72.58, 0.22, 62.04) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[4360, 4384] pos=(-76.10, -0.71, 61.98) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[4360, 4393] pos=(-76.09, -0.73, 61.98) poseur=-1 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[4372, 4373] pos=(-108.61, -29.83, 64.20) poseur=667 cap=165.2 deg
-  repair_field dropped 0x32d97758 t=[4372, 4389] pos=(-108.69, -29.89, 64.30) poseur=667 cap=165.2 deg
-  shroud_screen dropped 0x4396db42 t=[4372, 4407] pos=(-97.84, -28.06, 63.91) poseur=651 cap=aucun
-  wall deployed 0x686b40c9 t=[4406, 4415] pos=(-74.91, -48.97, 65.03) poseur=686 cap=177.9 deg
-  wall dropped 0x2974c233 t=[4418, 4428] pos=(-78.56, -48.81, 65.97) poseur=685 cap=169.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4418, 4452] pos=(-78.58, -48.86, 65.75) poseur=685 cap=169.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4418, 4454] pos=(-78.63, -48.85, 65.76) poseur=685 cap=169.8 deg
-  shroud_screen dropped 0x4396db42 t=[4461, 4485] pos=(-95.51, -34.17, 67.50) poseur=680 cap=aucun
-  wall deployed 0x686b40c9 t=[4469, 4476] pos=(-78.68, -48.85, 65.34) poseur=686 cap=185.8 deg
-  repulsor dropped 0x7ca85adc t=[4487, 4500] pos=(-85.52, -22.13, 61.21) poseur=682 cap=186.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4487, 4571] pos=(-85.52, -22.10, 61.15) poseur=682 cap=186.7 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4487, 4562] pos=(-85.52, -22.07, 61.15) poseur=682 cap=186.7 deg
-  shroud_screen dropped 0x4396db42 t=[4510, 4529] pos=(-63.89, -28.46, 63.94) poseur=687 cap=344.4 deg
-  grenade_frag dropped 0xbcabbe43 t=[4510, 4558] pos=(-63.92, -28.48, 63.79) poseur=687 cap=344.4 deg
-  grenade_frag dropped 0xbcabbe43 t=[4510, 4552] pos=(-63.92, -28.48, 63.78) poseur=687 cap=344.4 deg
-  grenade_spike dropped 0x0f5716ff t=[4525, 4539] pos=(-101.71, -39.70, 68.19) poseur=619 cap=168.6 deg
-  grenade_spike dropped 0x0f5716ff t=[4525, 4536] pos=(-101.71, -39.70, 68.19) poseur=619 cap=168.6 deg
-  grapple dropped 0x273fe0eb t=[4525, 4536] pos=(-101.68, -39.78, 68.33) poseur=619 cap=168.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4525, 4562] pos=(-101.71, -39.70, 68.19) poseur=619 cap=168.6 deg
-  thruster dropped 0x430dda48 t=[4588, 4601] pos=(-92.65, -19.47, 60.48) poseur=680 cap=102.8 deg
-  thruster dropped 0x430dda48 t=[4588, 4595] pos=(-77.58, -13.19, 62.22) poseur=663 cap=115.7 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4588, 4605] pos=(-92.45, -19.30, 60.36) poseur=680 cap=102.8 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4588, 4600] pos=(-92.43, -19.30, 60.36) poseur=680 cap=102.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4588, 4680] pos=(-92.42, -19.29, 60.35) poseur=680 cap=102.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4588, 4692] pos=(-92.43, -19.28, 60.35) poseur=680 cap=102.8 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4588, 4622] pos=(-77.53, -13.15, 62.15) poseur=663 cap=115.7 deg
-  grapple dropped 0x273fe0eb t=[4602, 4629] pos=(-67.98, -32.68, 65.09) poseur=688 cap=139.1 deg
-  wall dropped 0x2974c233 t=[4607, 4614] pos=(-102.36, -39.98, 67.50) poseur=693 cap=aucun
-  shroud_screen dropped 0x4396db42 t=[4618, 4639] pos=(-79.47, -48.71, 65.76) poseur=697 cap=179.2 deg
-  wall deployed 0x686b40c9 t=[4629, 4635] pos=(-83.16, -49.22, 66.45) poseur=697 cap=172.9 deg
-  wall deployed 0x686b40c9 t=[4634, 4640] pos=(-77.72, -49.41, 65.69) poseur=686 cap=174.6 deg
-  repulsor dropped 0x7ca85adc t=[4636, 4645] pos=(-92.90, -18.31, 60.44) poseur=678 cap=aucun
-  repair_field dropped 0x32d97758 t=[4684, 4693] pos=(-94.43, -49.12, 65.08) poseur=672 cap=346.2 deg
-  sensor dropped 0x72b63d69 t=[4697, 4707] pos=(-126.60, -40.39, 64.61) poseur=669 cap=309.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[4697, 4754] pos=(-126.66, -40.45, 64.55) poseur=669 cap=309.9 deg
-  grenade_frag dropped 0xbcabbe43 t=[4697, 4750] pos=(-126.66, -40.43, 64.55) poseur=669 cap=309.9 deg
-  grenade_spike dropped 0x0f5716ff t=[4736, 4757] pos=(-101.89, -13.06, 61.94) poseur=696 cap=28.9 deg
-  grenade_spike dropped 0x0f5716ff t=[4736, 4755] pos=(-101.89, -13.08, 61.94) poseur=696 cap=28.9 deg
-  wall dropped 0x2974c233 t=[4736, 4744] pos=(-101.95, -12.99, 62.09) poseur=696 cap=28.9 deg
-  grenade_spike dropped 0x0f5716ff t=[4764, 4911] pos=(-97.67, -13.51, 63.04) poseur=678 cap=290.3 deg
-  grenade_spike dropped 0x0f5716ff t=[4764, 4776] pos=(-97.69, -13.51, 63.04) poseur=678 cap=290.3 deg
-  thruster dropped 0x430dda48 t=[4764, 4820] pos=(-97.52, -13.55, 63.17) poseur=678 cap=290.3 deg
-  grenade_frag dropped 0xbcabbe43 t=[4764, 4839] pos=(-97.69, -13.53, 63.05) poseur=678 cap=290.3 deg
-  wall deployed 0x686b40c9 t=[4771, 4780] pos=(-81.92, -48.96, 65.84) poseur=695 cap=aucun
-  thruster dropped 0x430dda48 t=[4775, 4788] pos=(-76.81, -17.13, 60.94) poseur=683 cap=342.8 deg
-  grenade_frag dropped 0xbcabbe43 t=[4775, 4804] pos=(-76.85, -17.20, 60.75) poseur=683 cap=342.8 deg
-  repair_field dropped 0x32d97758 t=[4792, 4808] pos=(-67.30, -18.63, 62.60) poseur=675 cap=aucun
-  thruster dropped 0x430dda48 t=[4803, 4822] pos=(-66.22, -19.19, 61.73) poseur=651 cap=159.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4803, 4818] pos=(-66.22, -19.15, 61.61) poseur=651 cap=159.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4803, 4820] pos=(-66.22, -19.12, 61.61) poseur=651 cap=159.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[4803, 4855] pos=(-66.22, -19.18, 61.61) poseur=651 cap=159.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[4803, 4850] pos=(-66.22, -19.14, 61.61) poseur=651 cap=159.5 deg
-  grenade_spike dropped 0x0f5716ff t=[4820, 4832] pos=(-99.35, -21.68, 61.06) poseur=681 cap=205.1 deg
-  grenade_spike dropped 0x0f5716ff t=[4820, 4843] pos=(-99.34, -21.74, 61.06) poseur=681 cap=205.1 deg
-  repair_field dropped 0x32d97758 t=[4820, 4842] pos=(-99.40, -21.74, 61.33) poseur=681 cap=205.1 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4820, 4831] pos=(-99.30, -21.74, 61.06) poseur=681 cap=205.1 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4820, 4832] pos=(-99.31, -21.75, 61.07) poseur=681 cap=205.1 deg
-  grenade_spike unknown 0x0f5716ff t=[4826, 4834] pos=(-96.39, -35.31, 67.45) poseur=684 cap=330.7 deg
-  shroud_screen unknown 0x4396db42 t=[4826, 4847] pos=(-96.37, -35.37, 67.56) poseur=684 cap=330.7 deg
-  wall deployed 0x686b40c9 t=[4868, 4872] pos=(-101.29, -38.25, 67.35) poseur=694 cap=aucun
-  grapple dropped 0x273fe0eb t=[4871, 4882] pos=(-63.63, -15.12, 61.97) poseur=699 cap=72.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4871, 4883] pos=(-63.49, -15.18, 61.84) poseur=699 cap=72.6 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4871, 4884] pos=(-63.53, -15.19, 61.84) poseur=699 cap=72.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[4871, 4893] pos=(-63.49, -15.18, 61.84) poseur=699 cap=72.6 deg
-  grenade_spike dropped 0x0f5716ff t=[4881, 4898] pos=(-102.53, -28.91, 63.61) poseur=692 cap=89.1 deg
-  grenade_spike dropped 0x0f5716ff t=[4881, 4909] pos=(-102.52, -28.91, 63.61) poseur=692 cap=89.1 deg
-  grapple dropped 0x273fe0eb t=[4881, 4890] pos=(-102.70, -28.80, 63.94) poseur=690 cap=87.8 deg
-  sensor dropped 0x72b63d69 t=[4881, 4906] pos=(-102.59, -28.95, 63.69) poseur=692 cap=89.1 deg
-  grenade_frag dropped 0xbcabbe43 t=[4881, 4931] pos=(-102.64, -28.73, 63.84) poseur=690 cap=87.8 deg
-  grenade_frag dropped 0xbcabbe43 t=[4881, 4947] pos=(-102.64, -28.73, 63.84) poseur=690 cap=87.8 deg
-  grenade_spike dropped 0x0f5716ff t=[4906, 4920] pos=(-101.65, -16.79, 60.87) poseur=691 cap=339.7 deg
-  grenade_spike dropped 0x0f5716ff t=[4906, 4922] pos=(-101.65, -16.76, 60.87) poseur=691 cap=339.7 deg
-  repulsor dropped 0x7ca85adc t=[4906, 4918] pos=(-101.58, -16.61, 60.93) poseur=691 cap=339.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[4906, 4942] pos=(-101.63, -16.77, 60.87) poseur=691 cap=339.7 deg
-  grenade_frag dropped 0xbcabbe43 t=[4906, 4943] pos=(-101.64, -16.77, 60.87) poseur=691 cap=339.7 deg
-  wall dropped 0x2974c233 t=[4913, 4921] pos=(-96.64, -17.13, 60.68) poseur=697 cap=128.1 deg
-  repair_field dropped 0x32d97758 t=[4913, 4923] pos=(-63.22, -15.06, 61.97) poseur=703 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[4913, 4961] pos=(-96.57, -17.10, 60.54) poseur=697 cap=128.1 deg
-  grenade_frag dropped 0xbcabbe43 t=[4913, 4958] pos=(-96.54, -17.10, 60.55) poseur=697 cap=128.1 deg
-  wall dropped 0x2974c233 t=[4927, 4944] pos=(-93.52, -49.32, 65.55) poseur=695 cap=210.5 deg
-  repulsor dropped 0x7ca85adc t=[4936, 4953] pos=(-102.08, -30.17, 65.82) poseur=698 cap=200.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[4936, 4999] pos=(-102.11, -30.08, 65.73) poseur=698 cap=200.6 deg
-  grenade_frag dropped 0xbcabbe43 t=[4936, 4969] pos=(-102.11, -30.10, 65.72) poseur=698 cap=200.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4936, 4966] pos=(-102.11, -30.10, 65.73) poseur=698 cap=200.6 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4936, 4974] pos=(-102.11, -30.08, 65.73) poseur=698 cap=200.6 deg
-  grenade_spike dropped 0x0f5716ff t=[4975, 4981] pos=(-102.80, -28.78, 63.81) poseur=700 cap=333.5 deg
-  wall dropped 0x2974c233 t=[4975, 4982] pos=(-103.04, -28.31, 63.98) poseur=694 cap=aucun
-  sensor dropped 0x72b63d69 t=[4975, 4990] pos=(-102.85, -28.78, 63.99) poseur=700 cap=333.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4975, 4982] pos=(-102.81, -28.78, 63.81) poseur=700 cap=333.5 deg
-  grenade_dynamo dropped 0xaada07f3 t=[4975, 4985] pos=(-102.81, -28.75, 63.81) poseur=700 cap=333.5 deg
-  grenade_frag dropped 0xbcabbe43 t=[4975, 5020] pos=(-102.80, -28.49, 63.84) poseur=694 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[4975, 5016] pos=(-102.80, -28.48, 63.84) poseur=694 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[4975, 4987] pos=(-102.80, -28.51, 63.84) poseur=694 cap=aucun
-  repulsor dropped 0x7ca85adc t=[4985, 4997] pos=(-108.76, -29.40, 64.48) poseur=708 cap=3.5 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4985, 5020] pos=(-108.74, -29.47, 64.41) poseur=708 cap=3.5 deg
-  grenade_plasma dropped 0xcaaadcb0 t=[4985, 5017] pos=(-108.74, -29.47, 64.41) poseur=708 cap=3.5 deg
-  grapple dropped 0x273fe0eb t=[5013, 5019] pos=(-106.27, -32.30, 63.70) poseur=689 cap=305.2 deg
-  grapple dropped 0x273fe0eb t=[5028, 5033] pos=(-102.56, -30.66, 64.27) poseur=693 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[5028, 5056] pos=(-102.53, -30.79, 64.15) poseur=693 cap=aucun
-  grenade_dynamo dropped 0xaada07f3 t=[5028, 5043] pos=(-102.54, -30.80, 64.14) poseur=693 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[5028, 5075] pos=(-102.54, -30.77, 64.14) poseur=693 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[5028, 5058] pos=(-102.54, -30.82, 64.14) poseur=693 cap=aucun
-  grapple dropped 0x273fe0eb t=[5064, 5070] pos=(-104.41, -31.05, 63.48) poseur=707 cap=aucun
-  grenade_frag dropped 0xbcabbe43 t=[5064, 5071] pos=(-104.22, -30.95, 63.81) poseur=707 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[5064, 5121] pos=(-104.20, -30.95, 63.82) poseur=707 cap=aucun
-  grenade_plasma dropped 0xcaaadcb0 t=[5064, 5125] pos=(-104.20, -30.94, 63.82) poseur=707 cap=aucun
-  grenade_spike dropped 0x0f5716ff t=[5126, 5136] pos=(-99.03, -61.84, 65.65) poseur=705 cap=105.6 deg
-  grenade_spike dropped 0x0f5716ff t=[5126, 5132] pos=(-99.06, -61.84, 65.64) poseur=705 cap=105.6 deg
-  thruster dropped 0x430dda48 t=[5126, 5135] pos=(-99.07, -61.85, 65.77) poseur=705 cap=105.6 deg
-  repair_field dropped 0x32d97758 t=[5127, 5147] pos=(-64.47, -26.72, 65.04) poseur=709 cap=346.3 deg
-  grenade_frag dropped 0xbcabbe43 t=[5127, 5175] pos=(-64.48, -26.82, 64.93) poseur=709 cap=346.3 deg
-  grenade_frag dropped 0xbcabbe43 t=[5127, 5166] pos=(-64.47, -26.82, 64.93) poseur=709 cap=346.3 deg
+  thruster dropped 0x430dda48 t=[1266, 1293] pos=(-86.42, -50.76, 66.22) poseur=512 cap=309.9 deg
+  grenade_dynamo dropped 0xaada07f3 t=[1266, 1346] pos=(-86.77, -50.83, 66.13) poseur=512 cap=309.9 deg
+  wall deployed 0x686b40c9 t=[1288, 1300] pos=(-76.37, -34.28, 67.34) poseur=526 cap=185.8 deg
+  sensor dropped 0x72b63d69 t=[1370, 1431] pos=(-77.88, -35.56, 68.53) poseur=528 cap=176.0 deg
+  grenade_frag dropped 0xbcabbe43 t=[1370, 1497] pos=(-77.85, -35.48, 68.36) poseur=528 cap=176.0 deg
+  grenade_frag dropped 0xbcabbe43 t=[1370, 1498] pos=(-77.86, -35.51, 68.36) poseur=528 cap=176.0 deg
+  grapple dropped 0x273fe0eb t=[1377, 1402] pos=(-95.50, -35.18, 67.58) poseur=514 cap=358.1 deg
+  repulsor dropped 0x7ca85adc t=[1387, 1409] pos=(-91.32, -48.82, 65.24) poseur=521 cap=3.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[1387, 1471] pos=(-91.19, -48.87, 65.69) poseur=521 cap=3.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[1387, 1520] pos=(-91.19, -48.87, 65.69) poseur=521 cap=3.6 deg
+  grapple dropped 0x273fe0eb t=[1498, 1516] pos=(-90.71, -49.14, 65.74) poseur=525 cap=356.8 deg
+  repulsor dropped 0x7ca85adc t=[1540, 1564] pos=(-89.99, -49.18, 65.71) poseur=525 cap=116.7 deg
+  grapple dropped 0x273fe0eb t=[1554, 1580] pos=(-97.93, -37.92, 67.56) poseur=532 cap=56.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[1554, 1558] pos=(-97.81, -37.89, 67.42) poseur=532 cap=56.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[1554, 1653] pos=(-97.80, -37.92, 67.42) poseur=532 cap=56.6 deg
+  wall unknown 0x2974c233 t=[1569, 1595] pos=(-97.28, -61.08, 66.15) poseur=518 cap=65.2 deg
+  wall dropped 0x2974c233 t=[1619, 1650] pos=(-73.47, -36.02, 68.05) poseur=526 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[1619, 1731] pos=(-73.60, -35.99, 67.85) poseur=526 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[1619, 1739] pos=(-73.60, -35.92, 67.85) poseur=526 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[1675, 1734] pos=(-72.02, -36.27, 67.45) poseur=533 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[1731, 1780] pos=(-66.81, -37.65, 68.82) poseur=524 cap=43.2 deg
+  grenade_spike dropped 0x0f5716ff t=[1731, 1767] pos=(-66.80, -37.65, 68.82) poseur=524 cap=43.2 deg
+  repulsor dropped 0x7ca85adc t=[1731, 1784] pos=(-66.88, -37.61, 68.85) poseur=524 cap=43.2 deg
+  wall dropped 0x2974c233 t=[1835, 1860] pos=(-71.29, -39.23, 67.55) poseur=534 cap=114.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[1835, 2026] pos=(-71.17, -39.11, 67.40) poseur=534 cap=114.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[1835, 1916] pos=(-71.19, -39.13, 67.40) poseur=534 cap=114.6 deg
+  wall dropped 0x2974c233 t=[1888, 1913] pos=(-106.86, -49.58, 64.01) poseur=537 cap=345.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[1888, 1964] pos=(-106.78, -49.65, 63.79) poseur=537 cap=345.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[1888, 1965] pos=(-106.78, -49.66, 63.79) poseur=537 cap=345.9 deg
+  thruster dropped 0x430dda48 t=[1943, 1969] pos=(-97.36, -38.01, 67.50) poseur=535 cap=20.4 deg
+  repulsor dropped 0x7ca85adc t=[1960, 1986] pos=(-71.82, -37.90, 67.51) poseur=519 cap=2.1 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[1960, 2070] pos=(-71.84, -37.94, 67.44) poseur=519 cap=2.1 deg
+  grenade_spike dropped 0x0f5716ff t=[1984, 2011] pos=(-68.41, -39.53, 68.25) poseur=523 cap=154.5 deg
+  grenade_spike dropped 0x0f5716ff t=[1984, 2020] pos=(-68.39, -39.52, 68.26) poseur=523 cap=154.5 deg
+  sensor dropped 0x72b63d69 t=[1984, 2058] pos=(-68.41, -39.66, 68.36) poseur=523 cap=154.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[1984, 2107] pos=(-68.39, -39.53, 68.25) poseur=523 cap=154.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[1984, 2120] pos=(-68.41, -39.53, 68.25) poseur=523 cap=154.5 deg
+  grenade_spike dropped 0x0f5716ff t=[2134, 2159] pos=(-90.66, -36.30, 64.27) poseur=535 cap=260.0 deg
+  grenade_spike dropped 0x0f5716ff t=[2134, 2160] pos=(-90.66, -36.30, 64.27) poseur=535 cap=260.0 deg
+  grapple dropped 0x273fe0eb t=[2134, 2165] pos=(-90.47, -36.38, 64.48) poseur=535 cap=260.0 deg
+  grapple dropped 0x273fe0eb t=[2149, 2199] pos=(-89.51, -37.71, 65.53) poseur=525 cap=90.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[2149, 2230] pos=(-89.47, -37.69, 65.39) poseur=525 cap=90.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[2149, 2300] pos=(-89.46, -37.69, 65.38) poseur=525 cap=90.3 deg
+  sensor dropped 0x72b63d69 t=[2331, 2386] pos=(-69.13, -46.59, 63.92) poseur=538 cap=297.2 deg
+  grenade_spike dropped 0x0f5716ff t=[2348, 2384] pos=(-104.37, -30.93, 63.82) poseur=541 cap=69.0 deg
+  grenade_spike dropped 0x0f5716ff t=[2348, 2385] pos=(-104.35, -30.95, 63.82) poseur=541 cap=69.0 deg
+  grapple dropped 0x273fe0eb t=[2348, 2367] pos=(-104.48, -31.00, 63.48) poseur=541 cap=69.0 deg
+  grenade_spike dropped 0x0f5716ff t=[2374, 2415] pos=(-87.90, -20.60, 64.82) poseur=517 cap=263.4 deg
+  grenade_spike dropped 0x0f5716ff t=[2374, 2401] pos=(-87.90, -20.58, 64.81) poseur=517 cap=263.4 deg
+  sensor dropped 0x72b63d69 t=[2374, 2475] pos=(-87.83, -20.55, 64.93) poseur=517 cap=263.4 deg
+  grenade_spike dropped 0x0f5716ff t=[2542, 2591] pos=(-74.08, -44.29, 64.64) poseur=529 cap=173.5 deg
+  grenade_spike dropped 0x0f5716ff t=[2542, 2594] pos=(-74.08, -44.29, 64.64) poseur=529 cap=173.5 deg
+  shroud_screen dropped 0x4396db42 t=[2542, 2608] pos=(-74.14, -44.32, 64.85) poseur=529 cap=173.5 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[2542, 2631] pos=(-74.08, -44.28, 64.64) poseur=529 cap=173.5 deg
+  repulsor dropped 0x7ca85adc t=[2551, 2589] pos=(-104.31, -30.12, 63.88) poseur=543 cap=aucun
+  shroud_screen unknown 0x4396db42 t=[2616, 2685] pos=(-109.31, -33.15, 63.88) poseur=547 cap=278.7 deg
+  grenade_frag unknown 0xbcabbe43 t=[2616, 2640] pos=(-109.22, -33.14, 63.79) poseur=547 cap=278.7 deg
+  grenade_frag unknown 0xbcabbe43 t=[2616, 2655] pos=(-109.24, -33.15, 63.78) poseur=547 cap=278.7 deg
+  wall deployed 0x686b40c9 t=[2627, 2644] pos=(-75.55, -33.89, 67.50) poseur=546 cap=184.3 deg
+  thruster dropped 0x430dda48 t=[2676, 2718] pos=(-93.99, -35.05, 67.51) poseur=516 cap=357.1 deg
+  grenade_frag dropped 0xbcabbe43 t=[2676, 2813] pos=(-94.00, -35.15, 67.40) poseur=516 cap=357.1 deg
+  grenade_frag dropped 0xbcabbe43 t=[2676, 2836] pos=(-93.99, -35.16, 67.40) poseur=516 cap=357.1 deg
+  wall dropped 0x2974c233 t=[2740, 2768] pos=(-94.93, -35.49, 67.63) poseur=544 cap=0.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[2740, 2905] pos=(-94.88, -35.55, 67.48) poseur=544 cap=0.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[2740, 2893] pos=(-94.88, -35.52, 67.48) poseur=544 cap=0.6 deg
+  wall deployed 0x686b40c9 t=[2774, 2792] pos=(-97.11, -36.41, 67.51) poseur=542 cap=27.5 deg
+  grapple unknown 0x273fe0eb t=[2811, 2838] pos=(-75.37, -44.25, 64.85) poseur=513 cap=304.8 deg
+  grenade_spike dropped 0x0f5716ff t=[2847, 2870] pos=(-74.98, -43.74, 64.69) poseur=513 cap=303.3 deg
+  grenade_spike dropped 0x0f5716ff t=[2847, 2871] pos=(-74.97, -43.71, 64.69) poseur=513 cap=303.3 deg
+  repulsor dropped 0x7ca85adc t=[2847, 2869] pos=(-74.98, -43.59, 64.31) poseur=513 cap=303.3 deg
+  grenade_frag dropped 0xbcabbe43 t=[2847, 2974] pos=(-75.00, -43.73, 64.69) poseur=513 cap=303.3 deg
+  thruster unknown 0x430dda48 t=[2849, 2875] pos=(-54.27, -51.02, 63.78) poseur=-1 cap=aucun
+  grenade_dynamo unknown 0xaada07f3 t=[2849, 2884] pos=(-54.29, -51.09, 63.41) poseur=-1 cap=aucun
+  grenade_dynamo unknown 0xaada07f3 t=[2849, 2915] pos=(-54.26, -51.17, 63.42) poseur=-1 cap=aucun
+  wall deployed 0x686b40c9 t=[3050, 3059] pos=(-98.25, -43.16, 67.21) poseur=542 cap=306.8 deg
+  wall deployed 0x686b40c9 t=[3098, 3114] pos=(-76.50, -45.73, 64.74) poseur=539 cap=150.5 deg
+  wall deployed 0x686b40c9 t=[3125, 3141] pos=(-78.26, -49.03, 65.66) poseur=548 cap=187.6 deg
+  wall deployed 0x686b40c9 t=[3309, 3320] pos=(-98.94, -43.31, 67.26) poseur=542 cap=341.4 deg
+  thruster dropped 0x430dda48 t=[3336, 3374] pos=(-94.61, -34.36, 67.19) poseur=551 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[3336, 3507] pos=(-94.50, -34.47, 67.42) poseur=551 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[3336, 3507] pos=(-94.51, -34.44, 67.42) poseur=551 cap=aucun
+  wall dropped 0x2974c233 t=[3342, 3376] pos=(-85.84, -52.10, 67.39) poseur=548 cap=273.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3342, 3415] pos=(-85.97, -52.13, 67.32) poseur=548 cap=273.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3342, 3406] pos=(-85.97, -52.14, 67.32) poseur=548 cap=273.0 deg
+  grenade_spike dropped 0x0f5716ff t=[3376, 3421] pos=(-96.91, -30.48, 63.70) poseur=547 cap=127.7 deg
+  grenade_spike dropped 0x0f5716ff t=[3376, 3453] pos=(-96.92, -30.47, 63.70) poseur=547 cap=127.7 deg
+  shroud_screen dropped 0x4396db42 t=[3376, 3442] pos=(-96.98, -30.55, 63.79) poseur=547 cap=127.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3376, 3439] pos=(-96.91, -30.46, 63.70) poseur=547 cap=127.7 deg
+  grenade_spike dropped 0x0f5716ff t=[3395, 3435] pos=(-98.51, -29.17, 64.28) poseur=543 cap=32.7 deg
+  grenade_spike dropped 0x0f5716ff t=[3395, 3456] pos=(-98.55, -29.17, 64.27) poseur=543 cap=32.7 deg
+  grapple dropped 0x273fe0eb t=[3395, 3424] pos=(-98.56, -29.06, 64.53) poseur=543 cap=32.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[3395, 3552] pos=(-98.51, -29.14, 64.28) poseur=543 cap=32.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[3395, 3484] pos=(-98.58, -29.16, 64.28) poseur=543 cap=32.7 deg
+  thruster dropped 0x430dda48 t=[3445, 3469] pos=(-99.25, -31.80, 67.52) poseur=536 cap=24.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[3445, 3593] pos=(-99.20, -31.84, 67.43) poseur=536 cap=24.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[3445, 3666] pos=(-99.18, -31.85, 67.43) poseur=536 cap=24.7 deg
+  shroud_screen dropped 0x4396db42 t=[3487, 3550] pos=(-97.35, -30.12, 63.95) poseur=552 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[3487, 3591] pos=(-97.38, -30.22, 63.87) poseur=552 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[3487, 3638] pos=(-97.33, -30.24, 63.87) poseur=552 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[3525, 3577] pos=(-78.27, -49.11, 65.58) poseur=515 cap=182.9 deg
+  sensor dropped 0x72b63d69 t=[3525, 3589] pos=(-78.33, -49.28, 65.69) poseur=515 cap=182.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[3525, 3618] pos=(-78.27, -49.12, 65.58) poseur=515 cap=182.9 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[3612, 3692] pos=(-97.46, -41.60, 67.09) poseur=542 cap=214.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[3612, 3706] pos=(-97.45, -41.60, 67.09) poseur=542 cap=214.3 deg
+  repulsor dropped 0x7ca85adc t=[3751, 3765] pos=(-77.96, -34.66, 67.02) poseur=553 cap=212.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[3751, 3841] pos=(-78.06, -34.62, 67.36) poseur=553 cap=212.8 deg
+  grenade_spike dropped 0x0f5716ff t=[3848, 3876] pos=(-87.38, -29.35, 63.80) poseur=556 cap=194.5 deg
+  grenade_spike dropped 0x0f5716ff t=[3848, 3927] pos=(-87.38, -29.32, 63.79) poseur=556 cap=194.5 deg
+  repulsor dropped 0x7ca85adc t=[3848, 3871] pos=(-87.21, -29.56, 63.47) poseur=556 cap=194.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[3848, 3932] pos=(-87.38, -29.34, 63.79) poseur=556 cap=194.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[3848, 3936] pos=(-87.38, -29.36, 63.80) poseur=556 cap=194.5 deg
+  thruster dropped 0x430dda48 t=[3858, 3899] pos=(-75.56, -44.52, 64.81) poseur=546 cap=aucun
+  shroud_screen dropped 0x4396db42 t=[3947, 4025] pos=(-76.85, -44.76, 64.90) poseur=546 cap=194.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[3947, 4096] pos=(-76.90, -44.85, 64.72) poseur=546 cap=194.9 deg
+  grapple dropped 0x273fe0eb t=[3981, 4011] pos=(-71.19, -47.88, 65.23) poseur=549 cap=166.9 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3981, 4035] pos=(-71.27, -47.78, 65.18) poseur=549 cap=166.9 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3981, 4036] pos=(-71.26, -47.78, 65.18) poseur=549 cap=166.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[3981, 4005] pos=(-71.24, -47.78, 65.18) poseur=549 cap=166.9 deg
+  grapple dropped 0x273fe0eb t=[3986, 4014] pos=(-76.06, -47.50, 65.59) poseur=561 cap=346.8 deg
+  repair_field dropped 0x32d97758 t=[3986, 4036] pos=(-75.51, -45.65, 64.87) poseur=550 cap=241.4 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3986, 4047] pos=(-75.56, -45.58, 64.75) poseur=550 cap=241.4 deg
+  grenade_dynamo dropped 0xaada07f3 t=[3986, 4028] pos=(-75.55, -45.65, 64.74) poseur=550 cap=241.4 deg
+  wall deployed 0x686b40c9 t=[3990, 3998] pos=(-97.72, -61.84, 65.28) poseur=539 cap=104.3 deg
+  grenade_spike dropped 0x0f5716ff t=[4112, 4145] pos=(-105.78, -41.29, 63.80) poseur=564 cap=248.0 deg
+  grenade_spike dropped 0x0f5716ff t=[4112, 4143] pos=(-105.75, -41.29, 63.80) poseur=564 cap=248.0 deg
+  grapple dropped 0x273fe0eb t=[4112, 4135] pos=(-105.69, -41.24, 64.01) poseur=564 cap=248.0 deg
+  wall deployed 0x686b40c9 t=[4187, 4206] pos=(-105.79, -33.33, 63.63) poseur=567 cap=66.3 deg
+  sensor dropped 0x72b63d69 t=[4238, 4328] pos=(-72.70, -47.16, 63.91) poseur=566 cap=aucun
+  thruster dropped 0x430dda48 t=[4294, 4326] pos=(-105.57, -22.11, 64.18) poseur=560 cap=8.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[4294, 4324] pos=(-105.42, -22.08, 64.20) poseur=560 cap=8.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[4294, 4412] pos=(-105.47, -22.06, 64.20) poseur=560 cap=8.0 deg
+  repair_field dropped 0x32d97758 t=[4366, 4429] pos=(-107.92, -64.41, 66.11) poseur=559 cap=8.3 deg
+  sensor dropped 0x72b63d69 t=[4399, 4476] pos=(-76.62, -44.65, 64.80) poseur=545 cap=aucun
+  sensor dropped 0x72b63d69 t=[4429, 4470] pos=(-95.03, -48.20, 64.44) poseur=555 cap=351.1 deg
+  wall deployed 0x686b40c9 t=[4476, 4490] pos=(-96.23, -34.19, 67.43) poseur=567 cap=352.7 deg
+  wall deployed 0x686b40c9 t=[4493, 4503] pos=(-107.43, -66.38, 64.79) poseur=539 cap=150.2 deg
+  grenade_spike dropped 0x0f5716ff t=[4499, 4536] pos=(-106.98, -66.38, 64.83) poseur=539 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[4499, 4514] pos=(-106.96, -66.41, 64.83) poseur=539 cap=aucun
+  grapple dropped 0x273fe0eb t=[4595, 4617] pos=(-97.72, -45.22, 64.37) poseur=566 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[4595, 4635] pos=(-97.57, -45.35, 64.55) poseur=566 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[4595, 4620] pos=(-97.62, -45.37, 64.55) poseur=566 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[4595, 4707] pos=(-97.62, -45.33, 64.55) poseur=566 cap=aucun
+  repair_field unknown 0x32d97758 t=[4617, 4666] pos=(-82.66, -8.12, 62.88) poseur=-1 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[4617, 4696] pos=(-83.23, -8.03, 62.46) poseur=-1 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[4617, 4665] pos=(-83.20, -8.03, 62.49) poseur=-1 cap=aucun
+  wall dropped 0x2974c233 t=[4718, 4741] pos=(-96.77, -45.25, 64.81) poseur=571 cap=290.5 deg
+  grapple dropped 0x273fe0eb t=[4746, 4776] pos=(-95.16, -46.83, 65.82) poseur=571 cap=203.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[4746, 4788] pos=(-95.22, -46.70, 65.62) poseur=571 cap=203.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[4746, 4794] pos=(-95.23, -46.70, 65.63) poseur=571 cap=203.0 deg
+  grenade_spike dropped 0x0f5716ff t=[4781, 4822] pos=(-106.03, -65.22, 66.44) poseur=558 cap=27.8 deg
+  grenade_spike dropped 0x0f5716ff t=[4781, 4845] pos=(-106.00, -65.24, 66.45) poseur=558 cap=27.8 deg
+  grapple dropped 0x273fe0eb t=[4781, 4803] pos=(-106.14, -65.19, 66.15) poseur=558 cap=27.8 deg
+  repair_field dropped 0x32d97758 t=[4781, 4829] pos=(-106.12, -65.20, 66.58) poseur=558 cap=27.8 deg
+  grenade_frag dropped 0xbcabbe43 t=[4781, 4859] pos=(-106.00, -65.23, 66.45) poseur=558 cap=27.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[4781, 4865] pos=(-106.24, -65.20, 66.09) poseur=558 cap=27.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[4781, 4867] pos=(-106.26, -65.20, 66.09) poseur=558 cap=27.8 deg
+  wall dropped 0x2974c233 t=[4828, 4857] pos=(-86.65, -18.74, 64.11) poseur=554 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[4828, 4899] pos=(-86.58, -18.67, 63.75) poseur=554 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[4828, 4914] pos=(-86.59, -18.65, 63.75) poseur=554 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[4868, 4911] pos=(-90.85, -49.66, 65.65) poseur=545 cap=168.0 deg
+  thruster dropped 0x430dda48 t=[4868, 4887] pos=(-90.68, -49.61, 65.29) poseur=545 cap=168.0 deg
+  grenade_spike dropped 0x0f5716ff t=[4945, 4967] pos=(-94.95, -51.46, 65.52) poseur=567 cap=237.3 deg
+  grenade_spike dropped 0x0f5716ff t=[4945, 4969] pos=(-94.96, -51.46, 65.51) poseur=567 cap=237.3 deg
+  wall dropped 0x2974c233 t=[4945, 4966] pos=(-94.99, -51.53, 65.78) poseur=567 cap=237.3 deg
+  grenade_dynamo dropped 0xaada07f3 t=[4945, 4971] pos=(-94.95, -51.43, 65.52) poseur=567 cap=237.3 deg
+  grapple dropped 0x273fe0eb t=[4973, 5000] pos=(-73.12, -26.78, 63.95) poseur=568 cap=335.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[4973, 5063] pos=(-73.12, -26.85, 63.84) poseur=568 cap=335.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[4973, 5072] pos=(-73.12, -26.85, 63.84) poseur=568 cap=335.3 deg
+  repair_field dropped 0x32d97758 t=[4980, 5062] pos=(-104.61, -22.17, 63.93) poseur=576 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[5120, 5154] pos=(-68.25, -41.96, 63.83) poseur=531 cap=62.4 deg
+  wall dropped 0x2974c233 t=[5120, 5144] pos=(-68.28, -42.01, 63.93) poseur=531 cap=62.4 deg
+  sensor dropped 0x72b63d69 t=[5130, 5206] pos=(-75.17, -47.60, 64.81) poseur=580 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[5279, 5346] pos=(-66.85, -43.88, 63.77) poseur=577 cap=205.1 deg
+  grenade_spike dropped 0x0f5716ff t=[5279, 5289] pos=(-66.84, -43.88, 63.77) poseur=577 cap=205.1 deg
+  wall dropped 0x2974c233 t=[5279, 5301] pos=(-66.77, -43.93, 63.52) poseur=577 cap=205.1 deg
+  grapple dropped 0x273fe0eb t=[5294, 5308] pos=(-97.36, -36.17, 67.15) poseur=570 cap=133.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[5294, 5319] pos=(-97.33, -36.05, 67.31) poseur=570 cap=133.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[5294, 5321] pos=(-97.33, -36.03, 67.31) poseur=570 cap=133.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[5294, 5450] pos=(-97.33, -36.03, 67.31) poseur=570 cap=133.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[5294, 5425] pos=(-97.33, -36.01, 67.31) poseur=570 cap=133.6 deg
+  grenade_spike dropped 0x0f5716ff t=[5493, 5544] pos=(-67.11, -31.74, 63.63) poseur=569 cap=248.7 deg
+  grenade_spike dropped 0x0f5716ff t=[5493, 5537] pos=(-67.09, -31.76, 63.63) poseur=569 cap=248.7 deg
+  repair_field dropped 0x32d97758 t=[5493, 5557] pos=(-67.05, -31.44, 63.83) poseur=569 cap=248.7 deg
+  repulsor dropped 0x7ca85adc t=[5523, 5549] pos=(-87.34, -18.82, 63.94) poseur=581 cap=189.3 deg
+  grenade_spike dropped 0x0f5716ff t=[5610, 5652] pos=(-86.77, -49.62, 65.58) poseur=585 cap=154.4 deg
+  grenade_spike dropped 0x0f5716ff t=[5610, 5658] pos=(-86.77, -49.61, 65.58) poseur=585 cap=154.4 deg
+  thruster dropped 0x430dda48 t=[5610, 5749] pos=(-86.63, -49.66, 65.42) poseur=585 cap=154.4 deg
+  repair_field dropped 0x32d97758 t=[5657, 5710] pos=(-97.59, -36.06, 67.52) poseur=586 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[5688, 5758] pos=(-116.89, -51.16, 66.20) poseur=575 cap=260.4 deg
+  repair_field dropped 0x32d97758 t=[5688, 5726] pos=(-116.76, -51.25, 66.26) poseur=575 cap=260.4 deg
+  thruster dropped 0x430dda48 t=[5721, 5762] pos=(-126.21, -63.71, 63.49) poseur=574 cap=11.8 deg
+  grenade_spike dropped 0x0f5716ff t=[5835, 5896] pos=(-68.62, -24.12, 64.40) poseur=562 cap=34.1 deg
+  grenade_spike dropped 0x0f5716ff t=[5835, 5890] pos=(-68.60, -24.11, 64.41) poseur=562 cap=34.1 deg
+  repulsor dropped 0x7ca85adc t=[5835, 5865] pos=(-68.59, -23.73, 64.54) poseur=562 cap=34.1 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[5835, 5957] pos=(-68.57, -24.06, 64.42) poseur=562 cap=34.1 deg
+  repair_field dropped 0x32d97758 t=[6156, 6205] pos=(-80.56, -13.16, 62.21) poseur=591 cap=327.7 deg
+  repair_field dropped 0x32d97758 t=[6230, 6282] pos=(-110.79, -37.03, 67.60) poseur=579 cap=342.4 deg
+  grenade_spike dropped 0x0f5716ff t=[6281, 6316] pos=(-111.48, -38.15, 67.47) poseur=589 cap=291.8 deg
+  grenade_spike dropped 0x0f5716ff t=[6281, 6331] pos=(-111.45, -38.14, 67.47) poseur=589 cap=291.8 deg
+  grapple dropped 0x273fe0eb t=[6281, 6297] pos=(-105.62, -39.34, 67.08) poseur=586 cap=166.0 deg
+  shroud_screen dropped 0x4396db42 t=[6281, 6358] pos=(-111.51, -38.05, 67.56) poseur=589 cap=291.8 deg
+  grenade_dynamo dropped 0xaada07f3 t=[6281, 6342] pos=(-105.72, -39.23, 67.45) poseur=586 cap=166.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[6281, 6341] pos=(-105.71, -39.17, 67.46) poseur=586 cap=166.0 deg
+  grenade_frag dropped 0xbcabbe43 t=[6281, 6419] pos=(-105.71, -39.23, 67.45) poseur=586 cap=166.0 deg
+  grenade_frag dropped 0xbcabbe43 t=[6281, 6437] pos=(-105.72, -39.26, 67.45) poseur=586 cap=166.0 deg
+  sensor dropped 0x72b63d69 t=[6287, 6358] pos=(-107.99, -58.89, 65.53) poseur=587 cap=122.4 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[6287, 6369] pos=(-107.91, -58.82, 65.46) poseur=587 cap=122.4 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[6287, 6382] pos=(-107.94, -58.80, 65.46) poseur=587 cap=122.4 deg
+  grenade_spike dropped 0x0f5716ff t=[6369, 6400] pos=(-108.80, -40.02, 67.33) poseur=572 cap=aucun
+  sensor dropped 0x72b63d69 t=[6369, 6427] pos=(-108.98, -40.18, 67.54) poseur=572 cap=aucun
+  wall dropped 0x2974c233 t=[6429, 6452] pos=(-113.20, -32.93, 63.61) poseur=583 cap=197.5 deg
+  repair_field dropped 0x32d97758 t=[6453, 6489] pos=(-88.59, -49.36, 65.14) poseur=518 cap=333.9 deg
+  repulsor dropped 0x7ca85adc t=[6453, 6479] pos=(-105.95, -38.90, 67.48) poseur=593 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[6453, 6521] pos=(-88.38, -49.37, 65.50) poseur=518 cap=333.9 deg
+  repair_field dropped 0x32d97758 t=[6456, 6509] pos=(-102.71, -27.29, 64.54) poseur=594 cap=237.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[6456, 6502] pos=(-102.70, -27.38, 64.51) poseur=594 cap=237.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[6456, 6531] pos=(-102.71, -27.38, 64.51) poseur=594 cap=237.7 deg
+  thruster unknown 0x430dda48 t=[6492, 6517] pos=(-110.44, -54.87, 63.91) poseur=588 cap=8.7 deg
+  thruster dropped 0x430dda48 t=[6505, 6533] pos=(-111.81, -55.50, 66.12) poseur=584 cap=345.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[6505, 6596] pos=(-111.78, -55.61, 66.11) poseur=584 cap=345.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[6505, 6603] pos=(-111.78, -55.61, 66.11) poseur=584 cap=345.7 deg
+  repulsor dropped 0x7ca85adc t=[6519, 6553] pos=(-107.57, -38.23, 68.15) poseur=573 cap=356.4 deg
+  wall dropped 0x2974c233 t=[6553, 6615] pos=(-113.32, -54.80, 63.34) poseur=588 cap=177.2 deg
+  thruster dropped 0x430dda48 t=[6596, 6619] pos=(-106.98, -39.53, 67.57) poseur=563 cap=87.2 deg
+  grenade_frag dropped 0xbcabbe43 t=[6596, 6741] pos=(-106.84, -39.48, 67.37) poseur=563 cap=87.2 deg
+  grenade_frag dropped 0xbcabbe43 t=[6596, 6704] pos=(-106.85, -39.49, 67.37) poseur=563 cap=87.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[6596, 6691] pos=(-106.85, -39.49, 67.37) poseur=563 cap=87.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[6596, 6683] pos=(-106.85, -39.52, 67.37) poseur=563 cap=87.2 deg
+  grapple dropped 0x273fe0eb t=[6702, 6740] pos=(-100.44, -39.96, 68.46) poseur=593 cap=167.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[6702, 6856] pos=(-100.47, -39.82, 68.27) poseur=593 cap=167.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[6702, 6863] pos=(-100.47, -39.84, 68.27) poseur=593 cap=167.9 deg
+  repulsor dropped 0x7ca85adc t=[6727, 6757] pos=(-73.25, -40.20, 67.52) poseur=595 cap=90.2 deg
+  grapple dropped 0x273fe0eb t=[6887, 6911] pos=(-104.46, -44.06, 63.48) poseur=598 cap=115.4 deg
+  grenade_frag dropped 0xbcabbe43 t=[6887, 7015] pos=(-104.37, -43.96, 63.59) poseur=598 cap=115.4 deg
+  grenade_frag dropped 0xbcabbe43 t=[6887, 7042] pos=(-104.38, -43.95, 63.59) poseur=598 cap=115.4 deg
+  repulsor dropped 0x7ca85adc t=[6976, 6996] pos=(-104.65, -43.27, 63.87) poseur=580 cap=aucun
+  thruster dropped 0x430dda48 t=[7010, 7030] pos=(-79.64, -13.84, 62.16) poseur=606 cap=aucun
+  wall dropped 0x2974c233 t=[7023, 7053] pos=(-73.94, -38.11, 68.29) poseur=597 cap=280.9 deg
+  repulsor dropped 0x7ca85adc t=[7066, 7086] pos=(-72.87, -43.09, 67.47) poseur=599 cap=102.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7066, 7170] pos=(-72.80, -43.02, 67.39) poseur=599 cap=102.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7066, 7170] pos=(-72.78, -43.06, 67.38) poseur=599 cap=102.6 deg
+  grapple dropped 0x273fe0eb t=[7247, 7267] pos=(-76.78, -35.58, 67.49) poseur=605 cap=2.2 deg
+  wall deployed 0x686b40c9 t=[7283, 7297] pos=(-78.88, -42.26, 65.01) poseur=609 cap=156.4 deg
+  wall dropped 0x2974c233 t=[7323, 7420] pos=(-99.62, -48.72, 64.89) poseur=596 cap=72.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7323, 7627] pos=(-99.58, -48.53, 64.74) poseur=596 cap=72.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7323, 7465] pos=(-99.58, -48.56, 64.74) poseur=596 cap=72.2 deg
+  grenade_spike dropped 0x0f5716ff t=[7458, 7475] pos=(-74.79, -41.44, 67.39) poseur=557 cap=16.3 deg
+  grenade_spike dropped 0x0f5716ff t=[7458, 7472] pos=(-74.82, -41.40, 67.39) poseur=557 cap=16.3 deg
+  repulsor dropped 0x7ca85adc t=[7458, 7487] pos=(-75.03, -41.46, 67.48) poseur=557 cap=16.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7458, 7547] pos=(-75.07, -41.39, 67.39) poseur=557 cap=16.3 deg
+  wall dropped 0x2974c233 t=[7460, 7478] pos=(-78.81, -37.93, 67.37) poseur=604 cap=90.7 deg
+  repair_field dropped 0x32d97758 t=[7668, 7722] pos=(-68.35, -39.70, 68.51) poseur=603 cap=225.6 deg
+  grapple dropped 0x273fe0eb t=[7746, 7775] pos=(-78.95, -39.63, 66.84) poseur=590 cap=80.2 deg
+  grenade_dynamo dropped 0xaada07f3 t=[7746, 7821] pos=(-78.81, -39.60, 66.66) poseur=590 cap=80.2 deg
+  grenade_dynamo dropped 0xaada07f3 t=[7746, 7804] pos=(-78.80, -39.60, 66.66) poseur=590 cap=80.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7746, 7825] pos=(-78.81, -39.60, 66.66) poseur=590 cap=80.2 deg
+  sensor dropped 0x72b63d69 t=[7763, 7832] pos=(-86.91, -52.57, 62.86) poseur=602 cap=87.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[7763, 7926] pos=(-86.87, -52.57, 62.72) poseur=602 cap=87.3 deg
+  wall dropped 0x2974c233 t=[7821, 7848] pos=(-105.21, -38.41, 67.62) poseur=592 cap=167.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[7821, 7871] pos=(-105.24, -38.39, 67.58) poseur=592 cap=167.0 deg
+  sensor dropped 0x72b63d69 t=[7825, 7885] pos=(-62.50, -40.67, 67.55) poseur=612 cap=120.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[7825, 7888] pos=(-62.43, -40.59, 67.34) poseur=612 cap=120.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[7825, 7861] pos=(-62.43, -40.57, 67.34) poseur=612 cap=120.5 deg
+  sensor dropped 0x72b63d69 t=[7847, 7911] pos=(-66.41, -45.15, 63.94) poseur=609 cap=219.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[7847, 7901] pos=(-66.51, -45.04, 63.74) poseur=609 cap=219.0 deg
+  grenade_spike dropped 0x0f5716ff t=[8020, 8044] pos=(-94.43, -35.60, 67.48) poseur=578 cap=137.9 deg
+  repulsor dropped 0x7ca85adc t=[8020, 8035] pos=(-94.38, -35.80, 67.06) poseur=578 cap=137.9 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[8020, 8118] pos=(-94.44, -35.65, 67.48) poseur=578 cap=137.9 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[8020, 8106] pos=(-94.47, -35.66, 67.48) poseur=578 cap=137.9 deg
+  sensor dropped 0x72b63d69 t=[8090, 8169] pos=(-69.79, -62.48, 65.16) poseur=610 cap=94.8 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8090, 8102] pos=(-69.87, -62.39, 65.67) poseur=610 cap=94.8 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8090, 8100] pos=(-69.87, -62.41, 65.67) poseur=610 cap=94.8 deg
+  repulsor dropped 0x7ca85adc t=[8145, 8178] pos=(-77.96, -34.61, 68.61) poseur=614 cap=356.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8145, 8241] pos=(-77.95, -34.69, 68.52) poseur=614 cap=356.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8145, 8233] pos=(-77.95, -34.68, 68.52) poseur=614 cap=356.6 deg
+  grenade_spike dropped 0x0f5716ff t=[8177, 8208] pos=(-78.20, -36.17, 67.47) poseur=580 cap=235.2 deg
+  grenade_spike dropped 0x0f5716ff t=[8177, 8268] pos=(-78.20, -36.21, 67.47) poseur=580 cap=235.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[8177, 8273] pos=(-78.22, -36.20, 67.47) poseur=580 cap=235.2 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[8177, 8283] pos=(-78.20, -36.20, 67.47) poseur=580 cap=235.2 deg
+  repair_field dropped 0x32d97758 t=[8193, 8255] pos=(-71.24, -20.70, 62.50) poseur=606 cap=182.7 deg
+  repulsor dropped 0x7ca85adc t=[8216, 8236] pos=(-63.04, -39.67, 67.48) poseur=615 cap=aucun
+  thruster dropped 0x430dda48 t=[8263, 8312] pos=(-76.37, -36.01, 67.46) poseur=600 cap=173.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8263, 8306] pos=(-76.45, -35.96, 67.37) poseur=600 cap=173.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8263, 8307] pos=(-76.44, -35.96, 67.37) poseur=600 cap=173.6 deg
+  thruster dropped 0x430dda48 t=[8310, 8335] pos=(-97.43, -30.19, 66.94) poseur=621 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[8310, 8444] pos=(-97.73, -30.15, 66.89) poseur=621 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[8310, 8468] pos=(-97.72, -30.10, 66.89) poseur=621 cap=aucun
+  sensor dropped 0x72b63d69 t=[8322, 8380] pos=(-59.92, -42.30, 67.69) poseur=615 cap=101.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[8322, 8448] pos=(-59.86, -42.33, 67.48) poseur=615 cap=101.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[8322, 8448] pos=(-59.89, -42.34, 67.48) poseur=615 cap=101.6 deg
+  grenade_spike dropped 0x0f5716ff t=[8395, 8441] pos=(-97.42, -40.50, 67.39) poseur=581 cap=248.6 deg
+  grenade_spike dropped 0x0f5716ff t=[8395, 8423] pos=(-97.39, -40.52, 67.39) poseur=581 cap=248.6 deg
+  wall dropped 0x2974c233 t=[8395, 8417] pos=(-97.22, -40.54, 67.58) poseur=581 cap=248.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8395, 8419] pos=(-97.39, -40.52, 67.39) poseur=581 cap=248.6 deg
+  grapple dropped 0x273fe0eb t=[8508, 8537] pos=(-98.55, -40.28, 67.54) poseur=623 cap=76.2 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8508, 8575] pos=(-98.52, -40.23, 67.47) poseur=623 cap=76.2 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8508, 8556] pos=(-98.53, -40.18, 67.46) poseur=623 cap=76.2 deg
+  grapple unknown 0x273fe0eb t=[8597, 8628] pos=(-76.85, -55.72, 64.16) poseur=617 cap=156.8 deg
+  sensor dropped 0x72b63d69 t=[8619, 8682] pos=(-98.18, -39.16, 67.50) poseur=619 cap=264.8 deg
+  repair_field dropped 0x32d97758 t=[8873, 8904] pos=(-102.23, -43.81, 67.53) poseur=622 cap=253.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8873, 8898] pos=(-102.32, -43.87, 67.44) poseur=622 cap=253.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[8873, 8925] pos=(-102.33, -43.88, 67.44) poseur=622 cap=253.7 deg
+  repair_field dropped 0x32d97758 t=[8903, 8953] pos=(-75.49, -56.44, 63.90) poseur=632 cap=aucun
+  repulsor dropped 0x7ca85adc t=[9013, 9038] pos=(-97.83, -40.89, 67.48) poseur=624 cap=aucun
+  wall deployed 0x686b40c9 t=[9054, 9063] pos=(-98.44, -43.27, 67.22) poseur=624 cap=307.9 deg
+  grenade_spike unknown 0x0f5716ff t=[9086, 9106] pos=(-102.23, -44.07, 67.33) poseur=634 cap=215.9 deg
+  grenade_spike unknown 0x0f5716ff t=[9086, 9113] pos=(-102.25, -44.07, 67.32) poseur=634 cap=215.9 deg
+  wall unknown 0x2974c233 t=[9099, 9122] pos=(-77.81, -48.86, 64.95) poseur=-1 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[9099, 9358] pos=(-77.88, -48.83, 64.82) poseur=-1 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[9099, 9326] pos=(-77.88, -48.83, 64.82) poseur=-1 cap=aucun
+  grenade_plasma unknown 0xcaaadcb0 t=[9099, 9305] pos=(-77.91, -48.82, 64.84) poseur=-1 cap=aucun
+  grenade_plasma unknown 0xcaaadcb0 t=[9099, 9311] pos=(-77.88, -48.83, 64.82) poseur=-1 cap=aucun
+  grapple dropped 0x273fe0eb t=[9178, 9215] pos=(-67.26, -39.91, 64.77) poseur=620 cap=49.2 deg
+  repair_field dropped 0x32d97758 t=[9216, 9281] pos=(-85.81, -51.06, 66.00) poseur=628 cap=152.8 deg
+  grapple dropped 0x273fe0eb t=[9219, 9239] pos=(-72.97, -41.60, 67.84) poseur=627 cap=200.3 deg
+  grenade_dynamo dropped 0xaada07f3 t=[9219, 9238] pos=(-72.92, -41.68, 67.68) poseur=627 cap=200.3 deg
+  grenade_dynamo dropped 0xaada07f3 t=[9219, 9275] pos=(-72.92, -41.62, 67.68) poseur=627 cap=200.3 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[9219, 9334] pos=(-72.89, -41.67, 67.68) poseur=627 cap=200.3 deg
+  grenade_spike dropped 0x0f5716ff t=[9368, 9400] pos=(-80.04, -49.10, 65.70) poseur=582 cap=176.4 deg
+  repulsor dropped 0x7ca85adc t=[9368, 9392] pos=(-79.93, -49.14, 65.24) poseur=582 cap=176.4 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[9368, 9377] pos=(-80.07, -49.07, 65.69) poseur=582 cap=176.4 deg
+  thruster dropped 0x430dda48 t=[9487, 9545] pos=(-76.09, -49.03, 65.63) poseur=635 cap=182.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[9487, 9693] pos=(-76.14, -49.00, 65.52) poseur=635 cap=182.6 deg
+  thruster dropped 0x430dda48 t=[9516, 9572] pos=(-122.27, -55.74, 63.91) poseur=626 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[9516, 9569] pos=(-122.37, -55.67, 63.62) poseur=626 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[9516, 9573] pos=(-122.35, -55.68, 63.63) poseur=626 cap=aucun
+  wall dropped 0x2974c233 t=[9560, 9579] pos=(-97.40, -40.99, 67.50) poseur=624 cap=aucun
+  wall deployed 0x686b40c9 t=[9645, 9666] pos=(-75.01, -48.11, 64.89) poseur=638 cap=194.7 deg
+  shroud_screen dropped 0x4396db42 t=[9666, 9791] pos=(-95.41, -51.78, 65.75) poseur=634 cap=42.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[9666, 9740] pos=(-95.36, -51.93, 65.68) poseur=634 cap=42.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[9666, 9744] pos=(-95.36, -51.93, 65.68) poseur=634 cap=42.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[9666, 9791] pos=(-95.36, -51.93, 65.69) poseur=634 cap=42.7 deg
+  wall dropped 0x2974c233 t=[9674, 9757] pos=(-82.26, -44.47, 61.24) poseur=616 cap=aucun
+  shroud_screen dropped 0x4396db42 t=[9753, 9824] pos=(-95.65, -51.13, 65.78) poseur=640 cap=89.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[9753, 9862] pos=(-95.58, -51.09, 65.67) poseur=640 cap=89.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[9753, 9824] pos=(-95.58, -51.10, 65.67) poseur=640 cap=89.7 deg
+  wall dropped 0x2974c233 t=[9837, 9856] pos=(-66.02, -39.26, 63.90) poseur=642 cap=aucun
+  grapple dropped 0x273fe0eb t=[9880, 9950] pos=(-95.63, -52.43, 65.58) poseur=632 cap=183.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[9880, 9925] pos=(-95.67, -52.47, 65.44) poseur=632 cap=183.7 deg
+  grenade_dynamo dropped 0xaada07f3 t=[9880, 9925] pos=(-95.65, -52.49, 65.44) poseur=632 cap=183.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[9880, 9961] pos=(-95.65, -52.50, 65.44) poseur=632 cap=183.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[9880, 9965] pos=(-95.68, -52.44, 65.44) poseur=632 cap=183.7 deg
+  wall dropped 0x2974c233 t=[9946, 9969] pos=(-91.22, -49.19, 65.84) poseur=638 cap=202.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[9946, 10036] pos=(-91.29, -49.15, 65.81) poseur=638 cap=202.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[9946, 10027] pos=(-91.31, -49.15, 65.81) poseur=638 cap=202.6 deg
+  grenade_spike dropped 0x0f5716ff t=[9955, 10003] pos=(-68.25, -28.44, 64.30) poseur=642 cap=154.7 deg
+  grenade_spike dropped 0x0f5716ff t=[9955, 9990] pos=(-68.22, -28.44, 64.31) poseur=642 cap=154.7 deg
+  grapple dropped 0x273fe0eb t=[9955, 9988] pos=(-68.43, -28.41, 64.38) poseur=642 cap=154.7 deg
+  grenade_spike dropped 0x0f5716ff t=[10095, 10187] pos=(-96.73, -44.97, 65.33) poseur=637 cap=4.1 deg
+  grenade_spike dropped 0x0f5716ff t=[10095, 10153] pos=(-96.76, -44.93, 65.33) poseur=637 cap=4.1 deg
+  repair_field dropped 0x32d97758 t=[10095, 10203] pos=(-96.73, -44.85, 65.37) poseur=637 cap=4.1 deg
+  grenade_dynamo dropped 0xaada07f3 t=[10095, 10187] pos=(-96.71, -44.96, 65.33) poseur=637 cap=4.1 deg
+  wall dropped 0x2974c233 t=[10149, 10179] pos=(-95.10, -63.17, 65.37) poseur=646 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[10149, 10310] pos=(-95.13, -63.31, 65.21) poseur=646 cap=aucun
+  thruster unknown 0x430dda48 t=[10167, 10199] pos=(-74.42, -30.10, 66.34) poseur=630 cap=35.5 deg
+  grenade_frag unknown 0xbcabbe43 t=[10167, 10289] pos=(-74.58, -30.00, 66.55) poseur=630 cap=35.5 deg
+  grenade_frag unknown 0xbcabbe43 t=[10167, 10300] pos=(-74.55, -30.00, 66.55) poseur=630 cap=35.5 deg
+  sensor dropped 0x72b63d69 t=[10227, 10270] pos=(-95.72, -52.49, 65.72) poseur=641 cap=aucun
+  repulsor dropped 0x7ca85adc t=[10372, 10407] pos=(-95.40, -52.04, 65.68) poseur=608 cap=287.5 deg
+  repulsor dropped 0x7ca85adc t=[10381, 10405] pos=(-93.06, -49.62, 65.56) poseur=613 cap=327.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[10381, 10415] pos=(-93.10, -49.66, 65.30) poseur=613 cap=327.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[10381, 10512] pos=(-93.10, -49.65, 65.30) poseur=613 cap=327.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[10381, 10467] pos=(-93.11, -49.68, 65.30) poseur=613 cap=327.5 deg
+  wall deployed 0x686b40c9 t=[10476, 10483] pos=(-107.10, -41.82, 63.46) poseur=629 cap=106.0 deg
+  wall dropped 0x2974c233 t=[10493, 10513] pos=(-106.88, -41.89, 63.75) poseur=629 cap=96.1 deg
+  grenade_dynamo dropped 0xaada07f3 t=[10493, 10527] pos=(-106.82, -41.78, 63.67) poseur=629 cap=96.1 deg
+  grenade_dynamo dropped 0xaada07f3 t=[10493, 10528] pos=(-106.84, -41.79, 63.67) poseur=629 cap=96.1 deg
+  grenade_spike dropped 0x0f5716ff t=[10497, 10526] pos=(-78.25, -34.95, 67.43) poseur=630 cap=140.9 deg
+  grenade_spike dropped 0x0f5716ff t=[10497, 10517] pos=(-78.22, -34.94, 67.43) poseur=630 cap=140.9 deg
+  repair_field dropped 0x32d97758 t=[10497, 10545] pos=(-78.25, -34.98, 67.54) poseur=630 cap=140.9 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[10497, 10594] pos=(-78.23, -34.94, 67.43) poseur=630 cap=140.9 deg
+  shroud_screen dropped 0x4396db42 t=[10508, 10630] pos=(-106.62, -60.35, 66.42) poseur=601 cap=aucun
+  grapple dropped 0x273fe0eb t=[10647, 10668] pos=(-92.08, -49.64, 65.74) poseur=644 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[10671, 10705] pos=(-100.14, -46.90, 63.70) poseur=641 cap=19.0 deg
+  grapple dropped 0x273fe0eb t=[10671, 10691] pos=(-100.21, -46.92, 63.47) poseur=641 cap=19.0 deg
+  grenade_frag dropped 0xbcabbe43 t=[10671, 10785] pos=(-100.13, -46.92, 63.70) poseur=641 cap=19.0 deg
+  grenade_frag dropped 0xbcabbe43 t=[10671, 10801] pos=(-100.13, -46.91, 63.70) poseur=641 cap=19.0 deg
+  shroud_screen dropped 0x4396db42 t=[10694, 10774] pos=(-85.93, -26.98, 60.98) poseur=650 cap=171.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[10694, 11033] pos=(-85.83, -26.89, 60.89) poseur=650 cap=171.6 deg
+  wall deployed 0x686b40c9 t=[10829, 10844] pos=(-94.00, -50.89, 66.27) poseur=644 cap=192.0 deg
+  wall dropped 0x2974c233 t=[10917, 10941] pos=(-88.38, -49.51, 65.34) poseur=649 cap=aucun
+  grapple dropped 0x273fe0eb t=[11065, 11090] pos=(-80.70, -49.07, 65.31) poseur=631 cap=166.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[11065, 11137] pos=(-80.66, -48.92, 65.61) poseur=631 cap=166.8 deg
+  grenade_spike dropped 0x0f5716ff t=[11081, 11112] pos=(-105.97, -46.41, 63.81) poseur=648 cap=207.3 deg
+  grenade_spike dropped 0x0f5716ff t=[11081, 11115] pos=(-105.93, -46.49, 63.81) poseur=648 cap=207.3 deg
+  repulsor dropped 0x7ca85adc t=[11081, 11103] pos=(-105.83, -46.34, 63.41) poseur=648 cap=207.3 deg
+  wall dropped 0x2974c233 t=[11127, 11147] pos=(-91.35, -49.30, 65.73) poseur=644 cap=160.0 deg
+  repulsor dropped 0x7ca85adc t=[11206, 11229] pos=(-84.57, -20.55, 63.48) poseur=653 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[11232, 11260] pos=(-83.20, -20.13, 63.82) poseur=659 cap=354.6 deg
+  grenade_spike dropped 0x0f5716ff t=[11232, 11335] pos=(-83.24, -20.16, 63.82) poseur=659 cap=354.6 deg
+  thruster dropped 0x430dda48 t=[11232, 11260] pos=(-83.14, -20.02, 63.62) poseur=659 cap=354.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[11232, 11371] pos=(-83.20, -20.16, 63.82) poseur=659 cap=354.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[11232, 11349] pos=(-83.22, -20.13, 63.82) poseur=659 cap=354.6 deg
+  grapple dropped 0x273fe0eb t=[11233, 11289] pos=(-78.08, -25.52, 65.13) poseur=658 cap=132.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[11233, 11370] pos=(-77.95, -25.49, 65.06) poseur=658 cap=132.0 deg
+  sensor dropped 0x72b63d69 t=[11290, 11354] pos=(-96.71, -49.72, 64.94) poseur=647 cap=226.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[11290, 11339] pos=(-96.80, -49.72, 64.85) poseur=647 cap=226.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[11290, 11351] pos=(-96.80, -49.72, 64.85) poseur=647 cap=226.5 deg
+  sensor dropped 0x72b63d69 t=[11380, 11444] pos=(-101.16, -63.72, 65.63) poseur=657 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[11380, 11493] pos=(-101.12, -63.67, 65.47) poseur=657 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[11380, 11502] pos=(-101.13, -63.69, 65.47) poseur=657 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[11565, 11768] pos=(-95.39, -47.10, 64.74) poseur=624 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[11565, 11767] pos=(-95.39, -47.09, 64.75) poseur=624 cap=aucun
+  sensor dropped 0x72b63d69 t=[11601, 11654] pos=(-95.33, -23.15, 61.18) poseur=645 cap=354.2 deg
+  grenade_dynamo dropped 0xaada07f3 t=[11601, 11652] pos=(-95.30, -23.27, 61.16) poseur=645 cap=354.2 deg
+  grenade_dynamo dropped 0xaada07f3 t=[11601, 11635] pos=(-95.32, -23.27, 61.16) poseur=645 cap=354.2 deg
+  grenade_spike dropped 0x0f5716ff t=[11613, 11643] pos=(-95.27, -47.85, 64.74) poseur=624 cap=aucun
+  repulsor dropped 0x7ca85adc t=[11613, 11643] pos=(-95.20, -47.78, 64.79) poseur=624 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[11613, 11688] pos=(-95.24, -47.84, 64.74) poseur=624 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[11613, 11706] pos=(-95.24, -47.84, 64.75) poseur=624 cap=aucun
+  thruster dropped 0x430dda48 t=[11668, 11733] pos=(-80.70, -49.12, 65.73) poseur=664 cap=170.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[11772, 11785] pos=(-100.69, -38.75, 64.55) poseur=643 cap=217.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[11772, 11785] pos=(-100.68, -38.73, 64.55) poseur=643 cap=217.6 deg
+  thruster dropped 0x430dda48 t=[11843, 11880] pos=(-92.76, -50.20, 65.72) poseur=644 cap=aucun
+  grapple dropped 0x273fe0eb t=[11893, 11922] pos=(-94.88, -34.37, 67.59) poseur=664 cap=210.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[11893, 12028] pos=(-95.12, -34.43, 67.49) poseur=664 cap=210.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[11893, 12022] pos=(-95.10, -34.43, 67.49) poseur=664 cap=210.6 deg
+  shroud_screen dropped 0x4396db42 t=[11941, 12008] pos=(-110.27, -15.64, 61.68) poseur=611 cap=320.4 deg
+  grapple unknown 0x273fe0eb t=[12096, 12124] pos=(-99.86, -28.85, 63.95) poseur=668 cap=288.6 deg
+  grenade_plasma unknown 0xcaaadcb0 t=[12096, 12190] pos=(-99.83, -28.78, 63.82) poseur=668 cap=288.6 deg
+  sensor unknown 0x72b63d69 t=[12104, 12171] pos=(-78.02, -33.99, 67.57) poseur=-1 cap=aucun
+  grenade_dynamo unknown 0xaada07f3 t=[12104, 12155] pos=(-78.12, -33.90, 67.43) poseur=-1 cap=aucun
+  grenade_dynamo unknown 0xaada07f3 t=[12104, 12132] pos=(-78.15, -33.90, 67.42) poseur=-1 cap=aucun
+  sensor dropped 0x72b63d69 t=[12134, 12214] pos=(-114.18, -67.18, 64.93) poseur=633 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[12134, 12214] pos=(-114.15, -67.29, 64.82) poseur=633 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[12134, 12361] pos=(-114.16, -67.32, 64.82) poseur=633 cap=aucun
+  sensor dropped 0x72b63d69 t=[12135, 12191] pos=(-114.49, -30.19, 64.15) poseur=636 cap=52.3 deg
+  repulsor dropped 0x7ca85adc t=[12216, 12244] pos=(-85.36, -13.96, 60.27) poseur=660 cap=94.9 deg
+  sensor dropped 0x72b63d69 t=[12230, 12306] pos=(-114.70, -21.64, 62.33) poseur=655 cap=300.7 deg
+  grapple dropped 0x273fe0eb t=[12358, 12389] pos=(-100.06, -27.20, 64.35) poseur=668 cap=359.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[12358, 12396] pos=(-100.03, -27.30, 64.19) poseur=668 cap=359.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[12358, 12394] pos=(-100.00, -27.30, 64.19) poseur=668 cap=359.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12358, 12367] pos=(-100.00, -27.29, 64.19) poseur=668 cap=359.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12358, 12488] pos=(-100.03, -27.27, 64.19) poseur=668 cap=359.0 deg
+  thruster dropped 0x430dda48 t=[12401, 12460] pos=(-95.78, -34.94, 67.52) poseur=666 cap=356.4 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12590, 12848] pos=(-103.94, -23.01, 64.14) poseur=656 cap=132.6 deg
+  repulsor dropped 0x7ca85adc t=[12669, 12715] pos=(-114.09, -28.44, 64.24) poseur=674 cap=291.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12669, 12844] pos=(-114.21, -28.49, 63.83) poseur=674 cap=291.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12669, 12846] pos=(-114.21, -28.49, 63.83) poseur=674 cap=291.0 deg
+  grenade_spike dropped 0x0f5716ff t=[12692, 12715] pos=(-96.12, -58.09, 64.07) poseur=670 cap=308.9 deg
+  grenade_spike dropped 0x0f5716ff t=[12692, 12726] pos=(-96.13, -58.09, 64.08) poseur=670 cap=308.9 deg
+  grapple dropped 0x273fe0eb t=[12692, 12714] pos=(-96.04, -58.06, 64.42) poseur=670 cap=308.9 deg
+  sensor dropped 0x72b63d69 t=[12692, 12758] pos=(-96.05, -58.04, 64.16) poseur=670 cap=308.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[12692, 12768] pos=(-95.81, -58.04, 64.25) poseur=644 cap=121.2 deg
+  grenade_frag dropped 0xbcabbe43 t=[12692, 12785] pos=(-95.80, -58.02, 64.24) poseur=644 cap=121.2 deg
+  repair_field dropped 0x32d97758 t=[12810, 12850] pos=(-100.34, -27.27, 63.95) poseur=671 cap=299.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[12810, 12846] pos=(-100.38, -27.36, 63.80) poseur=671 cap=299.0 deg
+  grenade_dynamo dropped 0xaada07f3 t=[12810, 12845] pos=(-100.40, -27.36, 63.80) poseur=671 cap=299.0 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12810, 12914] pos=(-100.40, -27.34, 63.80) poseur=671 cap=299.0 deg
+  grapple dropped 0x273fe0eb t=[12851, 12877] pos=(-95.56, -22.87, 60.45) poseur=666 cap=323.1 deg
+  grenade_dynamo dropped 0xaada07f3 t=[12851, 12913] pos=(-95.58, -23.01, 60.39) poseur=666 cap=323.1 deg
+  grenade_frag dropped 0xbcabbe43 t=[12851, 12935] pos=(-95.56, -23.05, 60.39) poseur=666 cap=323.1 deg
+  grenade_frag dropped 0xbcabbe43 t=[12851, 12969] pos=(-95.57, -23.03, 60.39) poseur=666 cap=323.1 deg
+  grenade_spike dropped 0x0f5716ff t=[12982, 13009] pos=(-103.19, -27.52, 64.34) poseur=662 cap=319.4 deg
+  grenade_spike dropped 0x0f5716ff t=[12982, 13004] pos=(-103.18, -27.51, 64.34) poseur=662 cap=319.4 deg
+  repulsor dropped 0x7ca85adc t=[12982, 13027] pos=(-103.31, -27.47, 64.45) poseur=662 cap=319.4 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12982, 13078] pos=(-103.46, -27.50, 64.34) poseur=662 cap=319.4 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[12982, 12998] pos=(-103.49, -27.52, 64.34) poseur=662 cap=319.4 deg
+  sensor dropped 0x72b63d69 t=[12993, 13062] pos=(-94.93, -34.72, 67.52) poseur=673 cap=169.1 deg
+  sensor dropped 0x72b63d69 t=[13040, 13117] pos=(-65.38, -18.21, 61.71) poseur=679 cap=63.1 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13040, 13140] pos=(-65.26, -18.25, 61.45) poseur=679 cap=63.1 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13040, 13138] pos=(-65.26, -18.25, 61.45) poseur=679 cap=63.1 deg
+  repair_field dropped 0x32d97758 t=[13089, 13144] pos=(-96.47, -32.59, 67.45) poseur=665 cap=169.9 deg
+  grenade_spike dropped 0x0f5716ff t=[13141, 13184] pos=(-96.87, -28.35, 64.94) poseur=676 cap=154.6 deg
+  grenade_spike dropped 0x0f5716ff t=[13141, 13190] pos=(-96.85, -28.34, 64.94) poseur=676 cap=154.6 deg
+  sensor dropped 0x72b63d69 t=[13141, 13203] pos=(-96.95, -28.44, 65.05) poseur=676 cap=154.6 deg
+  shroud_screen unknown 0x4396db42 t=[13177, 13321] pos=(-96.92, -34.19, 67.54) poseur=673 cap=50.4 deg
+  grenade_plasma unknown 0xcaaadcb0 t=[13177, 13305] pos=(-96.91, -34.04, 67.44) poseur=673 cap=50.4 deg
+  grenade_spike dropped 0x0f5716ff t=[13199, 13255] pos=(-96.74, -34.83, 67.41) poseur=673 cap=3.9 deg
+  grenade_spike dropped 0x0f5716ff t=[13199, 13216] pos=(-96.80, -34.84, 67.42) poseur=673 cap=3.9 deg
+  thruster dropped 0x430dda48 t=[13199, 13247] pos=(-96.85, -34.59, 67.57) poseur=673 cap=3.9 deg
+  grenade_dynamo dropped 0xaada07f3 t=[13199, 13249] pos=(-96.76, -34.83, 67.41) poseur=673 cap=3.9 deg
+  grenade_dynamo dropped 0xaada07f3 t=[13199, 13226] pos=(-96.76, -34.83, 67.41) poseur=673 cap=3.9 deg
+  grenade_spike unknown 0x0f5716ff t=[13213, 13248] pos=(-75.54, -0.66, 62.78) poseur=-1 cap=aucun
+  grenade_spike unknown 0x0f5716ff t=[13213, 13242] pos=(-75.54, -0.65, 62.77) poseur=-1 cap=aucun
+  shroud_screen unknown 0x4396db42 t=[13213, 13330] pos=(-76.11, -0.86, 62.75) poseur=-1 cap=aucun
+  sensor unknown 0x72b63d69 t=[13213, 13281] pos=(-72.58, 0.22, 62.04) poseur=-1 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[13213, 13287] pos=(-76.10, -0.71, 61.98) poseur=-1 cap=aucun
+  grenade_frag unknown 0xbcabbe43 t=[13213, 13314] pos=(-76.09, -0.73, 61.98) poseur=-1 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[13249, 13252] pos=(-108.61, -29.83, 64.20) poseur=667 cap=165.2 deg
+  repair_field dropped 0x32d97758 t=[13249, 13301] pos=(-108.69, -29.89, 64.30) poseur=667 cap=165.2 deg
+  shroud_screen dropped 0x4396db42 t=[13249, 13354] pos=(-97.84, -28.06, 63.91) poseur=651 cap=aucun
+  wall deployed 0x686b40c9 t=[13353, 13379] pos=(-74.91, -48.97, 65.03) poseur=686 cap=177.9 deg
+  wall dropped 0x2974c233 t=[13390, 13418] pos=(-78.56, -48.81, 65.97) poseur=685 cap=169.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13390, 13493] pos=(-78.58, -48.86, 65.75) poseur=685 cap=169.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13390, 13497] pos=(-78.63, -48.85, 65.76) poseur=685 cap=169.8 deg
+  shroud_screen dropped 0x4396db42 t=[13519, 13593] pos=(-95.51, -34.17, 67.50) poseur=680 cap=aucun
+  wall deployed 0x686b40c9 t=[13544, 13565] pos=(-78.68, -48.85, 65.34) poseur=686 cap=185.8 deg
+  repulsor dropped 0x7ca85adc t=[13597, 13636] pos=(-85.52, -22.13, 61.21) poseur=682 cap=186.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13597, 13852] pos=(-85.52, -22.10, 61.15) poseur=682 cap=186.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13597, 13826] pos=(-85.52, -22.07, 61.15) poseur=682 cap=186.7 deg
+  shroud_screen dropped 0x4396db42 t=[13667, 13724] pos=(-63.89, -28.46, 63.94) poseur=687 cap=344.4 deg
+  grenade_frag dropped 0xbcabbe43 t=[13667, 13814] pos=(-63.92, -28.48, 63.79) poseur=687 cap=344.4 deg
+  grenade_frag dropped 0xbcabbe43 t=[13667, 13794] pos=(-63.92, -28.48, 63.78) poseur=687 cap=344.4 deg
+  grenade_spike dropped 0x0f5716ff t=[13712, 13757] pos=(-101.71, -39.70, 68.19) poseur=619 cap=168.6 deg
+  grenade_spike dropped 0x0f5716ff t=[13712, 13748] pos=(-101.71, -39.70, 68.19) poseur=619 cap=168.6 deg
+  grapple dropped 0x273fe0eb t=[13712, 13745] pos=(-101.68, -39.78, 68.33) poseur=619 cap=168.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13712, 13824] pos=(-101.71, -39.70, 68.19) poseur=619 cap=168.6 deg
+  thruster dropped 0x430dda48 t=[13904, 13944] pos=(-92.65, -19.47, 60.48) poseur=680 cap=102.8 deg
+  grenade_dynamo dropped 0xaada07f3 t=[13904, 13957] pos=(-92.45, -19.30, 60.36) poseur=680 cap=102.8 deg
+  grenade_dynamo dropped 0xaada07f3 t=[13904, 13942] pos=(-92.43, -19.30, 60.36) poseur=680 cap=102.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13904, 14184] pos=(-92.42, -19.29, 60.35) poseur=680 cap=102.8 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13904, 14218] pos=(-92.43, -19.28, 60.35) poseur=680 cap=102.8 deg
+  thruster dropped 0x430dda48 t=[13905, 13926] pos=(-77.58, -13.19, 62.22) poseur=663 cap=115.7 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[13905, 14006] pos=(-77.53, -13.15, 62.15) poseur=663 cap=115.7 deg
+  grapple dropped 0x273fe0eb t=[13948, 14029] pos=(-67.98, -32.68, 65.09) poseur=688 cap=139.1 deg
+  wall dropped 0x2974c233 t=[13963, 13982] pos=(-102.36, -39.98, 67.50) poseur=693 cap=aucun
+  shroud_screen dropped 0x4396db42 t=[13995, 14058] pos=(-79.47, -48.71, 65.76) poseur=697 cap=179.2 deg
+  wall deployed 0x686b40c9 t=[14029, 14048] pos=(-83.16, -49.22, 66.45) poseur=697 cap=172.9 deg
+  wall deployed 0x686b40c9 t=[14044, 14063] pos=(-77.72, -49.41, 65.69) poseur=686 cap=174.6 deg
+  repulsor dropped 0x7ca85adc t=[14051, 14078] pos=(-92.90, -18.31, 60.44) poseur=678 cap=aucun
+  repair_field dropped 0x32d97758 t=[14194, 14222] pos=(-94.43, -49.12, 65.08) poseur=672 cap=346.2 deg
+  sensor dropped 0x72b63d69 t=[14235, 14265] pos=(-126.60, -40.39, 64.61) poseur=669 cap=309.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[14235, 14407] pos=(-126.66, -40.45, 64.55) poseur=669 cap=309.9 deg
+  grenade_frag dropped 0xbcabbe43 t=[14235, 14394] pos=(-126.66, -40.43, 64.55) poseur=669 cap=309.9 deg
+  grenade_spike dropped 0x0f5716ff t=[14352, 14415] pos=(-101.89, -13.06, 61.94) poseur=696 cap=28.9 deg
+  grenade_spike dropped 0x0f5716ff t=[14352, 14410] pos=(-101.89, -13.08, 61.94) poseur=696 cap=28.9 deg
+  wall dropped 0x2974c233 t=[14352, 14375] pos=(-101.95, -12.99, 62.09) poseur=696 cap=28.9 deg
+  grenade_spike dropped 0x0f5716ff t=[14437, 14884] pos=(-97.67, -13.51, 63.04) poseur=678 cap=290.3 deg
+  grenade_spike dropped 0x0f5716ff t=[14437, 14472] pos=(-97.69, -13.51, 63.04) poseur=678 cap=290.3 deg
+  thruster dropped 0x430dda48 t=[14437, 14607] pos=(-97.52, -13.55, 63.17) poseur=678 cap=290.3 deg
+  grenade_frag dropped 0xbcabbe43 t=[14437, 14664] pos=(-97.69, -13.53, 63.05) poseur=678 cap=290.3 deg
+  wall deployed 0x686b40c9 t=[14459, 14485] pos=(-81.92, -48.96, 65.84) poseur=695 cap=aucun
+  thruster dropped 0x430dda48 t=[14472, 14510] pos=(-76.81, -17.13, 60.94) poseur=683 cap=342.8 deg
+  grenade_frag dropped 0xbcabbe43 t=[14472, 14557] pos=(-76.85, -17.20, 60.75) poseur=683 cap=342.8 deg
+  repair_field dropped 0x32d97758 t=[14522, 14570] pos=(-67.30, -18.63, 62.60) poseur=675 cap=aucun
+  thruster dropped 0x430dda48 t=[14557, 14614] pos=(-66.22, -19.19, 61.73) poseur=651 cap=159.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[14557, 14601] pos=(-66.22, -19.15, 61.61) poseur=651 cap=159.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[14557, 14607] pos=(-66.22, -19.12, 61.61) poseur=651 cap=159.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[14557, 14714] pos=(-66.22, -19.18, 61.61) poseur=651 cap=159.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[14557, 14698] pos=(-66.22, -19.14, 61.61) poseur=651 cap=159.5 deg
+  grenade_spike dropped 0x0f5716ff t=[14607, 14642] pos=(-99.35, -21.68, 61.06) poseur=681 cap=205.1 deg
+  grenade_spike dropped 0x0f5716ff t=[14607, 14676] pos=(-99.34, -21.74, 61.06) poseur=681 cap=205.1 deg
+  repair_field dropped 0x32d97758 t=[14607, 14673] pos=(-99.40, -21.74, 61.33) poseur=681 cap=205.1 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[14607, 14640] pos=(-99.30, -21.74, 61.06) poseur=681 cap=205.1 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[14607, 14643] pos=(-99.31, -21.75, 61.07) poseur=681 cap=205.1 deg
+  grenade_spike unknown 0x0f5716ff t=[14625, 14649] pos=(-96.39, -35.31, 67.45) poseur=684 cap=330.7 deg
+  shroud_screen unknown 0x4396db42 t=[14625, 14690] pos=(-96.37, -35.37, 67.56) poseur=684 cap=330.7 deg
+  wall deployed 0x686b40c9 t=[14752, 14764] pos=(-101.29, -38.25, 67.35) poseur=694 cap=aucun
+  grapple dropped 0x273fe0eb t=[14761, 14795] pos=(-63.63, -15.12, 61.97) poseur=699 cap=72.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[14761, 14798] pos=(-63.49, -15.18, 61.84) poseur=699 cap=72.6 deg
+  grenade_dynamo dropped 0xaada07f3 t=[14761, 14802] pos=(-63.53, -15.19, 61.84) poseur=699 cap=72.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[14761, 14827] pos=(-63.49, -15.18, 61.84) poseur=699 cap=72.6 deg
+  grenade_spike dropped 0x0f5716ff t=[14793, 14845] pos=(-102.53, -28.91, 63.61) poseur=692 cap=89.1 deg
+  grenade_spike dropped 0x0f5716ff t=[14793, 14877] pos=(-102.52, -28.91, 63.61) poseur=692 cap=89.1 deg
+  grapple dropped 0x273fe0eb t=[14793, 14820] pos=(-102.70, -28.80, 63.94) poseur=690 cap=87.8 deg
+  sensor dropped 0x72b63d69 t=[14793, 14869] pos=(-102.59, -28.95, 63.69) poseur=692 cap=89.1 deg
+  grenade_frag dropped 0xbcabbe43 t=[14793, 14944] pos=(-102.64, -28.73, 63.84) poseur=690 cap=87.8 deg
+  grenade_frag dropped 0xbcabbe43 t=[14793, 14991] pos=(-102.64, -28.73, 63.84) poseur=690 cap=87.8 deg
+  grenade_spike dropped 0x0f5716ff t=[14869, 14911] pos=(-101.65, -16.79, 60.87) poseur=691 cap=339.7 deg
+  grenade_spike dropped 0x0f5716ff t=[14869, 14917] pos=(-101.65, -16.76, 60.87) poseur=691 cap=339.7 deg
+  repulsor dropped 0x7ca85adc t=[14869, 14904] pos=(-101.58, -16.61, 60.93) poseur=691 cap=339.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[14869, 14976] pos=(-101.63, -16.77, 60.87) poseur=691 cap=339.7 deg
+  grenade_frag dropped 0xbcabbe43 t=[14869, 14980] pos=(-101.64, -16.77, 60.87) poseur=691 cap=339.7 deg
+  wall dropped 0x2974c233 t=[14890, 14912] pos=(-96.64, -17.13, 60.68) poseur=697 cap=128.1 deg
+  repair_field dropped 0x32d97758 t=[14890, 14919] pos=(-63.22, -15.06, 61.97) poseur=703 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[14890, 15036] pos=(-96.57, -17.10, 60.54) poseur=697 cap=128.1 deg
+  grenade_frag dropped 0xbcabbe43 t=[14890, 15024] pos=(-96.54, -17.10, 60.55) poseur=697 cap=128.1 deg
+  wall dropped 0x2974c233 t=[14933, 14983] pos=(-93.52, -49.32, 65.55) poseur=695 cap=210.5 deg
+  repulsor dropped 0x7ca85adc t=[14960, 15009] pos=(-102.08, -30.17, 65.82) poseur=698 cap=200.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[14960, 15150] pos=(-102.11, -30.08, 65.73) poseur=698 cap=200.6 deg
+  grenade_frag dropped 0xbcabbe43 t=[14960, 15059] pos=(-102.11, -30.10, 65.72) poseur=698 cap=200.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[14960, 15050] pos=(-102.11, -30.10, 65.73) poseur=698 cap=200.6 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[14960, 15073] pos=(-102.11, -30.08, 65.73) poseur=698 cap=200.6 deg
+  grenade_spike dropped 0x0f5716ff t=[15075, 15096] pos=(-102.80, -28.78, 63.81) poseur=700 cap=333.5 deg
+  wall dropped 0x2974c233 t=[15075, 15099] pos=(-103.04, -28.31, 63.98) poseur=694 cap=aucun
+  sensor dropped 0x72b63d69 t=[15075, 15122] pos=(-102.85, -28.78, 63.99) poseur=700 cap=333.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[15075, 15098] pos=(-102.81, -28.78, 63.81) poseur=700 cap=333.5 deg
+  grenade_dynamo dropped 0xaada07f3 t=[15075, 15108] pos=(-102.81, -28.75, 63.81) poseur=700 cap=333.5 deg
+  grenade_frag dropped 0xbcabbe43 t=[15075, 15213] pos=(-102.80, -28.49, 63.84) poseur=694 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[15075, 15202] pos=(-102.80, -28.48, 63.84) poseur=694 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[15075, 15115] pos=(-102.80, -28.51, 63.84) poseur=694 cap=aucun
+  repulsor dropped 0x7ca85adc t=[15108, 15144] pos=(-108.76, -29.40, 64.48) poseur=708 cap=3.5 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[15108, 15215] pos=(-108.74, -29.47, 64.41) poseur=708 cap=3.5 deg
+  grenade_plasma dropped 0xcaaadcb0 t=[15108, 15205] pos=(-108.74, -29.47, 64.41) poseur=708 cap=3.5 deg
+  grapple dropped 0x273fe0eb t=[15191, 15212] pos=(-106.27, -32.30, 63.70) poseur=689 cap=305.2 deg
+  grapple dropped 0x273fe0eb t=[15237, 15254] pos=(-102.56, -30.66, 64.27) poseur=693 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[15237, 15322] pos=(-102.53, -30.79, 64.15) poseur=693 cap=aucun
+  grenade_dynamo dropped 0xaada07f3 t=[15237, 15281] pos=(-102.54, -30.80, 64.14) poseur=693 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[15237, 15380] pos=(-102.54, -30.77, 64.14) poseur=693 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[15237, 15328] pos=(-102.54, -30.82, 64.14) poseur=693 cap=aucun
+  grapple dropped 0x273fe0eb t=[15345, 15365] pos=(-104.41, -31.05, 63.48) poseur=707 cap=aucun
+  grenade_frag dropped 0xbcabbe43 t=[15345, 15368] pos=(-104.22, -30.95, 63.81) poseur=707 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[15345, 15518] pos=(-104.20, -30.95, 63.82) poseur=707 cap=aucun
+  grenade_plasma dropped 0xcaaadcb0 t=[15345, 15531] pos=(-104.20, -30.94, 63.82) poseur=707 cap=aucun
+  grenade_spike dropped 0x0f5716ff t=[15534, 15563] pos=(-99.03, -61.84, 65.65) poseur=705 cap=105.6 deg
+  grenade_spike dropped 0x0f5716ff t=[15534, 15553] pos=(-99.06, -61.84, 65.64) poseur=705 cap=105.6 deg
+  thruster dropped 0x430dda48 t=[15534, 15562] pos=(-99.07, -61.85, 65.77) poseur=705 cap=105.6 deg
+  repair_field dropped 0x32d97758 t=[15536, 15598] pos=(-64.47, -26.72, 65.04) poseur=709 cap=346.3 deg
+  grenade_frag dropped 0xbcabbe43 t=[15536, 15682] pos=(-64.48, -26.82, 64.93) poseur=709 cap=346.3 deg
+  grenade_frag dropped 0xbcabbe43 t=[15536, 15656] pos=(-64.47, -26.82, 64.93) poseur=709 cap=346.3 deg
 
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 1657 slot(s) · 512 ancre(s) -> 501 acceptee(s) -> 436 retenue(s) par l IDENTITE (65 ecartee(s))
@@ -1087,4 +1087,4 @@ n emprunte pas le nom d une arme voisine
   0xFD98554C42C9679F  en="VK78 Commando" fr="VK78 Commando" fx="ballistic"
 
 ## BORNES — l etendue des points publies, dans le repere monde partage
-x [-130.99, -41.51] · y [-68.14, -1.69] · z [59.54, 69.82]
+x [-130.99, -41.51] · y [-68.14, -1.67] · z [59.54, 69.82]
