@@ -18,6 +18,14 @@ package replay
 //  2. Pb == P, OU le paquet Pb porte la lecture « libre » de B : le film detache B de son parent en
 //     meme temps qu il le tue, ce qui ecarte un rattachement perime (la lecture de sortie perdue).
 //
+// LA VIE DE B FINIT A SON DEAD-STATE. La generation d une vie ne fait que 2 bits : la cle (slot,
+// generation) se reutilise dans un film, et le film re-replique un dead-state sur plusieurs paquets.
+// Pour une mort ecrite a Pb, seules comptent donc les lectures de parente de la cle posterieures au
+// dead-state PRECEDENT de la meme cle (strictement apres lui, et strictement avant Pb pour la
+// condition 1) : un dead-state re-replique n a plus de lecture « attache » dans sa fenetre de vie, et
+// ne compte pas ; une vie suivante de la meme cle ne herite pas du rattachement de la precedente. Deux
+// dead-states de la meme cle dans le MEME paquet n ont pas de dead-state precedent l un pour l autre.
+//
 // L IDENTITE DE LA VICTIME est celle que le film ecrit : `roster[].filmIndex == DeadState.EnumA`. Ni
 // les episodes (`rides[]`) ni leur tolerance « a bord » n y entrent : un mort que les episodes ne
 // portent pas se publie. Une victime sans joueur nommable (bot sans xuid, index absent ou hors roster,
@@ -44,11 +52,16 @@ const effetNettoyageDeFinDeManche = uint32(4208020)
 type occupantReads struct {
 	reads  map[types.LifeKey][]types.VehicleOccupancy
 	deaths []types.ObjectDeath
+	// deathsAt range, par vie, les instants de ses dead-states, tries : ils bornent la vie.
+	deathsAt map[types.LifeKey][]uint64
 }
 
 // newOccupantReads indexe les lectures et les morts de bipede du film.
 func newOccupantReads(occupancy []types.VehicleOccupancy, deaths []types.ObjectDeath) occupantReads {
-	r := occupantReads{reads: map[types.LifeKey][]types.VehicleOccupancy{}, deaths: slices.Clone(deaths)}
+	r := occupantReads{
+		reads: map[types.LifeKey][]types.VehicleOccupancy{}, deaths: slices.Clone(deaths),
+		deathsAt: map[types.LifeKey][]uint64{},
+	}
 	for _, o := range occupancy {
 		k := types.LifeKey{Slot: o.Slot, Gen: o.Gen}
 		r.reads[k] = append(r.reads[k], o)
@@ -57,7 +70,21 @@ func newOccupantReads(occupancy []types.VehicleOccupancy, deaths []types.ObjectD
 		slices.SortStableFunc(l, func(a, b types.VehicleOccupancy) int { return cmp.Compare(a.TimestampUS, b.TimestampUS) })
 	}
 	slices.SortStableFunc(r.deaths, func(a, b types.ObjectDeath) int { return cmp.Compare(a.TimestampUS, b.TimestampUS) })
+	for _, d := range r.deaths {
+		k := types.LifeKey{Slot: d.Slot, Gen: d.Gen}
+		r.deathsAt[k] = append(r.deathsAt[k], d.TimestampUS)
+	}
 	return r
+}
+
+// previousDeath rend l instant du dead-state de la vie `k` qui precede STRICTEMENT `us`, s il existe.
+func (r occupantReads) previousDeath(k types.LifeKey, us uint64) (uint64, bool) {
+	at := r.deathsAt[k]
+	i := sort.Search(len(at), func(i int) bool { return at[i] >= us })
+	if i == 0 {
+		return 0, false
+	}
+	return at[i-1], true
 }
 
 // deathGroup est G : le paquet P et les vies dont le dead-state y est ecrit.
@@ -122,14 +149,19 @@ func (r occupantReads) diedWith(g deathGroup) (killed []types.ObjectDeath, clean
 }
 
 // leftWithGroup dit si la mort `b` satisfait les deux conditions de la regle : attache a un parent de
-// G juste avant, et ecrite dans P ou accompagnee de la lecture « libre » du bipede.
+// G juste avant dans la vie de B, et ecrite dans P ou accompagnee de la lecture « libre » du bipede.
 func (r occupantReads) leftWithGroup(b types.ObjectDeath, g deathGroup) bool {
-	reads := r.reads[types.LifeKey{Slot: b.Slot, Gen: b.Gen}]
+	key := types.LifeKey{Slot: b.Slot, Gen: b.Gen}
+	reads := r.reads[key]
 	i := sort.Search(len(reads), func(i int) bool { return reads[i].TimestampUS >= b.TimestampUS })
 	if i == 0 {
 		return false
 	}
-	if last := reads[i-1]; !last.Attached || !g.has(last.ParentSlot, last.ParentGen) {
+	last := reads[i-1]
+	if prev, ok := r.previousDeath(key, b.TimestampUS); ok && last.TimestampUS <= prev {
+		return false // lecture d une vie anterieure de la cle : elle finit a son dead-state
+	}
+	if !last.Attached || !g.has(last.ParentSlot, last.ParentGen) {
 		return false
 	}
 	if b.TimestampUS == g.atUS {

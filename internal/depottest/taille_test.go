@@ -36,7 +36,7 @@ var plafondsGeles = map[string]int{
 	"replay/attachement_phase0_bord_test.go":                                 522,
 	"replay/closures_test.go":                                                598,
 	"replay/ctf_retour_zone_research_test.go":                                806,
-	"replay/document_chronicle.go":                                           3848, // 2026-11-12, schema 110
+	"replay/document_chronicle.go":                                           3853, // 2026-11-12, schema 110
 	"replay/equipment_uses_join_test.go":                                     573,
 	"replay/golden_assembly_test.go":                                         1184,
 	"replay/ground_link_research_test.go":                                    813,

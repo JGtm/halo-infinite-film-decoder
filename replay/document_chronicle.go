@@ -3819,7 +3819,10 @@ package replay
 // dead-state, G les vies (slot, generation) dont le dead-state est ecrit dans P et qui sont V ou ses pieces montees. Le bipede B est
 // mort avec V quand il a un dead-state dans un paquet Pb >= P tel que sa derniere lecture de parente STRICTEMENT avant Pb est
 // « attache » a un parent de G, et que Pb == P ou que le paquet Pb porte la lecture « libre » de B. Un bipede dont l effet de degat est
-// le nettoyage de fin de manche (4208020) n est pas tue avec son vehicule.
+// le nettoyage de fin de manche (4208020) n est pas tue avec son vehicule. La vie d un bipede finit a son dead-state : la generation
+// ne fait que 2 bits, la cle (slot, generation) se reutilise et le film peut re-repliquer un dead-state ; pour une mort ecrite a Pb
+// ne comptent que les lectures de parente de la cle posterieures au dead-state PRECEDENT de la meme cle (strictement apres lui). Un
+// dead-state re-replique apres un mort anterieur au vehicule, ou une vie suivante de la meme cle sans lecture, ne se publie pas.
 //
 //	`vehicles[].destruction.killed`   les xuids des joueurs morts avec le vehicule, tries. L identite est celle du film
 //	                 (`roster[].filmIndex == EnumA` du bipede), plus celle du pont slot -> xuid des episodes : `killed` ne depend plus de
@@ -3838,6 +3841,8 @@ package replay
 // mort dans son paquet, que les episodes ne portent pas (episode clos 9 images avant la destruction), est publie. Face a la
 // proximite : 084a804d 25 -> 23, 4f77afc1 33 -> 34, e5adf7b2 8 -> 7, 11de8353 5 -> 6, les six autres films inchanges. Les
 // dead-states de bipede pesent 23 a 122 ko de JSON par film dans les faits (91 a 475 morts).
+// La borne de vie ne change aucun tue sur ces dix films : sur 2 399 dead-states de bipede, aucune cle (slot, generation) n en porte deux
+// (0 replication, 0 vie recree), donc aucun tue publie ne disparait ni n apparait ; elle tient les deux cas que la cle reutilisable permet.
 //
 // CE QUI MONTE    `SchemaVersion` 109 -> 110, et avec lui `publication-110`. `SchemaDesFaits` 20 -> 21 : la section des morts d objet
 // AVEC ELLE       porte les dead-states des bipedes (`VehicleScan.BipedDeaths`), que la marche rendait deja et que la cuisson filtrait.

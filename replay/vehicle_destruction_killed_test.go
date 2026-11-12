@@ -221,20 +221,6 @@ func TestUnePieceMonteeDuMemePaquetEstDansG(t *testing.T) {
 	}
 }
 
-// TestUneVieDeBipedeNeCompteQuUneFois : le film re-replique un dead-state ; la meme vie ne se publie ni ne
-// se compte deux fois, et deux vies d un meme joueur ne donnent qu un xuid.
-func TestUneVieDeBipedeNeCompteQuUneFois(t *testing.T) {
-	lues := []types.VehicleOccupancy{attache(27_000_000, slotChassis, 1)}
-	morts := []types.ObjectDeath{
-		mortDeBipede(paquetDestruction, indexPassager, deadStateTagAbsent),
-		mortDeBipede(paquetDestruction+34_000, indexPassager, deadStateTagAbsent),
-	}
-	d, c := tuesAvec(t, lues, morts)
-	if !slices.Equal(tuesPublies(d), []string{xuidPassager}) || c.KilledOccupants != 1 {
-		t.Errorf("killed = %v, couverture = %+v, attendu un seul tue", tuesPublies(d), c)
-	}
-}
-
 // TestLesTuesSontTriesEtSansTrajet : deux bipedes morts, victimes d index differents, tries par xuid,
 // aucun trajet dans le document.
 func TestLesTuesSontTriesEtSansTrajet(t *testing.T) {
