@@ -61,6 +61,14 @@ All three are identifiers and labels, not content of the game: no mesh, texture,
   per-region table filled by `FUN_140be9a14`) and measured on the maintainer's own films. No line of libfilmshell
   code is copied or translated into this module; the region tables of the map catalogue are produced from the
   game's files by `cmd/mapquant-build`, not taken from libfilmshell's own tables.
+- **libfilmshell again, for the match information of `chunk_00`** (same author, licence and tree). The paths of
+  the game variant's Bond fields that this decoder reads (score to win, time limit, respawn time, overtime,
+  starting loadout, options, string block), the two 16-byte blocks that hold the map variant's asset and version
+  identifiers, and the start time were taken from its description of the format, then checked on the
+  maintainer's own films: the decoder agrees with libfilmshell on every field of the 1,791 films that library
+  reads, and differs on the name and description of one film, whose string table says otherwise. The Bond reader
+  of this module is its own code (a reader by field paths over the bit stream, the strings found through the
+  variant's offset table); no line of libfilmshell code is copied or translated.
 
 ## Third-party code
 

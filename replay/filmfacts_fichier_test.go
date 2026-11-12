@@ -50,7 +50,7 @@ func fichierTemoin(t *testing.T) *FilmFactsFile {
 		EmpreinteDeCle: EmpreinteDeCle(goldenEntryPourTest(t)),
 		Facts:          *facts,
 		Identity: &profile.FilmIdentity{Version: "v", Build: "HI_1_13_0", Flavor: "f",
-			BuildID: 7, Changelist: 9, FormatVersion: 27},
+			BuildID: 7, Changelist: 9, FormatVersion: 27, InfosDeMatch: infosDeMatchTemoin()},
 		Fallbacks: []fallback.Declenchement{
 			{Nom: fallback.NomLargeursAxeParDefautConservees, Declenchements: 1},
 			{Nom: fallback.NomPlafondGrenadeParDefaut, Declenchements: 3},
@@ -361,3 +361,53 @@ func errorsEstVersion(err error) bool   { return errors.Is(err, ErrFilmFactsVers
 func errorsEstRevisions(err error) bool { return errors.Is(err, ErrFilmFactsRevisions) }
 func errorsEstCarte(err error) bool     { return errors.Is(err, ErrFilmFactsCarte) }
 func errorsEstDecoupage(err error) bool { return errors.Is(err, ErrFilmFactsDecoupage) }
+
+// infosDeMatchTemoin : des infos de match dont chaque champ est pose, un pointeur par champ optionnel.
+func infosDeMatchTemoin() profile.InfosDeMatch {
+	nom, desc := "Slayer", "Elimine l equipe adverse."
+	asset, version := profile.GUID{1, 2, 3}, profile.GUID{9, 8, 7}
+	equipement := uint32(77)
+	return profile.InfosDeMatch{
+		DebutUnix: new(uint32(1_770_000_000)), CarteAssetID: &asset, CarteVersionID: &version,
+		VarianteLue: true, Nom: &nom, Description: &desc,
+		ScoreDeVictoire: new(int64(50)), DureeSecondes: new(int64(720)), DelaiDeReapparitionSecondes: new(int64(0)),
+		ProlongationSecondes: new(int64(120)), DerniereChanceSecondes: new(int64(30)),
+		Dotation: &profile.DotationDeDepart{Armes: []uint32{5, 6}, Aleatoire: true, Equipement: &equipement},
+		Options: []profile.OptionDeVariante{{Hachage: 7, Genre: profile.OptionNombre, Valeur: 0.5},
+			{Hachage: 8, Genre: profile.OptionBooleenne, Valeur: 1}},
+	}
+}
+
+// TestLesInfosDeMatchVoyagentAvecLIdentiteDesFaits : les infos de match d un film (section 2 du fichier de
+// faits) reviennent champ pour champ, et un champ absent revient absent et non zero. Le refus d un fichier du
+// schema d avant est celui de [TestFaitsDUnSchemaAnterieurSontRefusesSurLEnTete].
+// MUTATIONS — un pointeur ecrit sans etre relu, un zero ecrit pour un champ absent : ROUGES.
+func TestLesInfosDeMatchVoyagentAvecLIdentiteDesFaits(t *testing.T) {
+	f := fichierTemoin(t)
+	entry := goldenEntryPourTest(t)
+	blob, err := EncodeFilmFactsFile(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	relu, err := DecodeFilmFactsFile(blob, entry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(relu.Identity.InfosDeMatch, f.Identity.InfosDeMatch) {
+		t.Errorf("infos de match relues : %+v, attendu %+v", relu.Identity.InfosDeMatch, f.Identity.InfosDeMatch)
+	}
+	f.Identity.InfosDeMatch = profile.InfosDeMatch{DebutUnix: new(uint32(5))}
+	blob, err = EncodeFilmFactsFile(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	relu, err = DecodeFilmFactsFile(blob, entry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	i := relu.Identity.InfosDeMatch
+	if i.VarianteLue || i.ScoreDeVictoire != nil || i.Dotation != nil || i.Nom != nil || i.CarteAssetID != nil ||
+		len(i.Options) != 0 || i.DebutUnix == nil || *i.DebutUnix != 5 {
+		t.Errorf("champs absents relus comme presents : %+v", i)
+	}
+}
