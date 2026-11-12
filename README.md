@@ -28,10 +28,12 @@ The four lower layers live under `internal/`, so the compiler closes them. What 
   `NamedEvents`, `StatRecords`, `LoadMapQuantCatalog`, `ReadMatchInfo`, ...) and decodes nothing itself.
 - `replay`: `BuildFromFilm` and `BuildFromFacts` turn a loaded film, or facts decoded earlier, into a
   `ReplayDocument`. The document is the public output. Its time axis is a grid of `frameIntervalMs`
-  (`replay.DefaultFrameIntervalMS`: 33 ms, 30.3 images per second, since schema 110; 100 ms before). A
-  document published without that field reads at `replay.HistoricalFrameIntervalMS` (100 ms). Every
-  threshold of the package is a duration or a speed, converted with the document's step, so the grid is a
-  setting and not a decision.
+  (`replay.DefaultFrameIntervalMS`: 33 ms, 30.3 images per second, since schema 110; 100 ms before). The
+  time thresholds of the build are written as durations (ms) or speeds and converted with the step of the
+  document, so the grid is a setting; the few quantities that stay counts of images (`AttributeOptions.MaxGapFrames`,
+  the sampling stride of the vehicle tracks) say so. A function that converts a duration with a document's
+  step reads an absent step as `replay.HistoricalFrameIntervalMS` (100 ms, the step of every document
+  published without the field); a build that is given no step uses `replay.DefaultFrameIntervalMS`.
 - the shared vocabulary: `types`, `highlightevent`, `objectiveevent`, `playerposition`, `identity`.
 - the embedded name tables, offline and with no game file: `damagetag` (damage source of a death),
   `killicon` (kill-feed icon of a source), `medalname` (medal identity), `filmshell` (weapons as the film

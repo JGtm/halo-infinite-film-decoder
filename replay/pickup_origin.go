@@ -48,8 +48,8 @@ import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 const PickupOriginMatchM = MapWeaponPadMatchM
 
 // PickupOriginPosMaxUS est l'ecart temporel maximal admis entre le ramassage et la position du
-// ramasseur qui le localise. 100 ms : a la cadence des paquets de position c'est l'ordre de la
-// frame, et un joueur ne traverse pas un metre dans cet intervalle. Au-dela, on refuse de
+// ramasseur qui le localise. 100 ms, une DUREE du film (six paquets de position de 16,7 ms) et non le pas de
+// la grille du document : un joueur ne traverse pas un metre dans cet intervalle. Au-dela, on refuse de
 // localiser plutot que de placer le ramassage au mauvais endroit.
 const PickupOriginPosMaxUS = 100_000
 

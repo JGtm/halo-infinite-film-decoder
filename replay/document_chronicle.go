@@ -3866,21 +3866,25 @@ package replay
 //	                200 m/s. L ancienne borne en metres PAR PAS de la grille coupait un meme vol selon la phase de la
 //	                grille (a 100 ms) et tout vol rapide des son premier pas (a 33 ms : 3,3 m par pas pour des vols
 //	                de 4 m), et 100 m/s coupait de VRAIS vols : le jeu a des projectiles a 112-125 m/s (2,00 m par
-//	                record). Sur les 12 films, `coverage.projectiles.truncated` vaut 0 aux deux cadences (4 -> 0 a
-//	                100 ms sur `be565134` : 4 vols complets, dont 3 jusque la absents) ; sur 8 films de reference,
-//	                11 vols se coupent a 100 ms et 13 a 33 ms, tous sur un saut de 8 a 1 388 m entre deux records,
-//	                les deux de plus a 33 ms etant des sauts que la grille de 100 ms ne retient pas.
+//	                record). `coverage.projectiles.truncated`, 12 films : 4 vols coupes a 100 ms et 9 a 33 ms avant la
+//	                borne (`be565134` 4 puis 6, `0076ebdc`, `de3cec8b` et `e157a672` 1 a 33 ms), 0 aux deux cadences apres.
+//	                A 100 ms, `be565134` publie 288 vols au lieu de 285 (4 vols complets, dont 3 jusque la absents). Sur
+//	                8 films de reference, 11 vols se coupent a 100 ms et 13 a 33 ms, tous sur un saut de 8 a 1 388 m entre
+//	                deux records ; les deux de plus a 33 ms sont des sauts que la grille de 100 ms ne retient pas.
 //	`t0FilmMs`      date le premier mouvement a la grille fine : de -96 a +5 ms. `t0FilmJumpMPS` (50 m/s) remplace
-//	                `t0FilmJumpM` (5 m par pas) : meme seuil a 100 ms, 1,65 m par pas a 33 ms ; `t0FilmCumulM` ne bouge
-//	                pas (0,5 m, marge de 1,4 sur le pire bruit mesure a 33 ms).
-//	`equipmentPlacements`   une pose nee APRES la fin de l axe n etait publiee que si la fin de la grille tombait
-//	                apres la derniere lecture du film (l image-cle de fin, de 2,5 a 4,9 ms apres la fin de l axe quand elle
-//	                l ecartait) :
-//	                15 et 14 poses a 100 ms et pas a 33 ms sur deux films, 7 poses a 33 ms et pas a 100 ms sur un
-//	                troisieme, 54 sur un quatrieme a aucune cadence. Elles sont toutes confirmees, nees au meme instant,
-//	                sans fin lue (`end` `open`) ni origine : une pose nee a moins de 100 ms apres la fin de l axe se
-//	                publie a la derniere frame, a toute cadence (`margeDeBordDePoseMS`). Sortie a 100 ms : +7 et +54 poses
-//	                sur deux films, identique ailleurs.
+//	                `t0FilmJumpM` (5 m par pas) et s applique a la duree ECOULEE entre deux points (`(b.T-a.T)` pas, pas
+//	                un pas) : meme seuil a 100 ms pour un pas, et un trou de replication ne fait plus d une marche une
+//	                teleportation ; la fenetre de cumul se mesure en instants (1 000 ms). `t0FilmCumulM` ne bouge pas
+//	                (0,5 m, marge de 1,4 sur le pire bruit mesure a 33 ms).
+//	`equipmentPlacements`   une pose DATEE APRES LA FIN DE L AXE n etait publiee que si la fin de la grille tombait
+//	                apres le dernier instantane du film. Ces poses ne sont pas « nees » a cet instant : ce sont les objets
+//	                presents au dernier instantane (leurs vies sont decodees sur 0,5 a 4 s et datees par l instantane), sans
+//	                fin lue (`end` `open`) ni origine. L axe s arrete a la derniere position, et le dernier instantane
+//	                tombe a un nombre de ms de sa fin que la grille decide : 15 et 14 poses a 100 ms et pas a 33 ms sur
+//	                deux films, 7 a 33 ms et pas a 100 ms sur un troisieme, 54 a aucune cadence sur un quatrieme. Toute pose
+//	                datee apres la fin de l axe se publie a la derniere frame, sans condition (une pose ne peut pas naitre
+//	                apres la fin du film). Meme nombre de poses a toute cadence. Sortie a 100 ms : +7 et +54 poses sur deux
+//	                films, identique ailleurs.
 //	`grappleLines`  l arrivee est le point le plus proche de l ancre dans les 2,5 s apres l accroche ; la fenetre
 //	                s ajoutait 2,5 s arrondies a une frame (75 a 33 ms, 25 exactes a 100) a la frame, arrondie, de
 //	                l accroche, donc raccourcie de 25 ms a 33 ms : l arrivee tombait sur un autre creux de distance
@@ -3890,6 +3894,12 @@ package replay
 //	`bursts`, `stances`   une de moins sur un film chacun : un record qui commence quelques ms APRES la fin de
 //	                l episode de vehicule (rafale) ou de la vie (sprint) y tombait dans la meme frame de 100 ms ;
 //	                a 33 ms il est apres, et n est plus attribue (`coverage.continuousFire.noTrack`).
+//	`bursts` (`holes`)   les trous d une rafale (passages ou la gachette n est pas lue ; le rejeu s y tait) ne se
+//	                publient que s ils couvrent une frame entiere : 3 trous a 100 ms, 20 a 33 ms sur les 8 films de
+//	                reference, 176 a 10 ms. Les coups sont comptes hors des trous : 8 564 a 100 ms, 8 511 a 33 ms (-0,6 %),
+//	                8 452 a 10 ms. La baisse est cette politique appliquee a une grille qui resout plus de trous (les
+//	                coups d un passage non lu ne sont plus affirmes), pas un coup lu qui disparait : sans trous, le
+//	                compte tient entre 8 787 et 8 827 a 100 et a 33 ms (bornes de rafale a la frame pres).
 //	`coverage.*`    quelques ecarts de quantification ou de bord (`birthLoadouts.snapped`, `pickups.origin*`).
 //
 // CE QUI NE CHANGE PAS (12 films du parc cuits un a un aux deux cadences, a partir des memes faits de film, dont

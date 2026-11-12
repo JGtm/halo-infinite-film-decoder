@@ -32,8 +32,9 @@ import (
 // RELEVE A 5 MIO LE 2026-11-12 (schema 110, decision a valider par le pilote) : le pas du document passe de
 // 100 ms a 33 ms, les calques qui suivent la grille (echantillons de vehicule, visee, projectiles, jauges de
 // zone) pesent trois fois plus et la coupe des points de piste, tenue a 500 ms, ne les touche pas. Le jeu
-// mesure 4,54 Mio, dont 1,00 Mio pour la reference intacte `000d5950` (0,41 Mio a 100 ms). Rien d'autre
-// n'a ete coupe : ni calque, ni build.
+// mesure 4,54 Mio, dont 1,00 Mio pour la reference intacte `000d5950` (0,41 Mio a 100 ms). Un point par seconde
+// au lieu de 500 ms donne 4,00 Mio : 1,00 Mio au-dessus de 3 Mio, la reference intacte pesant a elle seule
+// 1,00 Mio. Rien d'autre n'a ete coupe : ni calque, ni build.
 const contractFixturesBudget = 5 << 20
 
 // TestContractFixturesTiennentDansLeBudget : le jeu entier tient-il sous le plafond, et
