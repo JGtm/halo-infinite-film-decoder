@@ -186,7 +186,7 @@ func TestSeulesLesFinsDetruitesPortentUnBloc(t *testing.T) {
 	vivante.End, vivante.TEnd = VehicleEndFilmEnd, nil
 	doc := documentDeTest(vivante)
 	poserLesDestructions(t, doc, vehicleDestructionInputs{roster: rosterDeTest()})
-	if doc.Vehicles[0].Destruction != nil || doc.Coverage.Vehicles.Destructions.Destroyed != 0 {
+	if doc.Vehicles[0].Destruction != nil || doc.Coverage.Vehicles.Destructions != nil {
 		t.Errorf("une vie qui n est pas detruite porte un bloc ou entre au denominateur : %+v", doc.Vehicles[0])
 	}
 }
@@ -343,5 +343,30 @@ func TestLesFaitsPortentLeDestructeurEtLaCause(t *testing.T) {
 	if len(morts) != 1 || morts[0].Dead.EnumB != 4 || morts[0].Dead.EnumA != -1 || morts[0].Dead.SrcTag0 != cause ||
 		morts[0].TimestampUS != 28_200_000 {
 		t.Errorf("morts relues = %+v, attendu le destructeur 4 et la cause %d", morts, cause)
+	}
+}
+
+// TestFenetreDesOccupantsTuesEstSymetriqueEtBornee : une mort compte jusqu a 500 ms AVANT comme
+// APRES l instant de la destruction, bornes comprises, et plus au-dela.
+func TestFenetreDesOccupantsTuesEstSymetriqueEtBornee(t *testing.T) {
+	const at = 27_200
+	for _, c := range []struct {
+		ecart int64
+		tue   bool
+	}{{-501, false}, {-500, true}, {-300, true}, {300, true}, {500, true}, {501, false}} {
+		got := diedWithin([]types.Death{{XUID: 1001, TimeMS: at + c.ecart}}, 1001, at)
+		if got != c.tue {
+			t.Errorf("mort a %+d ms : tue = %v, attendu %v", c.ecart, got, c.tue)
+		}
+	}
+}
+
+// TestSansDestructionLeDocumentNePorteAucuneCouverture : un rejeu sans vie detruite reste celui
+// d avant, sans bloc de zeros.
+func TestSansDestructionLeDocumentNePorteAucuneCouverture(t *testing.T) {
+	doc := documentDeTest()
+	poserLesDestructions(t, doc, vehicleDestructionInputs{roster: rosterDeTest()})
+	if c := doc.Coverage.Vehicles.Destructions; c != nil {
+		t.Errorf("couverture = %+v, attendu aucune", c)
 	}
 }

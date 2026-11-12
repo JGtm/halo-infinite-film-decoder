@@ -165,6 +165,9 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 			cov.Published++
 		}
 	}
+	if cov.Destroyed == 0 && cov.Pieces == 0 {
+		return // aucune destruction : le document reste celui d avant, sans bloc de couverture
+	}
 	in.fb.DeclencheN(fallback.NomOccupantsTuesParProximiteDeMort, cov.KilledOccupants)
 	doc.Coverage.Vehicles.Destructions = &cov
 	logVehicleDestructions(ctx, cov)
