@@ -131,6 +131,9 @@ type VehicleTrack struct {
 	// du moteur, l explosion et la classe d arme — une variante n est pas un autre vehicule.
 	// VIDE = le film ne dit pas la variante, ou le chassis n en a pas.
 	Variant string `json:"variant,omitempty"`
+
+	Destruction *VehicleDestruction `json:"destruction,omitempty"` // destructeur, cause, occupants : vehicle_destruction.go ; instant = `TEnd`
+	mort        *vehicleDeath       // le dead-state de la fin `destroyed`, porte jusqu a `Destruction`
 }
 
 // VehicleLifeRef designe UNE vie de vehicule : `(slot, gen)`, la seule cle d une vie (cf.
@@ -489,8 +492,9 @@ type VehicleCoverage struct {
 	// CycleLocations est le nombre d AMAS de naissance agglomeres, `Cycles` celui des cycles
 	// publies. `CycleGaps` et `CycleMissing` sont les deux moities du denominateur : les ecarts
 	// MESURES, et les occasions perdues faute d une fin datee sur la vie precedente.
-	CycleLocations int `json:"cycleLocations"`
-	Cycles         int `json:"cycles"`
-	CycleGaps      int `json:"cycleGaps"`
-	CycleMissing   int `json:"cycleMissing"`
+	CycleLocations int                         `json:"cycleLocations"`
+	Cycles         int                         `json:"cycles"`
+	CycleGaps      int                         `json:"cycleGaps"`
+	CycleMissing   int                         `json:"cycleMissing"`
+	Destructions   *VehicleDestructionCoverage `json:"destructions,omitempty"` // la couverture de `vehicles[].destruction`
 }

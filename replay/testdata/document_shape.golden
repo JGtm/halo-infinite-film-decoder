@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 108
-empreinte-stockee 031977250a44eafa
-empreinte-servie 031977250a44eafa
-empreinte-cuite 780af48e5ebf3b32
+schema 109
+empreinte-stockee 6b50a5f2f38c5f54
+empreinte-servie 6b50a5f2f38c5f54
+empreinte-cuite a353c0bcf709e4df
 empreinte-cuite-regle 3
 
 AbilityCharge
@@ -319,6 +319,19 @@ Coverage
   VipCrown json:"vipCrown,omitempty" *VipCrownCoverage
   WeaponChanges json:"weaponChanges,omitempty" *WeaponChangeCoverage
   Zones json:"zones,omitempty" *ZonesCoverage
+DeadState
+  EnumA json:"" int32
+  EnumB json:"" int32
+  GIDPresent json:"" bool
+  GlobalID json:"" uint32
+  HasRef json:"" bool
+  Mort json:"" bool
+  SrcTag0 json:"" uint32
+  SrcTag4c json:"" uint32
+  Val0c json:"" uint8
+  Val0e json:"" uint8
+  Val14 json:"" uint8
+  Val18 json:"" int8
 DeathsPathTally
   Matched json:"matched" int
   Population json:"population" int
@@ -720,6 +733,13 @@ NeutralDeath
   Kind json:"kind" string
   Tinted json:"tinted,omitempty" bool
   XUID json:"xuid" string
+ObjectDeath
+  Dead json:"" DeadState
+  Gen json:"" uint32
+  Slot json:"" uint32
+  TailDesync json:"" bool
+  TimestampUS json:"" uint64
+  TypeIndex json:"" uint32
 ObjectiveAction
   Stat json:"stat" string
   T json:"t" int
@@ -1146,6 +1166,7 @@ VehicleCoverage
   DeathsRead json:"deathsRead" int
   DeathsTailDesync json:"deathsTailDesync" int
   DeathsUnmatched json:"deathsUnmatched" int
+  Destructions json:"destructions,omitempty" *VehicleDestructionCoverage
   EchantillonsAuTraversDUnSilence json:"echantillonsAuTraversDUnSilence" int
   EchantillonsHorsEmprise json:"echantillonsHorsEmprise" int
   EndDestroyed json:"endDestroyed" int
@@ -1200,6 +1221,31 @@ VehicleCycle
   P90S json:"p90S" float32
   X json:"x" float32
   Y json:"y" float32
+VehicleDestroyer
+  Bot json:"bot,omitempty" bool
+  I json:"i" int
+  XUID json:"xuid,omitempty" string
+VehicleDestruction
+  By json:"by,omitempty" *VehicleDestroyer
+  Cause json:"cause,omitempty" *uint32
+  Killed json:"killed,omitempty" []string
+  Occupant json:"occupant,omitempty" string
+VehicleDestructionCoverage
+  ByBot json:"byBot" int
+  ByHuman json:"byHuman" int
+  Cause json:"cause" int
+  CauseAbsent json:"causeAbsent" int
+  CauseUnresolved json:"causeUnresolved" int
+  ClockUnknown json:"clockUnknown" int
+  Destroyed json:"destroyed" int
+  Killed json:"killed" int
+  KilledOccupants json:"killedOccupants" int
+  KillerAbsent json:"killerAbsent" int
+  KillerAmbiguous json:"killerAmbiguous" int
+  KillerOutOfRoster json:"killerOutOfRoster" int
+  Occupant json:"occupant" int
+  Pieces json:"pieces" int
+  Published json:"published" int
 VehicleLabel
   Img json:"img,omitempty" string
   Kind json:"kind,omitempty" string
@@ -1243,6 +1289,7 @@ VehicleSpawn
 VehicleTrack
   Carrier json:"carrier,omitempty" *VehicleLifeRef
   Chassis json:"chassis,omitempty" string
+  Destruction json:"destruction,omitempty" *VehicleDestruction
   End json:"end" string
   Family json:"family,omitempty" string
   Gen json:"gen" uint32

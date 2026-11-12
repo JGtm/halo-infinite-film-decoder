@@ -149,6 +149,9 @@ func (a *assemblage) poserArmesAuSolEtVehicules() {
 	if c := a.doc.Coverage.Vehicles; c != nil {
 		c.EchantillonsHorsEmprise, c.SpawnsHorsEmprise = horsEmprise, naissancesHorsEmprise
 	}
+	// LA DESTRUCTION de chaque vie `destroyed` : destructeur et cause lus, occupants deduits (vehicle_destruction.go).
+	attachVehicleDestructions(a.ctx, &a.doc, vehicleDestructionInputs{
+		roster: a.doc.Roster, deaths: a.opt.Deaths, calage: a.reg.CalageSiConnu(), fb: a.opt.Fallbacks})
 	// LES TIRS DES JOUEURS EMBARQUES : la SECONDE porte des tirs, celle que la premiere ne
 	// pouvait pas franchir (un occupant attache ne replique plus sa position de bipede, donc
 	// `slotFor` n'a rien a poser sur la carte). Elle exige les episodes d'occupation ET les

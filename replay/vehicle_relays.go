@@ -98,7 +98,7 @@ func mergeVehicleRelay(a, b VehicleTrack) VehicleTrack {
 	out.Samples = appendVehicleSamples(a.Samples, b.Samples)
 	// LA FIN EST CELLE DE `b`, CAUSE ET INSTANT ENSEMBLE : `End` sans `TEnd` publierait
 	// `destroyed` sans sa date, ou pire, garderait la date de `a` sous la cause de `b`.
-	out.T1, out.T1Max, out.End, out.TEnd = b.T1, b.T1Max, b.End, b.TEnd
+	out.T1, out.T1Max, out.End, out.TEnd, out.mort = b.T1, b.T1Max, b.End, b.TEnd, b.mort
 	if out.T1Max < out.T1 {
 		out.T1Max = out.T1
 	}

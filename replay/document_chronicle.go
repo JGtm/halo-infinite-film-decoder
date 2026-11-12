@@ -3759,3 +3759,48 @@ package replay
 //
 // LE PARC         un artefact 107 : verdict `a republier` (la couche de publication a change, les faits cuits
 //                 restent frais). Aucun redecodage de film.
+
+// v109 (2026-11-12, destruction de vehicule : destructeur, cause, occupant, occupants tues). Un champ neuf
+// `vehicles[].destruction` et un bloc de couverture `coverage.vehicles.destructions`. La fin `destroyed`
+// disait QUE le film ecrit la mort d un vehicule et A QUELLE IMAGE (`tEnd`) ; elle dit maintenant QUI l a
+// detruit et AVEC QUOI, lus dans le meme dead-state, et QUI ETAIT A BORD, deduit des episodes.
+//
+//	`vehicles[].destruction`   objet optionnel, pose sur une vie `end = destroyed` qui n est pas une piece
+//	                montee (`part` vide) quand un de ses champs est etabli. L instant est `tEnd`, deja publie
+//	                (image du document, date au paquet du dead-state) : il n est pas recopie.
+//	  `by`          {i, xuid?, bot?} : le destructeur. `i` est l index de joueur ECRIT dans le film (second
+//	                champ du dead-state, `EnumB` ; le premier est vide), joint au roster par `roster[].filmIndex`
+//	                comme l auteur d un lancer de grenade ; `xuid` l identite en decimal, absente pour un bot
+//	                (`bot` vrai). Absent quand le film n ecrit pas d index (environnement, chute), que l index
+//	                n est celui d aucune entree du roster, ou que plusieurs entrees le portent sans que la
+//	                presence tranche : jamais un joueur suppose.
+//	  `cause`       l identifiant `jpt!` de l effet de degat (entier 32 bits non signe), lu dans `SrcTag0` du
+//	                dead-state : le MEME espace que la source d un frag (`killsource.SourceTruth.Tag`). Publie
+//	                seulement s il est un effet de degat connu de `damagetag`.
+//	  `occupant`    le xuid de l occupant a l instant (episode de `rides[]` qui couvre `tEnd`, ou a pris fin
+//	                au plus 2 images avant), le conducteur d abord. DEDUIT des episodes, pas ecrit par le film.
+//	  `killed`      les xuids des occupants nommes de ces episodes dont le fil des morts porte la mort a moins
+//	                de 500 ms de l instant du dead-state (horloge du film par le calage du fil des morts).
+//	                DEDUIT : repli `repli_occupants_tues_par_proximite_de_mort`, nomme et compte.
+//	`coverage.vehicles.destructions`   le denominateur (`destroyed`, vies `destroyed` hors pieces) et les
+//	                partitions du destructeur (`byHuman`, `byBot`, `killerAbsent`, `killerOutOfRoster`,
+//	                `killerAmbiguous`) et de la cause (`cause`, `causeUnresolved`, `causeAbsent`) ; `pieces`
+//	                (pieces montees `destroyed`, qui ne portent pas de bloc : une seule destruction par
+//	                vehicule), `published`, `occupant`, `killed`, `killedOccupants`, `clockUnknown` (calage du
+//	                fil des morts inconnu : aucun occupant tue cherche).
+//
+// MESURE (15 films BTB et arene du parc, 660 vies detruites hors pieces, 410 pieces) : le nombre de vies
+// `destroyed` et leurs `tEnd` sont IDENTIQUES avant et apres (0 fin changee) ; 660 blocs ; destructeur nomme
+// 643 (97,4 %), absent 16, hors roster 1, ambigu 0 ; cause resolue 660 (100 %) ; occupant 330 (50,0 %) ;
+// au moins un occupant tue 310. Controles independants : l equipe du destructeur est l equipe OPPOSEE a celle
+// de l occupant dans 313 cas sur 327 (95,7 %) ; la mort d un occupant tombe dans les 250 ms qui suivent
+// l instant du dead-state dans 339 cas sur 367 (les 28 autres : 21 sans mort a +-3 s, 7 a 750 ms et plus) ;
+// aucun dead-state n est re-replique dans une vie (1 142 groupes, 0 re-replique) : le premier est le seul.
+//
+// CE QUI MONTE    `SchemaVersion` 108 -> 109, et avec lui `publication-109`. Aucune revision de grammaire,
+// AVEC ELLE       de faits ni de profil ne bouge : `ObjectDeath.Dead` (destructeur, cause) est deja
+//                 serialise en entier dans les faits persistes (`encodeMortsDObjet`), tout comme le fil des
+//                 morts et son calage. `layers.vehicles` reste attribue a `grammar.Rev`.
+//
+// LE PARC         un artefact 108 : verdict `a republier` (la couche de publication a change, les faits cuits
+//                 restent frais et portent deja les deux champs lus). Aucun redecodage de film.

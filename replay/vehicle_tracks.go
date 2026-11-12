@@ -96,6 +96,8 @@ type vehicleLife struct {
 	// rendu (rupture apres le dead-state), pour que la couverture ne melange pas les deux.
 	deathUS         uint64
 	deathTailDesync bool
+	// death est le record qui date `deathUS` : il porte le destructeur et la cause de la destruction.
+	death vehicleDeath
 }
 
 // buildVehicleTracks assemble les vies publiables, leur couverture et le bilan de rattachement.
@@ -269,6 +271,10 @@ func vehicleTrackOf(
 	}
 	tr := VehicleTrack{Slot: l.key.Slot, Gen: l.key.Gen}
 	tr.End, tr.TEnd = vehicleEndOf(l, clock)
+	if l.deathUS > 0 {
+		d := l.death
+		tr.mort = &d
+	}
 	if hasSpawn {
 		tr.Spawn = &VehicleSpawn{X: round2(spawn.X), Y: round2(spawn.Y), Z: round2(spawn.Z)}
 		if spawn.MPPPresent[grammar.MPPWord32] {

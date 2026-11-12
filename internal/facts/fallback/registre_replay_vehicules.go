@@ -176,4 +176,30 @@ var registreReplayVehicules = []Repli{
 		CritereRetrait:    "sur le parc, le champ lu masque exactement les vies que ce repli masque, sans regarder leur mouvement",
 		CompteurBranche:   true,
 	},
+	{
+		Nom:  "repli_occupants_tues_par_proximite_de_mort",
+		Fait: "quels occupants d un vehicule detruit sont morts DE sa destruction (`vehicles[].destruction.killed`)",
+		Mecanisme: "parmi les occupants NOMMES des episodes qui couvrent l instant de la destruction (a au " +
+			"plus `vehicleDestructionAboardTolFrames` images apres la fin de l episode), ceux dont le fil des morts " +
+			"porte une mort a au plus `vehicleDestructionKilledWindowMS` (500 ms) de l instant du dead-state du " +
+			"vehicule, sur l horloge du film (calage du fil des morts, `CalageSiConnu`) ; sans calage connu rien " +
+			"n est cherche et la destruction est comptee `clockUnknown`. Le compteur vaut le nombre d occupants " +
+			"rapportes",
+		// LE FILM ECRIT LE LIEN, MAIS AUCUN LECTEUR NE LE PORTE : le dead-state du bipede mort a bord
+		// porte sa source de degat (l effet de destruction du vehicule) et son tueur ; le lecteur
+		// qui rattacherait cette source au vehicule n existe pas. Dette de lecteur, pas silence du film.
+		Condition: CondLectureNonPortee,
+		Ordre:     OrdreSansLecture,
+		Sites: []Site{{
+			Fichier: pkgReplay + "vehicle_destruction.go",
+			Ancre:   "fb.DeclencheN(fallback.NomOccupantsTuesParProximiteDeMort",
+		}},
+		DatePose:     "2026-11-12",
+		CibleRetrait: "la lecture de la source de degat du dead-state de l occupant mort a bord (effet de destruction du vehicule), rattachee au vehicule par son identite ; a defaut, " + retraitRegle4,
+		// MESURE DU 2026-11-12 sur 15 films (660 vies detruites, 330 avec un occupant a bord) : la mort d un
+		// occupant nomme tombe dans les 250 ms qui suivent le dead-state du vehicule dans 339 cas sur 367 ;
+		// 310 destructions rapportent au moins un occupant tue.
+		CritereRetrait:  "sur le parc, les occupants lus par le dead-state de l occupant egalent ceux que la proximite rapporte (0 ecart) et ce repli ne se declenche plus sur aucun document republie",
+		CompteurBranche: true,
+	},
 }
