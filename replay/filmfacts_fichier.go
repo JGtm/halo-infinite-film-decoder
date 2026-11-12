@@ -241,7 +241,13 @@ const VersionCodecFaits = 2
 // creation (`CarriedEquipmentRead.HasGlobalID`, `GlobalID` : le GlobalID de son tag `eqip`), ecrite apres le genre de
 // lecture. La famille de l objet se lit desormais sur lui, et non sur l annonce i48 du porteur dans le meme paquet.
 // `grammar.Rev` monte avec ce numero (`grammar-2026-11-08`) : un fichier ecrit avant ce lot est refuse sur les deux.
-const SchemaDesFaits = 19
+// SCHEMA 20 (2026-11-12, infos de match) : la section 2, l identite du film (JSON de `profile.FilmIdentity`),
+// porte `InfosDeMatch` : la variante de partie (nom, description, score de victoire, duree, delai de
+// reapparition, prolongation, dotation, options), les identifiants de la variante de carte et l heure de debut.
+// Relue par `json.Unmarshal`, une section 2 du schema 19 rendrait ces champs absents sans erreur, et un
+// fait « absent » ne se distingue pas d un fait que le film ne porte pas : c est le refus SUR L EN-TETE qui
+// doit le dire. Aucun consommateur : le document de rejeu ne publie rien de neuf, `SchemaVersion` ne bouge pas.
+const SchemaDesFaits = 20
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.

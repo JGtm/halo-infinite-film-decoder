@@ -99,6 +99,9 @@ type FilmIdentity struct {
 	// Variante : la VARIANTE DE PARTIE que les memes options portent (`options + 0x28`), lue dans le
 	// corps de `chunk_00` ([VarianteDePartie]).
 	Variante VarianteDePartie
+	// InfosDeMatch : ce que `chunk_00` dit du match enregistre (variante de partie, variante de carte,
+	// heure de debut), champ par champ, un champ non lu etant absent ([InfosDeMatch]).
+	InfosDeMatch InfosDeMatch
 }
 
 // VarianteDePartie : ce que le corps de `chunk_00` declare de la variante de partie de

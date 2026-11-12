@@ -25,7 +25,7 @@ One module, five layers, each one reading only the layer below (ADR 0034):
 The four lower layers live under `internal/`, so the compiler closes them. What a caller imports:
 
 - `decfilm`, the facade: it re-exports what callers compile (`LoadDir`, `ScanDeaths`, `Decode`,
-  `NamedEvents`, `StatRecords`, `LoadMapQuantCatalog`, ...) and decodes nothing itself.
+  `NamedEvents`, `StatRecords`, `LoadMapQuantCatalog`, `ReadMatchInfo`, ...) and decodes nothing itself.
 - `replay`: `BuildFromFilm` and `BuildFromFacts` turn a loaded film, or facts decoded earlier, into a
   `ReplayDocument`. The document is the public output.
 - the shared vocabulary: `types`, `highlightevent`, `objectiveevent`, `playerposition`, `identity`.

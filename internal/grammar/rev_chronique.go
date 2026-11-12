@@ -147,3 +147,18 @@ package grammar
 // emplacements dont un en-tete valide a ete ecarte par la croissance des emplacements (6 000 a 9 600 par film avec la recherche d avant,
 // 200 a 300 avec celle-ci). Les rejeux et les faits cuits avant se refusent sur cette revision : la recuisson est une decision de
 // l utilisateur.
+
+// ENTREE `grammar-2026-11-12.3` (2026-11-12, infos de match lues dans `chunk_00`). LA LECTURE DE L IDENTITE RENDU DE NOUVEAUX CHAMPS ;
+// AUCUN BIT DEJA LU NE CHANGE D INTERPRETATION. Le corps de `chunk_00` porte la variante de partie en Bond CompactBinary : la marche
+// du corps ne lisait que trois de ses champs ([lireLaVarianteDePartie]). Une lecture par chemins ([lecteurDuCorps.valeurBond], un
+// message Bond parcouru de bout en bout, les valeurs hors chemin enjambees par leur longueur) rend desormais le nom et la description
+// (la premiere langue de la table de chaines de la variante, trouvee par son decalage), le score de victoire, la duree, le delai de
+// reapparition, la prolongation et la derniere chance, la dotation du premier chargement et les options ([lireLesInfosDeMatch]) ; les
+// deux blocs de 16 octets qui ferment la section d identification sont l identifiant d asset et l identifiant de version de la
+// variante de carte, et l heure de debut est celle d avant. Un champ que le film n ecrit pas reste absent. Disposition des chemins
+// mesuree contre le decodeur tiers, sans cas particulier par build. Mesure sur les 2 123 films du cache : 2 118 identites lues, la
+// variante lue sur les 2 118 (HI_1_4_1 a HI_1_13_0), les cinq autres sans section d identification ; accord avec le decodeur tiers sur
+// chaque champ des 1 791 films qu il lit (un seul ecart : le nom et la description d un film dont la table de chaines n ecrit qu une
+// langue) ; identifiant de carte egal a celui du registre des matchs sur 1 457 films sur 1 457. La section 2 des faits porte ces champs
+// (`replay.SchemaDesFaits` 20) : les faits cuits avant se refusent sur ce numero et sur cette revision, la recuisson est une decision
+// de l utilisateur. Le document de rejeu ne change pas.
