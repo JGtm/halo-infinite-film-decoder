@@ -7,6 +7,8 @@ package grammar
 import (
 	"encoding/hex"
 	"testing"
+
+	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 )
 
 // avecUnChampCasse ecrit une variante valide (score 50) puis, a un champ de tete que la lecture ne suit pas,
@@ -245,5 +247,55 @@ func TestLesInfosDeMatchDesBobines(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// TestUneLongueurLueApresLaFinDuTamponTombe : une longueur dont le dernier octet sort du tampon ne passe
+// pas la borne ; ni allocation ni boucle a la mesure de cette longueur.
+func TestUneLongueurLueApresLaFinDuTamponTombe(t *testing.T) {
+	for _, c := range []struct {
+		nom string
+		ty  int
+		oct []byte
+	}{
+		{"chaine", bondChaine, []byte{0xFF, 0xFF, 0xFF, 0xFF}},
+		{"liste de booleens", bondListe, []byte{byte(bondBooleen), 0xFF, 0xFF, 0xFF, 0xFF}},
+		{"table", bondTable, []byte{byte(bondOctet), byte(bondOctet), 0xFF, 0xFF, 0xFF, 0xFF}},
+		{"structure", bondStructure, []byte{0xFF, 0xFF, 0xFF, 0xFF}},
+	} {
+		l := &lecteurDuCorps{br: LecteurSur(c.oct), ok: true}
+		l.valeurBond(c.ty, nil, visiteBond{suivre: func([]int) bool { return true }, feuille: func([]int, int64, []byte) {}}, 0)
+		if l.ok {
+			t.Errorf("%s : le curseur ne tombe pas apres une longueur lue hors du tampon", c.nom)
+		}
+	}
+	l := &lecteurDuCorps{br: LecteurSur([]byte{0xFF}), ok: true}
+	l.lire(16)
+	if n := l.octetsRestants(); n != 0 {
+		t.Errorf("octets restants apres debordement = %d, attendu 0", n)
+	}
+}
+
+// TestUneOptionNonFinieNEstPasRendue : un nombre d option NaN ou infini n entre pas dans les infos.
+func TestUneOptionNonFinieNEstPasRendue(t *testing.T) {
+	for _, bits := range [][]byte{{0x00, 0x00, 0xC0, 0x7F}, {0x00, 0x00, 0x80, 0x7F}, {0x00, 0x00, 0x80, 0xFF}} {
+		octets := make([]byte, octetsDeValeurDOption)
+		copy(octets, bits)
+		octets[octetGenreDOption] = profile.OptionNombre
+		h := uint32(1)
+		a := &lectureDesInfos{hachage: &h, infos: &profile.InfosDeMatch{}}
+		a.ajouterUneOption(octets)
+		if len(a.infos.Options) != 0 {
+			t.Errorf("option non finie %x rendue : %+v", bits, a.infos.Options)
+		}
+	}
+	// Temoin : un nombre fini, lui, est rendu (0x3F000000 = 0,5).
+	octets := make([]byte, octetsDeValeurDOption)
+	octets[3], octets[octetGenreDOption] = 0x3F, profile.OptionNombre
+	h := uint32(1)
+	a := &lectureDesInfos{hachage: &h, infos: &profile.InfosDeMatch{}}
+	a.ajouterUneOption(octets)
+	if len(a.infos.Options) != 1 || a.infos.Options[0].Valeur != 0.5 {
+		t.Errorf("option finie non rendue : %+v", a.infos.Options)
 	}
 }

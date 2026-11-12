@@ -187,6 +187,9 @@ func (a *lectureDesInfos) ajouterUneOption(octets []byte) {
 	case profile.OptionNombre:
 		o.Valeur = float64(math.Float32frombits(uint32(octets[0]) | uint32(octets[1])<<8 |
 			uint32(octets[2])<<16 | uint32(octets[3])<<24))
+		if math.IsNaN(o.Valeur) || math.IsInf(o.Valeur, 0) {
+			return // un nombre non fini n est pas une valeur d option
+		}
 	default:
 		return
 	}

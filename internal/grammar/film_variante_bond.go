@@ -65,9 +65,19 @@ func (l *lecteurDuCorps) varint(max int) uint64 {
 	return 0
 }
 
+// octetsRestants rend le nombre d octets entiers encore dans le tampon ; zero des qu une lecture est sortie
+// du tampon, pour qu aucune longueur lue dans le flux ne passe la borne apres un debordement.
+func (l *lecteurDuCorps) octetsRestants() uint64 {
+	reste := l.br.Remaining()
+	if reste < 0 {
+		return 0
+	}
+	return uint64(reste) / 8
+}
+
 // octetsDe lit `n` octets, ou fait tomber le curseur quand ils ne tiennent pas dans le tampon.
 func (l *lecteurDuCorps) octetsDe(n uint64) []byte {
-	if !l.ok || n > uint64(l.br.Remaining())/8 {
+	if !l.ok || n > l.octetsRestants() {
 		l.ok = false
 		return nil
 	}
@@ -80,7 +90,7 @@ func (l *lecteurDuCorps) octetsDe(n uint64) []byte {
 
 // enjamberLesOctets avance de `n` octets sans les copier.
 func (l *lecteurDuCorps) enjamberLesOctets(n uint64) {
-	if !l.ok || n > uint64(l.br.Remaining())/8 {
+	if !l.ok || n > l.octetsRestants() {
 		l.ok = false
 		return
 	}
@@ -159,7 +169,7 @@ func (l *lecteurDuCorps) chaineBond(suivie bool, chemin []int, v visiteBond) {
 // structure non suivie est enjambee par sa longueur, dont le dernier octet doit etre la fin.
 func (l *lecteurDuCorps) structureBond(suivie bool, chemin []int, v visiteBond, prof int) {
 	n := l.varint(5)
-	if n > uint64(l.br.Remaining())/8 {
+	if n > l.octetsRestants() {
 		l.ok = false
 		return
 	}
@@ -194,7 +204,7 @@ func (l *lecteurDuCorps) listeBond(suivie bool, chemin []int, v visiteBond, prof
 	} else {
 		n--
 	}
-	if !l.ok || n > uint64(l.br.Remaining())/8 {
+	if !l.ok || n > l.octetsRestants() {
 		l.ok = false
 		return
 	}
@@ -219,7 +229,7 @@ func (l *lecteurDuCorps) listeBond(suivie bool, chemin []int, v visiteBond, prof
 func (l *lecteurDuCorps) tableBond(prof int) {
 	kt, vt := int(l.lire(8)), int(l.lire(8))
 	n := l.varint(5)
-	if !l.ok || n > uint64(l.br.Remaining())/8 {
+	if !l.ok || n > l.octetsRestants() {
 		l.ok = false
 		return
 	}
