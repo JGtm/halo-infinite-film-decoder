@@ -44,11 +44,18 @@ func TestLImageCleOublieCeQuElleNePortePlus(t *testing.T) {
 				t.Fatalf("c%d p%d : la liaison d un slot que l image-cle ne porte pas survit (oubliees %d)",
 					c, pi, l.Oubliees)
 			}
+			// LA TABLE D ENTITES PRIME SUR LA CHAINE quand les deux different : le jeu lit cette table (le type de l
+			// emplacement 4 de la bobine est 6, la chaine d ancres en elit un autre).
+			table, _ := TableDeDatums(pks[pi].Payload(data))
 			for _, r := range mp.Records {
-				//nolint:gosec // slot et TI bornes par le walker
-				if ti, ok := w.ArchetypeForSlot(uint32(r.Slot)); !ok || ti != uint32(r.TI) {
+				attendu := uint32(r.TI)                 //nolint:gosec // TI borne par le walker
+				if e, ok := table[uint32(r.Slot)]; ok { //nolint:gosec // slot borne par le walker
+					attendu = e.TI
+				}
+				//nolint:gosec // slot borne par le walker
+				if ti, ok := w.ArchetypeForSlot(uint32(r.Slot)); !ok || ti != attendu {
 					t.Fatalf("c%d p%d slot %d : record de la chaine lie a %d/%v, attendu %d", c, pi,
-						r.Slot, ti, ok, r.TI)
+						r.Slot, ti, ok, attendu)
 				}
 			}
 			// UN CANDIDAT ECARTE N EST PAS UNE ABSENCE PROUVEE (principe du lot D-fix) : sa liaison

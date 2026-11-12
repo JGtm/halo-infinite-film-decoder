@@ -109,12 +109,10 @@ func DecodeFrameInfer(buf []byte, w *World, cfg FrameConfig) ([]FrameRecord, int
 // table, indexee par l eid ENTIER : `*(uint *)(slot * 200 + *(*(vue+0x20) + 0x20)) != eid` rend
 // le code 2 ou 3, ZERO bit lu, et la boucle sort ; l archetype se lit en `+0x04`.
 //
-// ET SA SOURCE EST L IMAGE-CLE, qui en est le DUMP : `FUN_142f2e174` (slot `0x10` de la vtable de
-// vue) rend un mot par entite vivante, `FUN_142f2c658` serialise chaque mot selon son genre, et
-// le genre 3 (`FUN_142f30610`) ecrit `FUN_142f2c754(writer, 3, eid, archetype)` avec
-// `archetype = *(int *)(*(vue[0x20] + 0x120) + 4 + slot * 0x18)`. Le monde hors ligne la lit
-// desormais : [TableDeDatums] / [LierTableDeDatums] (`keyframe_datums.go`), et `rejetDeVue`
-// ci-dessous porte les DEUX gardes, chacune COMPTEE.
+// ET SA SOURCE EST L IMAGE-CLE, qui porte la table d entites du morceau : le jeu la lit par
+// `FUN_142e2bfd0` (une entree par emplacement, en-tete de 108 bits : eid, type, poignee, drapeaux,
+// octet ; `keyframe_datums.go`). Le monde hors ligne en recherche les en-tetes : [TableDeDatums] /
+// [LierTableDeDatums], et `rejetDeVue` ci-dessous porte les DEUX gardes, chacune COMPTEE.
 //
 // MESURE DU PORT : `dad793c7` paquets a reste NUL 5 341 -> 5 354 sur 5 365 (les douze paquets de
 // 96 bits du temoin D5 du 5.15 ferment 12/12) ; `bfecd02b` 2 884/30 387 INCHANGE, 0 debordement

@@ -191,9 +191,9 @@ type MovementStateStats struct {
 	// l attribution de slot du chemin d inference est partielle pour un record NEW (D13 de la
 	// note 5.3). Les attribuer a tort serait pire que de les jeter, et ce compteur dit le prix.
 	SlotUnbound int
-	// DatumBindings et DatumAmbiguous : ce que la TABLE DE DATUMS de l image-cle a ajoute au
-	// monde, et ses SLOTS AMBIGUS (un slot vu avec deux archetypes, ou ecarte en entier par la
-	// croissance des slots — cf. `grammar.TableDeDatums`, J10.5). La branche
+	// DatumBindings et DatumAmbiguous : ce que la TABLE D ENTITES de l image-cle (ses en-tetes, retrouves
+	// par leurs invariants) a pose au monde, et les SLOTS AMBIGUS (un slot dont un en-tete valide a ete
+	// ecarte par la croissance des emplacements — cf. `grammar.EntetesDeTable`). La branche
 	// vive de la boucle de records lit l archetype d un delta dans cette table
 	// (`FUN_1406cbaa0` cas DELTA) ; la marche d ancres ne la lit que le long de la CHAINE des
 	// records, et cette chaine se coupe. Sans ces deux compteurs, « N liaisons de plus » ne se

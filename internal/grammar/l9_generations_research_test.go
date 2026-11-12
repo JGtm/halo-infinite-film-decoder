@@ -266,9 +266,10 @@ func l9UnSlot(fc *FilmContext, id string, c, slot int) []string {
 			continue
 		}
 		var cands []string
-		for _, cd := range candidatsDeDatum(pk.Payload(data)) {
-			if int(cd.slot) == slot {
-				cands = append(cands, fmt.Sprintf("g%d ti%d @%d", cd.gen, cd.ti, cd.bit))
+		entrees, _ := EntetesDeTable(pk.Payload(data))
+		for _, e := range entrees {
+			if int(e.Slot()) == slot {
+				cands = append(cands, fmt.Sprintf("g%d ti%d", e.Gen(), e.TI))
 			}
 		}
 		e := DatumEntry{}

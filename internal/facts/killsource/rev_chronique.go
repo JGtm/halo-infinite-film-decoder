@@ -429,3 +429,8 @@ package killsource
 // marche complete, A2.V) : la VALEUR de `grammar.Rev` monte a `grammar-2026-11-12` ; aucune source de cette couche ne change. Sur la
 // mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne change. Les mesures de kills du banc de verite du
 // `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (table d entites d une image-cle retrouvee par les invariants de ses en-tetes, 2026-11-12, plan de la marche
+// complete, A2.H) : la VALEUR de `grammar.Rev` monte a `grammar-2026-11-12.2` ; aucune source de cette couche ne change. Sur la
+// mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne change. Les mesures de kills du banc de verite du
+// `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur. Golden regenere a revision constante.

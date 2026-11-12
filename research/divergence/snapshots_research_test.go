@@ -468,38 +468,6 @@ func dernierOp(h []opHist, c int) string {
 	return "cree_vu_par_le_temoin_sans_suppression"
 }
 
-// creationSizeTemoin : la taille de la structure de creation par type (`snapshot.rs::creation_size`, du
-// temoin) ; 0 pour les types sans structure.
-func creationSizeTemoin(ty uint32) uint32 {
-	switch ty {
-	case 3, 9, 22:
-		return 12
-	case 5:
-		return 2
-	case 6, 14, 17, 21, 24, 28, 47, 48:
-		return 4
-	case 7, 10:
-		return 8
-	case 11, 12, 20, 23, 29, 46, 49:
-		return 1
-	case 13:
-		return 136
-	case 35:
-		return 152
-	case 36, 43:
-		return 96
-	case 37, 38, 39:
-		return 104
-	case 40:
-		return 176
-	case 41, 44:
-		return 212
-	case 42:
-		return 168
-	}
-	return 0
-}
-
 func u32Bits(pay []byte, at int) uint32 {
 	var v uint32
 	for i := 0; i < 32; i++ {
@@ -512,49 +480,9 @@ func u32Bits(pay []byte, at int) uint32 {
 	return v
 }
 
-type enteteVu struct{ index, gen, ty uint32 }
-
-// balayageDEntetes est `snapshot::entity_table` du temoin : les entrees vivantes retrouvees par leur seul
-// en-tete (108 bits) et ses invariants, sans lire creation ni etat. `accepteGen0` : la variante qui garde
-// aussi la generation 0.
-func balayageDEntetes(pay []byte, accepteGen0 bool) []enteteVu {
-	total := len(pay) * 8
-	var out []enteteVu
-	next := uint32(0)
-	for at := 1; at < total-108-128; {
-		id := u32Bits(pay, at)
-		gen, index := id>>30, id&0x3fffffff
-		if (gen == 0 && !accepteGen0) || index >= 8192 || index < next {
-			at++
-			continue
-		}
-		ty := u32Bits(pay, at+32)
-		flags := u32Bits(pay, at+96) >> 20
-		if ty >= 64 || flags&0xe0 != 0 {
-			at++
-			continue
-		}
-		n := u32Bits(pay, at+108)
-		var ok bool
-		switch flags >> 8 {
-		case 0:
-			ok = u32Bits(pay, at+64) == 0xffffffff && n == 0 && u32Bits(pay, at+140) == 0
-		case 1, 3:
-			ok = n == creationSizeTemoin(ty)
-		}
-		if !ok {
-			at++
-			continue
-		}
-		out = append(out, enteteVu{index, gen, ty})
-		next = index + 1
-		at += 108
-	}
-	return out
-}
-
-// TestSnapScan : precision et rappel du balayage d en-tetes (seul, sans lecture de creation ni d etat) contre
-// la table que le temoin lit de bout en bout (`<id>_snap.tsv`, lignes `walk`).
+// TestSnapScan : la table d entites que la PRODUCTION lit dans l image-cle (`grammar.EntetesDeTable`, la recherche d en-tetes a
+// deux passes) contre la table que le temoin lit de bout en bout (`<id>_snap.tsv`) : entrees justes (emplacement, generation et type
+// egaux), de type ou de generation autre, manquees, en plus.
 func TestSnapScan(t *testing.T) {
 	racine, sdir, liste := os.Getenv("SNAP_RACINE"), os.Getenv("SNAP_SNAP"), os.Getenv("SNAP_FILMS")
 	if racine == "" || sdir == "" || liste == "" {
@@ -573,179 +501,7 @@ func TestSnapScan(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		{ // NOTRE table de datums (TableDeDatums), seule : sans la chaine des records, sans les NEW lus.
-			var w, trouvees, justes, autretype, manquees, enplus int
-			for c, W := range snaps {
-				data, pks, ok := fc.ChunkAt(c)
-				if !ok {
-					continue
-				}
-				for _, pk := range pks {
-					if pk.Type != grammar.PacketTypeKeyframe {
-						continue
-					}
-					table, _ := grammar.TableDeDatums(pk.Payload(data))
-					w += len(W)
-					trouvees += len(table)
-					for s, we := range W {
-						ti, ok := table[uint32(s)] //nolint:gosec // borne
-						switch {
-						case !ok:
-							manquees++
-						case int(ti) == we.ty:
-							justes++
-						default:
-							autretype++
-						}
-					}
-					for s := range table {
-						if _, ok := W[int(s)]; !ok {
-							enplus++
-						}
-					}
-				}
-			}
-			fmt.Printf("%s NOTRE TableDeDatums : temoin %d ; table %d ; type juste %d ; autre type %d ; manquees %d ; en plus %d\n", f.id, w, trouvees, justes, autretype, manquees, enplus)
-		}
-		for _, variante := range []bool{false} {
-			var w, trouvees, justes, fausses, manquees int
-			for c, W := range snaps {
-				data, pks, ok := fc.ChunkAt(c)
-				if !ok {
-					continue
-				}
-				for _, pk := range pks {
-					if pk.Type != grammar.PacketTypeKeyframe {
-						continue
-					}
-					got := balayageDEntetes(pk.Payload(data), variante)
-					vus := map[uint32]enteteVu{}
-					for _, e := range got {
-						vus[e.index] = e
-					}
-					w += len(W)
-					trouvees += len(got)
-					for s, we := range W {
-						if g, ok := vus[uint32(s)]; ok && int(g.gen) == we.gen && int(g.ty) == we.ty { //nolint:gosec // borne
-							justes++
-						} else {
-							manquees++
-						}
-					}
-					fausses += len(got) - justesDe(got, W)
-				}
-			}
-			fmt.Printf("%s gen0=%v : temoin %d ; balayage %d ; justes %d ; manquees %d ; fausses %d\n", f.id, variante, w, trouvees, justes, manquees, fausses)
-		}
-	}
-}
-
-func justesDe(got []enteteVu, W map[int]entiteTemoin) int {
-	n := 0
-	for _, g := range got {
-		if we, ok := W[int(g.index)]; ok && int(g.gen) == we.gen && int(g.ty) == we.ty {
-			n++
-		}
-	}
-	return n
-}
-
-type enteteVuAt struct {
-	enteteVu
-	at int
-}
-
-// enteteSurLePlan lit l en-tete candidat a `at` selon les invariants du temoin ; ok faux sinon.
-func enteteSurLePlan(pay []byte, at int, accepteGen0 bool) (enteteVuAt, bool) {
-	id := u32Bits(pay, at)
-	gen, index := id>>30, id&0x3fffffff
-	if (gen == 0 && !accepteGen0) || index >= 8192 {
-		return enteteVuAt{}, false
-	}
-	ty := u32Bits(pay, at+32)
-	flags := u32Bits(pay, at+96) >> 20
-	if ty >= 64 || flags&0xe0 != 0 {
-		return enteteVuAt{}, false
-	}
-	n := u32Bits(pay, at+108)
-	var ok bool
-	switch flags >> 8 {
-	case 0:
-		ok = u32Bits(pay, at+64) == 0xffffffff && n == 0 && u32Bits(pay, at+140) == 0
-	case 1, 3:
-		ok = n == creationSizeTemoin(ty)
-	}
-	return enteteVuAt{enteteVu{index, gen, ty}, at}, ok
-}
-
-// balayageEntier : la passe du temoin (generation non nulle), puis, entre deux entrees retenues, une seconde passe
-// qui accepte la generation 0 pour un index STRICTEMENT compris entre les deux voisines.
-func balayageEntier(pay []byte) []enteteVu {
-	total := len(pay) * 8
-	var passe1 []enteteVuAt
-	next := uint32(0)
-	for at := 1; at < total-108-128; {
-		e, ok := enteteSurLePlan(pay, at, false)
-		if !ok || e.index < next {
-			at++
-			continue
-		}
-		passe1 = append(passe1, e)
-		next = e.index + 1
-		at += 108
-	}
-	// bornes fictives : avant la premiere et apres la derniere
-	bornes := append([]enteteVuAt{{enteteVu{index: 0}, 0}}, passe1...)
-	bornes = append(bornes, enteteVuAt{enteteVu{index: 8192}, total})
-	out := make([]enteteVu, 0, len(passe1)+64)
-	for k := 0; k+1 < len(bornes); k++ {
-		a, b := bornes[k], bornes[k+1]
-		if k > 0 {
-			out = append(out, a.enteteVu)
-		}
-		lo := a.index + 1
-		if k == 0 {
-			lo = 0
-		}
-		debut := a.at + 108
-		if k == 0 {
-			debut = 1
-		}
-		next := lo
-		for at := debut; at < b.at-108 && at < total-108-128; {
-			e, ok := enteteSurLePlan(pay, at, true)
-			if !ok || e.gen != 0 || e.index < next || e.index >= b.index {
-				at++
-				continue
-			}
-			out = append(out, e.enteteVu)
-			next = e.index + 1
-			at += 108
-		}
-	}
-	return out
-}
-
-// TestSnapScanEntier : le balayage a deux passes contre la table du temoin.
-func TestSnapScanEntier(t *testing.T) {
-	racine, sdir, liste := os.Getenv("SNAP_RACINE"), os.Getenv("SNAP_SNAP"), os.Getenv("SNAP_FILMS")
-	if racine == "" || sdir == "" || liste == "" {
-		t.Skip("SNAP_RACINE, SNAP_SNAP, SNAP_FILMS requis")
-	}
-	films, err := lireLesFilms(liste)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, f := range films {
-		fc, err := ouvrirFilm(racine, f.id, f.niveau, nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-		snaps, err := lireSnap(filepath.Join(sdir, f.id+"_snap.tsv"))
-		if err != nil {
-			t.Fatal(err)
-		}
-		var w, trouvees, justes, manquees, fausses int
+		var w, trouvees, justes, autretype, autregen, manquees, enplus, ecartes int
 		for c, W := range snaps {
 			data, pks, ok := fc.ChunkAt(c)
 			if !ok {
@@ -755,24 +511,36 @@ func TestSnapScanEntier(t *testing.T) {
 				if pk.Type != grammar.PacketTypeKeyframe {
 					continue
 				}
-				got := balayageEntier(pk.Payload(data))
-				vus := map[uint32]enteteVu{}
-				for _, e := range got {
-					vus[e.index] = e
+				entrees, ec := grammar.EntetesDeTable(pk.Payload(data))
+				ecartes += ec
+				vus := map[int]grammar.EnteteDeTable{}
+				for _, e := range entrees {
+					vus[int(e.Slot())] = e
 				}
 				w += len(W)
-				trouvees += len(got)
+				trouvees += len(entrees)
 				for s, we := range W {
-					if g, ok := vus[uint32(s)]; ok && int(g.gen) == we.gen && int(g.ty) == we.ty { //nolint:gosec // borne
-						justes++
-					} else {
+					e, ok := vus[s]
+					switch {
+					case !ok:
 						manquees++
+					case int(e.TI) != we.ty:
+						autretype++
+					case int(e.Gen()) != we.gen:
+						autregen++
+					default:
+						justes++
 					}
 				}
-				fausses += len(got) - justesDe(got, W)
+				for s := range vus {
+					if _, ok := W[s]; !ok {
+						enplus++
+					}
+				}
 			}
 		}
-		fmt.Printf("%s DEUX PASSES : temoin %d ; balayage %d ; justes %d ; manquees %d ; fausses %d\n", f.id, w, trouvees, justes, manquees, fausses)
+		fmt.Printf("%s TABLE DE PRODUCTION : temoin %d ; table %d ; justes %d ; autre type %d ; autre generation %d ; manquees %d ; en plus %d ; slots ecartes %d\n",
+			f.id, w, trouvees, justes, autretype, autregen, manquees, enplus, ecartes)
 	}
 }
 

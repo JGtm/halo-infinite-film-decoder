@@ -5,9 +5,9 @@ package grammar
 //
 // # L IMAGE-CLE EST L ETAT COMPLET, ET ELLE DIT AUSSI QUI N EST PLUS LA
 //
-// `FUN_142f2e174` parcourt la table de sa vue et rend UN MOT PAR ENTITE VIVANTE (cf.
-// `keyframe_datums.go`) : une image-cle porte toutes les entites vivantes a son instant, et
-// seulement elles. Les deux marches de trames qui lient le monde depuis les images-cles (etats
+// L image-cle porte la table d entites du morceau, une entree par emplacement (`FUN_142e2bfd0`, cf.
+// `keyframe_datums.go`) : toutes les entites vivantes a son instant, et les restes des entites supprimees
+// dont l emplacement n a pas ete realloue. Les deux marches de trames qui lient le monde depuis les images-cles (etats
 // de mouvement, dotations de naissance) ne lisaient d elle que ce qu elle PORTE ; une liaison
 // posee par le flux (record NEW propre, [World.BindFull]) ne tombait que sur un record DEL LU.
 // Qu un DEL ne soit pas lu — paquet desynchronise avant lui, paquet a evenements non localise —
@@ -40,8 +40,6 @@ package grammar
 // refus recoit son verdict a la PREMIERE image-cle du chunk suivant, avant l oubli et les liaisons.
 
 import (
-	"maps"
-
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/lecture"
 )
 
@@ -81,18 +79,18 @@ func (o *Observation) solderLesNeufsRefuses() {
 
 // LiaisonDUnChunk : ce que la liaison des images-cles d un chunk a fait au monde.
 type LiaisonDUnChunk struct {
-	// Datums / Ambigus : les liaisons que la table de datums a posees, et ses candidats ecartes.
+	// Datums / Ambigus : les liaisons que la table d entites a posees, et ses emplacements ecartes.
 	Datums, Ambigus int
 	// Oubliees : les liaisons retirees parce qu aucune lecture de l image-cle ne porte leur slot.
 	Oubliees int
 }
 
 // declarationDImageCle est ce qu UNE image-cle declare au monde : la chaine de ses records et les
-// candidats que la marche d ancres a ecartes ([MarcheDePayload]), et sa table de datums, lue a
+// candidats que la marche d ancres a ecartes ([MarcheDePayload]), et sa table d entites, lue a
 // position libre ([TableDeDatums] : la recuperation que la liaison [lecture.LiaisonDatum] marque).
 type declarationDImageCle struct {
 	ancres  MarcheDePayload
-	table   map[uint32]uint32
+	table   map[uint32]EnteteDeTable
 	ambigus int
 }
 
@@ -153,13 +151,15 @@ func lierLesImagesClesDuChunk(w *World, decls []declarationDImageCle, obs *Obser
 	return out
 }
 
-// archetypesDeclares rend l archetype que l image-cle donne a chaque slot : la chaine de ses records
-// d abord, la table de datums pour les slots que la chaine n a pas atteints.
-func archetypesDeclares(recs []KeyframeRec, table map[uint32]uint32) map[uint32]uint32 {
+// archetypesDeclares rend l archetype que l image-cle donne a chaque slot : la chaine de ses records, puis la
+// table d entites, qui prime sur elle quand les deux different (c est la table du jeu, cf. [lierLesDatums]).
+func archetypesDeclares(recs []KeyframeRec, table map[uint32]EnteteDeTable) map[uint32]uint32 {
 	out := make(map[uint32]uint32, len(recs)+len(table))
-	maps.Copy(out, table)
 	for _, r := range recs {
 		out[uint32(r.Slot)] = uint32(r.TI) //nolint:gosec // slot et TI bornes par le walker
+	}
+	for s, e := range table {
+		out[s] = e.TI
 	}
 	return out
 }
