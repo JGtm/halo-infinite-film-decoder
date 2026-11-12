@@ -86,6 +86,11 @@ type VehicleScan struct {
 	// morts — aucune lecture de film supplementaire. Absentes : les episodes sortent sans siege,
 	// jamais avec un siege suppose.
 	Occupancy []types.VehicleOccupancy
+	// BipedDeaths sont les MORTS ECRITES des bipedes (`ti=35`) : le meme composant `object-dead-state`,
+	// lu par la meme marche. Le dead-state d un bipede porte l index de la victime (`EnumA`), celui du
+	// tueur (`EnumB`) et l effet de degat (`SrcTag0`). Avec `Occupancy`, il dit QUI est mort avec un
+	// vehicule detruit (vehicle_destruction_killed.go). Absentes : aucun occupant tue ne se publie.
+	BipedDeaths []types.ObjectDeath
 	// DeathStats porte les denominateurs de cette lecture (cadre de la marche, paquets localises,
 	// records par archetype, controle de masque). ILS VOYAGENT AVEC LA LISTE : une liste vide
 	// sans eux serait indistinguable d un film ou aucun vehicule ne meurt.
@@ -189,10 +194,10 @@ func LireLesVehicules(fc *grammar.FilmContext, wr *profile.Vec3Range) (Vehicules
 	return out, nil
 }
 
-// mortsDeVehicule rend les MORTS ECRITES des vehicules et les lectures d occupation que la marche
-// des trames a lues ([grammar.ScanMarcheDesTrames], canal des morts) — la SIXIEME lecture du
-// calque, et la seule qui passe par la MARCHE plutot que par une ancre : le film ecrit les deux
-// sur les MEMES records, que la marche traverse de toute facon.
+// mortsDeVehicule rend les MORTS ECRITES des vehicules et des bipedes, et les lectures d occupation,
+// que la marche des trames a lues ([grammar.ScanMarcheDesTrames], canal des morts) — la SIXIEME lecture
+// du calque, et la seule qui passe par la MARCHE plutot que par une ancre : le film ecrit les trois sur
+// les MEMES records, que la marche traverse de toute facon.
 //
 // ADDITIVE ET NON FATALE, meme doctrine que les evenements et les visees : une marche illisible
 // rend les fins de vie a la seule borne de recensement (`end = "unknown"`), jamais une destruction
@@ -201,19 +206,26 @@ func LireLesVehicules(fc *grammar.FilmContext, wr *profile.Vec3Range) (Vehicules
 // ELLE FILTRE SUR L ARCHETYPE, PAS SUR LA BANDE. La marche range par `TypeIndex` ; un slot lie a
 // `ti=40` par un record NEW en cours de flux est donc garde, alors que la bande des images-cles
 // l aurait perdu (2 a 5 morts par film chez le bipede, mesure V13 gate G1a).
-func mortsDeVehicule(ctx context.Context, matchID string, m grammar.MarcheDesTrames,
-) ([]types.ObjectDeath, []types.VehicleOccupancy, grammar.ObjectDeathStats) {
-	out := make([]types.ObjectDeath, 0, len(m.ObjectDeaths))
+func mortsDeVehicule(ctx context.Context, matchID string, m grammar.MarcheDesTrames) mortsDeLaMarche {
+	out := mortsDeLaMarche{Occupancy: m.Occupancy, Stats: m.ObjectDeathStats}
 	for _, d := range m.ObjectDeaths {
-		if d.TypeIndex == uint32(grammar.VehicleTypeIndex) {
-			out = append(out, d)
+		switch d.TypeIndex {
+		case uint32(grammar.VehicleTypeIndex):
+			out.Vehicles = append(out.Vehicles, d)
+		case uint32(grammar.BipedTypeIndex):
+			out.Bipeds = append(out.Bipeds, d)
 		}
 	}
-	logVehicleDeathReads(ctx, matchID, len(m.ObjectDeaths), len(out), m.ObjectDeathStats)
-	if len(out) == 0 {
-		return nil, m.Occupancy, m.ObjectDeathStats
-	}
-	return out, m.Occupancy, m.ObjectDeathStats
+	logVehicleDeathReads(ctx, matchID, len(m.ObjectDeaths), len(out.Vehicles), m.ObjectDeathStats)
+	return out
+}
+
+// mortsDeLaMarche est ce que le calque des vehicules prend du canal des morts : les dead-states des
+// vehicules et des bipedes, les lectures d occupation, et les denominateurs de la lecture.
+type mortsDeLaMarche struct {
+	Vehicles, Bipeds []types.ObjectDeath
+	Occupancy        []types.VehicleOccupancy
+	Stats            grammar.ObjectDeathStats
 }
 
 // logVehicleDeathReads dit CE QUE LA MARCHE A VU, et c est le denominateur sans lequel « 20 morts

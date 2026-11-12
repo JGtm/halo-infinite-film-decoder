@@ -287,7 +287,7 @@ func encodeVehicleScan(w *gwriter, s VehicleScan) {
 	encodePositionSection(w, s.Positions)
 	encodeVehicleEvents(w, s.Events)
 	encodeVehicleAims(w, s.Aims)
-	encodeMortsDObjet(w, s.Deaths, s.DeathStats)
+	encodeMortsDObjet(w, s.Deaths, s.BipedDeaths, s.DeathStats)
 	encodeVehicleOccupancy(w, s.Occupancy)
 }
 
@@ -299,7 +299,7 @@ func decodeVehicleScan(r *greader, lay profile.I0Layout, world profile.Vec3Range
 	s.Positions = decodePositionSection(r, lay, world)
 	s.Events = decodeVehicleEvents(r)
 	s.Aims = decodeVehicleAims(r)
-	s.Deaths, s.DeathStats = decodeMortsDObjet(r)
+	s.Deaths, s.BipedDeaths, s.DeathStats = decodeMortsDObjet(r)
 	s.Occupancy = decodeVehicleOccupancy(r)
 	return s
 }

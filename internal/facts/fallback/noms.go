@@ -104,8 +104,6 @@ const (
 	NomTourelleMonteeLoinDuPorteur Nom = "repli_tourelle_montee_loin_du_porteur"
 	// NomEpisodeBorneParLaVieSuivante : `replay/vehicle_rides_next_life.go`, `cutRidesAtNextLife`.
 	NomEpisodeBorneParLaVieSuivante Nom = "repli_episode_borne_par_la_vie_suivante"
-	// NomOccupantsTuesParProximiteDeMort : `replay/vehicle_destruction.go`, `killedAmong`.
-	NomOccupantsTuesParProximiteDeMort Nom = "repli_occupants_tues_par_proximite_de_mort"
 	// NomZoneCampDeCaptureDeduitDeLIssue : `replay/zone_states_capturer.go`,
 	// `zoneRampCapturerDeduit`.
 	NomZoneCampDeCaptureDeduitDeLIssue Nom = "repli_zone_camp_de_capture_deduit_de_l_issue"

@@ -315,6 +315,8 @@ decoder read, from the chunk's keyframe (record chain or header search), by anti
 player; 14 crew; 21 flock; 35 biped (a player's body); 37 equipment or item; 38 generic rigid body; 40 vehicle (presumed); 41
 projectile; 42 ground weapon; 43 device. libfilmshell also names 36 (item) and 39 (rigid body), which this table leaves unnamed.
 
+**Death and parenting.** An entity that dies writes its own dead-state component (`object-dead-state`, `i11` on archetypes 35 and 40) in the packet where it dies: a vehicle's carries the killer's player index and the damage effect, a biped's also the victim's player index. A biped inside a vehicle is not linked to it from the vehicle side; the biped's own parent-state component (`object-parent-state`, `i10`) is a transition, attached to a parent entity or free, and the last one before the biped's death says what it was in. A player killed with a destroyed vehicle is therefore read from two facts, with no time window: the biped's dead-state is written in the vehicle's death packet (or in a later packet that also writes the biped's free read), and the biped's last parent state before it was attached to the vehicle or to a part mounted on it. A death whose damage effect is the end-of-round cleanup (4208020) is not counted.
+
 **Status.** Read: record type, id, mask, and the components with a ported reader, in NEW and DELTA records. Recovered: the
 archetype of a slot with no NEW in view, from the bindings above; records anchored by header patterns where a body cannot be
 read: biped records, world-object tracks and creations (bit passes after the walk), scoreboard records, and kills of a view A that

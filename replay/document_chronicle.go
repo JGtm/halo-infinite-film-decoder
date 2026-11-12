@@ -3804,3 +3804,45 @@ package replay
 //
 // LE PARC         un artefact 108 : verdict `a republier` (la couche de publication a change, les faits cuits
 //                 restent frais et portent deja les deux champs lus). Aucun redecodage de film.
+
+// v110 (2026-11-12, occupants tues lus). Le film ecrit QUI EST MORT AVEC UN VEHICULE DETRUIT ; `vehicles[].destruction.killed`
+// le lit au lieu de le deduire. Aucun champ neuf : `killed` change de contenu, et deux compteurs de `coverage.vehicles.destructions`
+// remplacent celui de la jointure.
+//
+// CE QUE LE FILM ECRIT. Un occupant tue avec son vehicule ecrit son PROPRE dead-state (le meme composant que le vehicule,
+// `object-dead-state`), dans le meme paquet que celui du vehicule (969 occupants sur 1 051 dans les 109 films a vehicules du parc), et
+// son etat de parente (`object-parent-state`, une transition : rattache a un parent, ou libre) dit de quel vehicule il etait rattache.
+// Le dead-state d un bipede porte l index de la VICTIME (`EnumA`, egal a `roster[].filmIndex`), celui du tueur (`EnumB`) et l effet de
+// degat (`SrcTag0`). La jointure par proximite (fenetre de 500 ms sur le fil des morts) ne lisait rien de cela.
+//
+// LA REGLE (`vehicle_destruction_killed.go`, aucune fenetre de temps ni distance). Soit V un chassis `destroyed`, P le paquet de son
+// dead-state, G les vies (slot, generation) dont le dead-state est ecrit dans P et qui sont V ou ses pieces montees. Le bipede B est
+// mort avec V quand il a un dead-state dans un paquet Pb >= P tel que sa derniere lecture de parente STRICTEMENT avant Pb est
+// « attache » a un parent de G, et que Pb == P ou que le paquet Pb porte la lecture « libre » de B. Un bipede dont l effet de degat est
+// le nettoyage de fin de manche (4208020) n est pas tue avec son vehicule.
+//
+//	`vehicles[].destruction.killed`   les xuids des joueurs morts avec le vehicule, tries. L identite est celle du film
+//	                 (`roster[].filmIndex == EnumA` du bipede), plus celle du pont slot -> xuid des episodes : `killed` ne depend plus de
+//	                 `rides[]` ni de leur tolerance « a bord », et un mort que les episodes ne portent pas se publie. Une victime sans
+//	                 joueur nommable (bot, index absent, hors roster ou ambigu) ne se publie pas.
+//	`vehicles[].destruction.occupant`   inchange : l occupant a l instant reste DEDUIT des episodes.
+//	`coverage.vehicles.destructions`   `killed` et `killedOccupants` (destructions qui portent un tue publie, et leur nombre total) ;
+//	                 `killedNoIdentity` (bipedes morts avec le vehicule, sans joueur nommable : lus, non publies) ; `killedCleanup`
+//	                 (morts de nettoyage de fin de manche ecartees). `clockUnknown` disparait : plus aucune mort n est cherchee sur le fil.
+//	`coverage.fallbacks[]`   `repli_occupants_tues_par_proximite_de_mort` n est plus declare : le repli, sa fenetre
+//	                 (`vehicleDestructionKilledWindowMS`) et son lecteur (`killedAmong`, `diedWithin`) sont retires.
+//
+// MESURE (dix films du parc : 82 occupants tues publies par la proximite avant, 81 par la lecture, 81 par la regle de la recherche
+// sur les memes films, restreinte aux occupants des episodes) : huit films ou la lecture et la regle coincident exactement ; 084a804d :
+// un occupant que la regle comptait porte l effet 4208020 (ecarte, compte a part) ; 11de8353 : un occupant rattache au vehicule et
+// mort dans son paquet, que les episodes ne portent pas (episode clos 9 images avant la destruction), est publie. Face a la
+// proximite : 084a804d 25 -> 23, 4f77afc1 33 -> 34, e5adf7b2 8 -> 7, 11de8353 5 -> 6, les six autres films inchanges. Les
+// dead-states de bipede pesent 23 a 122 ko de JSON par film dans les faits (91 a 475 morts).
+//
+// CE QUI MONTE    `SchemaVersion` 109 -> 110, et avec lui `publication-110`. `SchemaDesFaits` 20 -> 21 : la section des morts d objet
+// AVEC ELLE       porte les dead-states des bipedes (`VehicleScan.BipedDeaths`), que la marche rendait deja et que la cuisson filtrait.
+//                 Aucune revision de couche hachee ne bouge : aucune source de `source`, `profile`, `grammar`, `killsource` ni
+//                 `objectives` ne change. Le filtre est dans `replay`, couche de publication.
+//
+// LE PARC         un artefact 109 : verdict `a redecoder` (les faits cuits au schema 20 se refusent sur leur en-tete : sans les morts de
+//                 bipede, une relecture publierait un `killed` vide). La recuisson est une decision de l utilisateur.

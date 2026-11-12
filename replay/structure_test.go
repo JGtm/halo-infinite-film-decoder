@@ -1486,8 +1486,13 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   tués déduits des épisodes et du fil des morts) et bloc `coverage.vehicles.destructions`. La forme cuite change :
 	//   le gel de forme exige la montée. Assemblage seul, aucune révision de décodage ne monte (les faits portent déjà
 	//   le dead-state entier) : un v108 se lit « à republier ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 109 {
-		t.Fatalf("SchemaVersion = %d, attendu 109 : incrémenter exige une raison écrite ci-dessus "+
+	// - 110 (2026-11-12, occupants tués lus) : `vehicles[].destruction.killed` est LU dans le film (le dead-state du bipède et
+	//   son état de parenté) au lieu d'être déduit par proximité de mort ; le repli `repli_occupants_tues_par_proximite_de_mort`
+	//   et son compteur `coverage.vehicles.destructions.clockUnknown` disparaissent, `killedNoIdentity` et `killedCleanup`
+	//   s'ajoutent. `SchemaDesFaits` monte (20 -> 21 : les faits portent les morts de bipède) : un v109 se lit « à redécoder ».
+	//   Détail : `document_chronicle.go`.
+	if SchemaVersion != 110 {
+		t.Fatalf("SchemaVersion = %d, attendu 110 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }
