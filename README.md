@@ -17,7 +17,7 @@ One module, five layers, each one reading only the layer below (ADR 0034):
 | Layer | Role |
 |---|---|
 | `source` | the only door to a film's bytes: loads the chunks of a directory, or of a `Source` you provide, and inflates them |
-| `profile` | the immutable decoding profile of a build of the game: one table per build, each line carrying its proof |
+| `profile` | the immutable decoding profile: one table keyed by what the film writes (format version, build, major version), each line carrying its proof |
 | `grammar` | the reading of the film's bit stream: records, entities, key frames, players, kill feed, weapon use |
 | `facts` | what the grammar says about a match: kill sources, objectives, scores, and the documented fallbacks with their counters |
 | `replay` | the publication layer: the `ReplayDocument` (tracks, events, scores, vehicles, equipment); its schema version is `replay.SchemaVersion` |
@@ -47,6 +47,28 @@ The four lower layers live under `internal/`, so the compiler closes them. What 
   at the ceiling is yours.
 - No game data: the film bytes are yours. The module ships none of the game's files, only the small name
   tables listed in `NOTICE.md`.
+
+## How it reads a film
+
+A film is a header chunk, replay chunks and a highlights chunk. The decoder reads the header's component registry, versions
+and build identity to learn how to read the rest, walks the packets of each replay chunk, and reads every delta packet (one
+tick) in three views, events, entities and control, with the widths that the profile and the map catalogue give. Where the film
+writes no length or count, the decoder does not guess silently: it uses a fallback or a recovery that is named, counted and
+published with the replay document. `decfilm.ReadMatchInfo` reads, from the header chunk alone, what chunk 0 says of the match
+(game variant fields, map-variant ids, start time).
+
+[`FORMAT.md`](FORMAT.md) describes the format level by level and says, for each part, what is read, what is recovered and what
+is not read. [`GLOSSARY.md`](GLOSSARY.md) maps the French vocabulary of the sources to English and to the names used by
+libfilmshell (OpenSpartan, MIT), a Rust decoder of the same format.
+
+A delta packet is *closed* when the reading ends on its last terminator with at most seven zero bits left. The share of packets
+read to the end, measured on 2026-11-12 on 38 films:
+
+| Build | HI_1_13_0 | HI_1_12_0 | HI_1_11_0 | HI_1_10_0 | HI_1_9_0 | HI_1_8_0 |
+|---|---|---|---|---|---|---|
+| Closed packets | 99.85 % | 99.95 % | 99.85 % | 96.56 % | 98.81 % | 73.43 % |
+
+Closure says that packet widths are right, not that every field is decoded; see `FORMAT.md` section 9.
 
 ## Install
 
