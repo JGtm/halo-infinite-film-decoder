@@ -37,7 +37,8 @@ package grammar
 // est la premiere lecture de `FUN_14076cb60`, `FUN_1406d7610`). Le lecteur d image-cle
 // `FUN_141f86704` porte la meme regle. `vtable[0x30]` vaut `0x1408f2130` (masque VIDE) pour
 // ti = 7, 8, 13, 14, 20, 23, 28, 29, 31, 46, 47 et 49 ; tous les autres archetypes rendent un
-// masque non vide. Le Go lit toujours porte puis masque.
+// masque non vide. Le Go lit toujours porte puis masque sur un build dont le profil n etablit pas
+// la creation par porte ; il suit la regle du jeu sur les autres ([GrammaireBalayage.CreationParPorte]).
 //
 // Mesure (carte de fermeture, `cmd_fermeture`, huit films des fixtures, paquets fermes / listes
 // d evenements fermees), la regle du jeu appliquee a TOUS les archetypes avec `DAT_144c232e1` nul

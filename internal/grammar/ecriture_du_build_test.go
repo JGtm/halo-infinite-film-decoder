@@ -186,3 +186,15 @@ func TestLeContexteDeFilmRendLesEcrituresDeSonBuild(t *testing.T) {
 		}
 	}
 }
+
+// TestLaListeDesMasquesDeCreationVides epingle la liste entiere de [masqueDeCreationVide] : une porte lue pour un
+// archetype qui n en ecrit pas, ou sautee pour un archetype qui en ecrit une, decale tout le reste du paquet sans
+// que rien ne le signale. Les archetypes 8 et 31 gardent leur porte.
+func TestLaListeDesMasquesDeCreationVides(t *testing.T) {
+	vides := map[uint32]bool{7: true, 13: true, 14: true, 20: true, 23: true, 28: true, 29: true, 46: true, 47: true, 49: true}
+	for ti := uint32(0); ti < 64; ti++ {
+		if got := masqueDeCreationVide(ti); got != vides[ti] {
+			t.Errorf("masqueDeCreationVide(%d) = %v, attendu %v", ti, got, vides[ti])
+		}
+	}
+}
