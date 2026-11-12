@@ -262,6 +262,33 @@ func TestVolRapideSeLitAToutePhaseDeLaGrille(t *testing.T) {
 	}
 }
 
+// TestBorneDeVolPorteSurLaDureeEntreEchantillonsRetenus : un vol a 120 m/s dont les echantillons lus sont
+// espaces de 100 ms (12 m) sur une grille de 33 ms n'est pas coupe. Une borne appliquee au pas de la
+// grille (6,6 m a 33 ms) le couperait : c'est la duree REELLE entre deux echantillons retenus qui compte.
+func TestBorneDeVolPorteSurLaDureeEntreEchantillonsRetenus(t *testing.T) {
+	const (
+		pasUS      = 33_000
+		ecartUS    = 100_000
+		origine    = 1_000_000
+		metresParS = 120.0
+	)
+	pts := make([]types.ProjectileSample, 5)
+	for i := range pts {
+		pts[i] = types.ProjectileSample{
+			TimestampUS: origine + uint64(i)*ecartUS,
+			X:           float32(float64(i) * metresParS * ecartUS / 1e6),
+		}
+	}
+	pts[len(pts)-1].AtRest = true
+	out, _, tronquees := buildProjectiles([]types.ProjectileTrack{{Slot: 4096, Gen: 1, Pts: pts}}, origine, pasUS, nil, nil)
+	if tronquees != 0 {
+		t.Fatalf("un vol a 120 m/s lu tous les 100 ms est coupe sur une grille de 33 ms (tronquees = %d)", tronquees)
+	}
+	if len(out) != 1 || len(out[0].P) != len(pts) {
+		t.Errorf("vol incomplet : %+v", out)
+	}
+}
+
 // TestArriveeDuGrappinBorneeParUnInstant : la fenetre de recherche de l'arrivee se ferme 2,5 s apres
 // l'accroche REELLE, a toute cadence. Une trajectoire qui se rapproche de l'ancre sans jamais l'atteindre
 // a son point le plus proche au bout de la fenetre : l'arrivee est la derniere frame dont le debut
