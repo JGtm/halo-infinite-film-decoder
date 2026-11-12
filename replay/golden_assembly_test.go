@@ -97,8 +97,8 @@ const (
 	// wantGrenadesAvailable : 70 lancers decodes — le DENOMINATEUR, et il ne bouge pas. Un
 	// rattachement qui s abstient se compte ; il ne se retire pas du disponible.
 	wantGrenadesAvailable = 70
-	// wantProjectiles : 607 trajectoires publiees sur 608 pistes decodees (pas de 33 ms : 463 a 100 ms,
-	// les vols de moins de 100 ms se publient), dont 10 COUPEES a un pas impossible (projectileMaxStepM).
+	// wantProjectiles : 608 trajectoires publiees sur 608 pistes decodees (463 avant le schema 110 : les vols
+	// de moins de 100 ms se publient), dont 0 COUPEE a un pas impossible (projectileMaxStepM, 200 m/s).
 	//
 	// CORRIGE LE 2026-10-22 (lot detonations) : 436/580/3 (fige au 2026-09-11) etait PERIME
 	// depuis le lot qui a porte `grammar.Rev` a `grammar-2026-10-21` (v101, chronique : « les
@@ -106,12 +106,12 @@ const (
 	// — ce fixture n avait pas ete regenere avec ce lot. La regeneration forcee par le codec des
 	// faits v29 de CE lot (sans rapport avec le decodage des projectiles) l a rattrape ; la
 	// difference n a rien a voir avec les detonations.
-	wantProjectiles = 607
+	wantProjectiles = 608
 	// wantProjectileTracks / wantProjectilesTruncated : le denominateur et le chiffre qui doit
 	// rester sous les yeux. Tant que la seconde n est pas nulle, l artefact porte des vols dont
 	// la fin est INCONNUE, et la cause vit dans la dequantification (`grammar`), pas ici.
 	wantProjectileTracks     = 608
-	wantProjectilesTruncated = 10
+	wantProjectilesTruncated = 0
 	// wantInventory : 192 etats publies (184 avant M3.1 : 8 bipedes que la marche perdait).
 	wantInventory = 192
 	// wantIndexReadings : 26 chunks de replication livrent la MEME table identite -> index.

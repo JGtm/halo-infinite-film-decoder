@@ -61,10 +61,10 @@ type Projectile struct {
 	Shot *int `json:"shot,omitempty"`
 }
 
-// projectileMaxSpeedMPS borne la vitesse d'un projectile entre deux points de la grille, en mètres
+// projectileMaxSpeedMPS borne la vitesse d'un projectile entre deux échantillons retenus, en mètres
 // par seconde. Au-delà, ce n'est plus une lecture : c'est un artefact de déquantification. Le
-// déplacement maximal d'un pas s'en déduit avec le pas du document ([projectileMaxStepM]), si bien
-// que la coupure ne dépend pas de la cadence.
+// déplacement maximal se déduit de la durée RÉELLE entre les deux échantillons ([projectileMaxStepM]),
+// si bien que la coupure ne dépend pas de la cadence de la grille.
 //
 // LE DÉFAUT MESURÉ, ET POURQUOI CE GARDE-FOU EXISTE. Sur les 76 artefacts du parc (schéma 51,
 // 2026-09-11), 947 trajectoires sur 15 735 — 6,0 % — portent au moins un pas impossible, soit
@@ -80,16 +80,30 @@ type Projectile struct {
 // ici est la PUBLICATION d'une position fausse, qui faisait tracer au client une droite en
 // travers de toute la carte, à 300 m/s et plus.
 //
-// 100 m/s laisse passer tout projectile du jeu (une grenade tient sous 20 m/s, une roquette
-// sous 30) et ne coupe que l'impossible. C'est aussi le seuil que le filtre de vitesse des bipèdes
-// emploie déjà, pour la même raison.
-const projectileMaxSpeedMPS = 100
+// LA BORNE EST UNE VITESSE, APPLIQUEE A LA DUREE REELLE ENTRE DEUX ECHANTILLONS RETENUS, et non au pas
+// de la grille. Les deux horloges sont independantes : le premier echantillon de chaque frame est
+// separe du precedent d'une duree qui va d'un record (16,7 ms, les records arrivent a 60 Hz) a pres de
+// deux pas, si bien qu'une borne en metres par pas laissait passer ou coupait un meme vol selon la
+// phase de la grille, et coupait tout vol a la grille de 33 ms.
+//
+// 200 m/s, ET NON 100 : le jeu a des projectiles RAPIDES. Mesure (8 films de reference, 2026-11-12) :
+// une quarantaine de vols vont a 112-125 m/s (2,00 m par record de 16,7 ms) ; la borne de 100 m/s
+// les coupait des leur premier pas (52 vols coupes a 100 ms, 67 a 33 ms), de vrais vols lus comme un
+// artefact. L'artefact, lui, est a 240 m/s et plus (le saut d'un bit : 3,8 a 23 m en un record).
+// 200 m/s laisse 1,6 fois la vitesse des vols les plus rapides, pour la gigue des horodatages (un
+// vol a 120 m/s mesure jusqu'a 151 m/s entre deux paquets mal espaces).
+const projectileMaxSpeedMPS = 200
 
-// projectileMaxStepM est le déplacement maximal, en mètres, entre deux points consécutifs d'une grille
-// de pas `stepUS` (microsecondes) : [projectileMaxSpeedMPS] fois la durée du pas. Un pas de 100 ms
-// rend 10 m.
-func projectileMaxStepM(stepUS uint64) float64 {
-	return projectileMaxSpeedMPS * float64(stepUS) / 1e6
+// projectileMinElapsedUS est la durée plancher, en microsecondes, d'une comparaison : un record du jeu
+// (60 Hz). Deux échantillons plus rapprochés se jugent comme s'ils l'étaient d'un record, sans quoi la
+// gigue d'un horodatage ferait d'un pas de quelques centimètres une vitesse énorme.
+const projectileMinElapsedUS = 16_000
+
+// projectileMaxStepM est le déplacement maximal, en mètres, entre deux échantillons retenus séparés de
+// `dureeUS` microsecondes : [projectileMaxSpeedMPS] fois cette durée, au moins [projectileMinElapsedUS].
+// Pour 100 ms, 20 m.
+func projectileMaxStepM(dureeUS uint64) float64 {
+	return projectileMaxSpeedMPS * float64(max(dureeUS, projectileMinElapsedUS)) / 1e6
 }
 
 // buildProjectiles projette les trajectoires décodées sur la grille de frames du rejeu.
@@ -188,7 +202,6 @@ func volPublie(tr types.ProjectileTrack, origin, step uint64) (v vol, lu bool) {
 		return vol{}, false
 	}
 	v.t0 = int((tr.Pts[0].TimestampUS - origin) / step)
-	maxStepM := projectileMaxStepM(step)
 	last := -1
 	for _, p := range tr.Pts {
 		if p.TimestampUS < origin {
@@ -198,7 +211,8 @@ func volPublie(tr types.ProjectileTrack, origin, step uint64) (v vol, lu bool) {
 		if f == last {
 			continue // un seul point par frame de la grille
 		}
-		if n := len(v.pts); n > 0 && planDist(round2(p.X), round2(p.Y), v.pts[n-1][1], v.pts[n-1][2]) > maxStepM {
+		if n := len(v.pts); n > 0 &&
+			planDist(round2(p.X), round2(p.Y), v.pts[n-1][1], v.pts[n-1][2]) > projectileMaxStepM(elapsedUS(v.dernier, p)) {
 			v.coupe = true
 			break
 		}
@@ -206,6 +220,15 @@ func volPublie(tr types.ProjectileTrack, origin, step uint64) (v vol, lu bool) {
 		v.pts = append(v.pts, [3]float32{float32(f - v.t0), round2(p.X), round2(p.Y)})
 	}
 	return v, true
+}
+
+// elapsedUS est la durée, en microsecondes, entre deux échantillons d'une piste ; 0 si `b` ne suit pas `a`
+// (la borne de vitesse prend alors sa durée plancher).
+func elapsedUS(a, b types.ProjectileSample) uint64 {
+	if b.TimestampUS <= a.TimestampUS {
+		return 0
+	}
+	return b.TimestampUS - a.TimestampUS
 }
 
 // detoSearchBeforeUS/detoSearchAfterUS bornent la fenêtre de recherche d'une détonation à portée

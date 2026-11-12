@@ -188,10 +188,13 @@ func TestToleranceDeNaissanceDesObjetsEngendresEnMsIndependanteDeLaCadence(t *te
 }
 
 // TestPasImpossibleDeProjectileEnVitesseIndependantDeLaCadence : un projectile a 60 m/s se lit, un
-// projectile a 150 m/s est coupe, a toute cadence.
+// projectile rapide du jeu (120 m/s) se lit aussi, un saut a 400 m/s est coupe, a toute cadence.
 func TestPasImpossibleDeProjectileEnVitesseIndependantDeLaCadence(t *testing.T) {
-	if projectileMaxStepM(100_000) != 10 {
-		t.Errorf("a 100 ms le pas maximal vaut %v m, attendu 10", projectileMaxStepM(100_000))
+	if projectileMaxStepM(100_000) != 20 {
+		t.Errorf("a 100 ms le pas maximal vaut %v m, attendu 20", projectileMaxStepM(100_000))
+	}
+	if got, want := projectileMaxStepM(1_000), projectileMaxStepM(projectileMinElapsedUS); got != want {
+		t.Errorf("a 1 ms le pas maximal vaut %v m, attendu celui de la duree plancher (%v m)", got, want)
 	}
 	for _, interval := range cadencesDeTest {
 		pasUS := uint64(interval) * 1000
@@ -201,7 +204,8 @@ func TestPasImpossibleDeProjectileEnVitesseIndependantDeLaCadence(t *testing.T) 
 			coupe   bool
 		}{
 			{"60 m/s", 60, false},
-			{"150 m/s", 150, true},
+			{"120 m/s (projectile rapide du jeu)", 120, false},
+			{"400 m/s", 400, true},
 		} {
 			pasM := float32(c.vitesse * float64(interval) / 1000)
 			pts := make([]types.ProjectileSample, 6)
@@ -216,6 +220,35 @@ func TestPasImpossibleDeProjectileEnVitesseIndependantDeLaCadence(t *testing.T) 
 			}
 			if !c.coupe && (len(out) != 1 || len(out[0].P) != 6) {
 				t.Errorf("pas %d ms, %s : vol incomplet : %+v", interval, c.nom, out)
+			}
+		}
+	}
+}
+
+// TestVolRapideSeLitAToutePhaseDeLaGrille : un vol a 120 m/s, echantillonne comme le film le fait (un
+// record toutes les 16,7 ms, 2 m par record), n'est jamais coupe, quelle que soit la phase de la grille
+// ni son pas ; un vol qui saute de 11 m en un record l'est. La borne porte sur la duree REELLE entre
+// deux echantillons retenus : a 33 ms ils sont separes de 1 a 2 records, a 100 ms de 4 a 7.
+func TestVolRapideSeLitAToutePhaseDeLaGrille(t *testing.T) {
+	const recordUS = 16_667
+	for _, interval := range cadencesDeTest {
+		pasUS := uint64(interval) * 1000
+		for phase := uint64(0); phase < pasUS; phase += 2_500 {
+			origine := uint64(1_000_000)
+			pts := make([]types.ProjectileSample, 14)
+			for i := range pts {
+				pts[i] = types.ProjectileSample{TimestampUS: origine + phase + uint64(i)*recordUS, X: float32(i) * 2}
+			}
+			pts[13].AtRest = true
+			_, _, tronquees := buildProjectiles([]types.ProjectileTrack{{Slot: 4096, Gen: 1, Pts: pts}}, origine, pasUS, nil, nil)
+			if tronquees != 0 {
+				t.Errorf("pas %d ms, phase %d us : un vol a 120 m/s est coupe", interval, phase)
+			}
+			pts[7].X += 11
+			_, _, tronquees = buildProjectiles([]types.ProjectileTrack{{Slot: 4096, Gen: 1, Pts: pts}}, origine, pasUS, nil, nil)
+			// le saut n'est vu que s'il tombe sur un echantillon retenu (le premier de sa frame)
+			if retenu := (pts[7].TimestampUS-origine)/pasUS != (pts[6].TimestampUS-origine)/pasUS; retenu && tronquees != 1 {
+				t.Errorf("pas %d ms, phase %d us : le saut de 11 m n'est pas coupe", interval, phase)
 			}
 		}
 	}
