@@ -138,7 +138,7 @@ func TraverseEntity(br *Lecteur, reg *Registry, defaultStateBits int) EntityTrac
 		// pose a 1 (default_state_ti41.go) ; la marche d image-cle garde son cadre.
 		consumeDefaultStateTI41(br)
 	} else if t.TypeIndex == archetypeProprieteGeree && br.p.Grammaire.DeserEtatParArchetype {
-		consumeDefaultStateTI13RecordNeuf(br) // EXCEPTION DATEE (lot J6-bis) : default_state_ti13_neuf.go
+		consumeDefaultStateTI13Creation(br) // default_state_ti13_neuf.go : par build
 	} else if fn, ok := defaultStateDeserByTI[t.TypeIndex]; ok && br.p.Grammaire.DeserEtatParArchetype {
 		fn(br) // deser vtable[0x60] porté bit-exact (cf. default_state_arch.go)
 	} else {
@@ -149,11 +149,9 @@ func TraverseEntity(br *Lecteur, reg *Registry, defaultStateBits int) EntityTrac
 		t.EtatIllisible, t.DesyncAt, t.EndBit = true, 0, br.BitPos()
 		return t
 	}
-	// t.Gate : R(1) réel AVANT le masque dans le record NEW (pré-boucle, cf FUN_1408f1aa4).
-	// N'existe PAS dans le path DELTA (decodeDelta appelle consumeMask seul). Le retirer casse
-	// le décodage (désync) — c'est un vrai bit, pas un double-gate.
-	t.Gate = br.ReadBit()
-	t.Mask, t.MasqueNonEcrit = lireMasque(br)
+	// La porte et le masque suivent l etat de creation (FUN_1408f1aa4) ; ils n existent PAS dans le
+	// chemin DELTA, qui ne lit que le masque (decodeDelta appelle consumeMask seul).
+	lireLaPorteEtLeMasque(br, &t)
 
 	arch, ok := reg.Archetype(int(t.TypeIndex))
 	if !ok {
@@ -167,6 +165,21 @@ func TraverseEntity(br *Lecteur, reg *Registry, defaultStateBits int) EntityTrac
 	}
 	t.EndBit = br.BitPos()
 	return t
+}
+
+// lireLaPorteEtLeMasque lit, apres l etat de creation, la porte de composants (`FUN_1406cf008`) puis le masque
+// de presence (`FUN_1406d7610`). Sous [GrammaireBalayage.CreationParPorte] la porte n est lue que pour un
+// archetype dont le masque de creation n est pas vide ([masqueDeCreationVide]), et le masque que sous une
+// porte a 1 : une porte a 0 saute la boucle de composants, masque compris. Sinon la porte et le masque se
+// lisent toujours.
+func lireLaPorteEtLeMasque(br *Lecteur, t *EntityTrace) {
+	parPorte := br.p.Grammaire.CreationParPorte
+	if !parPorte || !masqueDeCreationVide(t.TypeIndex) {
+		t.Gate = br.ReadBit()
+	}
+	if t.Gate || !parPorte {
+		t.Mask, t.MasqueNonEcrit = lireMasque(br)
+	}
 }
 
 // traverseComponentLoop walks an archetype's ORDERED component list and decodes each

@@ -218,7 +218,7 @@ func vaArret(pay []byte, a *FluxVueA, g grammaireDeLaVueA) string {
 	switch {
 	case genre >= g.genres:
 		return "hors cardinal " + strconv.Itoa(genre)
-	case !vide && chargeDuGenre(genre) == nil:
+	case !vide && chargeDuGenre(genre, g) == nil:
 		return "non porte " + strconv.Itoa(genre)
 	}
 	return "refuse " + strconv.Itoa(genre)

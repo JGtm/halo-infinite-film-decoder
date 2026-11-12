@@ -20,6 +20,11 @@ package grammar
 // region jouee, moins quatre bits par axe), pas un immediat releve a un site du jeu — la table des
 // sites de position (`lecteur_position_ratchet_test.go`) le dit. Une charge relue dans le jeu
 // remplace sa ligne ici et dans cette table.
+//
+// UNE DISPOSITION MESUREE NE VAUT QUE SUR LES BUILDS OU ELLE EST PROUVEE : [chargeDuGenre] ne rend ces trois charges
+// que pour un film dont le profil les etablit ([profile.EcritureDuBuild.ChargesDeVueAMesurees]). Sur un autre build
+// la vue A s arrete apres le genre du message, comme pour une charge non portee : lue sous une autre disposition que
+// celle de son ecrivain, la charge decalerait tout ce qui la suit.
 
 // niveauDeChoc est le niveau de precision de la position des genres 12 et 106 : 0xc, MESURE.
 const niveauDeChoc = 0xc

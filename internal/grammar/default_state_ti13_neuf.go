@@ -69,7 +69,8 @@ package grammar
 
 // consumeDefaultStateTI13RecordNeuf lit l etat par defaut de ti=13 d un record NEW avec la lecture
 // d AVANT le lot J6.3 : la version, « propertyName », g, puis 1 ou 32 etiquettes R(4) sans charge.
-// EXCEPTION DATEE (2026-09-28) : cf. l en-tete du fichier.
+// EXCEPTION DATEE (2026-09-28) : cf. l en-tete du fichier. Elle ne vaut plus que sur les builds dont le profil
+// n etablit pas l etat complet ([consumeDefaultStateTI13Creation]) : la grammaire de ce record depend du build.
 func consumeDefaultStateTI13RecordNeuf(br *Lecteur) {
 	consumeVersionPrefix(br)
 	br.ReadBits(32) // FUN_14080dec4 "propertyName"
@@ -80,6 +81,18 @@ func consumeDefaultStateTI13RecordNeuf(br *Lecteur) {
 	for i := 0; i < n; i++ {
 		br.ReadBits(managedPropertyTagBits) // l etiquette seule
 	}
+}
+
+// consumeDefaultStateTI13Creation lit l etat par defaut de ti=13 d un record NEW selon le build du film :
+// l etat complet de l image-cle ([consumeDefaultStateTI13]) quand le profil l etablit
+// ([GrammaireBalayage.ProprieteGereeComplete]), la lecture des etiquettes seules
+// ([consumeDefaultStateTI13RecordNeuf]) sinon.
+func consumeDefaultStateTI13Creation(br *Lecteur) {
+	if br.p.Grammaire.ProprieteGereeComplete {
+		consumeDefaultStateTI13(br)
+		return
+	}
+	consumeDefaultStateTI13RecordNeuf(br)
 }
 
 // archetypeProprieteGeree est l archetype 13, « managed-object-property-name ».

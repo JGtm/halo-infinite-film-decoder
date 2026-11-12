@@ -182,7 +182,7 @@ func lireUnMessage(br *Lecteur, genre int) bool {
 	if vide {
 		return true
 	}
-	charge := chargeDuGenre(genre)
+	charge := chargeDuGenre(genre, br.vueA)
 	if charge == nil || !charge(br) {
 		return false
 	}

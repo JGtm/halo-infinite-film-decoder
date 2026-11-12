@@ -198,7 +198,7 @@ func aj14fLire(pay []byte, debut int, bal ProfilDeBalayage, g grammaireDeLaVueA)
 			avant := br.BitPos()
 			m.Champs = aj14fChamps(br, genre)
 			br.SetBitPos(avant)
-			charge := chargeDuGenre(genre)
+			charge := chargeDuGenre(genre, grammaireDeLaVueA{chargesMesurees: true})
 			ok = charge != nil && charge(br)
 			if ok && br.p.Grammaire.ControleDeCorruption && br.ReadBit() {
 				br.Skip(32)

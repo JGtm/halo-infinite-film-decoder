@@ -109,13 +109,11 @@ const (
 //
 //nolint:funlen // une table de donnees : la decouper masquerait la lecture ligne a ligne
 func TableProfil() []LigneProfil {
-	out := make([]LigneProfil, 0, 32)
-	out = append(out, tableProfilFormat()...)
-	out = append(out, tableProfilBuild()...)
-	out = append(out, tableProfilMajeure()...)
-	out = append(out, tableProfilInvariants()...)
-	out = append(out, tableProfilGrenade()...)
-	out = append(out, tableProfilGrenadeSansSection()...)
+	out := make([]LigneProfil, 0, 48)
+	for _, sous := range [][]LigneProfil{tableProfilFormat(), tableProfilBuild(), tableProfilMajeure(),
+		tableProfilInvariants(), tableProfilGrenade(), tableProfilGrenadeSansSection(), tableProfilEcriture()} {
+		out = append(out, sous...)
+	}
 	return out
 }
 

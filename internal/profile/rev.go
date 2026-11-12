@@ -181,7 +181,32 @@ package profile
 // aucune borne, aucune provenance de la table ne change : la revision monte parce que la forme de l identite change, et que
 // l identite est persistee avec les faits du film (section 2 du fichier de faits).
 
-const Rev = "profile-2026-11-12"
+// ENTREE `profile-2026-11-12.2` (2026-11-12, ecriture par build : charges de la vue A et creation des records NEW) : TROIS
+// DISPOSITIONS DE LA GRAMMAIRE NE VALENT QUE SUR LES BUILDS OU ELLES SONT PROUVEES. LE DECODAGE CHANGE SUR HI_1_11_0, HI_1_12_0 ET
+// HI_1_13_0, ET SUR LES BUILDS PLUS ANCIENS PAR LA SEULE CHARGE DE LA VUE A.
+//
+// `ecriture.go` : [EcritureDuBuildPour] rend, par build, [EcritureDuBuild] — les charges des genres 12, 14 et 106 de la vue A
+// (largeurs mesurees, jusqu ici appliquees a tout build), la lecture d un record NEW sous la porte de composants (une porte a 0
+// saute le masque ; aucune porte pour un archetype a masque de creation vide : 7, 13, 14, 20, 23, 28, 29, 46, 47, 49) et l etat de
+// creation complet de ti=13 (jusqu ici ses etiquettes seules). Neuf lignes (`tableProfilEcriture` : trois champs, trois builds,
+// HI_1_11_0 a HI_1_13_0) ; un autre build, un build vide et un film sans section d identification n ont aucune des trois.
+// `profil.go` : [Profile.Ecriture]. Aucune largeur, borne ni provenance de la table d avant ne change.
+//
+// MESURE (223 films du parc sous catalogue de carte ; temoin libfilmshell, qui lit HI_1_12_0 et HI_1_13_0 jusqu au dernier octet) :
+// la chaine des records concorde avec celle du temoin sur 100 % des paquets de cinq films HI_1_12_0 et sur 43 512 paquets sur 43 513
+// d un film HI_1_13_0, la ou la lecture d avant ne fermait pas 35 paquets lus par v1.0.1 sur cinq films ; paquets fermes
+// HI_1_11_0 99,498 % -> 99,699 %, HI_1_12_0 99,917 % -> 99,942 %, HI_1_13_0 99,955 % -> 99,985 %. Les sept pertes (une sur HI_1_12_0,
+// six sur HI_1_11_0) sont des fermetures fausses : leur debut de vue B differe de celui du temoin (de 43 bits sur HI_1_12_0, de
+// plus de 3 600 sur HI_1_11_0). Sur HI_1_10_0
+// et HI_1_8_0 la lecture par porte ferme plus de paquets et en perd aussi (3 571 et 420, 810 et 172) : elle n y est pas prouvee et n y
+// est pas posee. Charges de la vue A : les paquets lus au-dela d un message de genre 12, 14 ou 106 ferment au bit 56 sur 56
+// (HI_1_11_0), 99 sur 99 (HI_1_12_0) et 86 sur 86 (HI_1_13_0), 562 sur 760 sur HI_1_10_0 et 9 sur 18 sur HI_1_9_0 ; sur ces deux
+// builds la fin de vue A lue contredit le debut de vue B independant dans 47 cas testables sur 47, et aucune largeur constante ne
+// le retrouve : la vue A s y arrete sur le message, comme avant la revision `grammar-2026-11-12`.
+//
+// `grammar.Rev` et `killsource.Rev` montent mecaniquement derriere cette ligne, chacune avec son entree.
+
+const Rev = "profile-2026-11-12.2"
 
 // L EMPREINTE DES SOURCES DE LA COUCHE VIT DANS UN GOLDEN, A COTE DE CETTE REVISION :
 // `testdata/profile_rev.golden` porte le couple (revision, empreinte) avec son historique, et

@@ -220,6 +220,9 @@ and two tail bits (a generation). `W` depends on a category (0 to 8) that the ge
 categories 0, 1, 7 and 8, 8 bits for 2, 3 and 5, 9 bits for 4 and 6; category 1 first reads a probe bit and, if it is 1, reads as
 category 4. The stream carries no message length, so view A can be read to its terminator only if every payload on the way is
 read. Of the 123 genres, 13 have no payload, 52 have a ported payload reader, and the other 58 stop the view after their genre.
+Three of the 52 (genres 12, 14 and 106) have a layout measured against another decoder and not read in the game; they are read only
+from build `HI_1_11_0` (the profile's per-build table, `internal/profile/ecriture.go`), and on an earlier build the view stops after
+the genre like the 58.
 
 The 123 genres are a static table of the game (`FUN_140e453b4`), held here as a string. Whether the film's writer is the reader
 the decoder was ported from is decided by the film's own version table (section 2), compared genre by genre with the
@@ -289,7 +292,10 @@ libfilmshell also uses 13.
 
 - **NEW**: `1 | id | ti:6 | creation state | gate:1 | mask | component data`. `ti` of 50 or more is a misread. The creation state
   is the archetype's default state, read by a per-archetype deserialiser; there is no size word. A NEW is the only place where a
-  delta packet states an entity's archetype.
+  delta packet states an entity's archetype. From build `HI_1_11_0` the gate is read only for an archetype whose creation mask is
+  not empty (it is absent for archetypes 7, 13, 14, 20, 23, 28, 29, 46, 47 and 49), and a gate of 0 ends the record: the mask and
+  the component data are absent. On earlier builds the gate and the mask are always read. Archetype 13 (`managed-object-property-name`)
+  carries the payload of each of its tags in its creation state from `HI_1_11_0`, and only the tags before.
 - **DELTA**: `3 | id | baseline:1 [7 bits] | mask | component data`; no type, no creation state. The baseline bit is 0 in every
   measured film.
 - **DEL**: `2 | id | 32 bits`; the decoder skips the 32 bits, whose meaning is not established.

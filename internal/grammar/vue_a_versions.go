@@ -107,6 +107,10 @@ type grammaireDeLaVueA struct {
 	positions tablesDePosition
 	// variante : ce que la variante de partie du film decide du genre 116 ([varianteDuFilm]).
 	variante varianteDeLaVueA
+	// chargesMesurees : les charges des genres 12, 14 et 106 se lisent sous leur disposition mesuree
+	// ([chargeMesuree]) ; faux, la vue A s arrete sur le message d un de ces genres. Le profil du build
+	// l etablit ([profile.EcritureDuBuild.ChargesDeVueAMesurees]).
+	chargesMesurees bool
 }
 
 // grammaireDeLaVueASousFilm derive d un profil la grammaire de la vue A que le film declare : sa table
@@ -115,7 +119,7 @@ type grammaireDeLaVueA struct {
 // jouee de l entree de catalogue du profil.
 func grammaireDeLaVueASousFilm(p profile.Profile) grammaireDeLaVueA {
 	g := grammaireDeLaVueA{script: scriptDuFilm(p), positions: tablesDeLaRegionJouee(p.Map()),
-		variante: varianteDuFilm(p)}
+		variante: varianteDuFilm(p), chargesMesurees: p.Ecriture().ChargesDeVueAMesurees}
 	g.classe, g.genres = tableDesGenresDuFilm(p)
 	return g
 }

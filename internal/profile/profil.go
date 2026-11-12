@@ -158,6 +158,7 @@ type Profile struct {
 	keyframe     KeyframeProfile
 	movement     MovementProfile
 	slots        SlotsProfile
+	ecriture     EcritureDuBuild
 	mpp          MPPWidths
 	format       int
 	build        string
@@ -195,6 +196,10 @@ func (p Profile) Movement() MovementProfile { return p.movement }
 
 // Slots rend la transposition d un enregistrement de slot de joueur.
 func (p Profile) Slots() SlotsProfile { return p.slots }
+
+// Ecriture rend ce que l ecrivain du build du film ecrit et que le flux ne dit pas ([EcritureDuBuild]) :
+// la valeur zero pour un build que la mesure n etablit pas.
+func (p Profile) Ecriture() EcritureDuBuild { return p.ecriture }
 
 // MPP rend le decoupage du bloc `object-multiplayer-properties`. Non valide quand la version de
 // format est connue mais sa largeur indeterminee (formats 20, 21, 24, 25).
@@ -278,6 +283,7 @@ func Resoudre(cles ClesDuFilm, entry *MapQuantEntry) Profile {
 	if cles.IdentiteLue {
 		p.identity, p.build, p.identityRead = cles.Identite, cles.Identite.Build, true
 	}
+	p.ecriture = EcritureDuBuildPour(p.build)
 	if octets, connu := PersonnalisationOctets(p.build); connu {
 		p.slots = SlotsProfile{PersoBytes: octets, DeltaBits: PersoDeltaBits(octets), Connu: true}
 	} else {
