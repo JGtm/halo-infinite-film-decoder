@@ -254,6 +254,33 @@ func TestVolRapideSeLitAToutePhaseDeLaGrille(t *testing.T) {
 	}
 }
 
+// TestArriveeDuGrappinBorneeParUnInstant : la fenetre de recherche de l'arrivee se ferme 2,5 s apres
+// l'accroche REELLE, a toute cadence. Une trajectoire qui se rapproche de l'ancre sans jamais l'atteindre
+// a son point le plus proche au bout de la fenetre : l'arrivee est la derniere frame dont le debut
+// tient dans la fenetre, a une frame pres de l'accroche + 2,5 s.
+func TestArriveeDuGrappinBorneeParUnInstant(t *testing.T) {
+	for _, interval := range cadencesDeTest {
+		pasUS := uint64(interval) * 1000
+		for _, attachUS := range []uint64{650_000, 667_000, 683_000, 699_000} {
+			pts := []Point{}
+			for i := 0; uint64(i)*pasUS <= 5_000_000; i++ {
+				v := float32(10 + float64(uint64(i)*pasUS)/1e6*5) // 5 m/s : loin de l'ancre (100), distance decroissante
+				pts = append(pts, Point{T: i, X: v, Y: v})
+			}
+			track := Track{Slot: 5, StartFrame: 0, EndFrame: pts[len(pts)-1].T, Points: pts}
+			lines, _ := buildGrappleLines([]types.GrappleRead{grappleRead(5, attachUS, true)}, grappleEntry(), 0, pasUS, []Track{track})
+			if len(lines) != 1 {
+				t.Fatalf("pas %d ms : %d traction(s), attendu 1", interval, len(lines))
+			}
+			finUS, t1US := attachUS+grapplePullCapUS, uint64(lines[0].T1)*pasUS
+			if t1US > finUS || finUS-t1US >= pasUS {
+				t.Errorf("pas %d ms, accroche a %d us : arrivee a %d us, attendu dans ]%d, %d] us (la fenetre se ferme a l'accroche + 2,5 s)",
+					interval, attachUS, t1US, finUS-pasUS, finUS)
+			}
+		}
+	}
+}
+
 // TestPoseDeBordDeLAxeEstPublieeAToutePas : une pose nee quelques millisecondes apres la fin de l'axe (la
 // derniere lecture du film) se publie a la derniere frame, a 33 comme a 100 ms ; une pose nee un pas entier
 // plus loin reste ecartee.

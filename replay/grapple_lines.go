@@ -192,7 +192,11 @@ func grappleLine(r types.GrappleRead, startUS uint64, entry profile.MapQuantEntr
 	if track == nil {
 		return GrappleLine{}, false // aucune vie publiée ne couvre l'accroche : aucune fiche où la poser
 	}
-	t1 := grappleArrival(track, tAttach, int(grapplePullCapUS/step), ax, ay, az)
+	// LA BORNE DE RECHERCHE EST UN INSTANT, PAS UN NOMBRE DE FRAMES AJOUTE A LA FRAME DE L'ACCROCHE : la frame de
+	// `accroche + 2,5 s`. Ajouter `grapplePullCapUS/step` (arrondi vers le bas) a la frame de l'accroche
+	// (arrondie vers le bas) raccourcissait la fenetre de 0 a 2 frames selon le pas (25 images exactes a 100 ms,
+	// 75,8 a 33 ms) : a 33 ms l'arrivee tombait sur un autre creux de distance a l'ancre.
+	t1 := grappleArrival(track, tAttach, frameOf(r.TimestampUS+grapplePullCapUS, origin, step), ax, ay, az)
 	if t0 < track.StartFrame {
 		t0 = track.StartFrame
 	}
@@ -222,10 +226,10 @@ func lifeCovering(vies []*Track, frame int) *Track {
 // grappleArrival rend la frame d'ARRIVÉE : celle, entre l'accroche et la borne de
 // recherche, où la trajectoire passe au plus près de l'ancre. Sans point dans la fenêtre
 // (fin de vie), l'accroche elle-même est rendue — la fenêtre vide sera écartée en amont.
-func grappleArrival(track *Track, tAttach, capFrames int, ax, ay, az float32) int {
+func grappleArrival(track *Track, tAttach, tLimit int, ax, ay, az float32) int {
 	best, bestD := tAttach, float32(-1)
 	for _, p := range track.Points {
-		if p.T < tAttach || p.T > tAttach+capFrames {
+		if p.T < tAttach || p.T > tLimit {
 			continue
 		}
 		dx, dy, dz := p.X-ax, p.Y-ay, p.Z-az
