@@ -370,3 +370,24 @@ func TestSansDestructionLeDocumentNePorteAucuneCouverture(t *testing.T) {
 		t.Errorf("couverture = %+v, attendu aucune", c)
 	}
 }
+
+// TestLaMargeABordSuitLaCadenceDuDocument : la marge est une duree. Un episode clos 150 ms avant la
+// destruction est a bord a toute cadence ; clos 250 ms avant, il ne l est plus.
+func TestLaMargeABordSuitLaCadenceDuDocument(t *testing.T) {
+	for _, c := range []struct {
+		intervalMS, tEnd, t1 int
+		aBord                bool
+	}{
+		{100, 300, 298, true}, {100, 300, 297, false},
+		{33, 900, 894, true}, {33, 900, 893, false},
+		{0, 300, 298, true}, {0, 300, 297, false}, // sans cadence ecrite : celle par defaut
+	} {
+		doc := documentDeTest(vieDetruite(c.tEnd, morteDeTest(1_000_000, -1, deadStateTagAbsent), rideDeTest(10, c.t1, xuidConducteur, 0)))
+		doc.FrameIntervalMS = c.intervalMS
+		poserLesDestructions(t, doc, vehicleDestructionInputs{roster: rosterDeTest()})
+		d := doc.Vehicles[0].Destruction
+		if got := d != nil && d.Occupant == xuidConducteur; got != c.aBord {
+			t.Errorf("cadence %d ms, episode clos %d images avant : a bord = %v, attendu %v", c.intervalMS, c.tEnd-c.t1, got, c.aBord)
+		}
+	}
+}

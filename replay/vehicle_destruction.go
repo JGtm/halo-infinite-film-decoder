@@ -115,10 +115,10 @@ const (
 	// deadStateTagAbsent est la valeur que le moteur ecrit quand un champ `readOpt(1+32)` du
 	// dead-state est absent (`types.DeadState.SrcTag0`).
 	deadStateTagAbsent = uint32(0xFFFFFFFF)
-	// vehicleDestructionAboardTolFrames est la marge, en images du document, dans laquelle un episode
-	// qui prend fin AVANT l instant de la destruction y est encore compte a bord : la sortie et la
-	// mort ne sont pas datees a la meme image.
-	vehicleDestructionAboardTolFrames = 2
+	// vehicleDestructionAboardTolMS est la marge dans laquelle un episode qui prend fin AVANT l instant
+	// de la destruction y est encore compte a bord : la sortie et la mort ne sont pas datees au meme
+	// instant. Convertie en images a la cadence du document.
+	vehicleDestructionAboardTolMS = 200
 	// vehicleDestructionKilledWindowMS borne, de part et d autre de la destruction, la mort d un
 	// occupant que le repli lui rapporte (horloge du fil des morts).
 	vehicleDestructionKilledWindowMS = int64(500)
@@ -141,6 +141,8 @@ type vehicleDestructionInputs struct {
 	deaths []types.Death
 	calage *int64
 	fb     *fallback.Compteur
+	// aboardTol est `vehicleDestructionAboardTolMS` en images du document, pose par la pose.
+	aboardTol int
 }
 
 // attachVehicleDestructions pose `Destruction` sur les vies `destroyed` du document et leur
@@ -149,6 +151,7 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 	if doc.Coverage == nil || doc.Coverage.Vehicles == nil || !doc.Coverage.Vehicles.Scanned {
 		return
 	}
+	in.aboardTol = framesOfMS(vehicleDestructionAboardTolMS, doc.FrameIntervalMS)
 	var cov VehicleDestructionCoverage
 	for i := range doc.Vehicles {
 		tr := &doc.Vehicles[i]
@@ -160,7 +163,7 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 			continue
 		}
 		cov.Destroyed++
-		if d := in.destructionOf(*tr, &cov); d != nil {
+		if d := in.destructionOf(ctx, *tr, &cov); d != nil {
 			tr.Destruction = d
 			cov.Published++
 		}
@@ -174,7 +177,7 @@ func attachVehicleDestructions(ctx context.Context, doc *ReplayDocument, in vehi
 }
 
 // destructionOf assemble le bloc d une vie et compte ce qu il porte. Nil quand rien n est etabli.
-func (in vehicleDestructionInputs) destructionOf(tr VehicleTrack, cov *VehicleDestructionCoverage) *VehicleDestruction {
+func (in vehicleDestructionInputs) destructionOf(ctx context.Context, tr VehicleTrack, cov *VehicleDestructionCoverage) *VehicleDestruction {
 	var d VehicleDestruction
 	dead := tr.mort.Dead
 	var fate destroyerFate
@@ -184,12 +187,12 @@ func (in vehicleDestructionInputs) destructionOf(tr VehicleTrack, cov *VehicleDe
 		d.Cause = &cause
 	}
 	cov.countCause(dead.SrcTag0, d.Cause != nil)
-	aboard := ridesAboardAt(tr.Rides, tr.endFrame())
+	aboard := ridesAboardAt(tr.Rides, tr.endFrame(), in.aboardTol)
 	d.Occupant = destructionOccupant(aboard)
 	if d.Occupant != "" {
 		cov.Occupant++
 	}
-	d.Killed = in.killedAmong(aboard, tr.mort.TimestampUS, cov)
+	d.Killed = in.killedAmong(ctx, aboard, tr.mort.TimestampUS, cov)
 	if len(d.Killed) > 0 {
 		cov.Killed++
 		cov.KilledOccupants += len(d.Killed)
@@ -301,11 +304,11 @@ func allBots(es []RosterEntry) bool {
 }
 
 // ridesAboardAt rend les episodes a bord a la frame `t`, le conducteur d abord : ceux qui la couvrent,
-// et ceux qui ont pris fin au plus `vehicleDestructionAboardTolFrames` images avant.
-func ridesAboardAt(rides []VehicleRide, t int) []VehicleRide {
+// et ceux qui ont pris fin au plus `tol` images avant.
+func ridesAboardAt(rides []VehicleRide, t, tol int) []VehicleRide {
 	var out []VehicleRide
 	for _, r := range rides {
-		if r.T0 <= t && r.T1 >= t-vehicleDestructionAboardTolFrames {
+		if r.T0 <= t && r.T1 >= t-tol {
 			out = append(out, r)
 		}
 	}
@@ -330,7 +333,7 @@ func destructionOccupant(aboard []VehicleRide) string {
 // de `aboard` dont le fil des morts porte la mort a moins de `vehicleDestructionKilledWindowMS` de
 // l instant `deathUS` de la destruction (horloge du film). Sans calage du fil des morts sur l horloge
 // du film, rien n est cherche et la destruction est comptee `ClockUnknown`.
-func (in vehicleDestructionInputs) killedAmong(aboard []VehicleRide, deathUS uint64, cov *VehicleDestructionCoverage) []string {
+func (in vehicleDestructionInputs) killedAmong(ctx context.Context, aboard []VehicleRide, deathUS uint64, cov *VehicleDestructionCoverage) []string {
 	var xuids []string
 	for _, r := range aboard {
 		if r.XUID != "" && !slices.Contains(xuids, r.XUID) {
@@ -349,7 +352,7 @@ func (in vehicleDestructionInputs) killedAmong(aboard []VehicleRide, deathUS uin
 	for _, x := range xuids {
 		n, err := strconv.ParseUint(x, 10, 64)
 		if err != nil {
-			slog.Warn("rejeu : xuid d occupant illisible, aucune mort cherchee", "xuid", x, "err", err)
+			slog.WarnContext(ctx, "rejeu : xuid d occupant illisible, aucune mort cherchee", "xuid", x, "err", err)
 			continue
 		}
 		if diedWithin(in.deaths, n, at) {
