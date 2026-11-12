@@ -26,8 +26,9 @@ const largeurDirection = 19
 
 // chargeDuGenre rend le lecteur de la charge d un genre ; nil : charge non portee. La version d un
 // genre (`FUN_141102ed0`) y est la version native : la vue A ne se lit que sur un film qui la
-// declare ([classeDesGenres]).
-func chargeDuGenre(genre int) func(*Lecteur) bool { //nolint:gocyclo // un case par genre de message porte (aiguillage)
+// declare ([classeDesGenres]). Les trois genres de disposition mesuree ([chargeMesuree]) ne sont portes
+// que sur un film dont le build les etablit ([grammaireDeLaVueA.chargesMesurees]).
+func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolint:gocyclo // un case par genre de message porte (aiguillage)
 	switch genre {
 	case 0:
 		return chargeDegatsApres
@@ -70,7 +71,7 @@ func chargeDuGenre(genre int) func(*Lecteur) bool { //nolint:gocyclo // un case 
 	case 120:
 		return chargeAppelDeJoueur
 	}
-	if c := chargeMesuree(genre); c != nil {
+	if c := chargeMesuree(genre); c != nil && g.chargesMesurees {
 		return c
 	}
 	if c := chargeDArme(genre); c != nil {

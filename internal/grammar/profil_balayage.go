@@ -176,6 +176,10 @@ func grammaireSousCarte(g GrammaireBalayage, carte bool) GrammaireBalayage {
 // (`FUN_140a938b4`), qui ne vaut 1 que pour le type 1, et une variante que l enregistreur n a pas
 // ecrite (`Presente` faux) n a pas de type ([moteurUnPossible]).
 //
+// [GrammaireBalayage.CreationParPorte] et [GrammaireBalayage.ProprieteGereeComplete] viennent du PROFIL DU BUILD
+// ([profile.EcritureDuBuildPour]) : une disposition mesuree ne vaut que sur les builds ou elle est prouvee, et un film
+// dont le build n y est pas (section d identification absente comprise) garde la lecture par defaut.
+//
 // # POURQUOI ILS NE SE POSENT PAS A LA MAIN SUR UN CONTEXTE DE FILM
 //
 // Avant le lot 5.18.2 le controle de corruption etait de defaut FAUX et n avait d ecrivain qu un
@@ -193,6 +197,8 @@ func grammaireSousCarte(g GrammaireBalayage, carte bool) GrammaireBalayage {
 // de moteur n y est pas exclu.
 func grammaireSousFilm(g GrammaireBalayage, p profile.Profile) (GrammaireBalayage, bool) {
 	g.MoteurUnPossible = moteurUnPossible(p)
+	g.CreationParPorte = p.Ecriture().CreationParPorte
+	g.ProprieteGereeComplete = p.Ecriture().ProprieteGereeComplete
 	if !p.IdentityRead() {
 		return g, false
 	}
@@ -252,6 +258,15 @@ type GrammaireBalayage struct {
 	// film a chaque rendu de profil. Les instruments qui le posent mesurent l A/B ; ils ne
 	// decident plus de la production.
 	ControleDeCorruption bool
+	// CreationParPorte : un record NEW ne lit sa liste de composants que sous une porte a 1, et ne lit pas de
+	// porte pour un archetype dont le masque de creation est vide ([masqueDeCreationVide]). Faux : la porte et
+	// le masque se lisent toujours. IL VIENT DU PROFIL DU BUILD ([profile.EcritureDuBuild]), comme
+	// [GrammaireBalayage.ControleDeCorruption] vient du film : un contexte de film le derive a chaque rendu.
+	CreationParPorte bool
+	// ProprieteGereeComplete : l etat de creation d un record NEW de ti=13 porte la charge de chacune de ses
+	// etiquettes ([consumeDefaultStateTI13]). Faux : il n en lit que les etiquettes. IL VIENT DU PROFIL DU
+	// BUILD, comme [GrammaireBalayage.CreationParPorte].
+	ProprieteGereeComplete bool
 	// BitsDeQueueRecordNew : bits terminaux consommes APRES la boucle de composants d un record
 	// NEW (candidat : la queue de FUN_1408f1aa4, non identifiee bit-exact). Defaut 0 =
 	// comportement historique ; le chemin delta n appelle pas `TraverseEntity`, donc il n est

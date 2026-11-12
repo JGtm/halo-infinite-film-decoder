@@ -1494,8 +1494,12 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	// - 111 (2026-11-12, cadence du rejeu) : la grille passe de 100 ms à 33 ms (`DefaultFrameIntervalMS`). Aucun
 	//   champ neuf ; le contenu cuit change (trois fois plus de points, plus de vols de projectile, `t0FilmMs` plus
 	//   fin). Aucune révision de décodage ne monte : un v110 se lit « à republier ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 111 {
-		t.Fatalf("SchemaVersion = %d, attendu 111 : incrémenter exige une raison écrite ci-dessus "+
+	// - 112 (2026-11-12, creation des records NEW et charges de la vue A selon le build) : la lecture d un record NEW et
+	//   des trois charges de vue A de disposition mesuree depend du build (`profile.EcritureDuBuild`). Aucun champ
+	//   neuf ; le contenu cuit change pour les builds HI_1_11_0 a HI_1_13_0 (plus de paquets lus). `grammar.Rev` et
+	//   `profile.Rev` montent, `SchemaDesFaits` 21 -> 22 : un v111 se lit « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 112 {
+		t.Fatalf("SchemaVersion = %d, attendu 112 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

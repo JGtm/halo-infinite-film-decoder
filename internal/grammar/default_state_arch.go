@@ -280,6 +280,17 @@ func consumeDefaultStateTI38(br *Lecteur) {
 // ECS_ReadEntityRefIndex5 seul (FUN_1407f2058 = R(1) ; si 0 -> R(5)).
 func consumeDefaultStateTI48(br *Lecteur) { consumeGate0R(br, 5) }
 
+// masqueDeCreationVide dit si l archetype `ti` n ecrit aucun composant a la creation : son masque de
+// creation (`vtable[0x30]` du descripteur, `FUN_1408f2130`) est vide. Pour un tel archetype un record
+// NEW ne porte ni porte de composants ni masque ([GrammaireBalayage.CreationParPorte]).
+func masqueDeCreationVide(ti uint32) bool {
+	switch ti {
+	case 7, 13, 14, 20, 23, 28, 29, 46, 47, 49:
+		return true
+	}
+	return false
+}
+
 // EtatParDefautPorte dit si la grammaire du depot porte le deserialiseur d etat par defaut de
 // l archetype `ti`. Faux = 0 bit consomme, et c est soit un STUB du jeu, soit un REPLI
 // (cf. l en-tete de ce fichier, qui les distingue population par population).

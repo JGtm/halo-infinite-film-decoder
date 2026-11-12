@@ -439,3 +439,10 @@ package killsource
 // `grammar.Rev` (`grammar-2026-11-12.3`) montent ; aucune source de cette couche ne change. Sur la mini-bobine de 000d5950
 // (`minibobine.golden`) aucune attribution de kill ne change. Les mesures de kills du banc de verite du `replay-corpus-gate` ne se
 // lancent pas depuis le depot dedie du decodeur. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (creation des records NEW et charges de la vue A selon le build, 2026-11-12) : les VALEURS de `profile.Rev`
+// (`profile-2026-11-12.2`) et de `grammar.Rev` (`grammar-2026-11-12.4`) montent ; aucune source de cette couche ne change. Sur la
+// mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne change. Sur seize films du parc (HI_1_9_0 a HI_1_13_0, dont
+// deux sans section d identification) decodes avant et apres, la liste des morts publiees (instant, victime, tueur du kill-feed,
+// source de degat, assistant, parts de degats, ecart tueur / source, voie de lecture) est identique ligne a ligne. Les mesures de kills du banc de verite du `replay-corpus-gate` ne se lancent pas
+// depuis le depot dedie du decodeur. Golden regenere a revision constante.

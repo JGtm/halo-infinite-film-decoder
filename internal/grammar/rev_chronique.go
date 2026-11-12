@@ -162,3 +162,23 @@ package grammar
 // langue) ; identifiant de carte egal a celui du registre des matchs sur 1 457 films sur 1 457. La section 2 des faits porte ces champs
 // (`replay.SchemaDesFaits` 20) : les faits cuits avant se refusent sur ce numero et sur cette revision, la recuisson est une decision
 // de l utilisateur. Le document de rejeu ne change pas.
+
+// ENTREE `grammar-2026-11-12.4` (2026-11-12, la creation d un record NEW et les charges de la vue A se lisent selon le build ; la
+// marche de la vue B ne s arrete plus sur une porte a 0). LE DECODAGE CHANGE. Un record NEW lisait toujours la porte de composants
+// puis le masque ([lireLaPorteEtLeMasque]) ; `FUN_1408f1aa4` saute la boucle de composants, masque compris, sous une porte a 0, et
+// ne lit pas de porte pour un archetype dont le masque de creation est vide (`vtable[0x30]`, `FUN_1408f2130` : ti=7, 13, 14, 20, 23,
+// 28, 29, 46, 47, 49). Une creation de ti=10 sans etat initial (42 bits chez le decodeur tiers) se lisait sur 122, la marche de la
+// vue B s arretait trois records plus loin, et la vue C etait lue au mauvais endroit : 35 paquets que v1.0.1 lisait juste ne l etaient
+// plus sur cinq films HI_1_12_0 (11, 1, 8, 14 et 1), la fin de leur vue A etant pourtant le debut de leur vue B. L etat de creation de
+// ti=13 lit la charge de ses etiquettes ([consumeDefaultStateTI13Creation]) ; les trois charges de la vue A de disposition mesuree
+// (genres 12, 14 et 106) ne se lisent que sur un film dont le build les etablit ([chargeDuGenre], [grammaireDeLaVueA.chargesMesurees]) :
+// appliquees a HI_1_10_0 et HI_1_9_0 elles lisaient les messages suivants (85, 82, 5, 6, 104) a un mauvais alignement, dont huit
+// poussees fausses sur `084a804d` (reference 0 absente). Les trois dispositions viennent du profil du build ([profile.EcritureDuBuild],
+// `profile-2026-11-12.2`) : HI_1_11_0, HI_1_12_0 et HI_1_13_0 ; un autre build garde la lecture d avant la porte et la vue A s arrete sur
+// le message d un des trois genres, comme avant `grammar-2026-11-12`. Mesure sous carte, 223 films du parc : paquets fermes HI_1_11_0
+// 99,498 % -> 99,699 % (38 films), HI_1_12_0 99,917 % -> 99,942 % (96), HI_1_13_0 99,955 % -> 99,985 % (53), les sept pertes etant des
+// fermetures fausses (debut de vue B different de celui du decodeur tiers, de 43 bits sur HI_1_12_0 et de plus de 3 600 sur HI_1_11_0) ; HI_1_8_0 et HI_1_4_1 inchanges ; HI_1_10_0
+// 96,084 % -> 96,081 % et HI_1_9_0 98,809 % -> 98,803 % : vingt paquets (19 et 1) que la lecture des charges mesurees fermait par la
+// fin de leur vue A et que la vue A arretee ne ferme pas, comme v1.0.1. Les cinq films dont v1.0.1 lisait des paquets que v1.2.4 ne lisait
+// plus n en perdent plus aucun (35 -> 0), et les sept fermetures fausses de v1.0.1 ne reviennent pas. Les rejeux et les faits cuits
+// avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.

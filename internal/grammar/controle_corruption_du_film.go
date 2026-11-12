@@ -23,10 +23,16 @@ type grammaireDuFilm struct {
 	controle  bool
 	moteurUn  bool
 	malleable bool
+	creation  creationDuFilm
 	vueA      grammaireDeLaVueA
 	lue       bool
 	derive    bool
 	compte    bool
+}
+
+// creationDuFilm est ce que l ecrivain du build du film ecrit d un record NEW ([profile.EcritureDuBuild]).
+type creationDuFilm struct {
+	parPorte, proprieteComplete bool
 }
 
 // grammaireDuFilmDerivee derive la grammaire du film UNE FOIS puis la memorise (meme paresse que
@@ -37,6 +43,7 @@ func (c *FilmContext) grammaireDuFilmDerivee() *grammaireDuFilm {
 		var g GrammaireBalayage
 		g, c.duFilm.lue = grammaireSousFilm(c.bal.Grammaire, c.Profile())
 		c.duFilm.controle, c.duFilm.moteurUn = g.ControleDeCorruption, g.MoteurUnPossible
+		c.duFilm.creation = creationDuFilm{parPorte: g.CreationParPorte, proprieteComplete: g.ProprieteGereeComplete}
 		c.duFilm.malleable = malleableSansDrapeauFinal(c.film)
 		c.duFilm.vueA = grammaireDeLaVueASousFilm(c.Profile())
 	}
@@ -51,6 +58,8 @@ func (c *FilmContext) poserLaGrammaireDuFilm(g *GrammaireBalayage) {
 	g.ControleDeCorruption = c.controleDeCorruptionDuFilm()
 	g.MoteurUnPossible = c.grammaireDuFilmDerivee().moteurUn
 	g.MalleableSansDrapeauFinal = c.grammaireDuFilmDerivee().malleable
+	g.CreationParPorte = c.grammaireDuFilmDerivee().creation.parPorte
+	g.ProprieteGereeComplete = c.grammaireDuFilmDerivee().creation.proprieteComplete
 }
 
 // controleDeCorruptionDuFilm rend le bit du film, pour un lecteur qui l EMPLOIE : un film sans
