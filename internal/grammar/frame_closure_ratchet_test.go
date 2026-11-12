@@ -254,4 +254,21 @@ const enteteCarteDeFermeture = "" +
 	"#     portee depuis le jeu (`components_moteur_de_partie.go`). ks_000d5950 : paquets 1 823 -> 1 825,\n" +
 	"#     utiles 6 608/31 200 -> 6 609/31 202, ti=2 20/163 -> 23/164 ; les causes `ti=0/2 i11..i17`\n" +
 	"#     disparaissent (la suivante, `ti=0 i18 forge-engine-player-roles`, apparait : 1 paquet).\n" +
-	"#     ks_e5adf7b2 : aucune ligne ne bouge. 0 ligne `fermes` ne descend.\n"
+	"#     ks_e5adf7b2 : aucune ligne ne bouge. 0 ligne `fermes` ne descend.\n" +
+	"#   2026-11-10 plan de la marche complete, A2.P : les positions sont lues aux largeurs de la region que\n" +
+	"#     le flux designe (table PAR INDEX de la carte, catalogue `regions`), et non de la region jouee ;\n" +
+	"#     flock-position, flock-destination et world-object i0 (precHigh = 0) passent par le portage unique.\n" +
+	"#     ks_000d5950 : paquets 1 825 -> 5 314, au bit 1 825 -> 5 316, vue A 1 702 -> 4 913, utiles 6 609/31 202\n" +
+	"#     -> 34 813/39 305 ; premier bloquant `ti=43 i35` -> `vue B : sortie par rejet`. ks_e5adf7b2 : paquets\n" +
+	"#     370 -> 371 (la baisse de J6.3 sur ce film etait la lacune de table). Lignes disparues, a 0 ferme :\n" +
+	"#     ks_000d5950 ti=18, 19, 26, 50, 58. 0 ligne `fermes` ne descend.\n" +
+	"#   2026-11-10 plan de la marche complete, A2.T : le type d une entite est lie a son eid COMPLET (slot et\n" +
+	"#     generation) : un delta dont la generation ne vaut pas celle de la liaison lue (NEW) est rejete hors\n" +
+	"#     datum au lieu d etre lu sous le type de l ancienne. ks_000d5950 : paquets 5 314 et au bit 5 316\n" +
+	"#     inchanges, vue B terminee 5 406 -> 5 404, records lus ti=30 0/3 -> disparu, ti=33 0/5 -> 0/4, ti=8\n" +
+	"#     0/14 -> 0/12, ti=35 28 879 -> 28 878. Lignes disparues, a 0 ferme : ks_000d5950 ti=30. 0 ligne\n" +
+	"#     `fermes` ne descend.\n" +
+	"#   2026-11-12 plan de la marche complete, A2.V : la classe de la vue A vient de la seule table des genres (la\n" +
+	"#     version majeure n y entre plus) et trois charges de la vue A sont portees (genres 12, 14 et 106).\n" +
+	"#     ks_000d5950 : paquets 5 314 -> 5 316, au bit 5 316 -> 5 318, vue A 4 913 -> 4 914, utiles 34 813/39 304\n" +
+	"#     -> 34 834/39 326 ; aucune ligne neuve. 0 ligne `fermes` ne descend.\n"

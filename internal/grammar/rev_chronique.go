@@ -460,3 +460,26 @@ package grammar
 // Mesure sur 38 films (30 recents, 8 anciens) : aucun film ne ferme moins de paquets ; HI_1_13_0 98,79 % -> 98,90 %,
 // HI_1_12_0 97,70 % -> 97,75 %, et les quatre builds anciens gagnent de 30 a 159 paquets. Les rejeux et les faits cuits
 // avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-12` (2026-11-12, la classe de la vue A vient de la seule table des genres ; trois charges
+// de la vue A). LE DECODAGE CHANGE. La classe d un film (EGALE, PREFIXE, ILLISIBLE) se decidait sous la version
+// majeure que l executable lu joue (0x29, `FUN_1428e219c`) : un film de table egale sous une autre majeure, ceux
+// de HI_1_12_0 (0x28), etait classe PREFIXE, si bien que la fin de sa vue A n etait acceptee que si la marche
+// depuis ce bit fermait le paquet ; sinon la marche retombait sur une localisation fausse, perdait les creations
+// du paquet, et des rejets hors datum suivaient en cascade. La garde decidait de ce que le jeu joue, pas de ce que
+// l ecrivain du film a ecrit ; la decision du 2026-10-06 la posait sur ce principe, sans mesure d un effet sur la
+// fermeture (elle avait fait passer le gain de bcb6d393 de +1 239 a +599). La classe ne depend plus que de la table
+// declaree ([classeDesGenres]) : [classeSousLaMajeure] et [versionMajeureJouee] sont supprimees. La table des huit
+// films HI_1_12_0 de la mesure est identique a la native, genre par genre (123 genres) ; aucun film d une autre
+// majeure ne change de classe (les tables des majeures 0x25 a 0x27 et du HI_1_11_0, 122 genres, ne sont pas egales
+// a la native). Trois charges de la vue A, de disposition MESUREE contre le temoin et non relue dans le jeu, sont
+// portees ([chargeChocDeMelee] genre 12, 112 bits ; [chargeEffetSurObjet] genre 14, 53 bits ;
+// [chargeCollisionDObjet] genre 106, 82 bits, `vue_a_charges_mesurees.go`) : les douze paquets de huit films
+// HI_1_12_0 que la vue A arretait sur l un d eux se lisent jusqu a leur terminateur. Mesure sous carte, 38 films
+// (30 recents, 8 anciens) : paquets fermes HI_1_12_0 220 599 -> 225 278 (97,75 % -> 99,83 %), dont 4 672 pour la
+// classe et 7 pour les charges ; HI_1_13_0 822 612 -> 822 680, HI_1_11_0 +5, HI_1_10_0 +3, HI_1_9_0 +1, HI_1_8_0
+// inchange ; fermetures fausses (fermes chez nous, position differente du temoin) 57 -> 1 sur les huit films
+// HI_1_12_0 et 37 -> 4 sur les dix temoins. Trois films baissent : 6ceaf3b8 de 6, 972cdbc6 et aa00a8cd de 1, des
+// paquets que leur fermeture fausse faisait compter fermes ; ils s arretent desormais sur l etat de creation d un
+// archetype que le decodeur ne porte pas (ti=13, 47, 10). Les rejeux et les faits cuits avant se refusent sur cette
+// revision : la recuisson est une decision de l utilisateur.

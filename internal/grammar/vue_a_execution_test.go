@@ -235,7 +235,8 @@ func (w *bitWriter) ecrirePositionDeNiveau(porte bool, index uint64, larg [3]uin
 }
 
 // TestLesPositionsAIndexSeLisentSurLaRegionJouee : la detonation (genre 5, niveau 0xf) et l impact
-// (genre 6, niveau 0xc) lisent leur position par `FUN_14076e524` : porte posee, la table DEFAUT du
+// (genre 6, niveau 0xc), puis le choc de melee et la collision d objet (genres 12 et 106, niveau 0xc
+// mesure), lisent leur position par `FUN_14076e524` : porte posee, la table DEFAUT du
 // build ; index de la region jouee, la loi `FUN_140be9b88` sur les bornes de l entree de catalogue du
 // profil, telles que la grammaire du film les derive ([grammaireDeLaVueASousFilm]) ; un autre index,
 // un film lu sans carte, ou une region jouee que le catalogue n a pas lue dans le tag de niveau
@@ -265,6 +266,12 @@ func TestLesPositionsAIndexSeLisentSurLaRegionJouee(t *testing.T) {
 		{"impact", 0xc, chargeImpact,
 			func(w *bitWriter) { w.bit(1); w.bits(0, 7+7+0x13) }, // variante, deux scalaires, direction
 			func(w *bitWriter) { w.bits(0, 0x13+9+1) }},
+		{"choc de melee (mesure)", niveauDeChoc, chargeChocDeMelee,
+			func(w *bitWriter) { w.bit(0); w.bits(7, 5); w.bit(1); w.bit(0) }, // un joueur, puis aucun, tag absent
+			func(w *bitWriter) { w.bits(0, 19) }},
+		{"collision d objet (mesure)", niveauDeChoc, chargeCollisionDObjet,
+			func(*bitWriter) {},
+			func(w *bitWriter) { w.bits(0, 10+9) }},
 	} {
 		jouee := grammaireDeLaVueASousFilm(profilDIdentite(profile.FilmIdentity{}, &e)).positions
 		sansCarte := grammaireDeLaVueASousFilm(profilDIdentite(profile.FilmIdentity{}, nil)).positions

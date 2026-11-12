@@ -15,21 +15,20 @@ import "github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 // exactement pour les treize genres vides de [tableDesGenresVueA]). Dix lecteurs la consultent (35,
 // 36, 40, 48, 89, 90, 91, 93, 97, 114), et seulement pour separer une version ancienne de la leur.
 //
-// # LA REGLE, EN DEUX CLASSES (decisions de l utilisateur du 2026-10-04 ; garde de version majeure,
-// decision du pilote du 2026-10-06)
+// # LA REGLE, EN DEUX CLASSES (decisions de l utilisateur du 2026-10-04)
 //
 // La grammaire de l executable est celle de SES versions : un ecrivain d une autre version d un genre
 // a pu ecrire autre chose, et le lecteur du jeu ne sait pas le lire (les branches qu il porte
-// s arretent a sa propre version). Deux tables lues se comparent, sans seuil ni build nomme, sous la
-// version majeure que le jeu joue (ci-dessous) :
+// s arretent a sa propre version). Deux tables lues se comparent, sans seuil, sans build nomme et sans
+// version majeure :
 //
-//	EGALE     le film declare les [GenresVueA] genres, chacun a sa version native, ET sa version
-//	          majeure est celle que le jeu joue ([versionMajeureJouee]) : l ecrivain du film est le
-//	          lecteur porte. Film RECENT : la fin de sa vue A est le debut de sa vue B.
+//	EGALE     le film declare les [GenresVueA] genres, chacun a sa version native : l ecrivain du film
+//	          ecrit les messages que le lecteur porte. Film RECENT : la fin de sa vue A est le debut
+//	          de sa vue B.
 //	PREFIXE   le film declare MOINS de genres, chacun a sa version native — un ecrivain plus ancien,
 //	          que la table ne suffit pas a identifier au lecteur porte (le tir a composantes des
-//	          films a 121 genres en differe, mesure) —, OU sa table est egale sous une autre version
-//	          majeure. La fin de sa vue A ne vaut que prouvee paquet par paquet.
+//	          films a 121 genres en differe, mesure). La fin de sa vue A ne vaut que prouvee paquet
+//	          par paquet.
 //	ILLISIBLE section d identification absente, table vide ou plus longue, une version differente :
 //	          la vue A n est pas lue au-dela de sa tete.
 //
@@ -38,20 +37,26 @@ import "github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 // ([debutParLaVueA]) : le debut de la vue B. Un genre au-dela du cardinal du film n existe pas chez son
 // ecrivain : le lire arrete la vue A.
 //
-// # LA GARDE DE VERSION MAJEURE : LE JEU NE JOUE QUE LA SIENNE (lu ; decision du pilote, 2026-10-06)
+// # LA VERSION MAJEURE DU FILM N ENTRE PAS DANS LA REGLE (lu ; mesure)
 //
 // Avant de jouer un film, le jeu lit sa version majeure, le u32 de tete de `chunk_00`
 // ([FilmMajorVersion]) : `FUN_1428e219c` (appele par `FUN_140ba23e4` @1423b9bd7) ne lit le film, et
 // ne reporte son bit de controle de corruption (`singleton + 0x1AE` <- `film + 0xCB45C`), que sous
-// `*film == 0x29` ; sinon il passe a `FUN_142988e98` (releve sous `va_ghidra/FUN_1428e219c.c`).
-// L executable lu (HI_1_13_0) ne joue donc que les films de majeure 0x29 : pour un film d une autre
-// majeure, « l ecrivain du film est le lecteur porte » n est pas lu dans le jeu, meme quand sa table
-// des genres est egale a la native. C est le cas des films HI_1_12_0 (majeure 0x28, table de 123
-// genres aux versions natives ; 147 films du cache, mesure du 2026-10-06,
-// `va_ghidra/sonde_majeures_parc_2026-10-06.txt`). Ils suivent la regle des films PREFIXE : E
-// seulement si la marche depuis E ferme le paquet sans regle de l ecrivain contredite, sinon le chemin
-// d avant ([tableDesGenresDuFilm], [classeSousLaMajeure]). Une version majeure non lue n est pas la
-// version jouee.
+// `*film == 0x29`. Cette garde decide de ce que L EXECUTABLE joue ; elle ne dit rien de ce que
+// l ecrivain d un film a ecrit. Ce que l ecrivain declare de ses messages est la table par genre de
+// `chunk_00` (`film + 0xCB208`), et c est elle que le lecteur du jeu consulte en rejeu de film pour
+// separer les versions d un genre ([FilmIdentity.TypeVersions]).
+//
+// Un film HI_1_12_0 (majeure 0x28, une majeure que l executable lu ne joue pas) declare les 123 genres
+// de la table native, chacun a sa version native : sa table est IDENTIQUE a celle de l executable, genre
+// par genre — vrai des huit films de test, et des films de ce build releves dans le cache. Il est donc
+// de classe EGALE : un ecrivain dont la table est celle du lecteur ecrit les messages que le lecteur
+// lit. La mesure le confirme sans lecture du jeu en 0x28 : sur ces films, la vue A que nous lisons
+// finit au bit ou le temoin independant place le debut de la vue B, paquet apres paquet, et la
+// ranger comme prouvee seulement (classe PREFIXE) refusait cette fin chaque fois que la marche qui la
+// suit ne fermait pas le paquet pour une autre cause — puis retombait sur une localisation fausse. La
+// version majeure ne separe donc rien que la table ne separe deja : les films des majeures 0x25 a 0x27 et
+// le film HI_1_11_0 (0x28, 122 genres) sont classes par leur table.
 //
 // # LA NUMEROTATION DES GENRES, PRESUMEE POUR LES FILMS PREFIXE
 //
@@ -75,17 +80,11 @@ const (
 	// vueAIllisible : la vue A du film ne se lit pas au-dela de sa tete.
 	vueAIllisible classeDeLaVueA = iota
 	// vueAPrefixe : la fin de la vue A ne vaut que prouvee paquet par paquet — la table du film est
-	// un prefixe STRICT de la table native, ou elle lui est egale sous une version majeure que le jeu
-	// ne joue pas.
+	// un prefixe STRICT de la table native.
 	vueAPrefixe
-	// vueAEgale : la table du film est EGALE a la table native, sous la version majeure que le jeu
-	// joue.
+	// vueAEgale : la table du film est EGALE a la table native, genre par genre.
 	vueAEgale
 )
-
-// versionMajeureJouee est la seule version majeure de film que l executable lu joue : `FUN_1428e219c`
-// ne lit le film que sous `*film == 0x29` (cf. l en-tete, « la garde de version majeure »).
-const versionMajeureJouee = 0x29
 
 // dernierGenreAVersionDistinctive est le plus haut genre dont la version native differe de 1
 // ([versionsNativesDesGenres]) : au-dela, la numerotation des genres d un film PREFIXE est presumee
@@ -133,27 +132,15 @@ func versionNative(genre int) uint32 {
 	return uint32(versionsNativesDesGenres[genre] - '0')
 }
 
-// tableDesGenresDuFilm applique la regle au profil d un film : la classe de sa table des genres sous
-// sa version majeure, lue en tete de `chunk_00` ([profile.HighlightProfile] porte la lecture), et son
-// cardinal (0 pour un film illisible). C est le seul site ou la classe d un film est decidee.
+// tableDesGenresDuFilm applique la regle au profil d un film : la classe de la table des genres qu il
+// declare (section d identification de `chunk_00`, [profile.Profile.Identity]) et son cardinal (0 pour
+// un film illisible). La version majeure n y entre pas (cf. l en-tete). C est le seul site ou la
+// classe d un film est decidee.
 func tableDesGenresDuFilm(p profile.Profile) (classeDeLaVueA, int) {
 	if !p.IdentityRead() {
 		return vueAIllisible, 0
 	}
-	classe, genres := classeDesGenres(p.Identity().TypeVersions)
-	majeure := p.Highlight()
-	return classeSousLaMajeure(classe, majeure.MajorVersion, majeure.Lue), genres
-}
-
-// classeSousLaMajeure applique a la classe de la table la garde de version majeure du jeu
-// (`FUN_1428e219c`, cf. l en-tete) : une table EGALE ne vaut lecteur porte que sous la version
-// majeure jouee, LUE ; sinon la fin de la vue A du film ne vaut que prouvee, comme celle d un film
-// PREFIXE (decision du pilote du 2026-10-06).
-func classeSousLaMajeure(classe classeDeLaVueA, majeure int, lue bool) classeDeLaVueA {
-	if classe == vueAEgale && (!lue || majeure != versionMajeureJouee) {
-		return vueAPrefixe
-	}
-	return classe
+	return classeDesGenres(p.Identity().TypeVersions)
 }
 
 // premierGenrePresume rend le rang, dans la suite `genres` lue dans la vue A d un film de classe

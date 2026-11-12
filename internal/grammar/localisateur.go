@@ -24,8 +24,8 @@ package grammar
 // lecteur (`FUN_142987460`) lit la vue A jusqu a ce 0 (`FUN_14076a1c4`) et commence la vue B au bit
 // suivant. Il ne cherche rien. Quand la lecture unique de la vue A ([lireLaVueA]) atteint le
 // terminateur, sa fin E EST le debut de la vue B, et [debutParLaVueA] decide, selon la classe de la
-// table des genres du film sous sa version majeure ([tableDesGenresDuFilm] ; decisions de
-// l utilisateur du 2026-10-04 et du pilote du 2026-10-06) :
+// table des genres que le film declare ([tableDesGenresDuFilm] ; decisions de l utilisateur du
+// 2026-10-04) :
 //
 //	EGALE     E, toujours — y compris quand la signature du slot 123 trouverait une autre
 //	          position, et quand la marche depuis E bute sur un composant que le decodeur ne porte
@@ -36,9 +36,8 @@ package grammar
 //	          differe, mesure) ; sinon le chemin d avant, a l identique ;
 //	ILLISIBLE E n existe pas.
 //
-// EGALE suppose la table native ET la version majeure que le jeu joue : `FUN_1428e219c` ne lit un
-// film que sous `*film == 0x29`. Un film de table egale sous une autre majeure (HI_1_12_0, 0x28) est
-// PREFIXE : E seulement prouve (`vue_a_versions.go`, « la garde de version majeure »). Pour un film
+// La classe vient de la seule table des genres que le film declare ; la version majeure n y entre pas
+// (`vue_a_versions.go`, « la version majeure du film n entre pas dans la regle »). Pour un film
 // PREFIXE, la numerotation des genres au-dela du 107 est presumee, pas lue (meme fichier) : la
 // preuve de fermeture est la seule garde de E.
 //

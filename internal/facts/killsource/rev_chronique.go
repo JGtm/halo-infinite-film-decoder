@@ -424,3 +424,8 @@ package killsource
 // sous la porte que le flux donne : sur la mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne
 // change, et sur les 18 temoins du banc de verite du `replay-corpus-gate` les mesures de kills (O-K) sont celles d avant. Golden
 // regenere a revision constante.
+//
+// A REVISION CONSTANTE (classe de la vue A lue sur la seule table des genres, trois charges de la vue A, 2026-11-12, plan de la
+// marche complete, A2.V) : la VALEUR de `grammar.Rev` monte a `grammar-2026-11-12` ; aucune source de cette couche ne change. Sur la
+// mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne change. Les mesures de kills du banc de verite du
+// `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur. Golden regenere a revision constante.

@@ -70,6 +70,9 @@ func chargeDuGenre(genre int) func(*Lecteur) bool { //nolint:gocyclo // un case 
 	case 120:
 		return chargeAppelDeJoueur
 	}
+	if c := chargeMesuree(genre); c != nil {
+		return c
+	}
 	if c := chargeDArme(genre); c != nil {
 		return c
 	}

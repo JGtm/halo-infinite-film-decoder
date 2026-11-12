@@ -151,16 +151,16 @@ func TestUnFilmAncienPrendLaFinDeSaVueAQuandElleFermeLePaquet(t *testing.T) {
 }
 
 // TestUneVueALueEnPartieNeDecideRien : une vue A que la lecture n atteint pas jusqu a son
-// terminateur — bit de configuration a 0, film sans table, genre 14 dont la charge n est pas
+// terminateur — bit de configuration a 0, film sans table, genre 13 dont la charge n est pas
 // portee — ne decide de rien : le paquet suit le localisateur a l identique, ici la signature
 // trouvee dans la vue A. MUTATIONS — E pris malgre le bit de configuration a 0 ; E pris sur une
 // lecture arretee : ROUGES.
 func TestUneVueALueEnPartieNeDecideRien(t *testing.T) {
 	cfg := cadreDeCarte()
 	pay0, _ := paquetVueA(0, scriptPortantUneSignature, vueBFermee)
-	pay14, _ := paquetVueA(1, func(w *bitWriter) {
+	pay13, _ := paquetVueA(1, func(w *bitWriter) {
 		scriptPortantUneSignature(w)
-		w.ecrireEnTeteDeMessage(14)
+		w.ecrireEnTeteDeMessage(13)
 	}, vueBFermee)
 	pay1, _ := paquetVueA(1, scriptPortantUneSignature, vueBFermee)
 	for _, c := range []struct {
@@ -169,7 +169,7 @@ func TestUneVueALueEnPartieNeDecideRien(t *testing.T) {
 		g   grammaireDeLaVueA
 	}{
 		{"bit de configuration a 0", pay0, grammaireDeScript(vueAEgale, GenresVueA)},
-		{"genre 14 non porte", pay14, grammaireDeScript(vueAEgale, GenresVueA)},
+		{"genre 13 non porte", pay13, grammaireDeScript(vueAEgale, GenresVueA)},
 		{"film sans table", pay1, grammaireDeLaVueA{}},
 	} {
 		w := mondeDeCarte(compHighFrequency)
@@ -183,13 +183,14 @@ func TestUneVueALueEnPartieNeDecideRien(t *testing.T) {
 	}
 }
 
-// TestUnVraiPaquetNePartDeLaFinDeSaVueAQueProuvee : la trame 1:204 de `bcb6d393` (HI_1_12_0 : table
-// EGALE, version majeure 0x28 que le jeu ne joue pas, donc classe PREFIXE), quarante Script dont la
-// vue A finit au bit 5605. Sous une grammaire EGALE, la vue B y commencerait ; sous la classe du
-// film, la marche depuis 5605 doit fermer le paquet, et dans un monde sans entite elle ne l atteint
-// pas : le paquet suit le localisateur a l identique. MUTATION — la garde retiree de
-// [classeSousLaMajeure] : ROUGE.
-func TestUnVraiPaquetNePartDeLaFinDeSaVueAQueProuvee(t *testing.T) {
+// TestUnVraiPaquetDeLaMajeure0x28PartDeLaFinDeSaVueA : la trame 1:204 de `bcb6d393` (HI_1_12_0 : table
+// EGALE, version majeure 0x28, donc classe EGALE), quarante Script dont la vue A finit au bit 5605. La
+// vue B y commence, que la marche depuis ce bit ferme le paquet ou non : dans un monde sans entite elle
+// ne l atteint pas, et le paquet ne suit pourtant pas le localisateur. Un film de classe PREFIXE, lui,
+// ne prend cette fin que prouvee : sur le meme paquet et le meme monde, il suit le localisateur a
+// l identique. MUTATION — la classe d un film de table native et de majeure 0x28 ramenee a PREFIXE :
+// ROUGE.
+func TestUnVraiPaquetDeLaMajeure0x28PartDeLaFinDeSaVueA(t *testing.T) {
 	pay, err := os.ReadFile("testdata/vue_a_bcb6d393_1_204.bin")
 	if err != nil {
 		t.Fatal(err)
@@ -205,23 +206,23 @@ func TestUnVraiPaquetNePartDeLaFinDeSaVueAQueProuvee(t *testing.T) {
 	cfg := cadreDeCarte()
 	cfg.Profil.Grammaire.ControleDeCorruption = id.ControleDeCorruption
 	a := lireLaVueA(pay, 1, cfg.Profil, g)
-	if g.classe != vueAPrefixe || g.genres != GenresVueA {
-		t.Fatalf("classe %d, %d genres ; attendu PREFIXE, %d genres", g.classe, g.genres, GenresVueA)
+	if g.classe != vueAEgale || g.genres != GenresVueA {
+		t.Fatalf("classe %d, %d genres ; attendu EGALE, %d genres", g.classe, g.genres, GenresVueA)
 	}
 	if !a.Porte || a.Fin != 5605 {
 		t.Fatalf("vue A portee %v, fin %d ; attendu 5605", a.Porte, a.Fin)
 	}
-	if d, comment := debutDeLaVueBDeCuisson(pay, &a, vueAEgale, mondeDeCarte(), cfg); d != 5605 ||
-		comment != lecture.DebutParVueA {
-		t.Errorf("grammaire EGALE : debut (%d, %d), attendu (5605, par la vue A)", d, comment)
-	}
 	if l := lectureDEssai(pay, mondeDeCarte(), cfg, 5605); l.Fermee {
 		t.Fatalf("la marche depuis le bit 5605 ferme le paquet dans un monde vide : %+v", l)
 	}
+	if d, comment := debutDeLaVueBDeCuisson(pay, &a, g.classe, mondeDeCarte(), cfg); d != 5605 ||
+		comment != lecture.DebutParVueA {
+		t.Errorf("classe du film : debut (%d, %d), attendu (5605, par la vue A)", d, comment)
+	}
 	s, commentS := localiserLaListe(pay, mondeDeCarte(), cfg)
-	if d, comment := debutDeLaVueBDeCuisson(pay, &a, g.classe, mondeDeCarte(), cfg); d != s ||
+	if d, comment := debutDeLaVueBDeCuisson(pay, &a, vueAPrefixe, mondeDeCarte(), cfg); d != s ||
 		comment != commentS || comment == lecture.DebutParVueA {
-		t.Errorf("classe du film : debut (%d, %d), attendu le localisateur (%d, %d)", d, comment, s, commentS)
+		t.Errorf("grammaire PREFIXE : debut (%d, %d), attendu le localisateur (%d, %d)", d, comment, s, commentS)
 	}
 }
 
