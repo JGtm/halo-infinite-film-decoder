@@ -156,9 +156,10 @@ type ScoreTimeline struct {
 	// Vide quand l'appelant n'a pas fourni les lignes (le pont d'identite passe par elles).
 	Players []PlayerScore `json:"players,omitempty"`
 	// TargetScore est la CIBLE DE VICTOIRE du mode (50 frags, 3 drapeaux...) : le score qui
-	// termine le match quand il est atteint. Elle ne vient JAMAIS du film, qui ne la porte
-	// pas — c'est la table MESUREE de la variante (regulation.toml [score_target]), fournie
-	// par l'appelant. ABSENTE quand la variante n'est pas au catalogue, quand le calque n'a
+	// termine le match quand il est atteint. Le film la porte (le score de victoire de sa
+	// variante de partie, `decfilm.ReadMatchInfo`), mais ce n'est pas la source de cette
+	// valeur : elle vient de la table MESUREE de la variante (regulation.toml [score_target]),
+	// fournie par l'appelant. ABSENTE quand la variante n'est pas au catalogue, quand le calque n'a
 	// aucune courbe d'equipe, OU quand un score final du film la DEPASSE (table perimee pour
 	// cette variante : se taire vaut mieux que publier une cible fausse). Le client s'en sert
 	// comme denominateur des barres de score ; sans elle, il retombe sur le score final du
