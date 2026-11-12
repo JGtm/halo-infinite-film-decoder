@@ -190,9 +190,11 @@ func rideDeTest(t0, t1 int, xuid string, seat int) VehicleRide {
 }
 
 // TestOccupantConnuOuInconnu : le conducteur est prefere ; un episode sans xuid ne nomme personne ;
-// un episode termine plus de deux images avant la destruction n est plus a bord.
+// un episode termine plus de vehicleDestructionAboardTolMS avant la destruction n est plus a bord (la marge
+// se derive du pas de construction : 6 images a 33 ms, 2 a 100 ms).
 func TestOccupantConnuOuInconnu(t *testing.T) {
 	mort := morteDeTest(28_200_000, 3, deadStateTagAbsent)
+	marge := framesOfMS(vehicleDestructionAboardTolMS, DefaultFrameIntervalMS)
 	for _, cas := range []struct {
 		nom   string
 		rides []VehicleRide
@@ -201,8 +203,8 @@ func TestOccupantConnuOuInconnu(t *testing.T) {
 		{"conducteur prefere", []VehicleRide{rideDeTest(100, 300, xuidPassager, 1), rideDeTest(100, 300, xuidConducteur, 0)}, xuidConducteur},
 		{"conducteur sans xuid : le passager nomme", []VehicleRide{rideDeTest(100, 300, "", 0), rideDeTest(100, 300, xuidPassager, 1)}, xuidPassager},
 		{"episode sans xuid", []VehicleRide{rideDeTest(100, 300, "", 0)}, ""},
-		{"fin d episode a deux images", []VehicleRide{rideDeTest(100, 280, xuidConducteur, 0)}, xuidConducteur},
-		{"fin d episode a trois images", []VehicleRide{rideDeTest(100, 279, xuidConducteur, 0)}, ""},
+		{"fin d episode a la marge", []VehicleRide{rideDeTest(100, 282-marge, xuidConducteur, 0)}, xuidConducteur},
+		{"fin d episode une image au-dela de la marge", []VehicleRide{rideDeTest(100, 282-marge-1, xuidConducteur, 0)}, ""},
 		{"episode commence apres", []VehicleRide{rideDeTest(283, 300, xuidConducteur, 0)}, ""},
 		{"aucun episode", nil, ""},
 	} {
@@ -316,13 +318,15 @@ func TestSansDestructionLeDocumentNePorteAucuneCouverture(t *testing.T) {
 // TestLaMargeABordSuitLaCadenceDuDocument : la marge est une duree. Un episode clos 150 ms avant la
 // destruction est a bord a toute cadence ; clos 250 ms avant, il ne l est plus.
 func TestLaMargeABordSuitLaCadenceDuDocument(t *testing.T) {
+	defaut := framesOfMS(vehicleDestructionAboardTolMS, DefaultFrameIntervalMS)
 	for _, c := range []struct {
 		intervalMS, tEnd, t1 int
 		aBord                bool
 	}{
 		{100, 300, 298, true}, {100, 300, 297, false},
 		{33, 900, 894, true}, {33, 900, 893, false},
-		{0, 300, 298, true}, {0, 300, 297, false}, // sans cadence ecrite : celle par defaut
+		// sans cadence ecrite : celle par defaut, dont la marge en images se derive du pas
+		{0, 300, 300 - defaut, true}, {0, 300, 300 - defaut - 1, false},
 	} {
 		doc := documentDeTest(vieDetruite(c.tEnd, morteDeTest(1_000_000, -1, deadStateTagAbsent), rideDeTest(10, c.t1, xuidConducteur, 0)))
 		doc.FrameIntervalMS = c.intervalMS

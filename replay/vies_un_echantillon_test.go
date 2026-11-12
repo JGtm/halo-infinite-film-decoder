@@ -89,15 +89,21 @@ const (
 // v29 de CE lot (sans rapport avec le fil des morts) l a rattrape : sa vie d un seul echantillon
 // n est plus apparie a une mort ecrite, elle ferme desormais sur la fin du film ({0,0,0,0} : la
 // vie elle-meme a disparu de l echantillon, cf. le total ci-dessous).
+//
+// LE PAS DE 33 MS LES FAIT TOUTES DISPARAITRE (schema 110, 2026-11-12) : les trois vies d un seul
+// echantillon qui restaient (`11de8353` {1, 0, 1, 0} et `bcb6d393` {2, 0, 2, 0}) ne tenaient que dans
+// un pas de 100 ms ; a 33 ms chacune compte plus d un point de grille. Ce n est pas une perte : c est la
+// meme vie, mieux echantillonnee. L oracle ne garde que ce qu il garantit encore : aucune
+// vie d un seul echantillon, donc aucune ORPHELINE.
 func viesDUnEchantillonAttendues() map[string][4]int {
 	return map[string][4]int{
 		"000d5950": {0, 0, 0, 0},
 		"a521164d": {0, 0, 0, 0},
 		"60ae07c4": {0, 0, 0, 0},
-		"11de8353": {1, 0, 1, 0},
+		"11de8353": {0, 0, 0, 0},
 		"111fa685": {0, 0, 0, 0},
 		"e5adf7b2": {0, 0, 0, 0},
-		"bcb6d393": {2, 0, 2, 0},
+		"bcb6d393": {0, 0, 0, 0},
 		"fb1a1a72": {0, 0, 0, 0},
 	}
 }
@@ -129,8 +135,8 @@ func TestViesDUnEchantillonOntLeurOracle(t *testing.T) {
 	}
 	t.Logf("TOTAL sur les huit builds : %d vie(s) d'un echantillon · %d mort ecrite · %d fin de "+
 		"film · %d ORPHELINE(S)", total[0], total[1], total[2], total[3])
-	if total != [4]int{3, 0, 3, 0} {
-		t.Errorf("total {3, 0, 3, 0} attendu, mesure %v", total)
+	if total != [4]int{} {
+		t.Errorf("total {0, 0, 0, 0} attendu (pas de 33 ms), mesure %v", total)
 	}
 	if total[3] != 0 {
 		t.Errorf("%d vie(s) ORPHELINE(S) : ni mort ecrite, ni fin de manche, ni fin de film. "+

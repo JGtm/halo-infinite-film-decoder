@@ -30,8 +30,8 @@ func TestFramesOfMS(t *testing.T) {
 		{"100 ms a 40 ms (jamais plus large que la duree)", 100, 40, 2},
 		{"duree nulle", 0, 100, 0},
 		{"duree negative", -50, 100, 0},
-		{"pas absent = pas de construction", 200, 0, 2},
-		{"pas negatif = pas de construction", 200, -1, 2},
+		{"pas absent = pas de construction", 200, 0, 200 / DefaultFrameIntervalMS},
+		{"pas negatif = pas de construction", 200, -1, 200 / DefaultFrameIntervalMS},
 		{"pas plus grand que la duree", 100, 250, 0},
 	} {
 		if got := framesOfMS(c.ms, c.interval); got != c.attendu {
@@ -47,8 +47,8 @@ func TestPasHistoriqueDistinctDuDefautDeConstruction(t *testing.T) {
 		t.Errorf("HistoricalFrameIntervalMS = %d, attendu 100 (documents publies sans frameIntervalMs)",
 			HistoricalFrameIntervalMS)
 	}
-	if DefaultFrameIntervalMS != 100 {
-		t.Errorf("DefaultFrameIntervalMS = %d, attendu 100", DefaultFrameIntervalMS)
+	if DefaultFrameIntervalMS != 33 {
+		t.Errorf("DefaultFrameIntervalMS = %d, attendu 33 (30,3 images par seconde, schema 110)", DefaultFrameIntervalMS)
 	}
 }
 
@@ -78,17 +78,23 @@ func TestToleranceDePositionDeZoneEnMsIndependanteDeLaCadence(t *testing.T) {
 	}
 }
 
-// TestToleranceDePositionDeZoneParDefautVaut200ms : au pas de construction, le defaut vaut les deux
-// frames historiques, et `DefaultMaxGapFrames` (cmd de mesure) en reste l'expression a ce pas.
+// TestToleranceDePositionDeZoneParDefautVaut200ms : au pas de construction, le defaut vaut les 200 ms
+// de [DefaultMaxGapMS] converties a ce pas, et `DefaultMaxGapFrames` (cmd de mesure) en reste
+// l'expression a ce pas. Le nombre de frames se DERIVE du pas : aucun nombre n'est fige ici.
 func TestToleranceDePositionDeZoneParDefautVaut200ms(t *testing.T) {
 	if DefaultMaxGapMS != 200 {
 		t.Errorf("DefaultMaxGapMS = %d, attendu 200", DefaultMaxGapMS)
 	}
-	if DefaultMaxGapFrames != 2 {
-		t.Errorf("DefaultMaxGapFrames = %d, attendu 2 (200 ms au pas de %d ms)", DefaultMaxGapFrames, DefaultFrameIntervalMS)
+	attendu := DefaultMaxGapMS / DefaultFrameIntervalMS
+	if DefaultMaxGapFrames != attendu {
+		t.Errorf("DefaultMaxGapFrames = %d, attendu %d (200 ms au pas de %d ms)",
+			DefaultMaxGapFrames, attendu, DefaultFrameIntervalMS)
 	}
-	if got := (AttributeOptions{}).maxGapFrames(); got != 2 {
-		t.Errorf("tolerance par defaut = %d frames, attendu 2", got)
+	if got := (AttributeOptions{}).maxGapFrames(); got != attendu {
+		t.Errorf("tolerance par defaut = %d frames, attendu %d", got, attendu)
+	}
+	if got := (AttributeOptions{FrameIntervalMS: 100}).maxGapFrames(); got != 2 {
+		t.Errorf("tolerance par defaut a 100 ms = %d frames, attendu 2", got)
 	}
 	if got := (AttributeOptions{FrameIntervalMS: 33}).maxGapFrames(); got != 6 {
 		t.Errorf("tolerance par defaut a 33 ms = %d frames, attendu 6", got)
