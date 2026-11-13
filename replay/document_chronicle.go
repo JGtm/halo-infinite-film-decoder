@@ -3956,3 +3956,23 @@ package replay
 //
 // LE PARC         un artefact 111 : verdict `a redecoder` (les faits cuits au schema 21 et aux revisions d avant se refusent sur
 //                 leur en-tete). La recuisson est une decision de l utilisateur.
+
+// v113 (2026-11-13, poses datees apres la fin de l axe de nouveau ecartees). Aucun champ neuf, aucune forme qui change : c est le
+// CONTENU CUIT de `equipmentPlacements` qui change. Le schema 111 publiait a la derniere frame toute pose datee apres la fin de
+// l axe. Ces poses sont les objets recenses au dernier instantane du film, sans fin lue (`end` `open`) ni origine : le rejeu
+// s arrete a la derniere position et n a aucune frame ou les montrer, elles s empilaient sur la derniere. La regle d avant le
+// schema 111 revient : une pose nee apres la derniere frame est hors de l axe, comme une pose finie avant l origine.
+//
+//	`equipmentPlacements`   quatre films cuits a 100 ms aux deux regles : 14, 35, 36 et 37 poses de moins (`bcb6d393`, `084a804d`,
+//	                `e5adf7b2`, `4f77afc1`), toutes a la derniere frame ; les autres poses sont identiques ligne a ligne
+//	                (origine, fin, position, proprietaire).
+//	`coverage.equipmentPlacements`   `byFamily`, `byFamilyOrigin`, `byCause`, `unknown` et `endOpen` baissent d autant.
+//
+// CE QUI REVIENT AVEC LA REGLE : le dernier instantane tombe a quelques ms de la fin de la grille, d un cote ou de l autre selon le
+// pas ; le nombre de poses de bord peut donc differer entre 100 et 33 ms pour un meme film. Le reste du schema 111 ne bouge pas.
+//
+// CE QUI MONTE    `SchemaVersion` 112 -> 113, et avec lui `publication-113`. Aucune revision de grammaire, de faits ni de profil
+// AVEC ELLE       ne bouge.
+//
+// LE PARC         un artefact 112 : verdict `a republier` (les faits cuits restent frais). La recuisson est une decision de
+//                 l utilisateur.

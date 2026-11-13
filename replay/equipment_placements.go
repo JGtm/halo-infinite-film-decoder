@@ -346,11 +346,10 @@ func buildEquipmentPlacements(
 	for i, p := range in.Raw {
 		t0 := frameOf(p.T0US, clock.origin, clock.step)
 		t1 := frameOf(p.T1US, clock.origin, clock.step)
-		// UNE POSE DATEE APRES LA FIN DE L'AXE N'EST PAS ECARTEE : elle est lue au dernier instantane du film (ses vies
-		// sont decodees sur 0,5 a 4 s et datees par l'instantane), et l'axe, qui s'arrete a la derniere position, peut
-		// finir avant lui d'un nombre de ms qui depend de la grille. Elle se publie a la derniere frame, a toute
-		// cadence ; seule une pose entierement avant l'origine est hors de l'axe.
-		if t1 < 0 {
+		// UNE POSE DATEE HORS DE L'AXE EST ECARTEE, des deux cotes : finie avant l'origine, ou nee apres la derniere
+		// frame. Les poses datees apres la fin sont les objets recenses au dernier instantane du film, sans fin lue ni
+		// origine ; le rejeu s'arrete a la derniere position et n'a aucune frame ou les montrer.
+		if t1 < 0 || t0 >= clock.frames {
 			continue // hors de l'axe publié : rien à dessiner
 		}
 		pl := EquipmentPlacement{

@@ -1498,8 +1498,12 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   des trois charges de vue A de disposition mesuree depend du build (`profile.EcritureDuBuild`). Aucun champ
 	//   neuf ; le contenu cuit change pour les builds HI_1_11_0 a HI_1_13_0 (plus de paquets lus). `grammar.Rev` et
 	//   `profile.Rev` montent, `SchemaDesFaits` 21 -> 22 : un v111 se lit « à redécoder ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 112 {
-		t.Fatalf("SchemaVersion = %d, attendu 112 : incrémenter exige une raison écrite ci-dessus "+
+	// - 113 (2026-11-13, poses datees apres la fin de l axe) : une pose d equipement nee apres la derniere frame est de
+	//   nouveau ecartee (regle d avant le schema 111). Aucun champ neuf ; `equipmentPlacements` perd les poses que le
+	//   schema 111 publiait a la derniere frame. Aucune revision de decodage ne monte : un v112 se lit « à republier ».
+	//   Détail : `document_chronicle.go`.
+	if SchemaVersion != 113 {
+		t.Fatalf("SchemaVersion = %d, attendu 113 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }
