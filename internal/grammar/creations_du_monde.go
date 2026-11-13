@@ -155,7 +155,7 @@ func (c *FilmContext) releverLesCreationsDe(w equipCreationWalk) {
 			marches = append(marches, autre)
 		}
 	}
-	creations, stats := releverLesCreations(c, marches)
+	creations, stats := releverLesCreations(c, marches, c.finDuBalayage())
 	for i, m := range marches {
 		c.recup.creations = append(c.recup.creations, &creationsRelevees{cle: cleDe(m), creations: creations[i],
 			stats: stats[i]})
@@ -176,13 +176,13 @@ func copierLesCreations(cr []types.EquipmentCreation) []types.EquipmentCreation 
 }
 
 // releverLesCreations marche, en une passe sur les payloads delta du film, les creations de
-// chacune des `marches`. Chaque payload n est balaye que jusqu au premier bit que la fermeture de
-// sa trame prouve ([FilmContext.finDuBalayage]) : au-dela, la marche des trames a lu les records et
-// la passe ne rend rien ([rendParLAncrage]).
-func releverLesCreations(c *FilmContext, marches []equipCreationWalk) ([][]types.EquipmentCreation,
-	[]types.EquipmentCreationStats) {
+// chacune des `marches`. `fin` rend, par payload, le bit ou la passe s arrete : la cuisson s arrete au
+// premier bit que la fermeture de la trame prouve ([FilmContext.finDuBalayage]) — au-dela, la marche
+// des trames a lu les records et la passe ne rend rien ([rendParLAncrage]) ; [payloadEntier] rend la
+// passe seule.
+func releverLesCreations(c *FilmContext, marches []equipCreationWalk,
+	fin func(chunk, index, total int) int) ([][]types.EquipmentCreation, []types.EquipmentCreationStats) {
 	ps := nouvellePasseDesCreations(marches)
-	fin := c.finDuBalayage()
 	for _, ch := range c.ChunkNumbers() {
 		data, pks, ok := c.ChunkAt(ch)
 		if !ok {

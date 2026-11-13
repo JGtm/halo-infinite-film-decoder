@@ -123,7 +123,7 @@ func TestLesCreationsDUnePasseSontCellesDesArchetypesSeuls(t *testing.T) {
 	if len(marches) < 2 {
 		t.Fatalf("%d archetype(s) de creation sur la bobine : la passe commune n est pas exercee", len(marches))
 	}
-	ensemble, comptes := releverLesCreations(fc, marches)
+	ensemble, comptes := releverLesCreations(fc, marches, payloadEntier)
 	acceptees := 0
 	for i, w := range marches {
 		seule, compte := marcheDUnArchetype(fc, w)

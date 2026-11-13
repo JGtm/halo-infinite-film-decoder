@@ -138,7 +138,7 @@ func (pr vehProbe) scan(band map[uint32]bool, deser func(*Lecteur)) (
 		posBits: pr.lay.TotalBits(),
 	}
 	w.obs = installCreationHooks(&cur)
-	cre, sts := releverLesCreations(pr.fc, []equipCreationWalk{w})
+	cre, sts := releverLesCreations(pr.fc, []equipCreationWalk{w}, payloadEntier)
 	return cre[0], sts[0], nil
 }
 
