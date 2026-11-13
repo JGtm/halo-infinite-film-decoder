@@ -68,7 +68,7 @@ type VehicleDestruction struct {
 	CauseKey string `json:"causeKey,omitempty"`
 	// Occupant est le xuid de l occupant a l instant de la destruction, le conducteur (siege 0) de
 	// preference. Absent : aucun episode NOMME ne couvre l instant. Il vient du calque des episodes
-	// (`rides[]`), dont la couverture est celle de la primitive d occupation (15,6 a 21,1 % des vies).
+	// (`rides[]`), dont la couverture est partielle (cf. `VehicleTrack.Rides`).
 	Occupant string `json:"occupant,omitempty"`
 	// Killed sont les xuids des joueurs morts AVEC le vehicule, tries. LU : le dead-state de leur bipede
 	// et leur etat de parente, cf. vehicle_destruction_killed.go ; il ne depend ni de `rides[]` ni du fil
