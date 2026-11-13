@@ -1,6 +1,10 @@
 package grammar
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/JGtm/halo-infinite-film-decoder/internal/constat"
+)
 
 // marche_commune.go — UNE MARCHE DES TRAMES POUR LA SOURCE DE DEGAT ET POUR LA CUISSON.
 //
@@ -21,6 +25,8 @@ type marcheGardee struct {
 	profil ProfilDeBalayage
 	// rendue : la cuisson l a deja prise ; une seconde demande marche.
 	rendue bool
+	// prise : une cuisson a repris le contexte ([FilmContext.PrendrePourLaCuisson]).
+	prise bool
 }
 
 // veutLesMorts dit si ces lectures demandent les morts d objet et l occupation sur le film de `fc`.
@@ -57,6 +63,18 @@ func (c *FilmContext) GardeUneMarchePourLaCuisson() bool {
 	return g != nil && !g.rendue && reflect.DeepEqual(g.profil, c.ProfilDeBalayage())
 }
 
+// PrendrePourLaCuisson dit, UNE fois, que la cuisson peut reprendre ce contexte : il garde une marche
+// qu elle n a pas prise. Un contexte deja pris, ou qui ne garde rien, n est pas repris : la cuisson
+// ouvre le sien, comme si on ne lui avait rien donne.
+func (c *FilmContext) PrendrePourLaCuisson() bool {
+	g := c.recup.marche
+	if g == nil || g.prise {
+		return false
+	}
+	g.prise = true
+	return true
+}
+
 // LireLaMarcheCommune est [LireLaMarcheDeKillsource] sur une marche qui porte aussi les canaux de la
 // cuisson : ce que la cuisson en attend reste au contexte ([FilmContext.marcheGardee]). Quand la
 // marche de la cuisson ne peut pas tourner sur ce film (pas de chunk, archetype bipede illisible), la
@@ -71,6 +89,9 @@ func LireLaMarcheCommune(fc *FilmContext) (LectureDeKillsource, error) {
 	profil := fc.ProfilDeBalayage()
 	m, _, err := marcherPourLaCuisson(fc, LecturesDeLaMarche{}, []Canal{morts, kills})
 	if err != nil {
+		fc.Diagnostics().Signaler(constat.Diagnostic{Code: DiagMarcheCommuneAbandonnee, Niveau: constat.NiveauInfo,
+			Message: "marche commune abandonnee : la marche de la cuisson ne tourne pas sur ce film, la source de degat marche seule",
+			Attrs:   []any{"err", err}})
 		return LireLaMarcheDeKillsource(fc)
 	}
 	fc.recup.marche = &marcheGardee{m: m, morts: morts, profil: profil}

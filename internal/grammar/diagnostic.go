@@ -23,6 +23,9 @@ const (
 	DiagGrenadeArchetypeNonResolu constat.Code = "grammar.grenade_archetype_non_resolu"
 	// DiagGrenadeCouverture : la couverture du balayage des lancers de grenade.
 	DiagGrenadeCouverture constat.Code = "grammar.grenade_couverture"
+	// DiagMarcheCommuneAbandonnee : la marche commune a la source de degat et a la cuisson n a pas pu
+	// tourner ; la source de degat a marche seule.
+	DiagMarcheCommuneAbandonnee constat.Code = "grammar.marche_commune_abandonnee"
 )
 
 // cleDiagSlot : la cle d attribut du slot dans les diagnostics de la couche.

@@ -95,7 +95,7 @@ func BuildFromFilmAvecFaits(ctx context.Context, matchID, titleSlug string, film
 	// d i0, registre) restent PARESSEUSES, donc calculees au premier balayage qui les demande,
 	// donc apres l installation ci-dessous et apres le demarrage de l horloge des etapes.
 	fc := opt.Contexte
-	if fc == nil || fc.Film() != film || decoupageForce(opt) != nil {
+	if fc == nil || fc.Film() != film || decoupageForce(opt) != nil || !fc.PrendrePourLaCuisson() {
 		fc = grammar.NewFilmContextForMap(film, opt.MapQuant, decoupageForce(opt))
 	}
 	poserProfilPuisCarte(ctx, fc, matchID, opt)
