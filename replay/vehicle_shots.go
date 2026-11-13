@@ -215,7 +215,7 @@ func (b vehicleShotBoard) poserSur(
 		return Shot{}, vehicleShotUnplaced, false
 	}
 	v := b.tracks[at].Slot
-	s := Shot{T: fr, Slot: occupant, X: round2(x), Y: round2(y), Vehicle: &v}
+	s := Shot{T: fr, Slot: occupant, X: round2(x), Y: round2(y), Vehicle: &v, tUS: o.ev.TimestampUS}
 	if h, ok := o.ev.AimHeadingDeg(); ok {
 		s.H = headingForJSON(float32(h))
 	}

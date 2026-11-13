@@ -406,20 +406,21 @@ func flagCarrierTrackIndex(ctx flagCarryCtx, cov *FlagCarriesCoverage) map[strin
 func attachFlagCarryPositions(raws []flagCarryRaw, ctx flagCarryCtx, idx map[string][]Track,
 	cov *FlagCarriesCoverage) []flagCarryRaw {
 	out := raws[:0:0]
+	tol := ctx.framesOfMS(flagCarrierPointToleranceMS)
 	for _, r := range raws {
 		f0 := ctx.frameOfMatchMS(r.t0)
 		if f0 < 0 || f0 >= ctx.frames {
 			cov.OutOfWindow++
 			continue
 		}
-		p0, ok0 := pointOfXUIDAt(idx[r.xuid], f0)
+		p0, ok0 := pointOfXUIDAt(idx[r.xuid], f0, tol)
 		if !ok0 {
 			cov.NoTrack++
 			continue
 		}
 		r.x0, r.y0 = p0.X, p0.Y
 		r.x1, r.y1 = p0.X, p0.Y
-		if p1, ok1 := pointOfXUIDAt(idx[r.xuid], clampFrame(ctx.frameOfMatchMS(r.t1), ctx.frames)); ok1 {
+		if p1, ok1 := pointOfXUIDAt(idx[r.xuid], clampFrame(ctx.frameOfMatchMS(r.t1), ctx.frames), tol); ok1 {
 			r.x1, r.y1 = p1.X, p1.Y
 		} else {
 			// REPLI NOMME ET COMPTE (D14) : aucun point publie a la frame de fin, le LACHER prend

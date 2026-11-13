@@ -151,7 +151,7 @@ func flagStealPointsByTeam(ops []flagOpening, teamOf map[string]int, ctx flagCar
 		if !ok || team == TeamNeutral || f0 < 0 || f0 >= ctx.frames {
 			continue
 		}
-		if p, ok := pointOfXUIDAt(idx[o.xuid], f0); ok {
+		if p, ok := pointOfXUIDAt(idx[o.xuid], f0, ctx.framesOfMS(flagCarrierPointToleranceMS)); ok {
 			out[team] = append(out[team], flagPoint{p.X, p.Y})
 		}
 	}

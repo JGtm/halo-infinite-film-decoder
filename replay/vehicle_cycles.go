@@ -50,6 +50,8 @@ package replay
 import (
 	"cmp"
 	"slices"
+
+	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
 // vehicleCycleClusterM est le rayon d agglomeration des naissances en UN emplacement, en metres.
@@ -98,16 +100,17 @@ type vehicleCycleCluster struct {
 	sx, sy   float64
 	n        int
 	familles map[string]int
-	// lives porte, par vie et dans l ordre de naissance, la frame de naissance et la frame de
-	// mort DATEE (-1 quand la vie n en a pas).
+	// lives porte, par vie et dans l ordre de naissance, l instant de naissance et celui de la mort
+	// DATEE (zero quand la vie n en a pas), en microsecondes du film.
 	lives []vehicleCycleLife
 }
 
 // vehicleCycleLife est ce qu une vie apporte a son emplacement : quand elle nait, et quand le
-// film ECRIT qu elle meurt.
+// film ECRIT qu elle meurt, en MICROSECONDES : le cycle est un delai du film, que la grille de
+// publication ne quantifie pas.
 type vehicleCycleLife struct {
-	t0   int
-	tEnd int // -1 : pas de fin datee et destructrice
+	bornUS uint64
+	endUS  uint64 // 0 : pas de fin datee et destructrice
 }
 
 // buildVehicleCycles agglomere les naissances publiees et rend les cycles ETABLIS, tries.
@@ -115,18 +118,17 @@ type vehicleCycleLife struct {
 // IL NE LIT QUE LE DOCUMENT : les vies, leurs naissances et leurs fins sont deja publiees et
 // deja fusionnees (les relais). Recalculer depuis le balayage publierait un cycle sur des vies
 // que le document ne montre pas.
-func buildVehicleCycles(tracks []VehicleTrack, stepUS uint64, cov *VehicleCoverage) []VehicleCycle {
-	if len(tracks) == 0 || stepUS == 0 {
+func buildVehicleCycles(tracks []VehicleTrack, cov *VehicleCoverage) []VehicleCycle {
+	if len(tracks) == 0 {
 		return nil
 	}
 	amas := clusterVehicleSpawns(tracks)
 	if cov != nil {
 		cov.CycleLocations = len(amas)
 	}
-	secPerFrame := float64(stepUS) / 1e6
 	out := make([]VehicleCycle, 0, len(amas))
 	for _, a := range amas {
-		gaps, manques := vehicleCycleGaps(a.lives, secPerFrame)
+		gaps, manques := vehicleCycleGaps(a.lives)
 		if cov != nil {
 			cov.CycleGaps += len(gaps)
 			cov.CycleMissing += manques
@@ -159,7 +161,8 @@ func buildVehicleCycles(tracks []VehicleTrack, stepUS uint64, cov *VehicleCovera
 // L AGGLOMERATION EST GLOUTONNE ET ORDONNEE PAR LE TEMPS : une naissance rejoint le premier amas
 // dont le barycentre COURANT est assez proche, sinon elle en ouvre un. C est la meme discipline
 // que les grappes de socle d arme, et elle est stable parce que l ordre d entree est celui du
-// film — pas celui d une carte Go.
+// film — pas celui d une carte Go —, au MICROSECONDE : deux naissances que la grille met dans la meme
+// frame gardent l ordre du film, et le tri stable ne tranche que les instants egaux.
 //
 // UNE VIE SANS NAISSANCE SITUEE N ENTRE DANS AUCUN AMAS : elle n a pas d emplacement, et lui en
 // inventer un ferait naitre des ecarts entre des endroits differents.
@@ -170,7 +173,7 @@ func clusterVehicleSpawns(tracks []VehicleTrack) []*vehicleCycleCluster {
 			ordre = append(ordre, i)
 		}
 	}
-	slices.SortStableFunc(ordre, func(a, b int) int { return cmp.Compare(tracks[a].T0, tracks[b].T0) })
+	slices.SortStableFunc(ordre, func(a, b int) int { return cmp.Compare(tracks[a].bornUS, tracks[b].bornUS) })
 	var out []*vehicleCycleCluster
 	for _, i := range ordre {
 		tr := tracks[i]
@@ -185,7 +188,7 @@ func clusterVehicleSpawns(tracks []VehicleTrack) []*vehicleCycleCluster {
 		if tr.Family != "" {
 			a.familles[tr.Family]++
 		}
-		a.lives = append(a.lives, vehicleCycleLife{t0: tr.T0, tEnd: vehicleDatedEnd(tr)})
+		a.lives = append(a.lives, vehicleCycleLife{bornUS: tr.bornUS, endUS: vehicleDatedEndUS(tr)})
 	}
 	return out
 }
@@ -207,36 +210,84 @@ func nearestVehicleCluster(amas []*vehicleCycleCluster, x, y float32) *vehicleCy
 	return best
 }
 
-// vehicleDatedEnd rend la frame de fin d une vie quand le film l ECRIT comme une destruction,
-// -1 sinon. C est le seul instant de fin qui vaille un ecart (cf. l en-tete).
-func vehicleDatedEnd(tr VehicleTrack) int {
-	if tr.End != VehicleEndDestroyed || tr.TEnd == nil {
-		return -1
+// vehicleBornUS rend l'instant de naissance d'une vie : celui du record de creation quand il precede le
+// premier recensement, sinon le recensement.
+func vehicleBornUS(l vehicleLife, spawn types.EquipmentCreation) uint64 {
+	if spawn.TimestampUS > 0 && spawn.TimestampUS < l.firstUS {
+		return spawn.TimestampUS
 	}
-	return *tr.TEnd
+	return l.firstUS
+}
+
+// vehicleDatedEndUS rend l instant de fin d une vie quand le film l ECRIT comme une destruction,
+// zero sinon. C est le seul instant de fin qui vaille un ecart (cf. l en-tete).
+func vehicleDatedEndUS(tr VehicleTrack) uint64 {
+	if tr.End != VehicleEndDestroyed || tr.TEnd == nil || tr.mort == nil {
+		return 0
+	}
+	return tr.mort.TimestampUS
 }
 
 // vehicleCycleGaps rend les ecarts mesurables d un emplacement, en secondes, et le compte des
 // occasions PERDUES.
 //
-// UNE OCCASION EST UN COUPLE (vie precedente, vie suivante) au meme emplacement : elle rend un
-// ecart si la precedente porte une fin datee, et un MANQUE sinon. Un ecart negatif ou nul est
-// lui aussi un manque : une naissance anterieure a la mort qui la precede dans l ordre du temps
-// est une contradiction du recensement, pas un cycle de zero seconde.
-func vehicleCycleGaps(lives []vehicleCycleLife, secPerFrame float64) ([]float64, int) {
+// UNE OCCASION EST UNE NAISSANCE QUI EN SUIT UNE AUTRE au meme emplacement : elle rend un ecart si une
+// fin datee la PRECEDE et n a pas deja servi, et un MANQUE sinon. La fin retenue est la PLUS RECENTE
+// avant la naissance, quelle que soit la vie qui la porte : l horloge du jeu repart quand l objet
+// DISPARAIT, et deux vies nees au meme lieu au meme instant (un jumeau sans echantillon et le
+// vehicule reel) ne doivent pas faire dependre l appariement de leur rang. Une fin ne sert qu une
+// fois — la premiere naissance qui la suit la consomme : une seconde y verrait un ecart faux.
+//
+// L ORDRE EST CELUI DU FILM, EN MICROSECONDES. A instant egal, la naissance passe AVANT la fin : une
+// naissance anterieure ou egale a la mort qui la precede est une contradiction du recensement, pas un
+// cycle de zero seconde — c est un manque.
+func vehicleCycleGaps(lives []vehicleCycleLife) ([]float64, int) {
 	if len(lives) < 2 {
 		return nil, 0
 	}
-	slices.SortStableFunc(lives, func(a, b vehicleCycleLife) int { return cmp.Compare(a.t0, b.t0) })
-	gaps := make([]float64, 0, len(lives)-1)
-	var manques int
-	for i := 1; i < len(lives); i++ {
-		fin := lives[i-1].tEnd
-		if fin < 0 || lives[i].t0 <= fin {
-			manques++
-			continue
+	type event struct {
+		us    uint64
+		birth bool
+		life  int
+	}
+	events := make([]event, 0, 2*len(lives))
+	for i, l := range lives {
+		events = append(events, event{l.bornUS, true, i})
+		if l.endUS > 0 {
+			events = append(events, event{l.endUS, false, i})
 		}
-		gaps = append(gaps, float64(lives[i].t0-fin)*secPerFrame)
+	}
+	slices.SortStableFunc(events, func(a, b event) int {
+		if c := cmp.Compare(a.us, b.us); c != 0 {
+			return c
+		}
+		switch {
+		case a.birth == b.birth:
+			return 0
+		case a.birth:
+			return -1
+		}
+		return 1
+	})
+	var (
+		gaps        = make([]float64, 0, len(lives)-1)
+		manques     int
+		pending     uint64 // la fin datee la plus recente qui n a pas servi, 0 : aucune
+		pendingLife int
+		first       = true
+	)
+	for _, e := range events {
+		switch {
+		case !e.birth:
+			pending, pendingLife = e.us, e.life
+		case first:
+			first = false // la premiere naissance n a pas de precedente : ce n est pas une occasion
+		case pending == 0 || pendingLife == e.life:
+			manques++ // pas de fin avant elle, ou sa propre fin (donnees contradictoires)
+		default:
+			gaps = append(gaps, float64(e.us-pending)/1e6)
+			pending = 0
+		}
 	}
 	return gaps, manques
 }

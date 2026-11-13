@@ -290,7 +290,7 @@ func candidatsDeDatation(pads []WeaponPad, picks []PadPickup, pickups []Pickup, 
 			candidats = byPowerupFamily[pads[k.Pad].Weapon]
 		}
 		for _, j := range candidats {
-			if pickups[j].T >= k.TLow && pickups[j].T <= k.THigh {
+			if pickups[j].tUS >= k.tLowUS && pickups[j].tUS <= k.tHighUS {
 				out[i] = append(out[i], j)
 			}
 		}

@@ -131,8 +131,8 @@ func TestFenetreTirProjectileSurDesInstantsMultiplesDuPas(t *testing.T) {
 			{"tir 200 ms avant", naissanceMS - 200, false},
 			{"tir 200 ms apres", naissanceMS + 200, false},
 		} {
-			projs := []Projectile{projectileNeA(naissanceMS/interval, 0, 0)}
-			shots := []Shot{tirDe(c.tirM/interval, 1, "A", 0, 0)}
+			projs := []Projectile{projectileNeAuMS(naissanceMS, interval, 0, 0)}
+			shots := []Shot{tirAuMS(c.tirM, interval, 1, "A", 0, 0)}
 			linked, _ := linkShotsToProjectiles(projs, shots, nil, interval)
 			if (linked == 1) != c.lie {
 				t.Errorf("pas %d ms, %s : lie = %v, attendu %v", interval, c.nom, linked == 1, c.lie)
@@ -316,27 +316,32 @@ func TestArriveeDuGrappinBorneeParUnInstant(t *testing.T) {
 	}
 }
 
-// TestPoseNeeApresLaFinDeLAxeEstEcartee : une pose nee apres la derniere frame est hors de l'axe, a toute cadence et
-// quel que soit le decalage ; une pose nee dans la derniere frame est publiee.
+// TestPoseNeeApresLaFinDeLAxeEstEcartee : une pose nee apres la DERNIERE POSITION du film est hors de l'axe, quel que
+// soit le pas de la grille ; une pose nee a la derniere position, ou avant, est publiee. La fin de la grille tombe
+// 0 a 99 ms (100 ms) ou 0 a 32 ms (33 ms) apres la derniere position : une pose nee dans cet intervalle ne doit pas
+// se publier a un pas et pas a l'autre.
 func TestPoseNeeApresLaFinDeLAxeEstEcartee(t *testing.T) {
 	life := types.LifeKey{Slot: 900, Gen: 1}
-	for _, decalageMS := range []uint64{0, 5, 45, 120, 1000} {
+	const origin, dernierePosition = uint64(1_000_000), uint64(10_950_000)
+	for _, apresMS := range []uint64{1, 5, 17, 45, 120, 1000} {
 		for _, interval := range cadencesDeTest {
-			clock := replayClock{origin: 1_000_000, step: uint64(interval) * 1000, frames: 100}
-			finUS := clock.origin + uint64(clock.frames)*clock.step
+			step := uint64(interval) * 1000
+			clock := replayClock{origin: origin, step: step, frames: int((dernierePosition-origin)/step) + 1}
 			raw := []types.EquipmentPlacement{
-				pePose(life, 2_000_000),             // en milieu de film
-				pePose(life, finUS-1),               // dans la derniere frame
-				pePose(life, finUS+decalageMS*1000), // apres la derniere frame
+				pePose(life, 2_000_000),                     // en milieu de film
+				pePose(life, dernierePosition),              // a la derniere position
+				pePose(life, dernierePosition+apresMS*1000), // apres la derniere position
 			}
-			out, _ := buildEquipmentPlacements(equipmentInputs{Raw: raw, Stats: grammar.EquipmentPlacementStats{Scanned: true}}, clock)
+			in := equipmentInputs{Raw: raw, Stats: grammar.EquipmentPlacementStats{Scanned: true}, LastUS: dernierePosition}
+			out, _ := buildEquipmentPlacements(in, clock)
 			if len(out) != 2 {
-				t.Errorf("pas %d ms, decalage %d ms : %d pose(s) publiee(s), attendu 2", interval, decalageMS, len(out))
+				t.Errorf("pas %d ms, %d ms apres la derniere position : %d pose(s) publiee(s), attendu 2",
+					interval, apresMS, len(out))
 				continue
 			}
 			if dernier := out[len(out)-1]; dernier.T0 != clock.frames-1 {
-				t.Errorf("pas %d ms, decalage %d ms : derniere pose a t0=%d, attendu la derniere frame %d",
-					interval, decalageMS, dernier.T0, clock.frames-1)
+				t.Errorf("pas %d ms, %d ms apres : derniere pose a t0=%d, attendu la derniere frame %d",
+					interval, apresMS, dernier.T0, clock.frames-1)
 			}
 		}
 	}
@@ -356,7 +361,7 @@ func TestFenetresEnMsEgalesAUneImagePres(t *testing.T) {
 	}
 	regles := []regle{
 		{"tir / naissance du projectile", projShotWindowMS, func(pas, a, b int) bool {
-			n, _ := linkShotsToProjectiles([]Projectile{projectileNeA(b/pas, 0, 0)}, []Shot{tirDe(a/pas, 1, "A", 0, 0)}, nil, pas)
+			n, _ := linkShotsToProjectiles([]Projectile{projectileNeAuMS(b, pas, 0, 0)}, []Shot{tirAuMS(a, pas, 1, "A", 0, 0)}, nil, pas)
 			return n == 1
 		}},
 		{"naissance d'un objet engendre", toleranceDeNaissanceMS, func(pas, a, b int) bool {
@@ -384,9 +389,10 @@ func TestFenetresEnMsEgalesAUneImagePres(t *testing.T) {
 			}
 		}
 	}
-	// Le cas hors phase qui documente la limite : un tir a 32 ms, une naissance a 132 ms (100 ms d'ecart,
-	// pile a la limite) se lient a 100 ms (frames 0 et 1) et pas a 33 ms (frames 0 et 4).
-	if !regles[0].decide(100, 32, 132) || regles[0].decide(33, 32, 132) {
-		t.Errorf("tir a 32 ms, naissance a 132 ms : attendu lie a 100 ms et pas a 33 ms (une image de quantification)")
+	// Le cas hors phase qui limitait la regle quand elle se jugeait en frames : un tir a 32 ms, une naissance a
+	// 132 ms (100 ms d'ecart, pile a la limite) tombaient a une frame d'ecart a 100 ms et a quatre a 33 ms. Les
+	// instants exacts les lient a tout pas.
+	if !regles[0].decide(100, 32, 132) || !regles[0].decide(33, 32, 132) {
+		t.Errorf("tir a 32 ms, naissance a 132 ms : attendu lie a 100 ms ET a 33 ms (100 ms d'ecart exact)")
 	}
 }

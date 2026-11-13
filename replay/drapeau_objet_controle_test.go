@@ -243,7 +243,7 @@ func objDrapeauPres(refs []objDrapeauRef, x, y float32, atUS uint64, step uint64
 		if atUS < originUS {
 			continue // la creation precede la premiere frame publiee : rien a comparer
 		}
-		p, ok := pointOfXUIDAt(r.porteur, int((atUS-originUS)/step))
+		p, ok := pointOfXUIDAt(r.porteur, int((atUS-originUS)/step), framesOfMS(flagCarrierPointToleranceMS, int(step/1000)))
 		if !ok {
 			continue
 		}

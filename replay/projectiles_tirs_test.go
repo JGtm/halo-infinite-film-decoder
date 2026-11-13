@@ -3,11 +3,28 @@ package replay
 import "testing"
 
 func projectileNeA(t0 int, x, y float32) Projectile {
-	return Projectile{T0: t0, P: [][3]float32{{0, x, y}, {1, x + 1, y}}}
+	return Projectile{T0: t0, t0US: uint64(t0) * pasDesFixtures, P: [][3]float32{{0, x, y}, {1, x + 1, y}}}
 }
 
 func tirDe(t int, slot uint32, weapon string, x, y float32) Shot {
-	return Shot{T: t, Slot: slot, Weapon: weapon, X: x, Y: y}
+	return Shot{T: t, tUS: uint64(t) * pasDesFixtures, Slot: slot, Weapon: weapon, X: x, Y: y}
+}
+
+// pasDesFixtures est le pas, en microsecondes, des fixtures qui ne donnent que des frames : celui de la grille
+// de production.
+const pasDesFixtures = DefaultFrameIntervalMS * 1000
+
+// projectileNeAuMS et tirAuMS posent un instant exact en millisecondes ; la frame est celle du pas `pas`.
+func projectileNeAuMS(ms, pas int, x, y float32) Projectile {
+	p := projectileNeA(ms/pas, x, y)
+	p.t0US = uint64(ms) * 1000
+	return p
+}
+
+func tirAuMS(ms, pas int, slot uint32, weapon string, x, y float32) Shot {
+	s := tirDe(ms/pas, slot, weapon, x, y)
+	s.tUS = uint64(ms) * 1000
+	return s
 }
 
 func lienDe(p Projectile) int {

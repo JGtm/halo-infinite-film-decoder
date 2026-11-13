@@ -14,8 +14,7 @@ package replay
 const (
 	// projShotWindowMS est l'écart maximal, en millisecondes, entre la naissance du projectile et
 	// l'instant du tir. Les deux horloges quantifient indépendamment : un pas de grille de
-	// tolérance de chaque côté. La durée se convertit en frames avec le pas du document
-	// ([framesOfMS]) : la décision ne dépend pas de la cadence.
+	// tolérance de chaque côté. L'écart se juge en microsecondes : la décision ne dépend pas de la cadence.
 	projShotWindowMS = 100
 	// projShotMaxDistM est la distance maximale, en mètres, entre le point du tir (la bouche, ou
 	// le véhicule pour un tir embarqué) et le premier point publié du projectile.
@@ -42,7 +41,9 @@ type tirCandidat struct {
 // laissés sans lien parce qu'AMBIGUS.
 //
 // Les candidats d'un projectile sont les tirs dont l'instant est à `projShotWindowMS` de sa
-// naissance (converti en frames avec `intervalMS`, le pas de la grille) et dont le point est à
+// naissance — comparés en MICROSECONDES : la fenêtre valait 99 ms ou 200 ms de portée réelle selon que les deux
+// instants tombaient dans la même frame ou non, donc selon le pas de la grille ; `intervalMS` ne sert plus qu'à
+// ranger les tirs par frame pour ne parcourir que ceux qui peuvent tomber dans la fenêtre — et dont le point est à
 // `projShotMaxDistM` de son premier point. Le lien est publié quand tous les candidats sont de la
 // MÊME arme et du MÊME tireur (un seul tir, ou une salve) : le plus proche l'emporte, à égalité le plus petit index — l'ordre de `shots` est
 // déterministe, donc le lien aussi. Deux armes ou deux tireurs candidats : ambigu, aucun lien.
@@ -55,7 +56,9 @@ func linkShotsToProjectiles(projs []Projectile, shots []Shot, grenades []Grenade
 	if len(projs) == 0 || len(shots) == 0 {
 		return 0, 0
 	}
-	window := framesOfMS(projShotWindowMS, intervalMS)
+	// Un tir et une naissance a au plus `projShotWindowMS` l'un de l'autre sont separes d'au plus cette duree
+	// arrondie au-dessus, plus une frame : l'arrondi des deux instants a la grille.
+	window := (projShotWindowMS+max(intervalMS, 1)-1)/max(intervalMS, 1) + 1
 	byFrame := make(map[int][]int, len(shots))
 	for i, s := range shots {
 		byFrame[s.T] = append(byFrame[s.T], i)
@@ -90,6 +93,9 @@ func candidateShots(p Projectile, shots []Shot, byFrame map[int][]int, window in
 	var out []tirCandidat
 	for f := p.T0 - window; f <= p.T0+window; f++ {
 		for _, idx := range byFrame[f] {
+			if !dansLaFenetreDuTir(shots[idx].tUS, p.t0US) {
+				continue
+			}
 			d := planDist(shots[idx].X, shots[idx].Y, p.P[0][1], p.P[0][2])
 			if d <= projShotMaxDistM {
 				out = append(out, tirCandidat{index: idx, dist: d})
@@ -97,6 +103,16 @@ func candidateShots(p Projectile, shots []Shot, byFrame map[int][]int, window in
 		}
 	}
 	return out
+}
+
+// dansLaFenetreDuTir dit que le tir et la naissance du projectile (microsecondes du film) sont a au plus
+// [projShotWindowMS] l'un de l'autre.
+func dansLaFenetreDuTir(tirUS, naissanceUS uint64) bool {
+	ecart := tirUS - naissanceUS
+	if naissanceUS > tirUS {
+		ecart = naissanceUS - tirUS
+	}
+	return ecart <= projShotWindowMS*1000
 }
 
 // pickShot choisit le tir le plus proche parmi des candidats de même arme et même tireur ;

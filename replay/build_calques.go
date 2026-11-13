@@ -40,7 +40,7 @@ func (a *assemblage) poserGrappinEtPoses() {
 	// vient du recensement ti=37 deja lu par la chaine des socles (opt.Pads.Powerups).
 	a.doc.EquipmentPlacements, a.doc.Coverage.Placements = buildEquipmentPlacements(
 		equipmentInputs{
-			Raw: a.opt.Placements, Stats: a.opt.PlacementStats, Positions: a.sorted,
+			Raw: a.opt.Placements, Stats: a.opt.PlacementStats, Positions: a.sorted, LastUS: a.lastUS,
 			Census: a.opt.Pads.Powerups.Keyframes,
 			Spawns: a.opt.SpawnEvents, SpawnStats: a.opt.SpawnStats,
 			// LES DEUX SIGNAUX ECRITS DE L'ORIGINE (lot 1.9.1, D13) : la MORT du poseur, que le

@@ -321,7 +321,7 @@ func gwBuildPad(
 		case gwPickupStatusUnknown:
 			cov.Unknown++
 		}
-		picks = append(picks, PadPickup{TLow: low, THigh: high})
+		picks = append(picks, PadPickup{TLow: low, THigh: high, tLowUS: o.Bounds.LowUS, tHighUS: o.Bounds.HighUS})
 	}
 	// `manques` VOYAGE AVEC LES ÉCARTS : ce sont les réapparitions dont la disparition
 	// précédente n'est pas datée, c'est-à-dire les écarts que ce socle offrait et que la mesure

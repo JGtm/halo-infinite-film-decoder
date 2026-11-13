@@ -136,17 +136,18 @@ func TestTrousProjetesSurLesFramesEntieres(t *testing.T) {
 // TestCoupsALaCadenceEtALaMontee — les coups se posent a la cadence du tag, et une arme qui monte
 // en cadence (LAAG) commence lentement.
 func TestCoupsALaCadenceEtALaMontee(t *testing.T) {
-	ghost := FireBurst{T0: 0, T1: 10, Rate: 7.5}
-	if n := coupsDeLaRafale(ghost, 100); n != 8 {
+	const seconde = 1_000_000
+	ghost := FireBurst{Rate: 7.5}
+	if n := coupsDeLaRafale(ghost, 0, seconde, nil); n != 8 {
 		t.Errorf("Ghost sur une seconde : %d coups, attendu 8 (a 0 puis toutes les 133 ms)", n)
 	}
-	laag := FireBurst{T0: 0, T1: 10, Rate: 18, Rate0: 5, Ramp: 1.6}
-	if n := coupsDeLaRafale(laag, 100); n < 8 || n > 14 {
+	laag := FireBurst{Rate: 18, Rate0: 5, Ramp: 1.6}
+	if n := coupsDeLaRafale(laag, 0, seconde, nil); n < 8 || n > 14 {
 		t.Errorf("LAAG sur une seconde de montee : %d coups, attendu entre 8 et 14", n)
 	}
-	ghost.Holes = []FireBurstHole{{T0: 0, T1: 9}}
-	if n := coupsDeLaRafale(ghost, 100); n != 1 {
-		t.Errorf("Ghost muet jusqu a la frame 9 : %d coups, attendu 1 (a 9,33)", n)
+	muet := []types.ContinuousFireHole{{StartUS: 0, EndUS: 900_000}}
+	if n := coupsDeLaRafale(ghost, 0, seconde, muet); n != 1 {
+		t.Errorf("Ghost muet jusqu a 900 ms : %d coups, attendu 1 (a 933 ms)", n)
 	}
 }
 

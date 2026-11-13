@@ -9,7 +9,7 @@ package replay
 import "testing"
 
 // vcStep est le pas d horloge des tampons : 1 000 000 us = 1 s par frame. Les durees se lisent
-// donc directement en frames.
+// donc directement en secondes.
 const vcStep = uint64(1_000_000)
 
 // vcVie fabrique une vie de vehicule nee en (x, y) a la frame t0. `tEnd` negatif : le film
@@ -17,12 +17,13 @@ const vcStep = uint64(1_000_000)
 func vcVie(x, y float32, t0, tEnd int, famille string) VehicleTrack {
 	tr := VehicleTrack{
 		T0: t0, T1: t0 + 1, Family: famille,
-		Spawn: &VehicleSpawn{X: x, Y: y},
-		End:   VehicleEndUnknown,
+		Spawn:  &VehicleSpawn{X: x, Y: y},
+		End:    VehicleEndUnknown,
+		bornUS: uint64(t0) * vcStep,
 	}
 	if tEnd >= 0 {
 		fin := tEnd
-		tr.End, tr.TEnd = VehicleEndDestroyed, &fin
+		tr.End, tr.TEnd, tr.mort = VehicleEndDestroyed, &fin, &vehicleDeath{TimestampUS: uint64(fin) * vcStep}
 	}
 	return tr
 }
@@ -35,7 +36,7 @@ func TestBuildVehicleCyclesEtablitUnCycleSurDeuxEcarts(t *testing.T) {
 		vcVie(9.8, 10.2, 230, -1, "warthog"),
 	}
 	var cov VehicleCoverage
-	got := buildVehicleCycles(tracks, vcStep, &cov)
+	got := buildVehicleCycles(tracks, &cov)
 	if len(got) != 1 {
 		t.Fatalf("cycles publies = %d, attendu 1 : %+v", len(got), got)
 	}
@@ -67,7 +68,7 @@ func TestBuildVehicleCyclesUnSeulEcartNePublieRien(t *testing.T) {
 		vcVie(10, 10, 130, -1, "ghost"),
 	}
 	var cov VehicleCoverage
-	if got := buildVehicleCycles(tracks, vcStep, &cov); got != nil {
+	if got := buildVehicleCycles(tracks, &cov); got != nil {
 		t.Fatalf("cycles publies = %+v, attendu aucun (un seul ecart)", got)
 	}
 	if cov.CycleGaps != 1 {
@@ -86,7 +87,7 @@ func TestBuildVehicleCyclesFinNonDateeEstUnManque(t *testing.T) {
 		vcVie(10, 10, 230, -1, "warthog"),
 	}
 	var cov VehicleCoverage
-	if got := buildVehicleCycles(tracks, vcStep, &cov); got != nil {
+	if got := buildVehicleCycles(tracks, &cov); got != nil {
 		t.Fatalf("cycles publies = %+v, attendu aucun", got)
 	}
 	if cov.CycleGaps != 0 || cov.CycleMissing != 2 {
@@ -101,7 +102,7 @@ func TestBuildVehicleCyclesFinNonDestructriceEstUnManque(t *testing.T) {
 	a.End = VehicleEndFilmEnd // la date reste, la CAUSE change
 	tracks := []VehicleTrack{a, vcVie(10, 10, 130, 200, "warthog"), vcVie(10, 10, 230, -1, "warthog")}
 	var cov VehicleCoverage
-	if got := buildVehicleCycles(tracks, vcStep, &cov); got != nil {
+	if got := buildVehicleCycles(tracks, &cov); got != nil {
 		t.Fatalf("cycles publies = %+v, attendu aucun (un seul ecart mesurable)", got)
 	}
 	if cov.CycleGaps != 1 || cov.CycleMissing != 1 {
@@ -121,7 +122,7 @@ func TestBuildVehicleCyclesSepareDeuxEmplacements(t *testing.T) {
 		vcVie(50, 50, 200, -1, "ghost"),
 	}
 	var cov VehicleCoverage
-	got := buildVehicleCycles(tracks, vcStep, &cov)
+	got := buildVehicleCycles(tracks, &cov)
 	if cov.CycleLocations != 2 {
 		t.Fatalf("emplacements = %d, attendu 2", cov.CycleLocations)
 	}
@@ -137,7 +138,7 @@ func TestBuildVehicleCyclesIgnoreLesViesSansNaissance(t *testing.T) {
 	sans.Spawn = nil
 	tracks := []VehicleTrack{vcVie(10, 10, 0, 100, "warthog"), sans, vcVie(10, 10, 230, -1, "warthog")}
 	var cov VehicleCoverage
-	got := buildVehicleCycles(tracks, vcStep, &cov)
+	got := buildVehicleCycles(tracks, &cov)
 	if got != nil {
 		t.Fatalf("cycles = %+v, attendu aucun : une seule occasion subsiste", got)
 	}
@@ -155,7 +156,7 @@ func TestBuildVehicleCyclesRefuseLesEcartsDisperses(t *testing.T) {
 		vcVie(10, 10, 400, -1, "warthog"),
 	}
 	var cov VehicleCoverage
-	if got := buildVehicleCycles(tracks, vcStep, &cov); got != nil {
+	if got := buildVehicleCycles(tracks, &cov); got != nil {
 		t.Fatalf("cycles = %+v, attendu aucun : 5 s contre 200 s", got)
 	}
 	if cov.CycleGaps != 2 {
@@ -174,7 +175,7 @@ func TestBuildVehicleCyclesFamilleInconnueGardeSonCycle(t *testing.T) {
 		vcVie(10, 10, 130, 200, ""),
 		vcVie(10, 10, 230, -1, ""),
 	}
-	got := buildVehicleCycles(tracks, vcStep, nil)
+	got := buildVehicleCycles(tracks, nil)
 	if len(got) != 1 {
 		t.Fatalf("cycles = %+v, attendu 1", got)
 	}

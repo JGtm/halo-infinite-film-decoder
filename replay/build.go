@@ -129,6 +129,9 @@ type assemblage struct {
 	sorted   []grammar.BipedPosition
 	origin   uint64
 	step     uint64
+	// lastUS est l'instant (microsecondes du film) de la DERNIERE position : la fin de l'axe, que la grille
+	// arrondit a un multiple du pas. Ce qui se compare a la fin du rejeu se compare a lui.
+	lastUS uint64
 
 	// La porte des positions (lot M1 des retours du rejeu) : l emprise jouee du film, mesuree sur
 	// les positions de bipede retenues et reprise par les vehicules, et ce qu elle a ecarte.
@@ -195,6 +198,7 @@ func (a *assemblage) ouvrir(titleSlug string) bool {
 	slices.SortStableFunc(a.sorted, func(p, q grammar.BipedPosition) int { return cmp.Compare(p.TimestampUS, q.TimestampUS) })
 
 	a.origin = a.sorted[0].TimestampUS
+	a.lastUS = a.sorted[len(a.sorted)-1].TimestampUS
 	a.step = uint64(a.interval) * 1000
 	a.doc.FrameCount = frameSpan(a.sorted, a.origin, a.step)
 	a.doc.DurationMS = a.doc.FrameCount * a.interval

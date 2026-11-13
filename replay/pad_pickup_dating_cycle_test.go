@@ -10,7 +10,17 @@ import (
 // `repli_prise_de_socle_premiere_du_cycle`, pad_pickup_dating_cycle.go).
 
 // daterLesOccupations enchaîne les deux phases de la datation, sans relevé entre elles.
+//
+// Les fixtures ne donnent que des frames : les instants en microsecondes que la datation compare en sont derives
+// sur une grille de 100 ms.
 func daterLesOccupations(pads []WeaponPad, picks []PadPickup, pickups []Pickup, loc localiserRamasseur) PadDatingStats {
+	const pasUS = 100_000
+	for i := range picks {
+		picks[i].tLowUS, picks[i].tHighUS = uint64(picks[i].TLow)*pasUS, uint64(picks[i].THigh)*pasUS
+	}
+	for i := range pickups {
+		pickups[i].tUS = uint64(pickups[i].T) * pasUS
+	}
 	return lireLesOccupations(pads, picks, pickups).trancherParLeCycle(loc)
 }
 

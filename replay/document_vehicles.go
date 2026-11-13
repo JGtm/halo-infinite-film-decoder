@@ -130,10 +130,10 @@ type VehicleTrack struct {
 	// nomme le SPRITE ; la famille (`Family`) reste celle du chassis et continue de porter le son
 	// du moteur, l explosion et la classe d arme — une variante n est pas un autre vehicule.
 	// VIDE = le film ne dit pas la variante, ou le chassis n en a pas.
-	Variant string `json:"variant,omitempty"`
-
+	Variant     string              `json:"variant,omitempty"`
 	Destruction *VehicleDestruction `json:"destruction,omitempty"` // destructeur, cause, occupants : vehicle_destruction.go ; instant = `TEnd`
 	mort        *vehicleDeath       // le dead-state de la fin `destroyed`, porte jusqu a `Destruction`
+	bornUS      uint64              // instant exact (us) dont T0 est la frame ; la fin ecrite exacte est `mort.TimestampUS`
 }
 
 // VehicleLifeRef designe UNE vie de vehicule : `(slot, gen)`, la seule cle d une vie (cf.

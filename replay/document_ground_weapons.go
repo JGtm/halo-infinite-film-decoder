@@ -139,6 +139,9 @@ type PadPickup struct {
 	// TLow / THigh : les bornes de la disparition, en frames (même axe que Point.T).
 	TLow  int `json:"tLow"`
 	THigh int `json:"tHigh"`
+	// tLowUS / tHighUS sont les memes bornes en microsecondes du film (les images-cles qui les prouvent) : la datation
+	// compare un ramassage a une occupation en instants, jamais en frames. Ils ne se publient pas.
+	tLowUS, tHighUS uint64
 	// XUID est le joueur qui a pris l'arme. RENSEIGNÉ DEPUIS LE SCHÉMA 29 (2026-08-31) quand
 	// l'événement natif `biped_pickup` date l'occupation ; `null` sinon, et c'est alors la
 	// vérité : le canal natif ne couvre pas cette fenêtre.

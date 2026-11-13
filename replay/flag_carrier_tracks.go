@@ -150,21 +150,44 @@ func logFlagAmbiguousSlots(ctx context.Context, slots []uint32) {
 		"slots", slots, "nombre", len(slots))
 }
 
-// pointOfXUIDAt rend le point PUBLIE le plus proche de la frame demandee, parmi les pistes d'un
-// joueur. Rend (_, false) si aucune piste n'a de point a moins d'une frame — le drapeau n'aurait
-// alors pas de position a dessiner, et on prefere ne rien poser.
-func pointOfXUIDAt(tracks []Track, frame int) (Point, bool) {
-	best, bd, found := Point{}, 0, false
+// flagCarrierPointToleranceMS est l'ecart maximal, en millisecondes, entre l'instant d'une prise ou
+// d'un lacher et le point publie qui le localise.
+//
+// C'EST UNE DUREE ET NON UN NOMBRE D'IMAGES : le film ne replique que ce qui change, un corps
+// immobile n'a donc aucun point sur plusieurs dizaines a centaines de millisecondes, et une
+// tolerance d'une image de la grille valait 100 ms ou 33 ms selon le pas — a 33 ms, deux lachers
+// de drapeau sur quatre-vingt-trois perdaient leur position et le drapeau restait « porte ». 200 ms
+// est la plus petite valeur qui rend les 83 portages d'un film de reference a 100, 33, 10 et 5 ms ;
+// 100 ms en laisse un de cote. Le point est un temoin de position, pas un instant : un corps qui ne
+// bouge pas reste ou son dernier point le met.
+const flagCarrierPointToleranceMS = 200
+
+// pointOfXUIDAt rend le point PUBLIE qui localise le joueur a la frame demandee : le DERNIER point
+// a cette frame ou avant, a au plus `tolFrames` frames — un corps immobile reste ou son dernier
+// point le met, il ne se tient pas la ou il sera —, et a defaut le premier point suivant dans la
+// meme tolerance. Rend (_, false) si aucune piste n'a de point dans la tolerance : le drapeau
+// n'aurait alors pas de position a dessiner, et on prefere ne rien poser. `tolFrames` vient de
+// [matchClock.framesOfMS] sur [flagCarrierPointToleranceMS].
+func pointOfXUIDAt(tracks []Track, frame, tolFrames int) (Point, bool) {
+	var before, after Point
+	haveBefore, haveAfter := false, false
 	for _, tr := range tracks {
 		for _, p := range tr.Points {
-			d := p.T - frame
-			if d < 0 {
-				d = -d
-			}
-			if !found || d < bd {
-				best, bd, found = p, d, true
+			d := frame - p.T
+			switch {
+			case d >= 0 && d <= tolFrames:
+				if !haveBefore || p.T > before.T {
+					before, haveBefore = p, true
+				}
+			case d < 0 && -d <= tolFrames:
+				if !haveAfter || p.T < after.T {
+					after, haveAfter = p, true
+				}
 			}
 		}
 	}
-	return best, found && bd <= 1
+	if haveBefore {
+		return before, true
+	}
+	return after, haveAfter
 }

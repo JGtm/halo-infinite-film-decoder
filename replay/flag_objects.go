@@ -351,7 +351,7 @@ func flagFreeDropInside(r flagCarryRaw, ctx flagCarryCtx, tracks []Track,
 	scan FlagCarryScan) (int64, bool) {
 	for _, l := range scan.Free {
 		f := frameOf(l.T0US, ctx.origin, ctx.step)
-		at := ctx.matchMSOfFrame(f)
+		at := ctx.matchMSOfUS(l.T0US)
 		if at <= r.t0 || at >= r.t1 {
 			continue
 		}
@@ -359,7 +359,7 @@ func flagFreeDropInside(r flagCarryRaw, ctx flagCarryCtx, tracks []Track,
 		if flagFreeAtSpawn(scan.Spawns, x, y) {
 			continue
 		}
-		p, ok := pointOfXUIDAt(tracks, f)
+		p, ok := pointOfXUIDAt(tracks, f, ctx.framesOfMS(flagCarrierPointToleranceMS))
 		if !ok || sqDist(p.X, p.Y, x, y) > originDropMaxDist*originDropMaxDist {
 			continue
 		}
@@ -409,7 +409,7 @@ func flagFreeAtDrop(r flagCarryRaw, ctx flagCarryCtx, scan FlagCarryScan) (flagF
 	var best flagFreeLife
 	bestGap, found := int64(math.MaxInt64), false
 	for _, l := range scan.Free {
-		at := ctx.matchMSOfFrame(frameOf(l.T0US, ctx.origin, ctx.step))
+		at := ctx.matchMSOfUS(l.T0US)
 		gap := at - r.t1
 		if gap < 0 {
 			gap = -gap
@@ -468,7 +468,7 @@ func flagObjectHomecomings(scan FlagCarryScan, ctx flagCarryCtx) []flagHomecomin
 		if !ok {
 			continue
 		}
-		at := ctx.matchMSOfFrame(frameOf(l.T0US, ctx.origin, ctx.step))
+		at := ctx.matchMSOfUS(l.T0US)
 		out = append(out, flagHomecoming{flag: f, at: at, x: x, y: y})
 	}
 	trierRentrees(out)
