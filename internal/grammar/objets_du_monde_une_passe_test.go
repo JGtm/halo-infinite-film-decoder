@@ -52,7 +52,7 @@ func TestLesPistesDUnePasseSontCellesDesBandesSeules(t *testing.T) {
 				continue
 			}
 			pay := pk.Payload(data)
-			unePasse := echantillonsDesBandes(pay, appartenance, len(bandes), &wr, lg)
+			unePasse := echantillonsDesBandes(pay, appartenance, len(bandes), &wr, lg, len(pay)*8)
 			for i, carte := range cartes {
 				seule := scanProjectileRecords(pay, carte, &wr, lg)
 				if !reflect.DeepEqual(unePasse[i], seule) {
@@ -123,7 +123,7 @@ func TestLesCreationsDUnePasseSontCellesDesArchetypesSeuls(t *testing.T) {
 	if len(marches) < 2 {
 		t.Fatalf("%d archetype(s) de creation sur la bobine : la passe commune n est pas exercee", len(marches))
 	}
-	ensemble, comptes := releverLesCreations(fc, marches)
+	ensemble, comptes := releverLesCreations(fc, marches, payloadEntier)
 	acceptees := 0
 	for i, w := range marches {
 		seule, compte := marcheDUnArchetype(fc, w)
@@ -181,12 +181,12 @@ func TestLesObjetsDuMondeReleveSeRendentEnCopie(t *testing.T) {
 func releverLesObjetsDUnPayloadQuelconque(pay []byte, band map[uint32]bool, wr *profile.Vec3Range) {
 	lg := ProfilDeBalayageParDefaut().LargeursObjetDuMonde()
 	bandes := [][]uint32{slotsDeLaBande(band), nil}
-	_ = echantillonsDesBandes(pay, appartenanceDesBandes(bandes), len(bandes), wr, lg)
+	_ = echantillonsDesBandes(pay, appartenanceDesBandes(bandes), len(bandes), wr, lg, len(pay)*8)
 	var marches []equipCreationWalk
 	for _, ti := range []uint32{EquipmentTypeIndex, GroundWeaponTypeIndex} {
 		cur := &equipCreationRead{}
 		marches = append(marches, equipCreationWalk{obs: installCreationHooks(cur), prof: ProfilDeBalayageParDefaut(),
 			comps: 40, wr: wr, band: band, cur: cur, ti: ti})
 	}
-	nouvellePasseDesCreations(marches).payload(pay, lieuDuPaquet{pk: FilmPacket{Type: PacketTypeDelta, Size: len(pay)}})
+	nouvellePasseDesCreations(marches).payload(pay, lieuDuPaquet{pk: FilmPacket{Type: PacketTypeDelta, Size: len(pay)}}, len(pay)*8)
 }

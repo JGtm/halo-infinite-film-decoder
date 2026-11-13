@@ -197,12 +197,20 @@ type bipedCreationWalk struct {
 // Le curseur saute le prologue d'un record ACCEPTÉ : un record reconnu n'est pas re-balayé, et
 // c'est ce qui interdit qu'une même création soit rendue deux fois par glissement d'un bit.
 func (w bipedCreationWalk) scanPayload(pay []byte, pk FilmPacket, chunk int) []BipedCreation {
+	return w.scanPayloadJusqua(pay, pk, chunk, len(pay)*8, nil)
+}
+
+// scanPayloadJusqua est [bipedCreationWalk.scanPayload] arrete au bit `fin` (aucun en-tete n est
+// cherche a ce bit ni au-dela) ; `rendu`, s il n est pas nil, dit si l en-tete du slot `slot` au bit
+// `bit` est a cette passe : un en-tete qui ne l est pas n est ni compte ni lu.
+func (w bipedCreationWalk) scanPayloadJusqua(pay []byte, pk FilmPacket, chunk, fin int,
+	rendu func(slot uint32, bit int) bool) []BipedCreation {
 	var out []BipedCreation
 	total := len(pay) * 8
 	limit := total - woNewHeaderBits - bipedCreationPrologueBits
-	for p := 0; p <= limit; p++ {
+	for p := 0; p <= limit && p < fin; p++ {
 		slot, gen, ok := matchWorldObjectNewHeaderIn(pay, p, w.band.Has, BipedTypeIndex)
-		if !ok {
+		if !ok || (rendu != nil && !rendu(slot, p)) {
 			continue
 		}
 		w.st.Anchors++

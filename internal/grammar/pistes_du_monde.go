@@ -43,6 +43,10 @@ type pistesRelevees struct {
 	lg    profile.PrecisionDescriptor
 	slots []uint32
 	brut  []projSample
+	// entier dit si la passe a balaye chaque payload en entier ; sinon elle s est arretee ou la
+	// fermeture de la trame prouve ([FilmContext.finDuBalayage]), ce qui suffit a toute demande qui
+	// nomme son archetype.
+	entier bool
 	// finales : les pistes rendues pour chaque archetype demande ([FilmContext.pistesDerriereLaMarche]).
 	finales map[int][]types.ProjectileTrack
 }
@@ -55,8 +59,17 @@ type pistesRelevees struct {
 func (c *FilmContext) pistesDeLaBande(wr profile.Vec3Range, lg profile.PrecisionDescriptor, ti int,
 	band map[uint32]bool) []types.ProjectileTrack {
 	demandee := slotsDeLaBande(band)
+	// Une demande sans archetype rend la passe seule : il lui faut les payloads entiers.
+	entier := ti == ArchetypeDeBandeInconnu
 	p, ok := c.recup.pistesDe(wr, lg, demandee)
+	if ok && entier && !p.entier {
+		p.brut, p.entier = releverLesPistes(c.Film(), wr, lg, [][]uint32{demandee}, payloadEntier)[0], true
+	}
 	if !ok {
+		fin := payloadEntier
+		if !entier {
+			fin = c.finDuBalayage()
+		}
 		bandes := [][]uint32{demandee}
 		for _, a := range archetypesAPistes() {
 			s := slotsDeLaBande(worldObjectSlotBand(c, a))
@@ -66,8 +79,8 @@ func (c *FilmContext) pistesDeLaBande(wr profile.Vec3Range, lg profile.Precision
 			}
 			bandes = append(bandes, s)
 		}
-		for i, brut := range releverLesPistes(c.Film(), wr, lg, bandes) {
-			c.recup.pistes = append(c.recup.pistes, &pistesRelevees{wr: wr, lg: lg, slots: bandes[i], brut: brut,
+		for i, brut := range releverLesPistes(c.Film(), wr, lg, bandes, fin) {
+			c.recup.pistes = append(c.recup.pistes, &pistesRelevees{wr: wr, lg: lg, slots: bandes[i], brut: brut, entier: entier,
 				finales: map[int][]types.ProjectileTrack{}})
 		}
 		p, _ = c.recup.pistesDe(wr, lg, demandee)
@@ -115,10 +128,14 @@ func copierLesPistes(p []types.ProjectileTrack) []types.ProjectileTrack {
 	return out
 }
 
+// payloadEntier est la borne d une passe qui balaye chaque payload jusqu au bout.
+func payloadEntier(_, _, total int) int { return total }
+
 // releverLesPistes releve, en une passe sur les payloads delta du film, les echantillons de chacune
-// des `bandes` (au plus [maxBandesParPasse]), chacun avec son paquet et le bit de son en-tete.
+// des `bandes` (au plus [maxBandesParPasse]), chacun avec son paquet et le bit de son en-tete. `fin`
+// rend, par payload, le bit ou la passe s arrete ([FilmContext.finDuBalayage], [payloadEntier]).
 func releverLesPistes(film *source.Film, wr profile.Vec3Range, lg profile.PrecisionDescriptor,
-	bandes [][]uint32) [][]projSample {
+	bandes [][]uint32, fin func(chunk, index, total int) int) [][]projSample {
 	appartenance := appartenanceDesBandes(bandes)
 	out := make([][]projSample, len(bandes))
 	for _, c := range FilmChunkNumbers(film) {
@@ -130,7 +147,8 @@ func releverLesPistes(film *source.Film, wr profile.Vec3Range, lg profile.Precis
 			if p.Type != PacketTypeDelta {
 				continue
 			}
-			for i, echantillons := range echantillonsDesBandes(p.Payload(chunk), appartenance, len(bandes), &wr, lg) {
+			pay := p.Payload(chunk)
+			for i, echantillons := range echantillonsDesBandes(pay, appartenance, len(bandes), &wr, lg, fin(c, p.Index, len(pay)*8)) {
 				for _, s := range echantillons {
 					s.TimestampUS, s.Chunk, s.paquet = p.TimestampUS, c, p.Index
 					out[i] = append(out[i], s)
@@ -161,14 +179,14 @@ func appartenanceDesBandes(bandes [][]uint32) []uint32 {
 // echantillonsDesBandes balaye UN payload delta pour `n` bandes a la fois, dont `appartenance` dit
 // quels slots elles portent : la lecture d une bande seule ([scanProjectileRecords]), chaque bande
 // avec son curseur. Un record se juge sans sa bande ([echantillonDuRecord]) : il est lu une fois
-// pour toutes les bandes qui le portent.
+// pour toutes les bandes qui le portent. Seuls les en-tetes qui commencent avant le bit `fin` sont juges.
 func echantillonsDesBandes(pay []byte, appartenance []uint32, n int, wr *profile.Vec3Range,
-	lg profile.PrecisionDescriptor) [][]projSample {
+	lg profile.PrecisionDescriptor, fin int) [][]projSample {
 	out := make([][]projSample, n)
 	posBits := projPosBits(lg)
 	limit := len(pay)*8 - (worldObjectHeaderBits + worldObjectIndexBits + posBits)
 	var curseurs [maxBandesParPasse]int
-	for p := 0; p <= limit; p++ {
+	for p := 0; p <= limit && p < fin; p++ {
 		h, ok := enteteDObjetDuMonde(pay, p)
 		if !ok || int(h.Slot) >= len(appartenance) || appartenance[h.Slot] == 0 {
 			continue

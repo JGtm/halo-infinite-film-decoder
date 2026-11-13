@@ -6,6 +6,7 @@ import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 
+	"cmp"
 	"slices"
 )
 
@@ -215,6 +216,24 @@ func ScanGrenadeThrows(fc *FilmContext) ([]GrenadeThrow, error) {
 	g := grammaireDesLancers(fc)
 	var out []GrenadeThrow
 	var cov grenadeCouverture
+	// LA MARCHE D ABORD : un lancer est le record NEW d un projectile, que la marche des trames lit
+	// a son en-tete ; la passe bit a bit ne rend plus que ce que la marche ne prouve pas
+	// ([rendParLAncrage]). Sans marche (pas de registre), la passe seule, sur chaque payload entier.
+	var trames map[paquetDuFlux]trameDuCanal
+	fin := payloadEntier
+	if g.tiParNom {
+		if objets, tr, err := fc.objetsDuMonde(); err == nil {
+			trames, fin = tr, finSelonLesTrames(tr)
+			objets.creations.parcourir(fc, g.ti, func(uint32) bool { return true },
+				func(pay []byte, chunk int, pk FilmPacket, r recordDuMonde) {
+					if t, ok := lancerA(pay, int(r.bit)+motifDepuisLEnTeteNEW, g, &cov); ok {
+						t.TimestampUS, t.Chunk, t.PacketIndex = pk.TimestampUS, chunk, pk.Index
+						out = append(out, t)
+					}
+				})
+		}
+	}
+	marche := len(out)
 	read := 0
 	for _, c := range fc.ChunkNumbers() {
 		chunk, pks, ok := fc.ChunkAt(c)
@@ -226,7 +245,13 @@ func ScanGrenadeThrows(fc *FilmContext) ([]GrenadeThrow, error) {
 			if p.Type != PacketTypeDelta {
 				continue
 			}
-			for _, t := range scanGrenadeThrows(p.Payload(chunk), g, &cov) {
+			pay := p.Payload(chunk)
+			tr, vu := trames[paquetDuFlux{c, p.Index}]
+			var rendu func(slot uint32, bit int) bool
+			if trames != nil {
+				rendu = func(slot uint32, bit int) bool { return rendParLAncrage(tr, vu, slot, g.ti, bit) }
+			}
+			for _, t := range scanGrenadeThrowsJusqua(pay, g, &cov, fin(c, p.Index, len(pay)*8), rendu) {
 				t.TimestampUS, t.Chunk, t.PacketIndex = p.TimestampUS, c, p.Index
 				out = append(out, t)
 			}
@@ -234,6 +259,16 @@ func ScanGrenadeThrows(fc *FilmContext) ([]GrenadeThrow, error) {
 	}
 	if read == 0 {
 		return nil, ErrNoReadableFilmChunk
+	}
+	if marche > 0 && marche < len(out) {
+		rang := make(map[int]int, len(fc.ChunkNumbers()))
+		for i, n := range fc.ChunkNumbers() {
+			rang[n] = i
+		}
+		slices.SortStableFunc(out, func(a, b GrenadeThrow) int {
+			return cmp.Or(cmp.Compare(rang[a.Chunk], rang[b.Chunk]), cmp.Compare(a.PacketIndex, b.PacketIndex),
+				cmp.Compare(a.BitPos, b.BitPos))
+		})
 	}
 	cov.publies = len(out)
 	signalerCouvertureGrenades(fc.Diagnostics(), g, cov)
@@ -303,12 +338,44 @@ func tiProjectileParNom(reg *Registry) (int, int) {
 
 // scanGrenadeThrows balaye un payload de paquet delta. PUR (aucune I/O).
 func scanGrenadeThrows(pay []byte, g grenadeGrammaire, cov *grenadeCouverture) []GrenadeThrow {
+	return scanGrenadeThrowsJusqua(pay, g, cov, len(pay)*8, nil)
+}
+
+// motifDepuisLEnTeteNEW : du premier bit de l en-tete d un record NEW au premier bit du motif d amorce,
+// qui commence au deuxieme bit du typeIndex ([typeIndexDuRecord]).
+const motifDepuisLEnTeteNEW = woNewTypeBits + woNewSlotBits + woNewGenBits + 1
+
+// scanGrenadeThrowsJusqua est [scanGrenadeThrows] arrete la ou l en-tete du record atteint le bit `fin` ;
+// `rendu`, s il n est pas nil, dit si le record du slot `slot` dont l en-tete est au bit `bit` est a
+// cette passe : un motif qui ne l est pas n est ni compte ni lu. Un motif trop pres du debut du payload
+// pour qu un en-tete le precede reste a la passe.
+func scanGrenadeThrowsJusqua(pay []byte, g grenadeGrammaire, cov *grenadeCouverture, fin int,
+	rendu func(slot uint32, bit int) bool) []GrenadeThrow {
 	limit := len(pay)*8 - g.amorce.StructureBits()
 	var out []GrenadeThrow
-	for bp := 0; bp <= limit; bp++ {
+	for bp := 0; bp <= limit && bp-motifDepuisLEnTeteNEW < fin; bp++ {
 		if source.BitsTolerants(pay, bp, g.amorce.Bits) != g.motif {
 			continue
 		}
+		if enTete := bp - motifDepuisLEnTeteNEW; rendu != nil && enTete >= 0 &&
+			!rendu(LireHandle(pay, enTete+woNewTypeBits).Slot, enTete) {
+			continue
+		}
+		if t, ok := lancerA(pay, bp, g, cov); ok {
+			out = append(out, t)
+		}
+	}
+	return out
+}
+
+// lancerA lit le lancer dont le motif d amorce commence au bit `bp` de `pay`, et le compte ; faux si le
+// motif n y est pas, s il ouvre le record d un autre archetype, ou si son identifiant n est pas celui
+// d une grenade.
+func lancerA(pay []byte, bp int, g grenadeGrammaire, cov *grenadeCouverture) (GrenadeThrow, bool) {
+	if bp < 0 || bp > len(pay)*8-g.amorce.StructureBits() || source.BitsTolerants(pay, bp, g.amorce.Bits) != g.motif {
+		return GrenadeThrow{}, false
+	}
+	{
 		cov.motifs++
 		switch ti, indetermine := typeIndexDuRecord(pay, bp); {
 		case indetermine:
@@ -316,25 +383,24 @@ func scanGrenadeThrows(pay []byte, g grenadeGrammaire, cov *grenadeCouverture) [
 			// tampon. Il vaudrait zéro par la tolérance de [source.BitsTolerants], c'est-à-dire l'archétype
 			// `managed-player` une fois sur deux — on ne devine pas, on compte.
 			cov.tiIndetermines++
-			continue
+			return GrenadeThrow{}, false
 		case ti != g.ti:
 			cov.naissancesAutresArchetypes++
 			if _, ok := GrenadeRankOf(uint32(source.BitsTolerants(pay, bp+g.amorce.Bits, 32))); ok {
 				cov.ecartesAvecIdentifiant++
 			}
-			continue
+			return GrenadeThrow{}, false
 		}
 		id := uint32(source.BitsTolerants(pay, bp+g.amorce.Bits, 32))
 		if _, ok := GrenadeRankOf(id); !ok {
-			continue
+			return GrenadeThrow{}, false
 		}
-		out = append(out, GrenadeThrow{
+		return GrenadeThrow{
 			BitPos:    bp,
 			FilmIndex: int(source.BitsTolerants(pay, bp+g.amorce.IndexAuteurBit, profile.AmorceGrenadeIndexBits)),
 			TypeID:    id,
-		})
+		}, true
 	}
-	return out
 }
 
 // typeIndexDuRecord rend le typeIndex COMPLET du record dont le motif commence à `bp`, et si son

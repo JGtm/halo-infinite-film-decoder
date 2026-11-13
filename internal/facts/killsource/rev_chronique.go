@@ -446,3 +446,9 @@ package killsource
 // deux sans section d identification) decodes avant et apres, la liste des morts publiees (instant, victime, tueur du kill-feed,
 // source de degat, assistant, parts de degats, ecart tueur / source, voie de lecture) est identique ligne a ligne. Les mesures de kills du banc de verite du `replay-corpus-gate` ne se lancent pas
 // depuis le depot dedie du decodeur. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (passes derriere la marche et appariement exact indexe, 2026-11-13) : la VALEUR de `grammar.Rev`
+// (`grammar-2026-11-13`) monte, et `matchExact` cherche parmi les couples de meme (victime, tueur), a rangs croissants
+// ([killFeed.rangsDuCouple]) : le premier que l identite de paquet ou la fenetre retient est celui que le parcours de tout le feed
+// rendait. Sur trois films de l equivalence (`1c4c63c2`, `a349fea8`, `084a804d`) l etape `killsource` garde son empreinte, et elle la garde
+// sur les vingt films a la passe de reference. Golden regenere a revision constante.

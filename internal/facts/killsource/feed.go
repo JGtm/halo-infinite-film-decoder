@@ -56,9 +56,13 @@ type feedEvent struct {
 // la decomposition exige le ROSTER EPINGLE et les KILL-EVENTS, que l appelant construit apres le
 // chargement (cf. `feed_couples.go` et [decodeCtx.prepare]).
 type killFeed struct {
-	events []feedEvent // instants, tries
-	pairs  []feedEvent // couples publies (meme instant + lus au kill-event + recolles)
-	names  []string    // roster HUMAIN, trie
+	// parCouple : les rangs, croissants, des couples de `pairs` par (victime, tueur) ; indexes : le
+	// nombre de couples que cet index couvre ([killFeed.rangsDuCouple]).
+	parCouple map[[2]string][]int
+	indexes   int
+	events    []feedEvent // instants, tries
+	pairs     []feedEvent // couples publies (meme instant + lus au kill-event + recolles)
+	names     []string    // roster HUMAIN, trie
 	// xuidDe : le xuid que le kill-feed porte pour chaque gamertag, qu il TUE ou qu il MEURE. Il
 	// sert quand un couple LU au kill-event nomme une victime dont aucun instant voisin ne porte la
 	// mort, et il donne au lien par motif (`index_motif.go`) les xuids a chercher — tueurs compris
@@ -170,4 +174,18 @@ func rosterNames(feed []feedEvent) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+// rangsDuCouple rend les rangs, croissants, des couples publies dont la victime est `victime` et le
+// tueur `tueur`. L index se refait quand des couples ont ete ajoutes depuis sa construction.
+func (kf *killFeed) rangsDuCouple(victime, tueur string) []int {
+	if kf.parCouple == nil || kf.indexes != len(kf.pairs) {
+		kf.parCouple = make(map[[2]string][]int, len(kf.pairs))
+		for i := range kf.pairs {
+			cle := [2]string{kf.pairs[i].victim, kf.pairs[i].killer}
+			kf.parCouple[cle] = append(kf.parCouple[cle], i)
+		}
+		kf.indexes = len(kf.pairs)
+	}
+	return kf.parCouple[[2]string{victime, tueur}]
 }

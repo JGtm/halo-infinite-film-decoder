@@ -141,7 +141,7 @@ func TestUneCreationFortuiteNeSeRendPas(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	brut, _ := releverLesCreations(fc, []equipCreationWalk{w})
+	brut, _ := releverLesCreations(fc, []equipCreationWalk{w}, payloadEntier)
 	fortuite := func(cr []types.EquipmentCreation) bool {
 		for _, x := range cr {
 			if x.Chunk == 4 && x.PacketIndex == 576 && x.Slot == 1476 {

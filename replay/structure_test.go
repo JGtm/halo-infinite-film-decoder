@@ -1506,8 +1506,12 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   origine des ramassages, cycles de vehicule, tir continu, poses de bord, vol de projectile, lien tir -> projectile,
 	//   datation des socles). Aucun champ neuf ; le contenu cuit change. Aucune revision de decodage ne monte : un v113 se
 	//   lit « à republier ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 114 {
-		t.Fatalf("SchemaVersion = %d, attendu 114 : incrémenter exige une raison écrite ci-dessus "+
+	// - 115 (2026-11-13, passes derriere la marche) : les positions de vehicule et la visee des occupants viennent des
+	//   records que la marche des trames lit ; les lectures de hasard de l ancrage bit a bit disparaissent. Aucun champ
+	//   neuf ; le contenu cuit de `vehicles` change. `grammar.Rev` monte : un v114 se lit « à redécoder ». Détail :
+	//   `document_chronicle.go`.
+	if SchemaVersion != 115 {
+		t.Fatalf("SchemaVersion = %d, attendu 115 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

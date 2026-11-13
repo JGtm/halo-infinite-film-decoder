@@ -48,7 +48,7 @@ package grammar
 //	LE marcheur de paquets                     `Paquets`. Les QUATRE copies de l en-tete de seize
 //	                                           octets n en sont plus que des traductions.
 //	LE decompresseur                           `Inflate` (tolerant) et `Decompresser` (strict).
-//	le balayage de motif de 64 bits            `ChercherMotif64`.
+//	le balayage de motif de 64 bits            `ChercherMotifs64`.
 //
 // CE QUI CHANGE DE NOM PARCE QUE SA NATURE A CHANGE : `grammar.BitReader` / `NewBitReader`
 // deviennent `Lecteur` / `LecteurSur`. Le type ne LIT plus, il DECORE — il embarque

@@ -138,6 +138,12 @@ func nouveauCanalDesObjetsDuMonde(fc *FilmContext) *canalDesObjetsDuMonde {
 	for _, ti := range archetypesDeCreation() {
 		c.deCreation[ti] = true
 	}
+	// Le projectile : ses records NEW portent les lancers de grenade ([ScanGrenadeThrows]).
+	if reg != nil {
+		if ti, vus := tiProjectileParNom(reg); vus > 0 && ti >= 0 && ti < len(c.deCreation) {
+			c.deCreation[ti] = true
+		}
+	}
 	return c
 }
 
@@ -207,6 +213,30 @@ func (c *FilmContext) objetsDuMonde() (*objetsDuMondeLus, map[paquetDuFlux]trame
 		}
 	}
 	return c.recup.objets, c.recup.lectures.trames, nil
+}
+
+// finDuBalayage rend, pour un payload delta de `total` bits situe par son chunk et l index de son
+// paquet, le bit ou une passe de recuperation s arrete : le premier bit que la fermeture de la trame
+// prouve ([trameDuCanal.prouveeDes]). Une position a ce bit ou au-dela n est jamais rendue par
+// l ancrage ([rendParLAncrage]) ; une trame que la marche n a pas rendue, ou que sa fermeture ne
+// prouve pas, se balaye en entier, comme tout le film quand il n y a pas de marche.
+func (c *FilmContext) finDuBalayage() func(chunk, index, total int) int {
+	_, trames, err := c.objetsDuMonde()
+	if err != nil {
+		return payloadEntier
+	}
+	return finSelonLesTrames(trames)
+}
+
+// finSelonLesTrames est [FilmContext.finDuBalayage] sur des trames deja en main.
+func finSelonLesTrames(trames map[paquetDuFlux]trameDuCanal) func(chunk, index, total int) int {
+	return func(chunk, index, total int) int {
+		t, vu := trames[paquetDuFlux{chunk, index}]
+		if !vu || t.prouveeDes == rienDeProuve {
+			return total
+		}
+		return min(total, int(t.prouveeDes))
+	}
 }
 
 // pistesDerriereLaMarche rend les pistes de l archetype `ti` sur la bande `band` : les echantillons

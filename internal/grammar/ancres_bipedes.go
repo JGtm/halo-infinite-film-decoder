@@ -11,7 +11,7 @@ package grammar
 // les positions d un film sans registre ([positionsDesAncres]), ancrent les records bipedes des
 // trames delta avec les MEMES parametres : ceux du contexte — ses chunks, sa
 // bande bipede, son decoupage d i0, ses generations vivantes datees a l instant du paquet. Le curseur
-// bit a bit de l ancrage ([walkDeltaBipedRecords]) est l essentiel de leur cout : il est donc fait
+// bit a bit de l ancrage ([walkDeltaBipedRecordsJusqua]) est l essentiel de leur cout : il est donc fait
 // une fois, au premier lecteur, et range ici ; chaque lecteur parcourt ce qui est range, dans
 // l ordre du flux.
 //
@@ -26,6 +26,9 @@ package grammar
 type ancresBipedes struct {
 	paquets []paquetAncre
 	records []recordAncre
+	// entier : chaque payload a ete ancre jusqu a sa fin. Faux : l ancrage s est arrete, dans chaque
+	// trame, ou la fermeture de la marche prouve ([finSelonLesTrames]).
+	entier bool
 }
 
 // paquetAncre est un paquet delta qui porte au moins un record ancre : son chunk, son en-tete, et le
@@ -48,18 +51,27 @@ type recordAncre struct {
 // ancresBipedes rend l ancrage bipede du film, fait au premier appel sous les parametres du contexte.
 // Un film sans chunk, sans bande bipede ou au decoupage illisible n ancre rien : ses lecteurs le
 // refusent avant de le parcourir, chacun avec son erreur.
-func (c *FilmContext) ancresBipedes() *ancresBipedes {
-	if c.recup.ancres != nil {
+//
+// `trames` sont les trames que la marche a rendues : l ancrage s arrete, dans chacune, au premier bit
+// que sa fermeture prouve, parce qu un record ancre a ce bit ou au-dela n est jamais rendu
+// ([rendParLAncrage]). nil : chaque payload est ancre en entier, ce qu un film sans marche demande ;
+// un ancrage borne deja range est alors refait.
+func (c *FilmContext) ancresBipedes(trames map[paquetDuFlux]trameDuCanal) *ancresBipedes {
+	if c.recup.ancres != nil && (c.recup.ancres.entier || trames != nil) {
 		return c.recup.ancres
 	}
-	c.recup.ancres = &ancresBipedes{}
+	c.recup.ancres = &ancresBipedes{entier: trames == nil}
+	fin := payloadEntier
+	if trames != nil {
+		fin = finSelonLesTrames(trames)
+	}
 	chunks, slots := c.ChunkNumbers(), c.BipedSlots()
 	lay, err := c.I0Layout()
 	if len(chunks) == 0 || slots.Count() == 0 || err != nil {
 		return c.recup.ancres
 	}
 	a := c.recup.ancres
-	walkDeltaBipedRecords(c, chunks, slots, lay, func(r deltaBipedRecord) {
+	walkDeltaBipedRecordsJusqua(c, chunks, slots, lay, fin, func(r deltaBipedRecord) {
 		if n := len(a.paquets); n == 0 || a.paquets[n-1].chunk != r.Chunk ||
 			a.paquets[n-1].paquet.Index != r.Packet.Index {
 			a.paquets = append(a.paquets, paquetAncre{chunk: r.Chunk, paquet: r.Packet, premier: len(a.records)})
@@ -79,10 +91,17 @@ func recordAncreDe(r deltaBipedRecord) recordAncre {
 }
 
 // parcourirLesAncresBipedes rend a `visit` chaque record bipede ancre du film, dans l ordre du flux,
-// sous la forme du marcheur ([deltaBipedRecord]) : ce que [walkDeltaBipedRecords] rendrait sous les
+// sous la forme du marcheur ([deltaBipedRecord]) : ce que [walkDeltaBipedRecordsJusqua] rendrait sous les
 // parametres du contexte. Le masque de chaque record est une tranche neuve, a son lecteur.
 func (c *FilmContext) parcourirLesAncresBipedes(visit func(deltaBipedRecord)) {
-	a := c.ancresBipedes()
+	c.parcourirLesAncresBipedesBornees(nil, visit)
+}
+
+// parcourirLesAncresBipedesBornees est [FilmContext.parcourirLesAncresBipedes] sur l ancrage borne par
+// `trames` ([FilmContext.ancresBipedes]).
+func (c *FilmContext) parcourirLesAncresBipedesBornees(trames map[paquetDuFlux]trameDuCanal,
+	visit func(deltaBipedRecord)) {
+	a := c.ancresBipedes(trames)
 	chunk, data := -1, []byte(nil)
 	for k, p := range a.paquets {
 		if p.chunk != chunk {

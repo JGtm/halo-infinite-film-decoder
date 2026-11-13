@@ -110,6 +110,7 @@ var ordresFiges = map[string][]string{
 		"@/internal/constat",
 		"@/internal/profile",
 		"@/internal/source",
+		"cmp",
 		"slices",
 	},
 	"internal/grammar/navpoint_radial_rises.go": {

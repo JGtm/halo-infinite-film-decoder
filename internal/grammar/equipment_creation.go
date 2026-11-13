@@ -334,6 +334,14 @@ func matchWorldObjectNewHeaderIn(
 // (`0` puis `01`) — et rend le typeIndex R(6) qu'il annonce : la première étape de
 // [matchWorldObjectNewHeaderIn], qui ne dépend d'aucun archétype ni d'aucune bande.
 func archetypeDeLEnTeteNEW(pay []byte, p int) (uint32, bool) {
+	if p >= 0 {
+		// Une seule lecture pour le prefixe et le typeIndex : ce test tourne a chaque bit candidat.
+		v := source.BitsAt(pay, p, woNewHeaderBits)
+		if v>>(woNewHeaderBits-woNewTypeBits) != 1 {
+			return 0, false
+		}
+		return uint32(v & (1<<woNewTIBits - 1)), true //nolint:gosec // six bits
+	}
 	if source.BitsTolerants(pay, p, 1) != 0 { // un record DELTA ouvre sur 1
 		return 0, false
 	}

@@ -27,7 +27,7 @@ import (
 //
 //   - `walkDeltaBipedPayload` marche UN payload deja en main. C'est l'etage que `ScanBipedRecords`
 //     utilise : il est PUR, sans film ni chunk, et c'est le coeur testable du decodeur.
-//   - `walkDeltaBipedRecords` ajoute les deux boucles externes (chunks du contexte de film, puis
+//   - `walkDeltaBipedRecordsJusqua` ajoute les deux boucles externes (chunks du contexte de film, puis
 //     paquets delta) et delegue au premier. C'est l'etage de l'ancrage du contexte, fait une fois
 //     par film (`ancres_bipedes.go`) : les huit balayages de canal et les positions de la cuisson
 //     le parcourent.
@@ -83,10 +83,19 @@ func deltaBipedMinRecord(i0Bits int) int {
 func walkDeltaBipedPayload(
 	pay []byte, slots SlotBand, lay profile.I0Layout, gens *GenerationsVivantes, visit func(deltaBipedRecord),
 ) {
+	walkDeltaBipedPayloadJusqua(pay, slots, lay, gens, len(pay)*8, visit)
+}
+
+// walkDeltaBipedPayloadJusqua est [walkDeltaBipedPayload] arrete au bit `fin` : aucun en-tete n est
+// cherche a ce bit ni au-dela.
+func walkDeltaBipedPayloadJusqua(
+	pay []byte, slots SlotBand, lay profile.I0Layout, gens *GenerationsVivantes, fin int,
+	visit func(deltaBipedRecord),
+) {
 	total := len(pay) * 8
 	i0Bits := lay.TotalBits()
 	minRecord := deltaBipedMinRecord(i0Bits)
-	for p := 0; p+minRecord <= total; {
+	for p := 0; p+minRecord <= total && p < fin; {
 		i0, slot, idx, ok := matchBipedHeader(pay, p, total, slots, gens, lay)
 		if !ok {
 			p++
@@ -98,15 +107,18 @@ func walkDeltaBipedPayload(
 	}
 }
 
-// walkDeltaBipedRecords parcourt les chunks de replication du contexte, leurs paquets DELTA, et
+// walkDeltaBipedRecordsJusqua parcourt les chunks de replication du contexte, leurs paquets DELTA, et
 // ancre les records bipedes de chacun. `visit` recoit le record ENRICHI de son chunk et de son
 // paquet, ce que la marche d'un payload seul ne peut pas fournir.
 //
 // Un chunk que le film ne porte pas est SAUTE sans erreur : `ChunkAt` rend un predicat, pas une
 // erreur, et `film_chunks.go:96-100` documente que la bande de slots demande deliberement le
 // chunk d'apres le dernier.
-func walkDeltaBipedRecords(
-	fc *FilmContext, chunks []int, slots SlotBand, lay profile.I0Layout, visit func(deltaBipedRecord),
+//
+// `fin` rend, pour chaque payload, le bit ou son ancrage s arrete ([payloadEntier] : sa fin).
+func walkDeltaBipedRecordsJusqua(
+	fc *FilmContext, chunks []int, slots SlotBand, lay profile.I0Layout,
+	fin func(chunk, index, total int) int, visit func(deltaBipedRecord),
 ) {
 	// LES GENERATIONS VIVANTES DU FILM, et non plus `true` en dur (constat GB-1) : un corps de generation
 	// >= 2 est lu par les huit canaux comme par les positions. DATEES A L INSTANT DU PAQUET (lot
@@ -122,7 +134,8 @@ func walkDeltaBipedRecords(
 				continue
 			}
 			gens := fc.GenerationsVivantesA(pk.TimestampUS)
-			walkDeltaBipedPayload(pk.Payload(data), slots, lay, gens, func(r deltaBipedRecord) {
+			pay := pk.Payload(data)
+			walkDeltaBipedPayloadJusqua(pay, slots, lay, gens, fin(c, pk.Index, len(pay)*8), func(r deltaBipedRecord) {
 				r.Chunk, r.Packet = c, pk
 				visit(r)
 			})

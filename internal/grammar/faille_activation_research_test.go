@@ -453,7 +453,7 @@ func creationsDuPayload(w equipCreationWalk, pay []byte, st *types.EquipmentCrea
 	chunk int) []types.EquipmentCreation {
 	ps := nouvellePasseDesCreations([]equipCreationWalk{w})
 	ps.sts[0] = *st
-	ps.payload(pay, lieuDuPaquet{chunk: chunk, pk: pk})
+	ps.payload(pay, lieuDuPaquet{chunk: chunk, pk: pk}, len(pay)*8)
 	*st = ps.sts[0]
 	return ps.outs[0]
 }

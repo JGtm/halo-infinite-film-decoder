@@ -160,12 +160,17 @@ func positionsDuContexte(fc *FilmContext, chunks []int, lay profile.I0Layout, op
 			read++
 		}
 	}
+	return lireLesPositions(fc, &lu.positions, lay, opt), read
+}
+
+// lireLesPositions lit la position de chaque record de `pb`, dans son ordre, par le lecteur de
+// toujours ([lireLaPosition]).
+func lireLesPositions(fc *FilmContext, pb *positionsBipedes, lay profile.I0Layout, opt ScanFilmOptions) []BipedPosition {
 	var out []BipedPosition
 	ctx, g := fc.ContexteDeLecture(), grammaireDOrientation(opt)
 	chunk := -1
 	var data []byte
 	var pks []FilmPacket
-	pb := &lu.positions
 	for k, p := range pb.paquets {
 		if p.chunk != chunk {
 			chunk = p.chunk
@@ -186,7 +191,7 @@ func positionsDuContexte(fc *FilmContext, chunks []int, lay profile.I0Layout, op
 			}
 		}
 	}
-	return out, read
+	return out
 }
 
 // payloadDeRang rend le payload du paquet de rang `index` parmi `pks`, les paquets du chunk `data` ;

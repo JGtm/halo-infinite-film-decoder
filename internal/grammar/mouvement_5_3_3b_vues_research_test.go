@@ -141,7 +141,7 @@ func m533bLierMonde(w *World, data []byte, pks []FilmPacket) {
 	// (`movementStateScanner.lierLeMonde`). La marche d ancres ci-dessus suit la CHAINE des
 	// records de l image-cle et se coupe ; la table de datums, celle que la branche vive de
 	// `FUN_1406cbaa0` interroge, se lit a position libre.
-	LierTableDeDatums(w, data, pks)
+	LierTableDeDatums(nil, w, data, pks)
 }
 
 // m533bPaquet traite UN paquet : il compte la population, puis lit la vue 0 et tente la suite.

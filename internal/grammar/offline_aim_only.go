@@ -39,7 +39,9 @@ package grammar
 // lit la visee dans un record porteur de position.
 
 import (
+	"cmp"
 	"fmt"
+	"slices"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 )
@@ -60,6 +62,23 @@ type BipedAim struct {
 	// YawRaw / PitchRaw sont les deux scalaires bruts d'`i21` : R(12) puis R(11).
 	YawRaw, PitchRaw uint32
 }
+
+// viseeLue est une visee et le premier bit de l en-tete de son record dans son payload : la place
+// que la regle de la passe derriere la marche juge, et son rang dans le flux.
+type viseeLue struct {
+	BipedAim
+	bit int
+	// gen : la generation du handle, pour une visee que la marche a lue.
+	gen uint8
+}
+
+// indexDeLaVisee est l index du composant de visee (`unit-desired-aiming-vector`) dans l archetype
+// bipede ; composantsAvantLaVisee, le masque des index que la passe de la visee seule traverse avant
+// lui ([aimOnlyCursorToI21]).
+const (
+	indexDeLaVisee         = 21
+	composantsAvantLaVisee = 1<<1 | 1<<2 | 1<<3 | 1<<4 | 1<<5
+)
 
 // AimHeadingDeg rend le cap de visee en degres, avec la convention MESUREE et deja publiee de
 // `BipedPosition.AimHeadingDeg` — le meme calcul, un seul detenteur.
@@ -83,6 +102,11 @@ func ScanFilmBipedAimOnly(dir string) ([]BipedAim, error) {
 // records bipedes qui NE PORTENT PAS de position. La bande de slots est celle des images-cles
 // `ti=35`, exactement comme [ScanBipedPositions] — et c'est la MEME, relevee une seule fois par
 // le contexte du film (lot 2 de PLAN_CUISSON_PERF).
+//
+// LA MARCHE D ABORD : les visees des records que la marche des trames a lus
+// ([canalDesLecturesBipedes.noterLaVisee]), puis celles que la passe bit a bit rend derriere elle, la
+// ou la fermeture de la trame ne prouve pas et pour un slot que la marche n y a pas lu
+// ([rendParLAncrage]). Sans registre, la passe seule, sur chaque payload en entier.
 func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 	nums := fc.ChunkNumbers()
 	if len(nums) == 0 {
@@ -94,7 +118,13 @@ func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 	}
 	// Lot J5.2 : les generations vivantes du film, pas la seule 1 ; DATEES a l instant du paquet
 	// (lot R2-bis) : la visee d un corps n est pas lue avant son record de creation.
-	var out []BipedAim
+	var out []viseeLue
+	var trames map[paquetDuFlux]trameDuCanal
+	fin := payloadEntier
+	if lu, err := fc.lecturesBipedes(); err == nil {
+		out, trames, fin = slices.Clone(lu.visees), lu.trames, finSelonLesTrames(lu.trames)
+	}
+	marche := len(out)
 	read := 0
 	for _, c := range nums {
 		data, pks, ok := fc.ChunkAt(c)
@@ -107,7 +137,13 @@ func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 				continue
 			}
 			gens := fc.GenerationsVivantesA(pk.TimestampUS)
-			for _, a := range ScanBipedAimRecords(pk.Payload(data), band, gens, fc.ContexteDeLecture()) {
+			pay := pk.Payload(data)
+			t, vu := trames[paquetDuFlux{c, pk.Index}]
+			for _, a := range scanBipedAimRecordsJusqua(pay, band, gens, fc.ContexteDeLecture(),
+				fin(c, pk.Index, len(pay)*8)) {
+				if !rendParLAncrage(t, vu, a.Slot, BipedTypeIndex, a.bit) {
+					continue
+				}
 				a.Chunk, a.PacketIndex, a.TimestampUS = c, pk.Index, pk.TimestampUS
 				out = append(out, a)
 			}
@@ -116,7 +152,35 @@ func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 	if read == 0 {
 		return nil, ErrNoReadableFilmChunk
 	}
-	return out, nil
+	if marche > 0 && marche < len(out) {
+		rangerLesViseesDansLeFlux(out, nums)
+	}
+	return sansLeurBit(out), nil
+}
+
+// sansLeurBit rend les visees de `v`, dans leur ordre.
+func sansLeurBit(v []viseeLue) []BipedAim {
+	if len(v) == 0 {
+		return nil
+	}
+	out := make([]BipedAim, len(v))
+	for i := range v {
+		out[i] = v[i].BipedAim
+	}
+	return out
+}
+
+// rangerLesViseesDansLeFlux trie les visees dans l ordre du flux : rang du chunk, rang du paquet, bit
+// de l en-tete.
+func rangerLesViseesDansLeFlux(v []viseeLue, chunks []int) {
+	rang := make(map[int]int, len(chunks))
+	for i, c := range chunks {
+		rang[c] = i
+	}
+	slices.SortStableFunc(v, func(a, b viseeLue) int {
+		return cmp.Or(cmp.Compare(rang[a.Chunk], rang[b.Chunk]), cmp.Compare(a.PacketIndex, b.PacketIndex),
+			cmp.Compare(a.bit, b.bit))
+	})
 }
 
 // ScanBipedAimRecords balaie un payload de paquet delta bit a bit et renvoie les visees des
@@ -124,13 +188,20 @@ func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 // Chunk/PacketIndex/TimestampUS sont laisses a zero (remplis par l'appelant). `gens` est le filtre de
 // generation du handle (lot J5.2) ; nil : tous les slots au repli nomme (generation 1).
 func ScanBipedAimRecords(payload []byte, slots SlotBand, gens *GenerationsVivantes, ctx ContexteDeLecture) []BipedAim {
+	return sansLeurBit(scanBipedAimRecordsJusqua(payload, slots, gens, ctx, len(payload)*8))
+}
+
+// scanBipedAimRecordsJusqua est [ScanBipedAimRecords] arrete au bit `fin` : aucun en-tete n est cherche
+// a ce bit ni au-dela.
+func scanBipedAimRecordsJusqua(payload []byte, slots SlotBand, gens *GenerationsVivantes, ctx ContexteDeLecture,
+	fin int) []viseeLue {
 	total := len(payload) * 8
-	var out []BipedAim
+	var out []viseeLue
 	// UN SEUL lecteur de bits pour tout le payload : les composants de vitalite traverses avant
 	// `i21` le repositionnent par `SetBitPos`, la ou ils en allouaient un chacun PAR CANDIDAT.
 	br := LecteurSur(payload)
 	br.PoserContexte(ctx)
-	for p := 0; p+bipedHeaderBits <= total; {
+	for p := 0; p+bipedHeaderBits <= total && p < fin; {
 		at, slot, ok := matchAimOnlyRecord(br, payload, p, slots, gens)
 		if !ok {
 			p++
@@ -142,7 +213,7 @@ func ScanBipedAimRecords(payload []byte, slots SlotBand, gens *GenerationsVivant
 			p++
 			continue
 		}
-		out = append(out, BipedAim{Slot: slot, YawRaw: d.YawRaw, PitchRaw: d.PitchRaw})
+		out = append(out, viseeLue{BipedAim: BipedAim{Slot: slot, YawRaw: d.YawRaw, PitchRaw: d.PitchRaw}, bit: p})
 		p = at + 1 + aimYawBits + aimPitchBits // pas de re-scan chevauchant
 	}
 	return out
@@ -212,7 +283,7 @@ func aimOnlyCursorToI21(br *Lecteur, pay []byte, at, total int, idx []int) (int,
 	var d componentDirs
 	var v componentVitals
 	for _, id := range idx {
-		if id == 21 {
+		if id == indexDeLaVisee {
 			return at, true
 		}
 		var ok bool

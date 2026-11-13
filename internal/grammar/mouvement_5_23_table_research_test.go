@@ -94,7 +94,7 @@ func a523Marcher(t *testing.T, tc t516Temoin, tab *TableAnticipee, b *a523Bilan)
 				w.BindImageCle(uint32(r.Gen), uint32(r.Slot), uint32(r.TI))
 			}
 		}
-		LierTableDeDatums(w, data, pks)
+		LierTableDeDatums(nil, w, data, pks)
 		for _, pk := range pks {
 			if pk.Type != PacketTypeDelta || pk.Size < 1 {
 				continue

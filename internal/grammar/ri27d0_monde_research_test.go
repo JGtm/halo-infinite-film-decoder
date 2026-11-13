@@ -242,7 +242,7 @@ func TestRI27d0Monde(t *testing.T) {
 				t.Logf("%s : creations ti=%d : %v", court, ti, err)
 				continue
 			}
-			cres, _ := releverLesCreations(fc, []equipCreationWalk{w})
+			cres, _ := releverLesCreations(fc, []equipCreationWalk{w}, payloadEntier)
 			for _, x := range cres[0] {
 				creations[ri27d0CleMonde{x.Chunk, x.PacketIndex, ti, x.Slot, x.Gen}] = x.BitPos
 			}

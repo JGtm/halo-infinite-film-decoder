@@ -206,6 +206,12 @@ type canalDesLecturesBipedes struct {
 	positionsMarche, positionsRecuperees positionsBipedes
 	// bande : la bande bipede du contexte ([FilmContext.BipedSlots]), la population des positions.
 	bande SlotBand
+	// journal : les records bipedes de la marche, dans l ordre du flux ; attente : ceux qui annoncent
+	// un composant des huit lecteurs, que le journal designe par leur rang ([bipedeAuJournal]).
+	journal []bipedeAuJournal
+	attente []recordBipedeLu
+	// creations : les creations de bipede que la marche lit ([creationsDeLaMarche]).
+	creations *creationsDeLaMarche
 }
 
 // nouveauCanalDesLecturesBipedes prepare le canal des lectures bipedes du film `fc`. Les
@@ -219,9 +225,10 @@ func nouveauCanalDesLecturesBipedes(fc *FilmContext) *canalDesLecturesBipedes {
 	}
 	if lay, err := fc.I0Layout(); err == nil {
 		c.lay, c.layOK = lay, true
-		c.bande = fc.BipedSlots()
 	}
-	fc.GenerationsVivantesA(0)
+	c.bande = fc.BipedSlots()
+	c.creations = nouvellesCreationsDeLaMarche(fc, c.bande)
+	fc.viesDesImagesCles()
 	return c
 }
 
@@ -264,52 +271,47 @@ func (c *canalDesLecturesBipedes) Trame(p *lecture.Paquet) {
 		c.trames[paquetDuFlux{p.Chunk, p.Index}] = trameDuCanal{prouveeDes: rienDeProuve}
 		return
 	}
-	c.recueillir(p, recs, appels, c.fc.GenerationsVivantesA(p.TS))
+	c.recueillir(p, recs, appels)
 }
 
-// recueillir retient, des records `recs` que la marche a lus dans la trame `p`, les records bipedes
-// delta d un corps vivant a l instant du filtre `gens`, chacun avec les publications d `appels`
-// qu il porte ; et retient la trame pour l ancrage qui passe derriere.
-func (c *canalDesLecturesBipedes) recueillir(p *lecture.Paquet, recs []FrameRecord, appels []appelEnAttente,
-	gens *GenerationsVivantes) {
+// recueillir porte au journal les records bipedes que la marche a lus dans la trame `p` (`recs`),
+// chaque delta avec les publications d `appels` qu il porte, et retient la trame pour l ancrage qui
+// passe derriere. Le journal se rejoue a la cloture, sous les generations vivantes du film
+// ([canalDesLecturesBipedes.rejouerLeJournal]).
+func (c *canalDesLecturesBipedes) recueillir(p *lecture.Paquet, recs []FrameRecord, appels []appelEnAttente) {
 	t := trameDuCanal{prouveeDes: preuveDeLaTrame(p)}
 	k := 0
 	for i := range recs {
 		r := &recs[i]
 		t.slots = append(t.slots, r.Slot)
 		t.archetypes = append(t.archetypes, uint8(r.TypeIndex)) //nolint:gosec // archetype sur 6 bits
+		if r.TypeIndex == VehicleTypeIndex && r.Type == recDelta {
+			c.noterLaPositionDeVehicule(p, r)
+		}
 		if r.TypeIndex != BipedTypeIndex {
 			continue
 		}
 		vie := types.LifeKey{Slot: r.Slot, Gen: r.ID >> 30}
 		if r.Type == recNew {
-			delete(c.mortA, vie)
+			c.journal = append(c.journal, bipedeAuJournal{vie: vie, creation: true})
+			c.creations.lire(p, r)
 			continue
 		}
 		if r.Type != recDelta {
 			continue
 		}
 		c.lu.examines++
+		c.noterLaVisee(p, r, vie)
 		rb := recordDeLaMarche(p, r)
 		k = attribuerLesAppels(&rb, r, appels, k, &c.lu.horsRecord)
-		if !gens.Accepte(vie) {
-			// La garde des generations vivantes datees, celle de l ancrage (lot R2-bis) : un corps
-			// n est pas lu avant son record de creation, ni sous une generation que le film ne
-			// connait pas.
-			c.lu.generationsRefusees++
-			continue
-		}
-		if _, deja := c.mortA[vie]; !deja && r.Trace.Dead != nil && r.Trace.Dead.Mort {
-			c.mortA[vie] = p.TS
-		}
-		if _, mort := c.mortA[vie]; mort {
-			c.lu.corpsMorts++
-			continue
-		}
-		c.noterLaPosition(p, r, &rb)
+		e := bipedeAuJournal{chunk: rb.Chunk, paquet: rb.Packet, vie: vie, rang: -1,
+			mort: r.Trace.Dead != nil && r.Trace.Dead.Mort}
+		e.position, e.aUnePosition = c.positionDuRecord(p, r, &rb)
 		if rb.masque&c.utiles != 0 {
-			c.lu.records = append(c.lu.records, rb)
+			e.rang = len(c.attente)
+			c.attente = append(c.attente, rb)
 		}
+		c.journal = append(c.journal, e)
 	}
 	c.lu.horsRecord += len(appels) - k
 	c.trames[paquetDuFlux{p.Chunk, p.Index}] = t
@@ -319,6 +321,15 @@ func (c *canalDesLecturesBipedes) recueillir(p *lecture.Paquet, recs []FrameReco
 // donne au contexte, avec le compte des records recuperes : tous ceux que l ancrage rend, pour un des
 // huit lecteurs ou pour leur seule position.
 func (c *canalDesLecturesBipedes) Clore(BilanDeMarche) {
+	// La distribution est en cours jusqu a la fin de cette cloture : une demande des creations qui
+	// n en trouverait pas de rangees (film sans bande bipede) lit la passe seule, elle ne relance pas
+	// une marche ([FilmContext.CreationsDeBipede]).
+	defer func(avant bool) { c.fc.vies.enMarche = avant }(c.fc.vies.enMarche)
+	c.fc.vies.enMarche = true
+	c.creations.ranger(c.trames)
+	gens := c.fc.GenerationsVivantes()
+	c.rejouerLeJournal(gens)
+	c.lu.visees = viseesDesCorpsVivants(c.lu.visees, gens)
 	rec := c.recuperer()
 	c.lu.recuperes = len(c.positionsRecuperees.records)
 	c.lu.records = append(c.lu.records, rec...)
@@ -389,7 +400,7 @@ func (c *canalDesLecturesBipedes) recuperer() []recordBipedeLu {
 	capt.brancher(obs)
 	g := grammaireRecord{lay: lay, arch: arch, prof: c.fc.ProfilDeBalayage(), obs: obs}
 	var out []recordBipedeLu
-	c.fc.parcourirLesAncresBipedes(func(r deltaBipedRecord) {
+	c.fc.parcourirLesAncresBipedesBornees(c.trames, func(r deltaBipedRecord) {
 		if t, vu := c.trames[paquetDuFlux{r.Chunk, r.Packet.Index}]; !rendParLAncrage(t, vu, r.Slot, BipedTypeIndex, r.I0) {
 			return
 		}
@@ -461,19 +472,20 @@ func rendParLAncrage(t trameDuCanal, vu bool, slot uint32, ti, i0 int) bool {
 	return !slices.Contains(t.slots, slot) && int64(i0) < int64(t.prouveeDes)
 }
 
-// noterLaPosition retient la position du record `rb` que la marche a lu (`r`) quand son slot est de
+// positionDuRecord rend la position du record `rb` que la marche a lu (`r`) quand son slot est de
 // la bande bipede du contexte, que son i0 a ete traverse et qu il est absolu dans la region jouee
 // ([i0AbsoluDeLaRegion]). LA BANDE RESTE LA POPULATION DES POSITIONS, celle de l ancrage : la marche
 // lit aussi des corps qu aucune image-cle ne porte — les corps poses en fin de match pour la scene des
 // vainqueurs, un joueur ne au dernier chunk d une bobine —, que les traces ne publiaient pas.
-func (c *canalDesLecturesBipedes) noterLaPosition(p *lecture.Paquet, r *FrameRecord, rb *recordBipedeLu) {
+func (c *canalDesLecturesBipedes) positionDuRecord(p *lecture.Paquet, r *FrameRecord, rb *recordBipedeLu) (
+	positionLue, bool) {
 	if !c.layOK || len(r.Trace.Comps) == 0 || !c.bande.Has(rb.Slot) {
-		return
+		return positionLue{}, false
 	}
 	i0 := r.Trace.Comps[0]
 	if i0.Index != indexDeLaPosition || !i0.Ported || !i0AbsoluDeLaRegion(p.Payload, i0.StartBit, c.lay) {
-		return
+		return positionLue{}, false
 	}
-	c.positionsMarche.noter(rb.Chunk, rb.Packet, positionLue{i0: uint32(i0.StartBit), slot: rb.Slot, //nolint:gosec // position dans un payload
-		gen: uint8(rb.Gen), masque: rb.masque}) //nolint:gosec // generation sur 2 bits
+	return positionLue{i0: uint32(i0.StartBit), slot: rb.Slot, //nolint:gosec // position dans un payload
+		gen: uint8(rb.Gen), masque: rb.masque}, true //nolint:gosec // generation sur 2 bits
 }

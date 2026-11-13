@@ -145,6 +145,12 @@ func (r *recordBipedeLu) parcourirJusqua(obs *Observation, cible int) bool {
 type lecturesBipedes struct {
 	records   []recordBipedeLu
 	positions positionsBipedes
+	// visees : les visees des records sans position que la marche a lus, dans l ordre du flux
+	// ([canalDesLecturesBipedes.noterLaVisee]).
+	visees []viseeLue
+	// vehicules : les records delta de vehicule dont la marche a traverse la position, dans l ordre
+	// du flux ([canalDesLecturesBipedes.noterLaPositionDeVehicule]).
+	vehicules positionsBipedes
 	// trames : ce que la marche a rendu de chaque trame — d ou sa fermeture prouve sa liste, les slots
 	// qu elle y a lus ([trameDuCanal]) —, que les passes des objets du monde lisent aussi
 	// (`objets_du_monde_lus.go`).

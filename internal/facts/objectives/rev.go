@@ -274,5 +274,7 @@ package objectives
 // la couche et ses fixtures sont ceux d avant ; les mesures du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot
 // dedie du decodeur ; l empreinte du golden est recopiee au meme rang.
 
-// Rev est la revision de la sortie des objectifs.
+// Rev est la revision de la sortie des objectifs.//
+// A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
+// source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
 const Rev = "objectives-2026-10-17"

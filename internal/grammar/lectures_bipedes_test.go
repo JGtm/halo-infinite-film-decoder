@@ -251,16 +251,17 @@ func TestLaMarcheNeDonneQueLesCorpsVivants(t *testing.T) {
 		record(recDelta, 520, 1, false, 0, 21), // retenu
 		record(recDelta, 520, 0, false, 0, 21), // generation inconnue du slot : refuse
 		record(recDelta, 521, 1, false, 0, 5),  // n annonce rien des lecteurs
-	}, nil, gens)
-	c.recueillir(paquet(2), []FrameRecord{record(recDelta, 520, 1, true, 0, 21)}, nil, gens)  // dead-state
-	c.recueillir(paquet(3), []FrameRecord{record(recDelta, 520, 1, false, 0, 21)}, nil, gens) // corps mort
-	c.recueillir(paquet(4), []FrameRecord{record(recNew, 520, 1, false, 0, 21), record(recDelta, 520, 1, false, 0, 21)}, nil, gens)
+	}, nil)
+	c.recueillir(paquet(2), []FrameRecord{record(recDelta, 520, 1, true, 0, 21)}, nil)  // dead-state
+	c.recueillir(paquet(3), []FrameRecord{record(recDelta, 520, 1, false, 0, 21)}, nil) // corps mort
+	c.recueillir(paquet(4), []FrameRecord{record(recNew, 520, 1, false, 0, 21), record(recDelta, 520, 1, false, 0, 21)}, nil)
 	// Un dead-state qui ne dit pas la mort (`Mort` a faux : lu dans une trame refusee sur `a349fea8`,
 	// slot 590) ne tue pas le corps : ce record et le suivant restent.
 	vivant := record(recDelta, 521, 1, false, 0, 21)
 	vivant.Trace.Dead = &types.DeadState{}
-	c.recueillir(paquet(5), []FrameRecord{vivant}, nil, gens)
-	c.recueillir(paquet(6), []FrameRecord{record(recDelta, 521, 1, false, 0, 21)}, nil, gens)
+	c.recueillir(paquet(5), []FrameRecord{vivant}, nil)
+	c.recueillir(paquet(6), []FrameRecord{record(recDelta, 521, 1, false, 0, 21)}, nil)
+	c.rejouerLeJournal(gens)
 	var retenus []uint64
 	for _, r := range c.lu.records {
 		retenus = append(retenus, r.Packet.TimestampUS)

@@ -62,7 +62,7 @@ package grammar
 // # TOUS LES LECTEURS DE RECORDS DELTA BIPEDES, PAS LES SEULES POSITIONS (lot R2-bis, 2026-09-29)
 //
 // Le lot R2 n avait date que le balayage des positions. Le MEME marcheur servait les huit canaux delta
-// (`walkDeltaBipedRecords` : rang et charges de capacite, impulsions, camouflage, grappin, arme tenue,
+// (`walkDeltaBipedRecordsJusqua` : rang et charges de capacite, impulsions, camouflage, grappin, arme tenue,
 // inventaire, equipement de l unite) avec le masque atemporel, et deux lecteurs voisins aussi (la
 // recuperation d equipement, `equipment_recovery.go`, et la visee seule, `offline_aim_only.go`) :
 // 32, 30, 20 et 102 en-tetes anterieurs a la creation de leur corps y etaient encore acceptes sur
@@ -240,6 +240,11 @@ type memoDesVies struct {
 	err           error
 	creationsLues bool
 	vivantes      *GenerationsVivantes
+	// enMarche : la distribution qui lit les creations est en cours ([FilmContext.CreationsDeBipede]).
+	enMarche bool
+	// desImagesCles : les vies des records ti=35 des images-cles ([FilmContext.viesDesImagesCles]).
+	desImagesCles      []types.LifeKey
+	imagesClesRelevees bool
 }
 
 // CreationsDeBipede rend les records de creation de bipede du film ([ScanBipedCreations]), lus UNE
@@ -247,6 +252,14 @@ type memoDesVies struct {
 func (c *FilmContext) CreationsDeBipede() ([]BipedCreation, types.BipedCreationStats, error) {
 	if c == nil {
 		return ScanBipedCreations(nil)
+	}
+	if !c.vies.creationsLues && !c.vies.enMarche {
+		// La marche des trames les lit et les range a sa cloture ([creationsDeLaMarche.ranger]).
+		c.vies.enMarche = true
+		if _, err := c.lecturesBipedes(); err != nil {
+			c.vies.creationsLues = false // sans registre : la passe seule, ci-dessous
+		}
+		c.vies.enMarche = false
 	}
 	if !c.vies.creationsLues {
 		c.vies.creations, c.vies.stats, c.vies.err = ScanBipedCreations(c)
@@ -293,9 +306,17 @@ func viesConnuesDuFilm(c *FilmContext) []types.LifeKey {
 			out = append(out, types.LifeKey{Slot: x.Slot, Gen: x.Generation})
 		}
 	}
-	r := &releveDesViesBipedes{vies: out}
-	distribuerLesImagesClesSeules(c, []Canal{r})
-	return r.vies
+	return append(out, c.viesDesImagesCles()...)
+}
+
+// viesDesImagesCles rend les vies des records ti=35 de toutes les images-cles, relevees une fois.
+func (c *FilmContext) viesDesImagesCles() []types.LifeKey {
+	if !c.vies.imagesClesRelevees {
+		r := &releveDesViesBipedes{}
+		distribuerLesImagesClesSeules(c, []Canal{r})
+		c.vies.desImagesCles, c.vies.imagesClesRelevees = r.vies, true
+	}
+	return c.vies.desImagesCles
 }
 
 // releveDesViesBipedes ajoute aux vies connues celles des records ti=35 de chaque image-cle.
