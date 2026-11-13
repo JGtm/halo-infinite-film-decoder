@@ -138,6 +138,12 @@ func nouveauCanalDesObjetsDuMonde(fc *FilmContext) *canalDesObjetsDuMonde {
 	for _, ti := range archetypesDeCreation() {
 		c.deCreation[ti] = true
 	}
+	// Le projectile : ses records NEW portent les lancers de grenade ([ScanGrenadeThrows]).
+	if reg != nil {
+		if ti, vus := tiProjectileParNom(reg); vus > 0 && ti >= 0 && ti < len(c.deCreation) {
+			c.deCreation[ti] = true
+		}
+	}
 	return c
 }
 
