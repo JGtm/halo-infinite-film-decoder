@@ -222,10 +222,15 @@ func champsDe(t reflect.Type) []string {
 		if f.PkgPath != "" {
 			continue // champ non exporte : jamais serialise
 		}
-		out = append(out, fmt.Sprintf("%s json:%q %s", f.Name, f.Tag.Get("json"), nomDeType(f.Type)))
+		out = append(out, ligneDeChamp(f))
 	}
 	sort.Strings(out)
 	return out
+}
+
+// ligneDeChamp : la ligne de forme d'un champ — nom, balise JSON, type par nom.
+func ligneDeChamp(f reflect.StructField) string {
+	return fmt.Sprintf("%s json:%q %s", f.Name, f.Tag.Get("json"), nomDeType(f.Type))
 }
 
 // collecterTypes recense les types struct NOMMES atteignables. La carte des types deja vus
@@ -336,7 +341,11 @@ const shapeEnteteCuiteRegle = "empreinte-cuite-regle "
 //	  champ `Text` (membre Go `i18n_text`, jamais ecrit) : forme de FIL inchangee octet pour octet (`i18n.MarshalFlat`,
 //	  3 314 artefacts du parc relus a l identique), aucun artefact perime, donc ni montee de `SchemaVersion` ni
 //	  re-cuisson. La forme reflechie ne depend plus du nombre de langues.
-const cuiteRegleCourante = 3
+//	4 (2026-11-13) les champs que l'hote remplit a la requete DANS un type cuit (`champsRemplisParLHote`, premier :
+//	  `VehicleDestruction.CauseKey`, comme `WeaponLabel.Key`) quittent l'empreinte cuite. Sans cela, reserver
+//	  l'emplacement d'un pictogramme exigeait de monter `SchemaVersion` : 3 314 artefacts a re-cuire pour un champ
+//	  qu'aucun ne porte. L'empreinte cuite des types existants est INCHANGEE a l'octet sous la regle 4.
+const cuiteRegleCourante = 4
 
 // calquesALaRequete — les balises JSON des champs que la CUISSON N'ÉCRIT JAMAIS (grep : aucun `build*.go` ne pose le champ ; vérifié le 2026-09-23 pour `vehicleLabels` 62 et `vehicleWeapons` 69, le 2026-09-24 pour `vehicleScenery`).
 var calquesALaRequete = map[string]bool{
@@ -374,7 +383,7 @@ func documentShapeRenderCuite() string {
 		// artefact ne porte. C'est exactement ce que cette empreinte existe pour ne PAS faire
 		// (constat payé le 2026-09-14 en ajoutant `weaponTiers`). L'ORDRE reste celui du tri :
 		// sortir la racine de la boucle changerait l'empreinte sans rien changer au fond.
-		champs := champsDe(types[nom])
+		champs := champsCuitsDuType(types[nom])
 		if types[nom] == root {
 			champs = champsCuitsDe(root)
 		}
@@ -392,7 +401,7 @@ func champsCuitsDe(t reflect.Type) []string {
 		if f.PkgPath != "" || calquesALaRequete[baliseJSON(f)] {
 			continue
 		}
-		out = append(out, fmt.Sprintf("%s json:%q %s", f.Name, f.Tag.Get("json"), nomDeType(f.Type)))
+		out = append(out, ligneDeChamp(f))
 	}
 	sort.Strings(out)
 	return out

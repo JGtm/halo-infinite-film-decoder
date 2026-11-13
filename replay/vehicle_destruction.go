@@ -55,6 +55,17 @@ type VehicleDestruction struct {
 	// (entier 32 bits non signe). Absent : le film n en ecrit pas, ou la valeur n est pas un effet
 	// de degat connu de `damagetag` — elle ne se publie pas, elle se compte.
 	Cause *uint32 `json:"cause,omitempty"`
+	// CauseKey est le weapon_key du titre de la cause (clé canonique du registre d'armes, le même
+	// vocabulaire que `WeaponLabel.Key`), d'où l'hôte tire le pictogramme de l'arme qui a détruit le
+	// véhicule.
+	//
+	// IL N'EST PAS ÉCRIT DANS L'ARTEFACT : il est rempli À LA REQUÊTE par l'hôte, comme
+	// `WeaponLabel.Key`. Le décodeur ne résout aucun pictogramme et ne connaît aucun registre : il
+	// réserve l'emplacement, la cuisson ne le pose JAMAIS. Une résolution qui peut s'améliorer ne se
+	// stocke pas, et le figer au build laisserait muets les artefacts déjà cuits. Vide = l'hôte n'a
+	// pas de pictogramme pour cette cause (ou `Cause` est absente) : silence propre, jamais le
+	// pictogramme d'une cause voisine.
+	CauseKey string `json:"causeKey,omitempty"`
 	// Occupant est le xuid de l occupant a l instant de la destruction, le conducteur (siege 0) de
 	// preference. Absent : aucun episode NOMME ne couvre l instant. Il vient du calque des episodes
 	// (`rides[]`), dont la couverture est celle de la primitive d occupation (15,6 a 21,1 % des vies).
