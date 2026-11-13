@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10500 frames · intervalle 33 ms · duree 346500 ms
-schema 112 · titre halo_infinite
+schema 113 · titre halo_infinite
 version majeure du film : 40
 origine de la frame 0 sur l horloge du fil : 12904 ms
 coup d envoi date par le film : 35641 ms · 55/57 piste(s) en mouvement · rafale 5 · marge depuis la frame 0 : 22737 ms
@@ -138,34 +138,29 @@ couverture : 57 vie(s) publiee(s) · camo 2 vie(s) / 3 episode(s) · surbouclier
   slot=536 t=[9295, 9341] ancre=(5.49, -1.61, 0.86)
 
 ## OBJETS D EQUIPEMENT — objets DEPLOYES et objets LACHES a la mort, par famille et origine
-calibre=true decoupage="9/5" · 126 vie(s) d objet · 240 ancre(s) -> 115 confirmee(s) par l oracle de position -> 115 pose(s)
-115 nommee(s) · 0 `other` (nature non etablie : le manifeste ne les revendique pas) · 106 avec poseur mesure · 94 avec cap de visee
-origine lue : 0 deployee(s) (piece engendree) · 94 lachee(s) · 21 inconnue(s)
+calibre=true decoupage="9/5" · 126 vie(s) d objet · 240 ancre(s) -> 115 confirmee(s) par l oracle de position -> 101 pose(s)
+101 nommee(s) · 0 `other` (nature non etablie : le manifeste ne les revendique pas) · 97 avec poseur mesure · 90 avec cap de visee
+origine lue : 0 deployee(s) (piece engendree) · 94 lachee(s) · 7 inconnue(s)
 provenance : 1 evenement(s) 103 lu(s) sur 2730 liste(s) d evenements non vides
   par cause death_written    91
-  par cause no_owner         9
-  par cause none             12
+  par cause no_owner         4
+  par cause none             3
   par cause taken_written    3
   famille grapple  1
-  famille grenade_dynamo 2
-  famille grenade_frag 83
-  famille grenade_plasma 13
+  famille grenade_frag 76
+  famille grenade_plasma 10
   famille grenade_spike 4
-  famille repulsor 6
+  famille repulsor 5
   famille shroud_screen 2
-  famille thruster 4
+  famille thruster 3
   famille x origine grapple/dropped              1
-  famille x origine grenade_dynamo/unknown       2
   famille x origine grenade_frag/dropped         69
-  famille x origine grenade_frag/unknown         14
+  famille x origine grenade_frag/unknown         7
   famille x origine grenade_plasma/dropped       10
-  famille x origine grenade_plasma/unknown       3
   famille x origine grenade_spike/dropped        4
   famille x origine repulsor/dropped             5
-  famille x origine repulsor/unknown             1
   famille x origine shroud_screen/dropped        2
   famille x origine thruster/dropped             3
-  famille x origine thruster/unknown             1
   grenade_frag dropped 0xbcabbe43 t=[1081, 1269] pos=(15.94, -2.26, 0.75) poseur=514 cap=347.1 deg
   grenade_frag dropped 0xbcabbe43 t=[1081, 1265] pos=(15.94, -2.26, 0.75) poseur=514 cap=347.1 deg
   shroud_screen dropped 0x4396db42 t=[1353, 1428] pos=(28.54, 26.72, -1.05) poseur=513 cap=331.4 deg
@@ -267,20 +262,6 @@ provenance : 1 evenement(s) 103 lu(s) sur 2730 liste(s) d evenements non vides
   grenade_frag dropped 0xbcabbe43 t=[9995, 10070] pos=(16.05, -21.11, -2.60) poseur=566 cap=1.5 deg
   grenade_frag dropped 0xbcabbe43 t=[10251, 10435] pos=(17.40, 4.53, 1.16) poseur=567 cap=277.5 deg
   grenade_frag dropped 0xbcabbe43 t=[10251, 10369] pos=(17.40, 4.53, 1.16) poseur=567 cap=277.5 deg
-  thruster unknown 0x430dda48 t=[10499, 10499] pos=(27.35, 9.91, -0.89) poseur=568 cap=aucun
-  repulsor unknown 0x7ca85adc t=[10499, 10499] pos=(20.68, 7.63, 2.04) poseur=-1 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[10499, 10499] pos=(27.30, 9.85, -0.94) poseur=568 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[10499, 10499] pos=(27.31, 9.90, -0.94) poseur=568 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(27.35, 8.33, 1.79) poseur=536 cap=185.3 deg
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(20.62, 7.63, 1.94) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(20.64, 7.62, 1.95) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(27.30, 9.88, -0.94) poseur=568 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(27.30, 9.85, -0.94) poseur=568 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(13.49, -13.81, -3.21) poseur=565 cap=127.6 deg
-  grenade_frag unknown 0xbcabbe43 t=[10499, 10499] pos=(13.49, -13.82, -3.21) poseur=565 cap=127.6 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[10499, 10499] pos=(27.35, 8.38, 1.79) poseur=536 cap=185.3 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[10499, 10499] pos=(40.70, 10.72, 1.24) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[10499, 10499] pos=(40.72, 10.73, 1.24) poseur=-1 cap=aucun
 
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 579 slot(s) · 199 ancre(s) -> 195 acceptee(s) -> 159 retenue(s) par l IDENTITE (36 ecartee(s))
