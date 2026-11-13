@@ -175,7 +175,7 @@ func t525Lier(w *World, data []byte, pks []FilmPacket) {
 			w.BindImageCle(uint32(r.Gen), uint32(r.Slot), uint32(r.TI))
 		}
 	}
-	LierTableDeDatums(w, data, pks)
+	LierTableDeDatums(nil, w, data, pks)
 }
 
 // paquet mesure UNE trame delta.

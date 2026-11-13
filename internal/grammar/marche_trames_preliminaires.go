@@ -22,7 +22,7 @@ type preliminairesDesTrames struct {
 // nouveauxPreliminaires rend des preliminaires vides pour le film de `fc`.
 func nouveauxPreliminaires(fc *FilmContext) *preliminairesDesTrames {
 	return &preliminairesDesTrames{table: nouvelleTableAnticipeeDe(fc),
-		liaison: liaisonDesImagesCles{parChunk: map[int][]declarationDImageCle{}}}
+		liaison: liaisonDesImagesCles{fc: fc, parChunk: map[int][]declarationDImageCle{}}}
 }
 
 // lireLesPreliminaires joue la phase des images-cles pour les seuls preliminaires de la marche des

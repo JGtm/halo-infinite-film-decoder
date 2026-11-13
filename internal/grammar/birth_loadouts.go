@@ -167,7 +167,7 @@ func (s *birthScan) lierLeChunk(num int, data []byte, pks []FilmPacket) {
 			s.monde.BindImageCle(uint32(r.Gen), uint32(r.Slot), uint32(r.TI))
 		}
 	}
-	LierTableDeDatums(s.monde, data, pks)
+	LierTableDeDatums(s.fc, s.monde, data, pks)
 }
 
 // lire traverse le record NEW d'une création et rend sa dotation quand le record se ferme.

@@ -238,17 +238,47 @@ func TableDeDatums(pay []byte) (table map[uint32]EnteteDeTable, ambigus int) {
 	return table, ambigus
 }
 
+// tableDeDatumsMemo est la table d entites d un payload d image-cle, lue une fois par contexte.
+type tableDeDatumsMemo struct {
+	table   map[uint32]EnteteDeTable
+	ambigus int
+	// bits : la longueur du payload lu, en octets.
+	bits int
+}
+
+// tableDeDatumsDe rend [TableDeDatums] du payload d image-cle `pay`, lue une fois par contexte : la
+// liaison des images-cles et la marche des naissances lisent la meme. Le payload est celui d un chunk
+// que le film garde decompresse : son premier octet le designe. La table rendue se lit, elle ne se
+// modifie pas. Sans contexte, ou sur un payload vide, la lecture directe.
+func (c *FilmContext) tableDeDatumsDe(pay []byte) (map[uint32]EnteteDeTable, int) {
+	if c == nil || len(pay) == 0 {
+		return TableDeDatums(pay)
+	}
+	if m, ok := c.recup.tables[&pay[0]]; ok && m.bits == len(pay) {
+		return m.table, m.ambigus
+	}
+	if c.recup.tables == nil {
+		c.recup.tables = map[*byte]tableDeDatumsMemo{}
+	}
+	table, ambigus := TableDeDatums(pay)
+	c.recup.tables[&pay[0]] = tableDeDatumsMemo{table: table, ambigus: ambigus, bits: len(pay)}
+	return table, ambigus
+}
+
 // LierTableDeDatums pose dans `w` les liaisons de la table d entites des paquets d image-cle d un chunk. Rend le
 // nombre de liaisons posees et le nombre d emplacements ecartes (cf. [EntetesDeTable]).
 //
 // C est le geste qui donne au monde hors ligne le modele de la branche vive : l archetype d un slot que la chaine de
 // l image-cle n a pas atteint et qu aucun NEW n a declare.
-func LierTableDeDatums(w *World, data []byte, pks []FilmPacket) (posees, ambigus int) {
+//
+// `fc` est le contexte du film, dont la memoire rend la table d une image-cle deja lue
+// ([FilmContext.tableDeDatumsDe]) ; nil : chaque table est lue ici.
+func LierTableDeDatums(fc *FilmContext, w *World, data []byte, pks []FilmPacket) (posees, ambigus int) {
 	for _, pk := range pks {
 		if pk.Type != PacketTypeKeyframe {
 			continue
 		}
-		table, amb := TableDeDatums(pk.Payload(data))
+		table, amb := fc.tableDeDatumsDe(pk.Payload(data))
 		ambigus += amb
 		posees += lierLesDatums(w, table)
 	}

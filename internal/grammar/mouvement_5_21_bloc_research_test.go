@@ -208,7 +208,7 @@ func TestBloc521Rejets(t *testing.T) {
 		for slot, ti := range b521ImageCle(data, pks) {
 			w.BindImageCle(0, slot, ti)
 		}
-		LierTableDeDatums(w, data, pks)
+		LierTableDeDatums(nil, w, data, pks)
 		for _, pk := range pks {
 			if pk.Type != PacketTypeDelta || pk.Size < 1 {
 				continue

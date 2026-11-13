@@ -94,9 +94,10 @@ type declarationDImageCle struct {
 	ambigus int
 }
 
-// declarerLImageCle lit ce que l image-cle de payload `pay`, de marche d ancres `mp`, declare.
-func declarerLImageCle(pay []byte, mp MarcheDePayload) declarationDImageCle {
-	table, ambigus := TableDeDatums(pay)
+// declarerLImageCle lit ce que l image-cle de payload `pay`, de marche d ancres `mp`, declare ; `fc` :
+// le contexte du film ([FilmContext.tableDeDatumsDe]), nil pour lire la table ici.
+func declarerLImageCle(fc *FilmContext, pay []byte, mp MarcheDePayload) declarationDImageCle {
+	table, ambigus := fc.tableDeDatumsDe(pay)
 	return declarationDImageCle{ancres: mp, table: table, ambigus: ambigus}
 }
 
@@ -104,13 +105,15 @@ func declarerLImageCle(pay []byte, mp MarcheDePayload) declarationDImageCle {
 // (un preliminaire de la marche des trames, `marche_trames_preliminaires.go`) et POSEE chunk par
 // chunk pendant la marche des trames ([lierLesImagesClesDuChunk]).
 type liaisonDesImagesCles struct {
+	// fc : le contexte du film, dont la memoire rend une table d entites deja lue ; nil dans un test.
+	fc *FilmContext
 	// parChunk : les declarations des images-cles de chaque chunk, dans l ordre du chunk.
 	parChunk map[int][]declarationDImageCle
 }
 
 // recevoir garde ce que l image-cle `p`, de marche d ancres `mp`, declare.
 func (l *liaisonDesImagesCles) recevoir(p *lecture.Paquet, mp MarcheDePayload) {
-	l.parChunk[p.Chunk] = append(l.parChunk[p.Chunk], declarerLImageCle(p.Payload, mp))
+	l.parChunk[p.Chunk] = append(l.parChunk[p.Chunk], declarerLImageCle(l.fc, p.Payload, mp))
 }
 
 // rendre rend les declarations du chunk `c` et les oublie : un chunk se lie une fois.

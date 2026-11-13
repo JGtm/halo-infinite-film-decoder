@@ -115,7 +115,7 @@ func TestEntete520(t *testing.T) {
 				w.BindImageCle(uint32(r.Gen), uint32(r.Slot), uint32(r.TI))
 			}
 		}
-		LierTableDeDatums(w, data, pks)
+		LierTableDeDatums(nil, w, data, pks)
 		for _, pk := range pks {
 			if pk.Type != PacketTypeDelta || pk.Size < 1 {
 				continue

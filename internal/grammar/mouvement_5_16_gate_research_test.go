@@ -99,7 +99,7 @@ func TestGate516(t *testing.T) {
 			// sous le modele du 5.15 (la garde de la branche 0 transcrite). C est la colonne
 			// « avant » du tableau, et elle doit rester rejouable pour que « +13 paquets » soit
 			// un ECART mesure et non un chiffre isole.
-			posees, ambigus := LierTableDeDatums(w, data, pks)
+			posees, ambigus := LierTableDeDatums(nil, w, data, pks)
 			b.datums += posees
 			b.ambigus += ambigus
 		}
@@ -241,7 +241,7 @@ func TestGate516Contenu(t *testing.T) {
 			b521Lier(w, bloc, kf)
 		}
 		if os.Getenv("MOUV516_DATUMS") != "0" {
-			LierTableDeDatums(w, data, pks)
+			LierTableDeDatums(nil, w, data, pks)
 		}
 		for _, pk := range pks {
 			if pk.Type != PacketTypeDelta || pk.Size < 1 {

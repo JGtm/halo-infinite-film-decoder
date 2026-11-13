@@ -17,7 +17,7 @@ func lierLeChunkAuMonde(w *World, marche MarcheDImageCle, data []byte, pks []Fil
 			continue
 		}
 		pay := pk.Payload(data)
-		decls = append(decls, declarerLImageCle(pay, marche.Marcher(pay)))
+		decls = append(decls, declarerLImageCle(nil, pay, marche.Marcher(pay)))
 	}
 	return lierLesImagesClesDuChunk(w, decls, obs)
 }

@@ -335,7 +335,7 @@ func TestDiff519(t *testing.T) {
 			}
 		}
 		if os.Getenv("MOUV516_DATUMS") != "0" {
-			LierTableDeDatums(w, data, pks)
+			LierTableDeDatums(nil, w, data, pks)
 		}
 		for _, pk := range pks {
 			if pk.Type != PacketTypeDelta || pk.Size < 1 {

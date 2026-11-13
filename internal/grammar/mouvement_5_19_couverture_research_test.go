@@ -63,7 +63,7 @@ func TestCouverture519(t *testing.T) {
 				c, len(pay)*8, len(recs), dernier,
 				m533bPart(dernier, len(pay)*8), maxSlot, len(table), maxDatum, amb)
 		}
-		LierTableDeDatums(w, data, pks)
+		LierTableDeDatums(nil, w, data, pks)
 		rejetes, vus := map[uint32]bool{}, 0
 		for _, pk := range pks {
 			if pk.Type != PacketTypeDelta || pk.Size < 1 {
@@ -116,7 +116,7 @@ func TestPremierRejet519(t *testing.T) {
 				w.BindImageCle(uint32(r.Gen), uint32(r.Slot), uint32(r.TI))
 			}
 		}
-		LierTableDeDatums(w, data, pks)
+		LierTableDeDatums(nil, w, data, pks)
 		rang, news, fermes, premier := 0, 0, 0, -1
 		var slot uint32
 		for _, pk := range pks {
