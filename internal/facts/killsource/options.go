@@ -13,6 +13,7 @@ package killsource
 import (
 	"math/rand"
 
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 )
 
@@ -20,6 +21,12 @@ import (
 // bascule). Le zero-value N EST PAS la configuration retenue : partir de [DefaultOptions] et y
 // poser la CARTE du match (obligatoire depuis le 2026-09-27 — `nil` rend [ErrCarteAbsente]).
 type Options struct {
+	// Contexte : le contexte de film que l appelant PARTAGE avec la cuisson (`replay.Options.Contexte`),
+	// ouvert sur ce film et sa carte sans decoupage force. Donne, la marche de ce decodage porte aussi
+	// les canaux de la cuisson, qui n aura pas a remarcher ([grammar.LireLaMarcheCommune]). nil : ce
+	// decodage ouvre le sien et ne marche que pour lui.
+	Contexte *grammar.FilmContext
+
 	// Bots : lire BOT_METADATA (paquet type 12) pour etendre le roster et epingler les slots
 	// de bot. Sans lui, `nPlayers` reste le nombre de joueurs du kill-feed et les morts de bot
 	// sont invisibles. DEFAUT : true.

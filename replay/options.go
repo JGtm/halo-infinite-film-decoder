@@ -416,6 +416,9 @@ type Options struct {
 	// nil = l'invariant du profil ([grammar.ProfilDeBalayageParDefaut]) : c'est le cas des
 	// instruments et des tests, qui ne décodent pas de kill-feed avant la cuisson.
 	ProfilDeBalayage *grammar.ProfilDeBalayage
+	// Contexte : le contexte que l appelant PARTAGE avec la source de degat (`killsource.Options.Contexte`)
+	// apres un decodage reussi ; il garde la marche faite pour les deux et ne se reprend qu UNE fois.
+	Contexte *grammar.FilmContext
 	// Labels : le catalogue de libellés DU TITRE (armes, grenades, capacités), chargé
 	// depuis config/titles/{slug}/mappings/ par l'appelant hors ligne (cf. catalog.go).
 	// Absent = document sans table de libellés : le client affiche les identifiants

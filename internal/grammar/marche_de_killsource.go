@@ -104,11 +104,16 @@ func LireLaMarcheDeKillsource(fc *FilmContext) (LectureDeKillsource, error) {
 	if err := Distribuer(fc, morts, kills); err != nil {
 		return LectureDeKillsource{}, err
 	}
+	return lectureDeKillsource(morts, kills), nil
+}
+
+// lectureDeKillsource rend ce que les deux canaux de la source de degat ont lu.
+func lectureDeKillsource(morts *canalDesMorts, kills *canalDesKills) LectureDeKillsource {
 	r := &kills.rattrapage
 	return LectureDeKillsource{Morts: morts.mortsLues, Kills: kills.kills, Fil: kills.fil, Stats: morts.st,
 		LargeurLibre: morts.largeurLibre, Occupation: dedupOccupancy(morts.h.rides),
 		Rattrapage: BilanDuRattrapage{Kills: kills.rattrapes,
-			ChainesArretees: r.chainesArretees, Gate15: r.gate15, Tranche: r.tranche}}, nil
+			ChainesArretees: r.chainesArretees, Gate15: r.gate15, Tranche: r.tranche}}
 }
 
 // canalDesKills recueille les messages de kill des trames delta d un film.

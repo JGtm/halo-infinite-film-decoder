@@ -175,19 +175,34 @@ func ScanMarcheDesTrames(fc *FilmContext) (MarcheDesTrames, error) {
 // Les etats de mouvement y restent EXACTEMENT ce qu ils etaient — aucune lecture, `Absent` et
 // `Scanned` poses, les compteurs de marche remis a zero.
 func ScanMarcheDesTramesAvec(fc *FilmContext, l LecturesDeLaMarche) (MarcheDesTrames, error) {
+	if m, ok := fc.marcheGardee(l); ok {
+		return m, nil
+	}
+	m, morts, err := marcherPourLaCuisson(fc, l, nil)
+	if err == nil && morts != nil {
+		m.prendreLesMorts(fc, morts)
+	}
+	return m, err
+}
+
+// marcherPourLaCuisson deroule la marche des trames avec les canaux de la cuisson, plus les canaux
+// `invites` d un autre lecteur (la source de degat, [LireLaMarcheCommune]), en UNE distribution. Rend le
+// canal des morts de la cuisson quand `l` le demande : ses lectures ne sont pas encore prises
+// ([MarcheDesTrames.prendreLesMorts]).
+func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal) (MarcheDesTrames, *canalDesMorts, error) {
 	var m MarcheDesTrames
 	st := &m.MovementStateStats
 	st.MapWidths = fc.LargeursObjetDuMonde().AxisW
 	if len(fc.ChunkNumbers()) == 0 {
-		return m, ErrNoFilmChunk
+		return m, nil, ErrNoFilmChunk
 	}
 	reg, err := fc.Registry()
 	if err != nil {
-		return m, err
+		return m, nil, err
 	}
 	arch, err := fc.bipedArchetype()
 	if err != nil {
-		return m, err
+		return m, nil, err
 	}
 	sc := nouveauCanalDesEtats(st, reg, arch)
 	tir := nouveauCollecteurTirContinu(&m.ContinuousFireStats)
@@ -202,16 +217,12 @@ func ScanMarcheDesTramesAvec(fc *FilmContext, l LecturesDeLaMarche) (MarcheDesTr
 		canaux = append(canaux, nouveauCanalDeLEquipementPorte(fc))
 	}
 	var morts *canalDesMorts
-	if l.Morts || (l.MortsSiVehicules && len(ScanWorldObjectKeyframes(fc, VehicleTypeIndex).Band) > 0) {
+	if l.veutLesMorts(fc) {
 		morts = nouveauCanalDesMorts(reg)
 		canaux = append(canaux, morts)
 	}
-	if err := Distribuer(fc, canaux...); err != nil {
-		return m, err
-	}
-	if morts != nil {
-		m.ObjectDeaths, m.Occupancy, m.ObjectDeathStats = morts.resultat()
-		fc.NoterReplis(ComptesDesReplis{LocalisationsALargeurLibre: morts.largeurLibre})
+	if err := Distribuer(fc, append(canaux, invites...)...); err != nil {
+		return m, nil, err
 	}
 	m.LiaisonsParRepliDAnticipation = sc.liaisonsDuRepliDAnticipation()
 	m.DebutsDeListeParRepliFermeAuBit = sc.obs.DebutsDeListeParRepliFermeAuBit
@@ -219,13 +230,13 @@ func ScanMarcheDesTramesAvec(fc *FilmContext, l LecturesDeLaMarche) (MarcheDesTr
 	m.ContinuousFireStats.Scanned = true
 	if !sc.transmet {
 		*st = types.MovementStateStats{MapWidths: st.MapWidths, Absent: true, Scanned: true}
-		return m, nil
+		return m, morts, nil
 	}
 	sc.deriverLesSauts()
 	sc.publier()
 	st.Scanned = true
 	m.MovementStates = sc.out
-	return m, nil
+	return m, morts, nil
 }
 
 // nouveauCanalDesEtats prepare le canal des etats de mouvement d un film de registre `reg` et
