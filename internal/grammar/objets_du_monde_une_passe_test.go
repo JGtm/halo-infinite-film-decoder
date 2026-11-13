@@ -188,5 +188,5 @@ func releverLesObjetsDUnPayloadQuelconque(pay []byte, band map[uint32]bool, wr *
 		marches = append(marches, equipCreationWalk{obs: installCreationHooks(cur), prof: ProfilDeBalayageParDefaut(),
 			comps: 40, wr: wr, band: band, cur: cur, ti: ti})
 	}
-	nouvellePasseDesCreations(marches).payload(pay, lieuDuPaquet{pk: FilmPacket{Type: PacketTypeDelta, Size: len(pay)}})
+	nouvellePasseDesCreations(marches).payload(pay, lieuDuPaquet{pk: FilmPacket{Type: PacketTypeDelta, Size: len(pay)}}, len(pay)*8)
 }

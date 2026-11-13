@@ -176,10 +176,13 @@ func copierLesCreations(cr []types.EquipmentCreation) []types.EquipmentCreation 
 }
 
 // releverLesCreations marche, en une passe sur les payloads delta du film, les creations de
-// chacune des `marches`.
+// chacune des `marches`. Chaque payload n est balaye que jusqu au premier bit que la fermeture de
+// sa trame prouve ([FilmContext.finDuBalayage]) : au-dela, la marche des trames a lu les records et
+// la passe ne rend rien ([rendParLAncrage]).
 func releverLesCreations(c *FilmContext, marches []equipCreationWalk) ([][]types.EquipmentCreation,
 	[]types.EquipmentCreationStats) {
 	ps := nouvellePasseDesCreations(marches)
+	fin := c.finDuBalayage()
 	for _, ch := range c.ChunkNumbers() {
 		data, pks, ok := c.ChunkAt(ch)
 		if !ok {
@@ -187,7 +190,8 @@ func releverLesCreations(c *FilmContext, marches []equipCreationWalk) ([][]types
 		}
 		for _, pk := range pks {
 			if pk.Type == PacketTypeDelta {
-				ps.payload(pk.Payload(data), lieuDuPaquet{chunk: ch, pk: pk})
+				pay := pk.Payload(data)
+				ps.payload(pay, lieuDuPaquet{chunk: ch, pk: pk}, fin(ch, pk.Index, len(pay)*8))
 			}
 		}
 	}
@@ -220,11 +224,11 @@ func nouvellePasseDesCreations(marches []equipCreationWalk) *passeDesCreations {
 }
 
 // payload marche UN payload delta pour toutes les marches de la passe, chacune avec son curseur,
-// remis a zero au debut du payload.
-func (ps *passeDesCreations) payload(pay []byte, lieu lieuDuPaquet) {
+// remis a zero au debut du payload. Seuls les en-tetes qui commencent avant le bit `fin` sont juges.
+func (ps *passeDesCreations) payload(pay []byte, lieu lieuDuPaquet, fin int) {
 	clear(ps.curseurs)
 	total := len(pay) * 8
-	for p := 0; p <= total-woNewHeaderBits; p++ {
+	for p := 0; p <= total-woNewHeaderBits && p < fin; p++ {
 		ti, ok := archetypeDeLEnTeteNEW(pay, p)
 		if !ok {
 			continue

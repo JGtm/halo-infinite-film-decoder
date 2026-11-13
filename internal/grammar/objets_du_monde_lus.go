@@ -209,6 +209,25 @@ func (c *FilmContext) objetsDuMonde() (*objetsDuMondeLus, map[paquetDuFlux]trame
 	return c.recup.objets, c.recup.lectures.trames, nil
 }
 
+// finDuBalayage rend, pour un payload delta de `total` bits situe par son chunk et l index de son
+// paquet, le bit ou une passe de recuperation s arrete : le premier bit que la fermeture de la trame
+// prouve ([trameDuCanal.prouveeDes]). Une position a ce bit ou au-dela n est jamais rendue par
+// l ancrage ([rendParLAncrage]) ; une trame que la marche n a pas rendue, ou que sa fermeture ne
+// prouve pas, se balaye en entier, comme tout le film quand il n y a pas de marche.
+func (c *FilmContext) finDuBalayage() func(chunk, index, total int) int {
+	_, trames, err := c.objetsDuMonde()
+	if err != nil {
+		return func(_, _, total int) int { return total }
+	}
+	return func(chunk, index, total int) int {
+		t, vu := trames[paquetDuFlux{chunk, index}]
+		if !vu || t.prouveeDes == rienDeProuve {
+			return total
+		}
+		return min(total, int(t.prouveeDes))
+	}
+}
+
 // pistesDerriereLaMarche rend les pistes de l archetype `ti` sur la bande `band` : les echantillons
 // des records que la marche a lus, puis ceux de la passe (`brut`) qu elle rend derriere elle ; et le
 // nombre de ces derniers. Sans marche (pas de registre, ou archetype inconnu), la passe seule.
