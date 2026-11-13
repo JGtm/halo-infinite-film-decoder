@@ -76,8 +76,11 @@ func lireTemoins(chemin string) ([]temoin, error) {
 	return out, sc.Err()
 }
 
-// entreeDeCarte rend l entree du catalogue dont le module est le niveau du film.
+// entreeDeCarte rend l entree du catalogue dont le nom de carte, sinon le module, est le niveau du film.
 func entreeDeCarte(cat *decfilm.MapQuantCatalog, niveau string) (decfilm.MapQuantEntry, error) {
+	if e, err := cat.Lookup(niveau); err == nil {
+		return e, nil // la colonne porte un nom de carte
+	}
 	for _, e := range cat.Maps {
 		if e.Module == niveau {
 			return e, nil
