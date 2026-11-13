@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 15954 frames · intervalle 33 ms · duree 526482 ms
-schema 113 · titre halo_infinite
+schema 114 · titre halo_infinite
 version majeure du film : 39
 origine de la frame 0 sur l horloge du fil : 47630 ms
 coup d envoi date par le film : 70235 ms · 212/212 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 22605 ms
@@ -71,9 +71,9 @@ par source : projectile=147 (aucun pont) · biped=8 (le pont a servi)
 par type : Dynamo=65 · Frag=37 · Plasma=23 · Spike=30
 
 ## PROJECTILES — le dernier point est la DERNIERE POSITION REPLIQUEE, jamais un impact
-719 trajectoire(s) · 20589 point(s) de grille
+719 trajectoire(s) · 20550 point(s) de grille
 110 se terminent sur `projectile-at-rest-state` — le SEUL champ qui certifie une fin de vol
-couverture : 720 piste(s) decodee(s) · 719 publiee(s) · 1 coupee(s) a un pas impossible
+couverture : 720 piste(s) decodee(s) · 719 publiee(s) · 2 coupee(s) a un pas impossible
 
 ## INVENTAIRE — lu aux images-cles, jamais interpole entre deux
 573 etat(s) publie(s) · 489 avec grenades lues · 489 avec munitions lues
