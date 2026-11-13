@@ -316,11 +316,9 @@ func TestArriveeDuGrappinBorneeParUnInstant(t *testing.T) {
 	}
 }
 
-// TestPoseApresLaFinDeLAxeEstPublieeAToutePas : l'axe finit a la derniere position ; le dernier instantane du
-// film peut dater de quelques ms a plus de 100 ms apres, selon la grille. Une pose datee apres la fin de
-// l'axe se publie a la derniere frame, sans condition : meme nombre de poses a 33 et a 100 ms, pour un
-// decalage de 0, 5, 45, 120 ms ou une seconde.
-func TestPoseApresLaFinDeLAxeEstPublieeAToutePas(t *testing.T) {
+// TestPoseNeeApresLaFinDeLAxeEstEcartee : une pose nee apres la derniere frame est hors de l'axe, a toute cadence et
+// quel que soit le decalage ; une pose nee dans la derniere frame est publiee.
+func TestPoseNeeApresLaFinDeLAxeEstEcartee(t *testing.T) {
 	life := types.LifeKey{Slot: 900, Gen: 1}
 	for _, decalageMS := range []uint64{0, 5, 45, 120, 1000} {
 		for _, interval := range cadencesDeTest {
@@ -328,16 +326,17 @@ func TestPoseApresLaFinDeLAxeEstPublieeAToutePas(t *testing.T) {
 			finUS := clock.origin + uint64(clock.frames)*clock.step
 			raw := []types.EquipmentPlacement{
 				pePose(life, 2_000_000),             // en milieu de film
-				pePose(life, finUS+decalageMS*1000), // apres la fin de l'axe
+				pePose(life, finUS-1),               // dans la derniere frame
+				pePose(life, finUS+decalageMS*1000), // apres la derniere frame
 			}
 			out, _ := buildEquipmentPlacements(equipmentInputs{Raw: raw, Stats: grammar.EquipmentPlacementStats{Scanned: true}}, clock)
 			if len(out) != 2 {
 				t.Errorf("pas %d ms, decalage %d ms : %d pose(s) publiee(s), attendu 2", interval, decalageMS, len(out))
 				continue
 			}
-			if dernier := out[len(out)-1]; dernier.T0 != clock.frames-1 || dernier.T1 != clock.frames-1 {
-				t.Errorf("pas %d ms, decalage %d ms : pose de bord a t0=%d t1=%d, attendu la derniere frame %d",
-					interval, decalageMS, dernier.T0, dernier.T1, clock.frames-1)
+			if dernier := out[len(out)-1]; dernier.T0 != clock.frames-1 {
+				t.Errorf("pas %d ms, decalage %d ms : derniere pose a t0=%d, attendu la derniere frame %d",
+					interval, decalageMS, dernier.T0, clock.frames-1)
 			}
 		}
 	}
