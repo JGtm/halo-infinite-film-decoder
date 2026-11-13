@@ -217,7 +217,7 @@ func (c *FilmContext) objetsDuMonde() (*objetsDuMondeLus, map[paquetDuFlux]trame
 func (c *FilmContext) finDuBalayage() func(chunk, index, total int) int {
 	_, trames, err := c.objetsDuMonde()
 	if err != nil {
-		return func(_, _, total int) int { return total }
+		return payloadEntier
 	}
 	return func(chunk, index, total int) int {
 		t, vu := trames[paquetDuFlux{chunk, index}]
