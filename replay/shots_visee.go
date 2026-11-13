@@ -8,8 +8,7 @@ package replay
 // cf. `grammar.ScanBipedAimOnly`). La derniere lecture du slot tireur AU PLUS TARD a l instant du
 // tir EST sa visee a cet instant, tant qu elle appartient a la meme vie (`viseeTenueMaxUS`). La tenir
 // bat l interpolation entre la lecture d avant et celle d apres : une interpolation ne rend jamais
-// l angle exact de la lecture suivante, et la mesure contre la visee exacte des tirs dont le record
-// la porte (chronique du schema 110) l a tranchee en faveur de la lecture tenue.
+// l angle exact de la lecture suivante (mesure : chronique du schema 116).
 //
 // LE CHAMP DU RECORD N EST QU UN REPLI, NOMME ET COMPTE. Le record de tir 36 n ecrit sa visee que
 // sous ses deux drapeaux nuls (`grammar.modalAimBitFrom`) ; elle sert quand le tireur n a aucune

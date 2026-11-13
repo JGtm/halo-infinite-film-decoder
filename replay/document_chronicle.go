@@ -4057,10 +4057,15 @@ package replay
 // elle ne dit rien de la visee du tireur.
 //
 //	`shots[].h`, `shots[].p`   la visee i21 du tireur : sa derniere lecture, avec ou sans position, au plus tard a
-//	                 l instant du tir et a moins de 5 s (`shots_visee.go`). Tenir bat interpoler, mesure contre la visee
-//	                 exacte des records qui la portent : mediane de l ecart a moins d un degre. Le champ du record n est
-//	                 plus qu un repli nomme et compte (`repli_visee_du_tir_lue_dans_le_record`). `p` nait : l elevation
-//	                 de la meme lecture.
+//	                 l instant du tir et a moins de 5 s (`shots_visee.go`). Le champ du record n est plus qu un repli
+//	                 nomme et compte (`repli_visee_du_tir_lue_dans_le_record`). `p` nait : l elevation de la meme lecture.
+//
+// LA MESURE (13 films, 36 003 tirs). Sur les 22 327 tirs qui portent les deux directions, elles s accordent a 5 degres
+// pour 24,8 % seulement. Confrontees au cap du tireur vers l ennemi le plus proche en angle a l image du tir, avec un
+// temoin (visee tenue + 90 degres) qui mesure ce que le « plus proche » donne par hasard : visee tenue, mediane 1,3
+// degre, 67 % a 3 degres, 85 % a 10 ; champ du record, mediane 37,9 degres, 8,6 % a 3 ; temoin, mediane 48,3 degres,
+// 6,9 % a 3. La ou elles divergent, le champ du record ne fait pas mieux que le hasard. Sept conventions d angle essayees
+// pour le champ du record, aucune ne le rapproche. Repli sur ces films : 0 a 3 tirs par film.
 //	`coverage.shots.aim`   {track, sameTick, record, none} : d ou vient chaque direction ; track + record + none =
 //	                 attached + unpublished.
 //
