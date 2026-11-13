@@ -360,7 +360,10 @@ func coveredInstants(kills []Kill) map[int]bool {
 // decoupage MPP que la grammaire resout pour le film. Ce que le registre, la phase des images-cles
 // et la marche constatent tombe dans les diagnostics.
 func (c *decodeCtx) marcher(ctx context.Context, src *source.Film) error {
-	fc := grammar.NewFilmContextForMap(src, c.opts.Carte, nil)
+	fc, lire := c.opts.Contexte, grammar.LireLaMarcheCommune
+	if fc == nil || fc.Film() != src {
+		fc, lire = grammar.NewFilmContextForMap(src, c.opts.Carte, nil), grammar.LireLaMarcheDeKillsource
+	}
 	reg, err := fc.Registry()
 	if err != nil {
 		return errRegistry(err)
@@ -377,7 +380,7 @@ func (c *decodeCtx) marcher(ctx context.Context, src *source.Film) error {
 		return err
 	}
 	c.signalerLeDecoupageMPP(poserLeProfil(fc, c.calib.Profil))
-	lecture, err := grammar.LireLaMarcheDeKillsource(fc)
+	lecture, err := lire(fc)
 	if err != nil {
 		return err
 	}

@@ -22,4 +22,6 @@ type memoDesRecuperations struct {
 	equipementPorte *equipementPorteLu
 	// tables : la table d entites de chaque payload d image-cle deja lu ([FilmContext.tableDeDatumsDe]).
 	tables map[*byte]tableDeDatumsMemo
+	// marche : la marche des trames gardee pour la cuisson ([LireLaMarcheCommune]).
+	marche *marcheGardee
 }

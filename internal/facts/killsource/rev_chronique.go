@@ -452,3 +452,8 @@ package killsource
 // ([killFeed.rangsDuCouple]) : le premier que l identite de paquet ou la fenetre retient est celui que le parcours de tout le feed
 // rendait. Sur trois films de l equivalence (`1c4c63c2`, `a349fea8`, `084a804d`) l etape `killsource` garde son empreinte, et elle la garde
 // sur les vingt films a la passe de reference. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (marche commune avec la cuisson, 2026-11-13) : `Options.Contexte` laisse l appelant donner le contexte de
+// film qu il partage avec la cuisson ; la marche de ce decodage porte alors aussi les canaux de la cuisson
+// ([grammar.LireLaMarcheCommune]). Sans contexte donne, rien ne change ; avec, le resultat est celui du decodage seul
+// (`TestLaMarcheCommuneRendCeQueRendentLesDeuxMarches`, mini-bobine). Golden regenere a revision constante.
