@@ -2,11 +2,11 @@ package grammar
 
 // L ordre de ces imports entre dans l empreinte de la couche (revision/cadre.go) : ne pas regrouper.
 import (
-	"cmp"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/constat"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 
+	"cmp"
 	"slices"
 )
 

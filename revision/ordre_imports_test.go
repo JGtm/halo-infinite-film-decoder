@@ -107,10 +107,10 @@ var ordresFiges = map[string][]string{
 		"@/types",
 	},
 	"internal/grammar/grenade_events.go": {
-		"cmp",
 		"@/internal/constat",
 		"@/internal/profile",
 		"@/internal/source",
+		"cmp",
 		"slices",
 	},
 	"internal/grammar/navpoint_radial_rises.go": {
