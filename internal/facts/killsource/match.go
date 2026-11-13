@@ -30,14 +30,17 @@ import "github.com/JGtm/halo-infinite-film-decoder/damagetag"
 // matchExact : le critere FORT. Rend l instant apparie et si le REPLI (la fenetre) a servi.
 func (c *decodeCtx) matchExact(cd candidate) (*feedEvent, bool) {
 	vic, kil := c.roster.nameOfA(cd.victim, cd.ms), c.roster.nameOfA(cd.killer, cd.ms)
-	i, repli := choisirParIdentitePuisFenetre(len(c.feed.pairs),
-		func(i int) bool { return c.feed.pairs[i].paquet.memeQue(cd.chunk, cd.pidx) },
-		func(i int) bool { return dansLaFenetre(c.feed.pairs[i].timeMS, cd.ms) },
-		func(i int) bool { return c.feed.pairs[i].victim == vic && c.feed.pairs[i].killer == kil })
-	if i < 0 {
+	// Les couples de ce nom, a rangs croissants : le premier d entre eux que l identite ou la fenetre
+	// retient est le premier de tout le feed qui satisfait aussi la contrainte de couple.
+	rangs := c.feed.rangsDuCouple(vic, kil)
+	j, repli := choisirParIdentitePuisFenetre(len(rangs),
+		func(j int) bool { return c.feed.pairs[rangs[j]].paquet.memeQue(cd.chunk, cd.pidx) },
+		func(j int) bool { return dansLaFenetre(c.feed.pairs[rangs[j]].timeMS, cd.ms) },
+		func(int) bool { return true })
+	if j < 0 {
 		return nil, false
 	}
-	return &c.feed.pairs[i], repli
+	return &c.feed.pairs[rangs[j]], repli
 }
 
 // matchVictim : la victime du candidat est-elle celle d une mort du feed ? Meme ordre : le paquet
