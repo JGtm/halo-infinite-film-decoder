@@ -154,7 +154,7 @@ func scanBandeVide(kf grammar.WorldObjectKeyframes) VehicleScan {
 // et la passe des positions du collecteur ([LireLesVehicules]) la partagent.
 func nuageDesVehicules(fc *grammar.FilmContext, band map[uint32]bool, wr *profile.Vec3Range,
 ) ([]grammar.BipedPosition, error) {
-	return grammar.ScanBipedPositionsForBand(fc, grammar.NewSlotBand(band), vehicleScanOptions(fc, wr))
+	return grammar.ScanVehiclePositions(fc, grammar.NewSlotBand(band), vehicleScanOptions(fc, wr))
 }
 
 // VehiculesDuFilm porte les deux lectures `ti=40` que la passe des positions du collecteur consulte.

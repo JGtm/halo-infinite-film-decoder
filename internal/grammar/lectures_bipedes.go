@@ -148,6 +148,9 @@ type lecturesBipedes struct {
 	// visees : les visees des records sans position que la marche a lus, dans l ordre du flux
 	// ([canalDesLecturesBipedes.noterLaVisee]).
 	visees []BipedAim
+	// vehicules : les records delta de vehicule dont la marche a traverse la position, dans l ordre
+	// du flux ([canalDesLecturesBipedes.noterLaPositionDeVehicule]).
+	vehicules positionsBipedes
 	// trames : ce que la marche a rendu de chaque trame — d ou sa fermeture prouve sa liste, les slots
 	// qu elle y a lus ([trameDuCanal]) —, que les passes des objets du monde lisent aussi
 	// (`objets_du_monde_lus.go`).

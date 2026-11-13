@@ -226,7 +226,11 @@ func ScanBipedPositions(fc *FilmContext, opt ScanFilmOptions) ([]BipedPosition, 
 	if band.Count() == 0 {
 		return nil, fmt.Errorf("aucun slot biped (ti=%d) dans les keyframes du film", BipedTypeIndex)
 	}
-	return balayerLesPositions(fc, band, opt, parContexte)
+	voie := positionsParBande
+	if parContexte {
+		voie = positionsDuContexteBipede
+	}
+	return balayerLesPositions(fc, band, opt, voie)
 }
 
 // ancrageDuContexte dit si les positions bipèdes ancrent sous les paramètres du contexte : aucun

@@ -80,14 +80,33 @@ func ScanFilmBipedPositionsForBand(dir string, band SlotBand, opt ScanFilmOption
 // donc le minimum de deux est franchi sans réglage.
 func ScanBipedPositionsForBand(fc *FilmContext, band SlotBand, opt ScanFilmOptions) (
 	[]BipedPosition, error) {
-	return balayerLesPositions(fc, band, opt, false)
+	return balayerLesPositions(fc, band, opt, positionsParBande)
 }
+
+// ScanVehiclePositions est [ScanBipedPositionsForBand] pour la bande des vehicules (`ti=40`) : les
+// positions des records que la marche des trames a lus, puis celles que l ancrage rend derriere elle
+// ([positionsDeVehicule]).
+func ScanVehiclePositions(fc *FilmContext, band SlotBand, opt ScanFilmOptions) ([]BipedPosition, error) {
+	return balayerLesPositions(fc, band, opt, positionsDeVehicules)
+}
+
+// voieDesPositions dit d ou [balayerLesPositions] tient ses records.
+type voieDesPositions int
+
+const (
+	// positionsParBande : chaque payload est ancre sous la bande donnee.
+	positionsParBande voieDesPositions = iota
+	// positionsDuContexteBipede : les records bipedes du contexte ([positionsDuContexte]).
+	positionsDuContexteBipede
+	// positionsDeVehicules : les records de vehicule de la marche, puis l ancrage derriere elle.
+	positionsDeVehicules
+)
 
 // balayerLesPositions est le corps des deux entrées : les refus d'entrée, le découpage, la lecture
 // des records, puis les filtres de post-traitement. `parContexte` : les records sont ceux que la
 // marche des trames a lus, puis ceux que l'ancrage du contexte rend derrière elle, sur la bande
 // `band` ([positionsDuContexte]) ; sinon chaque payload est ancré sous `band`.
-func balayerLesPositions(fc *FilmContext, band SlotBand, opt ScanFilmOptions, parContexte bool) (
+func balayerLesPositions(fc *FilmContext, band SlotBand, opt ScanFilmOptions, voie voieDesPositions) (
 	[]BipedPosition, error) {
 	film := fc.Film()
 	chunks, err := bipedScanChunks(film, opt)
@@ -114,9 +133,12 @@ func balayerLesPositions(fc *FilmContext, band SlotBand, opt ScanFilmOptions, pa
 	}
 	var out []BipedPosition
 	var read int
-	if parContexte {
+	switch voie {
+	case positionsDuContexteBipede:
 		out, read = positionsDuContexte(fc, chunks, lay, opt)
-	} else {
+	case positionsDeVehicules:
+		out, read = positionsDeVehicule(fc, chunks, band, lay, opt)
+	default:
 		out, read = scanBipedChunks(film, chunks, band, lay, opt, fc.ContexteDeLecture())
 	}
 	if read == 0 {
