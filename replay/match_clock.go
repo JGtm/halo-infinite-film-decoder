@@ -62,10 +62,13 @@ func (c matchClock) matchMSOfUS(us uint64) int64 {
 	return int64(us/1000) - c.deathOffsetMS
 }
 
-// framesOfMS convertit une duree en nombre de frames du pas de cette horloge ([framesOfMS], arrondi
-// vers le bas). Zero pas = le pas historique.
-func (c matchClock) framesOfMS(ms int) int {
-	return framesOfMS(ms, int(c.step/1000)) //nolint:gosec // pas de la grille, en ms
+// filmUSOfMatchMS pose un instant de l'horloge du MATCH (millisecondes) sur celle du FILM (microsecondes).
+func (c matchClock) filmUSOfMatchMS(matchMS int64) uint64 {
+	us := (matchMS + c.deathOffsetMS) * 1000
+	if us < 0 {
+		return 0
+	}
+	return uint64(us)
 }
 
 // slackFrames traduit une durée en millisecondes en nombre de frames, arrondi vers le

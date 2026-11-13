@@ -142,16 +142,17 @@ func readFlagFilmBases(ops []flagOpening, scan FlagCarryScan, ctx flagCarryCtx,
 func flagStealPointsByTeam(ops []flagOpening, teamOf map[string]int, ctx flagCarryCtx,
 	idx map[string][]Track) map[int][]flagPoint {
 	out := map[int][]flagPoint{}
+	fin := finDeLAxeUS(ctx.tracks)
 	for _, o := range ops {
 		if !o.steal {
 			continue
 		}
 		team, ok := teamOf[o.xuid]
-		f0 := ctx.frameOfMatchMS(o.t0)
-		if !ok || team == TeamNeutral || f0 < 0 || f0 >= ctx.frames {
+		t0US := ctx.filmUSOfMatchMS(o.t0)
+		if !ok || team == TeamNeutral || o.t0 < 0 || t0US < ctx.origin || t0US > fin {
 			continue
 		}
-		if p, ok := pointOfXUIDAt(idx[o.xuid], f0, ctx.framesOfMS(flagCarrierPointToleranceMS)); ok {
+		if p, ok := pointOfXUIDAt(idx[o.xuid], t0US); ok {
 			out[team] = append(out[team], flagPoint{p.X, p.Y})
 		}
 	}

@@ -13,8 +13,8 @@ package replay
 
 const (
 	// projShotWindowMS est l'écart maximal, en millisecondes, entre la naissance du projectile et
-	// l'instant du tir. Les deux horloges quantifient indépendamment : un pas de grille de
-	// tolérance de chaque côté. L'écart se juge en microsecondes : la décision ne dépend pas de la cadence.
+	// l'instant du tir, jugé sur les instants EXACTS des deux enregistrements : la décision ne
+	// dépend pas du pas de la grille.
 	projShotWindowMS = 100
 	// projShotMaxDistM est la distance maximale, en mètres, entre le point du tir (la bouche, ou
 	// le véhicule pour un tir embarqué) et le premier point publié du projectile.
@@ -56,9 +56,13 @@ func linkShotsToProjectiles(projs []Projectile, shots []Shot, grenades []Grenade
 	if len(projs) == 0 || len(shots) == 0 {
 		return 0, 0
 	}
-	// Un tir et une naissance a au plus `projShotWindowMS` l'un de l'autre sont separes d'au plus cette duree
-	// arrondie au-dessus, plus une frame : l'arrondi des deux instants a la grille.
-	window := (projShotWindowMS+max(intervalMS, 1)-1)/max(intervalMS, 1) + 1
+	// `window` ne sert qu'a ranger les tirs par frame : un tir et une naissance a au plus `projShotWindowMS` l'un de
+	// l'autre sont separes d'au plus cette duree arrondie au-dessus, plus une frame (l'arrondi des deux instants a
+	// la grille). Un pas absent est le pas historique, comme pour `framesOfMS`.
+	if intervalMS <= 0 {
+		intervalMS = HistoricalFrameIntervalMS
+	}
+	window := (projShotWindowMS+intervalMS-1)/intervalMS + 1
 	byFrame := make(map[int][]int, len(shots))
 	for i, s := range shots {
 		byFrame[s.T] = append(byFrame[s.T], i)

@@ -96,6 +96,9 @@ type PadPresence struct {
 	// l'arme est encore recensée à la DERNIÈRE image-clé du film — elle n'a alors pas été prise,
 	// ou elle l'a été après, ce que rien ne dit.
 	THigh int `json:"tHigh"`
+	// tUS, tLowUS et tHighUS sont les memes instants en microsecondes du film. Ils ne se publient pas : la datation
+	// d'une occupation et la fin de son cycle les comparent a des instants de ramassage, jamais a des frames.
+	tUS, tLowUS, tHighUS uint64
 }
 
 // PadCycle est le délai de réapparition d'un socle, en secondes, mesuré du moment où il se vide

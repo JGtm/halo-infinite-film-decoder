@@ -228,66 +228,47 @@ func vehicleDatedEndUS(tr VehicleTrack) uint64 {
 	return tr.mort.TimestampUS
 }
 
+// vehicleTwinWindowUS est l ecart maximal, en microsecondes, entre deux naissances d un meme emplacement pour que
+// les deux vies soient JUMELLES : un meme occupant vu deux fois. Un vehicule ne meurt pas puis ne reapparait pas en
+// 100 ms (six paquets de position de 16,7 ms) ; le film cree pourtant, a quelques dizaines de millisecondes de la
+// vie qui roule, une vie sans echantillon ni fin (le « shade », chassis different) au meme point.
+const vehicleTwinWindowUS = 100_000
+
 // vehicleCycleGaps rend les ecarts mesurables d un emplacement, en secondes, et le compte des
 // occasions PERDUES.
 //
-// UNE OCCASION EST UNE NAISSANCE QUI EN SUIT UNE AUTRE au meme emplacement : elle rend un ecart si une
-// fin datee la PRECEDE et n a pas deja servi, et un MANQUE sinon. La fin retenue est la PLUS RECENTE
-// avant la naissance, quelle que soit la vie qui la porte : l horloge du jeu repart quand l objet
-// DISPARAIT, et deux vies nees au meme lieu au meme instant (un jumeau sans echantillon et le
-// vehicule reel) ne doivent pas faire dependre l appariement de leur rang. Une fin ne sert qu une
-// fois — la premiere naissance qui la suit la consomme : une seconde y verrait un ecart faux.
+// L EMPLACEMENT EST OCCUPE PAR UNE VIE A LA FOIS. Des vies JUMELLES (nees a moins de [vehicleTwinWindowUS] de la
+// premiere du groupe) sont un seul occupant, dont la fin datee est celle de ses membres qui en portent une. Une
+// occasion est une naissance qui en suit une autre : elle ne s apparie qu a la fin datee de l occupant juste
+// AVANT elle — le dernier ne de l emplacement — et rend un ecart si cette fin precede strictement la naissance.
+// Sinon c est un MANQUE : une naissance anterieure ou egale a la mort qui la precede est une contradiction du
+// recensement, pas un cycle de zero seconde, et la mort d une AUTRE vie (un vehicule qui vivait encore quand le
+// suivant est ne) ne repond pas a cette naissance : l horloge du jeu repart quand l objet DISPARAIT.
 //
-// L ORDRE EST CELUI DU FILM, EN MICROSECONDES. A instant egal, la naissance passe AVANT la fin : une
-// naissance anterieure ou egale a la mort qui la precede est une contradiction du recensement, pas un
-// cycle de zero seconde — c est un manque.
+// L ORDRE EST CELUI DU FILM, EN MICROSECONDES : il ne depend ni du pas de la grille ni de l ordre du tableau ; le
+// tri stable ne tranche que les instants egaux.
 func vehicleCycleGaps(lives []vehicleCycleLife) ([]float64, int) {
 	if len(lives) < 2 {
 		return nil, 0
 	}
-	type event struct {
-		us    uint64
-		birth bool
-		life  int
+	slices.SortStableFunc(lives, func(a, b vehicleCycleLife) int { return cmp.Compare(a.bornUS, b.bornUS) })
+	var occupants []vehicleCycleLife // la naissance du premier du groupe, la derniere fin datee de ses membres
+	for _, l := range lives {
+		if n := len(occupants); n > 0 && l.bornUS-occupants[n-1].bornUS <= vehicleTwinWindowUS {
+			occupants[n-1].endUS = max(occupants[n-1].endUS, l.endUS)
+			continue
+		}
+		occupants = append(occupants, l)
 	}
-	events := make([]event, 0, 2*len(lives))
-	for i, l := range lives {
-		events = append(events, event{l.bornUS, true, i})
-		if l.endUS > 0 {
-			events = append(events, event{l.endUS, false, i})
+	gaps := make([]float64, 0, len(occupants))
+	var manques int
+	for i := 1; i < len(occupants); i++ {
+		fin := occupants[i-1].endUS
+		if fin == 0 || occupants[i].bornUS <= fin {
+			manques++
+			continue
 		}
-	}
-	slices.SortStableFunc(events, func(a, b event) int {
-		if c := cmp.Compare(a.us, b.us); c != 0 {
-			return c
-		}
-		switch {
-		case a.birth == b.birth:
-			return 0
-		case a.birth:
-			return -1
-		}
-		return 1
-	})
-	var (
-		gaps        = make([]float64, 0, len(lives)-1)
-		manques     int
-		pending     uint64 // la fin datee la plus recente qui n a pas servi, 0 : aucune
-		pendingLife int
-		first       = true
-	)
-	for _, e := range events {
-		switch {
-		case !e.birth:
-			pending, pendingLife = e.us, e.life
-		case first:
-			first = false // la premiere naissance n a pas de precedente : ce n est pas une occasion
-		case pending == 0 || pendingLife == e.life:
-			manques++ // pas de fin avant elle, ou sa propre fin (donnees contradictoires)
-		default:
-			gaps = append(gaps, float64(e.us-pending)/1e6)
-			pending = 0
-		}
+		gaps = append(gaps, float64(occupants[i].bornUS-fin)/1e6)
 	}
 	return gaps, manques
 }

@@ -154,7 +154,7 @@ func TestNaissanceCommuneDeTourelleSurDesInstantsMultiplesDuPas(t *testing.T) {
 			{"ne 200 ms apres", 200, false},
 		} {
 			porteur := vtChassis(101, familleWarthog)
-			porteur.T0 = c.ecartMS / interval
+			porteur.T0, porteur.bornUS = c.ecartMS/interval, uint64(c.ecartMS)*1000
 			porteur.Spawn = nil
 			tracks := []VehicleTrack{vtPiece(100, vtLAAG), porteur}
 			anchors := vehicleBoardingAnchors{clock: replayClock{step: uint64(interval) * 1000}}

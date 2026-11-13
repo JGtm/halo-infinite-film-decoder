@@ -350,7 +350,6 @@ func closeByFreeLives(raws []flagCarryRaw, ctx flagCarryCtx, scan FlagCarryScan)
 func flagFreeDropInside(r flagCarryRaw, ctx flagCarryCtx, tracks []Track,
 	scan FlagCarryScan) (int64, bool) {
 	for _, l := range scan.Free {
-		f := frameOf(l.T0US, ctx.origin, ctx.step)
 		at := ctx.matchMSOfUS(l.T0US)
 		if at <= r.t0 || at >= r.t1 {
 			continue
@@ -359,7 +358,7 @@ func flagFreeDropInside(r flagCarryRaw, ctx flagCarryCtx, tracks []Track,
 		if flagFreeAtSpawn(scan.Spawns, x, y) {
 			continue
 		}
-		p, ok := pointOfXUIDAt(tracks, f, ctx.framesOfMS(flagCarrierPointToleranceMS))
+		p, ok := pointOfXUIDAt(tracks, l.T0US)
 		if !ok || sqDist(p.X, p.Y, x, y) > originDropMaxDist*originDropMaxDist {
 			continue
 		}

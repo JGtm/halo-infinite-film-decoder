@@ -153,41 +153,48 @@ func logFlagAmbiguousSlots(ctx context.Context, slots []uint32) {
 // flagCarrierPointToleranceMS est l'ecart maximal, en millisecondes, entre l'instant d'une prise ou
 // d'un lacher et le point publie qui le localise.
 //
-// C'EST UNE DUREE ET NON UN NOMBRE D'IMAGES : le film ne replique que ce qui change, un corps
-// immobile n'a donc aucun point sur plusieurs dizaines a centaines de millisecondes, et une
-// tolerance d'une image de la grille valait 100 ms ou 33 ms selon le pas — a 33 ms, deux lachers
-// de drapeau sur quatre-vingt-trois perdaient leur position et le drapeau restait « porte ». 200 ms
-// est la plus petite valeur qui rend les 83 portages d'un film de reference a 100, 33, 10 et 5 ms ;
-// 100 ms en laisse un de cote. Le point est un temoin de position, pas un instant : un corps qui ne
-// bouge pas reste ou son dernier point le met.
+// C'EST UNE DUREE, JUGEE SUR LES INSTANTS EXACTS DES POINTS : le film ne replique que ce qui change,
+// un corps immobile n'a donc aucun point sur plusieurs dizaines a centaines de millisecondes. Une
+// tolerance d'une image de la grille valait 100 ms ou 33 ms selon le pas, et une tolerance convertie
+// en images (arrondie) acceptait de 230 ms a 299 ms selon le pas. 200 ms laisse a un corps immobile le
+// temps de ne rien repliquer sans aller chercher la position d'un autre instant du match.
 const flagCarrierPointToleranceMS = 200
 
-// pointOfXUIDAt rend le point PUBLIE qui localise le joueur a la frame demandee : le DERNIER point
-// a cette frame ou avant, a au plus `tolFrames` frames — un corps immobile reste ou son dernier
-// point le met, il ne se tient pas la ou il sera —, et a defaut le premier point suivant dans la
-// meme tolerance. Rend (_, false) si aucune piste n'a de point dans la tolerance : le drapeau
-// n'aurait alors pas de position a dessiner, et on prefere ne rien poser. `tolFrames` vient de
-// [matchClock.framesOfMS] sur [flagCarrierPointToleranceMS].
-func pointOfXUIDAt(tracks []Track, frame, tolFrames int) (Point, bool) {
-	var before, after Point
-	haveBefore, haveAfter := false, false
+// pointOfXUIDAt rend le point PUBLIE qui localise un joueur a l'instant `atUS` (microsecondes du
+// film) : le point le plus proche en temps EXACT, a au plus [flagCarrierPointToleranceMS], et a
+// egalite celui d'avant — un corps immobile reste ou son dernier point le met. Il vient de la MEME
+// VIE que l'instant sans qu'il faille le tester : une piste qui NAIT entre un point et l'instant a son
+// premier point plus pres de l'instant que lui, donc c'est elle qui l'emporte (mort puis reapparition dans
+// la fenetre). Rend (_, false) quand aucun point ne convient : le drapeau n'aurait pas de position a
+// dessiner, et on prefere ne rien poser.
+func pointOfXUIDAt(tracks []Track, atUS uint64) (Point, bool) {
+	const tolUS = uint64(flagCarrierPointToleranceMS) * 1000
+	var best Point
+	var bestD uint64
+	var bestBefore, found bool
 	for _, tr := range tracks {
 		for _, p := range tr.Points {
-			d := frame - p.T
-			switch {
-			case d >= 0 && d <= tolFrames:
-				if !haveBefore || p.T > before.T {
-					before, haveBefore = p, true
-				}
-			case d < 0 && -d <= tolFrames:
-				if !haveAfter || p.T < after.T {
-					after, haveAfter = p, true
-				}
+			d, before := p.us-atUS, false
+			if p.us <= atUS {
+				d, before = atUS-p.us, true
 			}
+			if d > tolUS || (found && (d > bestD || (d == bestD && (!before || bestBefore)))) {
+				continue
+			}
+			best, bestD, bestBefore, found = p, d, before, true
 		}
 	}
-	if haveBefore {
-		return before, true
+	return best, found
+}
+
+// finDeLAxeUS est l'instant (microsecondes du film) du dernier point publie de toutes les pistes : la fin de
+// l'axe du rejeu, la ou les instants demandes au dela s'arretent.
+func finDeLAxeUS(tracks []Track) uint64 {
+	var fin uint64
+	for _, tr := range tracks {
+		if n := len(tr.Points); n > 0 {
+			fin = max(fin, tr.Points[n-1].us)
+		}
 	}
-	return after, haveAfter
+	return fin
 }

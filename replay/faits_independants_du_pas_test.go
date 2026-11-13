@@ -10,6 +10,7 @@ package replay
 
 import (
 	"context"
+	"slices"
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
@@ -19,29 +20,42 @@ import (
 // pasDeTest sont les pas de grille que les tests de ce fichier rejouent.
 var pasDeTest = []int{100, 66, 50, 33, 20, 10}
 
-// TestPointDuPorteurIndependantDuPas : le point publie qui localise un joueur est le DERNIER a l'instant ou
-// avant, a au plus `flagCarrierPointToleranceMS`, a tout pas. Mutation : `bd <= 1` (une image) : a 33 ms un
-// point a 150 ms n'est plus retrouve ; « le plus proche » : un point posterieur plus proche l'emporte sur le
-// dernier avant.
+// TestPointDuPorteurIndependantDuPas : le point publie qui localise un joueur est le plus proche en temps EXACT, a au
+// plus `flagCarrierPointToleranceMS`, a tout pas ; a egalite celui d'avant ; jamais celui d'une autre vie. Les
+// points portent leur instant exact : la frame ne sert qu'a la publication. Mutations : `bd <= 1` (une image) ;
+// tolerance convertie en images (`framesOfMS`, 299 ms a 100 ms, 230 ms a 33 ms : 250 ms accepte a 100 et 66 ms,
+// refuse a 50 ms et en dessous) ; « dernier avant » au lieu du plus proche ; sans garde de vie.
 func TestPointDuPorteurIndependantDuPas(t *testing.T) {
 	for _, pas := range pasDeTest {
-		pointAu := func(ms int, x float32) Point { return Point{T: ms / pas, X: x} }
-		tracks := []Track{{Points: []Point{pointAu(1000, 1), pointAu(1300, 2)}}}
-		tol := framesOfMS(flagCarrierPointToleranceMS, pas)
+		pointAu := func(ms int, x float32) Point { return Point{T: ms / pas, us: uint64(ms) * 1000, X: x} }
+		piste := func(pts ...Point) []Track { return []Track{{Points: pts}} }
+		deuxVies := func(a, b Point) []Track { return []Track{{Points: []Point{a}}, {Points: []Point{b}}} }
 		for _, c := range []struct {
-			nom string
-			ms  int
-			x   float32
-			ok  bool
+			nom    string
+			tracks []Track
+			ms     int
+			x      float32
+			ok     bool
 		}{
-			{"a l'instant du point", 1000, 1, true},
-			{"180 ms apres un corps immobile", 1180, 1, true}, // le plus proche serait 1300 : le dernier AVANT l'emporte
-			{"le point suivant, plus tard", 1300, 2, true},
-			{"avant tout point, a moins de 200 ms", 900, 1, true}, // a defaut de point avant, le suivant
-			{"loin de tout point", 1700, 0, false},
-			{"avant tout point, loin", 600, 0, false},
+			{"a l'instant du point", piste(pointAu(1000, 1)), 1000, 1, true},
+			{"199 ms apres", piste(pointAu(1000, 1)), 1199, 1, true},
+			{"200 ms apres (borne incluse)", piste(pointAu(1000, 1)), 1200, 1, true},
+			{"201 ms apres", piste(pointAu(1000, 1)), 1201, 0, false},
+			{"250 ms apres", piste(pointAu(1000, 1)), 1250, 0, false},
+			{"299 ms apres", piste(pointAu(1000, 1)), 1299, 0, false},
+			{"199 ms avant", piste(pointAu(1000, 1)), 801, 1, true},
+			{"201 ms avant", piste(pointAu(1000, 1)), 799, 0, false},
+			{"le plus proche : le suivant (120 ms) plutot que le precedent (180 ms)", piste(pointAu(1000, 1), pointAu(1300, 2)), 1180, 2, true},
+			{"le plus proche : le precedent (80 ms) plutot que le suivant (220 ms)", piste(pointAu(1000, 1), pointAu(1300, 2)), 1080, 1, true},
+			{"egalite : celui d'avant", piste(pointAu(1000, 1), pointAu(1100, 2)), 1050, 1, true},
+			{"point seulement apres, a 150 ms", piste(pointAu(1150, 2)), 1000, 2, true},
+			{"point seulement apres, a 250 ms", piste(pointAu(1250, 2)), 1000, 0, false},
+			{"mort puis reapparition : la vie d'avant, a 150 ms, est ecartee", deuxVies(pointAu(850, 1), pointAu(950, 2)), 1000, 2, true},
+			{"autre vie avant (100 ms), bonne vie apres (50 ms)", deuxVies(pointAu(900, 1), pointAu(1050, 2)), 1000, 2, true},
+			{"la vie suivante nait apres l'instant, hors tolerance : le point de la vie en cours reste", deuxVies(pointAu(850, 1), pointAu(1250, 2)), 1000, 1, true},
+			{"deux vies, le point d'avant est de la vie en cours", deuxVies(pointAu(900, 1), pointAu(1100, 2)), 1000, 1, true},
 		} {
-			p, ok := pointOfXUIDAt(tracks, c.ms/pas, tol)
+			p, ok := pointOfXUIDAt(c.tracks, uint64(c.ms)*1000)
 			if ok != c.ok || (ok && p.X != c.x) {
 				t.Errorf("pas %d ms, %s : (x=%v, ok=%v), attendu (x=%v, ok=%v)", pas, c.nom, p.X, ok, c.x, c.ok)
 			}
@@ -72,7 +86,7 @@ func TestLacherVolontaireDateEnInstantsExacts(t *testing.T) {
 				Pts: []flagFreeSample{{TUS: naissanceUS, X: 5, Y: 5}}}}}
 			r := flagCarryRaw{xuid: "1", t0: 0, t1: finMS}
 			f := int((naissanceUS - originUS) / (uint64(pas) * 1000))
-			tracks := []Track{{Points: []Point{{T: f, X: 5, Y: 5}}}}
+			tracks := []Track{{Points: []Point{{T: f, us: naissanceUS, X: 5, Y: 5}}}}
 			_, ok := flagFreeDropInside(r, ctx, tracks, scan)
 			if ok != c.ferme {
 				t.Errorf("pas %d ms, vie libre %s : ferme = %v, attendu %v", pas, c.nom, ok, c.ferme)
@@ -82,7 +96,9 @@ func TestLacherVolontaireDateEnInstantsExacts(t *testing.T) {
 }
 
 // TestOrigineDUnRamassageIndependanteDuPas : l'ordre entre un ramassage et une pose se decide en
-// microsecondes, et l'echange (la pose du ramasseur lui-meme, d'une autre famille) n'est pas une origine.
+// microsecondes, et l'echange (la pose du ramasseur lui-meme, d'une autre famille) n'est pas une origine. Le juge ne
+// recoit que des instants ; la boucle sur les pas rejoue le cablage de `buildPickups` (qui publie la frame du pas) pour
+// prouver que celle-ci ne rentre jamais dans la decision.
 // Mutation : `d.t > frame` : une pose nee 10 ms (a 33 ms) ou 40 ms (a 100 ms) apres le ramassage tombe dans
 // sa frame et sort `ground`.
 func TestOrigineDUnRamassageIndependanteDuPas(t *testing.T) {
@@ -118,11 +134,10 @@ func TestOrigineDUnRamassageIndependanteDuPas(t *testing.T) {
 	}
 }
 
-// TestCycleDeVehiculeIndependantDeLOrdreDesJumeaux : deux vies nees au meme lieu et au meme instant (un jumeau
-// sans fin datee et le vehicule reel) donnent les memes ecarts quel que soit leur rang et l'ordre du tableau,
-// et la naissance suivante s'apparie a la mort datee la plus recente. Mutation : l'appariement au voisin
-// immediat, ordonne par frame : les jumeaux d'une meme frame echangent leur rang et la mort n'est plus
-// le voisin de la naissance suivante.
+// TestCycleDeVehiculeIndependantDeLOrdreDesJumeaux : deux vies nees au meme lieu a 33 ms (un jumeau sans fin datee et
+// le vehicule reel) sont UN occupant, quel que soit leur rang et l'ordre du tableau : la naissance suivante
+// s'apparie a la fin datee du reel. Mutation : l'appariement au voisin immediat ordonne par frame, qui laisse
+// l'ordre du tableau trancher les jumeaux d'une meme frame (et perd l'ecart quand le jumeau passe en dernier).
 func TestCycleDeVehiculeIndependantDeLOrdreDesJumeaux(t *testing.T) {
 	const s = uint64(1_000_000)
 	avant := vehicleCycleLife{bornUS: 0, endUS: 100 * s}
@@ -138,10 +153,32 @@ func TestCycleDeVehiculeIndependantDeLOrdreDesJumeaux(t *testing.T) {
 			{avant, c.reel, c.fant, suivante}, {suivante, c.fant, c.reel, avant}, {c.fant, avant, suivante, c.reel},
 		} {
 			gaps, manques := vehicleCycleGaps(append([]vehicleCycleLife(nil), ordre...))
-			if len(gaps) != 2 || gaps[0] != 30 || gaps[1] != 30 || manques != 1 {
-				t.Errorf("%s : ecarts %v, manques %d, attendu [30 30] et 1", c.nom, gaps, manques)
+			if !slices.Equal(gaps, []float64{30, 30}) || manques != 0 {
+				t.Errorf("%s : ecarts %v, manques %d, attendu [30 30] et 0", c.nom, gaps, manques)
 			}
 		}
+	}
+	// Deux naissances a plus de 100 ms ne sont plus jumelles : le premier occupant n'a pas de fin datee, manque.
+	lointain := vehicleCycleLife{bornUS: 130*s + 300_000}
+	if gaps, manques := vehicleCycleGaps([]vehicleCycleLife{avant, {bornUS: 130 * s, endUS: 200 * s}, lointain, suivante}); manques != 2 || len(gaps) != 1 {
+		t.Errorf("non jumeles : ecarts %v, manques %d, attendu 1 ecart et 2 manques", gaps, manques)
+	}
+}
+
+// TestCycleDeVehiculeNApparieQuALaVieQuiOccupaitLEmplacement : A nait a 0 s et meurt a 100 s ; B renait dans l'amas
+// a 50 s alors que A vit encore ; C nait a 130 s. C repond a la disparition de B (jamais datee), pas a celle de A : aucun
+// ecart de 30 s ne se fabrique. Mutation : l'appariement a la derniere mort datee de l'amas, quelle que soit la vie.
+func TestCycleDeVehiculeNApparieQuALaVieQuiOccupaitLEmplacement(t *testing.T) {
+	const s = uint64(1_000_000)
+	a := vehicleCycleLife{bornUS: 0, endUS: 100 * s}
+	b := vehicleCycleLife{bornUS: 50 * s}
+	c := vehicleCycleLife{bornUS: 130 * s}
+	gaps, manques := vehicleCycleGaps([]vehicleCycleLife{a, b, c})
+	if len(gaps) != 0 || manques != 2 {
+		t.Errorf("ecarts %v, manques %d, attendu aucun ecart et 2 manques", gaps, manques)
+	}
+	if gaps, manques = vehicleCycleGaps([]vehicleCycleLife{a, c}); !slices.Equal(gaps, []float64{30}) || manques != 0 {
+		t.Errorf("sans B : ecarts %v, manques %d, attendu [30] et 0", gaps, manques)
 	}
 }
 

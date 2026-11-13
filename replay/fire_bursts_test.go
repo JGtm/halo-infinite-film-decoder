@@ -5,6 +5,7 @@ package replay
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/types"
@@ -156,5 +157,15 @@ func TestSansMarcheDesTramesAucuneCouverture(t *testing.T) {
 	out, cov := buildFireBursts(context.Background(), fbDoc(), nil, types.ContinuousFireStats{}, occupantsPlats(nil), vsClock())
 	if out != nil || cov != nil {
 		t.Errorf("rafales %v couverture %v : attendu nil, nil", out, cov)
+	}
+}
+
+// TestCoupsDUneCadenceAbsurdeTerminent : une cadence nulle, negative, infinie ou indefinie ne boucle jamais.
+func TestCoupsDUneCadenceAbsurdeTerminent(t *testing.T) {
+	for _, f := range []FireBurst{{Rate: 0}, {Rate: -5}, {Rate: math.Inf(1)}, {Rate: math.NaN()},
+		{Rate: -10, Rate0: 5, Ramp: 2}, {Rate: 10, Rate0: 5, Ramp: math.Inf(1)}} {
+		if n := coupsDeLaRafale(f, 0, 1_000_000, nil); n > 1000 {
+			t.Errorf("%+v : %d coups", f, n)
+		}
 	}
 }

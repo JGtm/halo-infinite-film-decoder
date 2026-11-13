@@ -40,49 +40,43 @@ func TestMatchClockSingleImplementation(t *testing.T) {
 	}
 }
 
-// TestInstantExactNEstPasArrondiALaGrille : un instant du film se pose sur l'horloge du match par
-// `matchMSOfUS`, a la milliseconde exacte. `matchMSOfFrame(frameOf(us, ..))` rend le DEBUT de la frame qui
-// contient l'instant : ecrit trois fois dans le calque drapeau, il y rendait un instant qui bouge avec le pas
-// et change le verdict d'un ordre entre deux evenements voisins. Le motif est interdit hors des tests.
-func TestInstantExactNEstPasArrondiALaGrille(t *testing.T) {
-	motif := regexp.MustCompile(`matchMSOfFrame\(\s*frameOf\(`)
-	entries, err := os.ReadDir(".")
-	if err != nil {
-		t.Fatalf("lecture du paquet : %v", err)
-	}
-	for _, e := range entries {
-		if e.IsDir() || filepath.Ext(e.Name()) != ".go" || strings.HasSuffix(e.Name(), "_test.go") {
-			continue
-		}
-		src, err := os.ReadFile(e.Name()) //nolint:gosec // fichiers du paquet lui-meme
-		if err != nil {
-			t.Fatalf("lecture de %s : %v", e.Name(), err)
-		}
-		if m := motif.Find(src); m != nil {
-			t.Errorf("%s ecrit %q : un instant exact se pose par matchMSOfUS, pas arrondi au debut de sa frame", e.Name(), m)
-		}
-	}
+// matchMSOfFrameAutorise nomme les SEULS fichiers de production qui posent le debut d'une frame sur l'horloge du match,
+// avec la raison. `matchMSOfFrame` rend le debut de la frame, un instant qui bouge avec le pas : il ne sert qu'a une BORNE
+// de l'axe ou a la conversion d'un intervalle deja publie en frames, jamais a decider d'un fait ni d'un ordre entre deux
+// evenements, qui se posent par `matchMSOfUS`.
+var matchMSOfFrameAutorise = map[string]string{
+	"flag_carries.go":     "borne de fin de partie des portages encore ouverts : aucun fait ne s'y compare, un portage non ferme reste ouvert",
+	"vip_crown.go":        "borne de fin de partie d'une couronne encore portee : meme usage, la fin de l'axe",
+	"porteurs_au_sync.go": "conversion en millisecondes des intervalles de port DEJA publies en frames (les portages du document)",
 }
 
-// TestToleranceDuPointDuPorteurEstUneDuree : `pointOfXUIDAt` recoit une tolerance en frames tiree de
-// `flagCarrierPointToleranceMS` par `framesOfMS` ; un entier litteral (« une image ») redonne une tolerance
-// de 100 ms ou de 33 ms selon le pas. Le garde-rail interdit tout appel a tolerance litterale.
-func TestToleranceDuPointDuPorteurEstUneDuree(t *testing.T) {
-	motif := regexp.MustCompile(`pointOfXUIDAt\([^()]*,\s*\d+\)`)
+// TestInstantExactNEstPasArrondiALaGrille : un instant du film se pose sur l'horloge du match par `matchMSOfUS`, a la
+// milliseconde exacte. `matchMSOfFrame` n'est appele, hors de match_clock.go et des tests, que par les fichiers de
+// [matchMSOfFrameAutorise] : toute autre forme — sur une ligne (`matchMSOfFrame(frameOf(..))`) ou sur deux
+// (`f := frameOf(..)` puis `matchMSOfFrame(f)`, celle de l'ancien code) — echoue ici.
+func TestInstantExactNEstPasArrondiALaGrille(t *testing.T) {
 	entries, err := os.ReadDir(".")
 	if err != nil {
 		t.Fatalf("lecture du paquet : %v", err)
 	}
 	for _, e := range entries {
-		if e.IsDir() || filepath.Ext(e.Name()) != ".go" {
+		nom := e.Name()
+		if e.IsDir() || filepath.Ext(nom) != ".go" || strings.HasSuffix(nom, "_test.go") || nom == "match_clock.go" {
 			continue
 		}
-		src, err := os.ReadFile(e.Name()) //nolint:gosec // fichiers du paquet lui-meme
+		src, err := os.ReadFile(nom) //nolint:gosec // fichiers du paquet lui-meme
 		if err != nil {
-			t.Fatalf("lecture de %s : %v", e.Name(), err)
+			t.Fatalf("lecture de %s : %v", nom, err)
 		}
-		if m := motif.Find(src); m != nil {
-			t.Errorf("%s appelle %q : la tolerance est une duree (flagCarrierPointToleranceMS), pas un nombre de frames", e.Name(), m)
+		if _, ok := matchMSOfFrameAutorise[nom]; !ok && strings.Contains(string(src), ".matchMSOfFrame(") {
+			t.Errorf("%s appelle matchMSOfFrame : un instant exact se pose par matchMSOfUS, pas arrondi au debut de sa frame ; "+
+				"une borne d'axe se declare dans matchMSOfFrameAutorise avec sa raison", nom)
+		}
+	}
+	for nom := range matchMSOfFrameAutorise {
+		src, err := os.ReadFile(nom) //nolint:gosec // fichiers du paquet lui-meme
+		if err != nil || !strings.Contains(string(src), ".matchMSOfFrame(") {
+			t.Errorf("%s est autorise a appeler matchMSOfFrame et ne le fait plus (ou n'existe plus) : retirer l'entree", nom)
 		}
 	}
 }

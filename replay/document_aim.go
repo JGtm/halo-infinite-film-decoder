@@ -44,10 +44,13 @@ package replay
 // Point est une position echantillonnee au pas de temps T. X/Y = plan horizontal de la
 // carte ; Z (optionnel) = altitude, pour l'indication d'etage — non critique au rendu 2D.
 type Point struct {
-	T int     `json:"t"`
-	X float32 `json:"x"`
-	Y float32 `json:"y"`
-	Z float32 `json:"z,omitempty"`
+	// us est l'instant EXACT (microsecondes du film) de l'enregistrement dont T est la frame. Il ne se publie
+	// pas : ce qui localise un joueur a un instant le juge en temps, jamais en frames.
+	us uint64
+	T  int     `json:"t"`
+	X  float32 `json:"x"`
+	Y  float32 `json:"y"`
+	Z  float32 `json:"z,omitempty"`
 	// G (optionnel) est la DUREE DE LA LACUNE qui precede ce point, en millisecondes ; absent ou
 	// 0 = le point suit le precedent sans interruption (lot 1.9.13).
 	//

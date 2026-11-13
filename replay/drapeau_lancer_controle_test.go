@@ -188,7 +188,7 @@ func objLancerMesure(refs []objDrapeauRef, x, y float32, atUS, step, originUS ui
 		if atUS < originUS {
 			continue // la creation precede la premiere frame publiee : rien a comparer
 		}
-		p, ok := pointOfXUIDAt(r.porteur, int((atUS-originUS)/step), framesOfMS(flagCarrierPointToleranceMS, int(step/1000)))
+		p, ok := pointOfXUIDAt(r.porteur, atUS)
 		if !ok {
 			continue
 		}

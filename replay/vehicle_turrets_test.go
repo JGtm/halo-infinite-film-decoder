@@ -311,7 +311,7 @@ func TestTourelleVoisinPasNeAvecLaPieceRefuse(t *testing.T) {
 	} {
 		t.Run(c.nom, func(t *testing.T) {
 			porteur := vtChassis(101, familleWarthog)
-			porteur.T0, porteur.Spawn = c.t0, c.spawn
+			porteur.T0, porteur.bornUS, porteur.Spawn = c.t0, uint64(c.t0)*100_000, c.spawn
 			tracks := []VehicleTrack{vtPiece(100, vtLAAG), porteur}
 			fb := fallback.NouveauCompteur()
 			tally := poseTurretsOnCarriers(tracks, vehicleBoardingAnchors{}, fb)

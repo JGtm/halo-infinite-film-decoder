@@ -32,12 +32,7 @@ package replay
 // ramassage que le repli désigne pour deux occupations n'en date aucune : la règle « un ramassage
 // date au plus une occupation » (pad_pickup_dating.go) tient des deux côtés.
 
-import (
-	"fmt"
-	"math"
-
-	"github.com/JGtm/halo-infinite-film-decoder/types"
-)
+import "math"
 
 // localiserRamasseur rend la position du ramasseur d'un ramassage natif publié, à l'instant du
 // ramassage, quand le film la porte.
@@ -99,7 +94,7 @@ func premiereAuSocle(in entreesDuCycle, i int, candidats []int, pris map[int]boo
 	}
 	socle := [3]float32{pad.X, pad.Y, pad.Z}
 	for _, j := range candidats {
-		if in.pickups[j].T >= fin {
+		if in.pickups[j].tUS >= fin {
 			break // ramassage d'une réapparition suivante
 		}
 		pos, ok := in.localiser(in.pickups[j])
@@ -117,13 +112,13 @@ func premiereAuSocle(in entreesDuCycle, i int, candidats []int, pris map[int]boo
 	return candidatNonDate
 }
 
-// finDuCycle rend l'instant, en frames, de l'apparition du socle qui SUIT celle de l'occupation
+// finDuCycle rend l'instant, en microsecondes, de l'apparition du socle qui SUIT celle de l'occupation
 // `k` (l'infini à défaut), et faux quand l'apparition de `k` ne se retrouve pas sans ambiguïté
 // dans `pad.Presence` — fenêtre absente ou partagée par deux apparitions.
-func finDuCycle(pad WeaponPad, k PadPickup) (int, bool) {
+func finDuCycle(pad WeaponPad, k PadPickup) (uint64, bool) {
 	at := -1
 	for p, pr := range pad.Presence {
-		if pr.TLow != k.TLow || pr.THigh != k.THigh {
+		if pr.tLowUS != k.tLowUS || pr.tHighUS != k.tHighUS {
 			continue
 		}
 		if at >= 0 {
@@ -134,49 +129,24 @@ func finDuCycle(pad WeaponPad, k PadPickup) (int, bool) {
 	if at < 0 {
 		return 0, false
 	}
-	t0 := pad.Presence[at].T0
-	fin := math.MaxInt
+	t0 := pad.Presence[at].tUS
+	fin := uint64(math.MaxUint64)
 	for _, pr := range pad.Presence {
-		if pr.T0 > t0 && pr.T0 < fin {
-			fin = pr.T0
+		if pr.tUS > t0 && pr.tUS < fin {
+			fin = pr.tUS
 		}
 	}
 	return fin, true
 }
 
-// cleRamassage identifie un ramassage natif publié : sa vie, sa frame, son objet.
-type cleRamassage struct {
-	slot  uint32
-	frame int
-	w     string
-}
-
-// localiserParLeCanalNatif rend le localisateur des ramasseurs : l'horodatage EXACT du ramassage
-// se retrouve dans le canal natif brut (vie, frame et objet), puis la position du ramasseur à cet
-// instant ([pickupOriginJudge.positionDe]). Deux ramassages bruts sous la même clé ne localisent
-// rien : l'instant n'est plus unique.
-func localiserParLeCanalNatif(natifs []types.BipedPickup, clock replayClock,
+// localiserParLeCanalNatif rend le localisateur des ramasseurs : la position du ramasseur à l'instant EXACT du
+// ramassage ([pickupOriginJudge.positionDe]). Le ramassage publié porte son horodatage ; un instant antérieur à
+// l'origine n'est jamais publié.
+func localiserParLeCanalNatif(
 	position func(slot uint32, tsUS uint64) (x, y, z float32, ok bool),
 ) localiserRamasseur {
-	instants := map[cleRamassage]uint64{}
-	doublons := map[cleRamassage]bool{}
-	for _, r := range natifs {
-		if r.TimestampUS < clock.origin || clock.step == 0 {
-			continue
-		}
-		c := cleRamassage{r.Slot, frameOf(r.TimestampUS, clock.origin, clock.step), fmt.Sprintf("%08x", r.CatalogID)}
-		if _, deja := instants[c]; deja {
-			doublons[c] = true
-		}
-		instants[c] = r.TimestampUS
-	}
 	return func(p Pickup) ([3]float32, bool) {
-		c := cleRamassage{p.Slot, p.T, p.W}
-		ts, ok := instants[c]
-		if !ok || doublons[c] {
-			return [3]float32{}, false
-		}
-		x, y, z, ok := position(p.Slot, ts)
+		x, y, z, ok := position(p.Slot, p.tUS)
 		return [3]float32{x, y, z}, ok
 	}
 }

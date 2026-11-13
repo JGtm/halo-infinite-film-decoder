@@ -45,7 +45,8 @@ func TestBuildFromPositions_Timeline(t *testing.T) {
 		t.Fatalf("attendu 2 tracks (une par vie du slot), obtenu %d", len(doc.Tracks))
 	}
 	pts := doc.Tracks[0].Points
-	want := []Point{{T: 0, X: 1, Y: 1, Z: 0.5}, {T: 1, X: 2, Y: 2, Z: 0.5}}
+	// L'instant exact (`us`) ne se publie pas : il se pose a la valeur du film, origine 10 s, pas 100 ms.
+	want := []Point{{us: 10_000_000, T: 0, X: 1, Y: 1, Z: 0.5}, {us: 10_100_000, T: 1, X: 2, Y: 2, Z: 0.5}}
 	if len(pts) != len(want) {
 		t.Fatalf("points = %+v, attendu %+v", pts, want)
 	}

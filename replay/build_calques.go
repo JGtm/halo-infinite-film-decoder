@@ -99,8 +99,7 @@ func (a *assemblage) poserPrisesEtSocles() {
 	// intact (pad_pickup_dating.go).
 	datation := lireLesOccupations(a.doc.WeaponPads, a.doc.PadPickups, a.doc.Pickups)
 	a.releverLesSocles(judge)
-	clockSocles := replayClock{origin: a.origin, step: a.step, frames: a.doc.FrameCount}
-	padDating := datation.trancherParLeCycle(localiserParLeCanalNatif(a.opt.Pickups, clockSocles, judge.positionDe))
+	padDating := datation.trancherParLeCycle(localiserParLeCanalNatif(judge.positionDe))
 	a.opt.Fallbacks.DeclencheN(fallback.NomPriseDeSoclePremiereDuCycle, padDating.FirstOfCycle)
 	a.doc.Coverage.PadDating = &padDating
 	slog.InfoContext(a.ctx, "rejeu : datation des occupations de socle",

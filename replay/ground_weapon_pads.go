@@ -311,6 +311,7 @@ func gwBuildPad(
 		out.Spawns = append(out.Spawns, gwFrameOf(o.Appar.TUS, clock))
 		out.Presence = append(out.Presence, PadPresence{
 			T0: gwFrameOf(o.Appar.TUS, clock), TLow: low, THigh: high,
+			tUS: o.Appar.TUS, tLowUS: o.Bounds.LowUS, tHighUS: o.Bounds.HighUS,
 		})
 		switch o.Status {
 		case gwPickupStatusNever:

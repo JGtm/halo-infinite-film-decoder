@@ -32,7 +32,7 @@ func flagTestPath(slot uint32, xuid string, from, to, bascule int, x0, y0, x1, y
 		if t >= bascule {
 			x, y = x1, y1
 		}
-		tr.Points = append(tr.Points, Point{T: t, X: x, Y: y})
+		tr.Points = append(tr.Points, Point{T: t, us: uint64(t) * 100_000, X: x, Y: y})
 	}
 	return tr
 }

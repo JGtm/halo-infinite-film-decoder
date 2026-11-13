@@ -1,10 +1,6 @@
 package replay
 
-import (
-	"testing"
-
-	"github.com/JGtm/halo-infinite-film-decoder/types"
-)
+import "testing"
 
 // pad_pickup_dating_cycle_test.go — UNE SEULE PRISE DE SOCLE PAR RÉAPPARITION DE L'ARME (repli
 // `repli_prise_de_socle_premiere_du_cycle`, pad_pickup_dating_cycle.go).
@@ -20,6 +16,12 @@ func daterLesOccupations(pads []WeaponPad, picks []PadPickup, pickups []Pickup, 
 	}
 	for i := range pickups {
 		pickups[i].tUS = uint64(pickups[i].T) * pasUS
+	}
+	for i := range pads {
+		for p := range pads[i].Presence {
+			pr := &pads[i].Presence[p]
+			pr.tUS, pr.tLowUS, pr.tHighUS = uint64(pr.T0)*pasUS, uint64(pr.TLow)*pasUS, uint64(pr.THigh)*pasUS
+		}
 	}
 	return lireLesOccupations(pads, picks, pickups).trancherParLeCycle(loc)
 }
@@ -163,18 +165,23 @@ func TestPremierePriseDuCycleDisputeeNeDateRien(t *testing.T) {
 }
 
 // UNE APPARITION QUE LA FENÊTRE NE RETROUVE PAS SANS AMBIGUÏTÉ NE BORNE AUCUN CYCLE : le repli
-// s'abstient.
+// s'abstient. Les instants sont en microsecondes (1 frame = 100 000 us dans cette fixture).
 func TestFinDuCycleRefuseUneFenetrePartagee(t *testing.T) {
-	pad := WeaponPad{Presence: []PadPresence{{T0: 0, TLow: 10, THigh: 30}, {T0: 5, TLow: 10, THigh: 30}}}
-	if _, ok := finDuCycle(pad, PadPickup{TLow: 10, THigh: 30}); ok {
+	const f = 100_000
+	pres := func(t0, low, high uint64) PadPresence {
+		return PadPresence{tUS: t0 * f, tLowUS: low * f, tHighUS: high * f}
+	}
+	occ := func(low, high uint64) PadPickup { return PadPickup{tLowUS: low * f, tHighUS: high * f} }
+	pad := WeaponPad{Presence: []PadPresence{pres(0, 10, 30), pres(5, 10, 30)}}
+	if _, ok := finDuCycle(pad, occ(10, 30)); ok {
 		t.Error("deux apparitions sous la meme fenetre : attendu faux")
 	}
-	if _, ok := finDuCycle(pad, PadPickup{TLow: 11, THigh: 30}); ok {
+	if _, ok := finDuCycle(pad, occ(11, 30)); ok {
 		t.Error("fenetre absente de la presence : attendu faux")
 	}
-	seule := WeaponPad{Presence: []PadPresence{{T0: 0, TLow: 10, THigh: 30}, {T0: 40, TLow: 40, THigh: 60}}}
-	if fin, ok := finDuCycle(seule, PadPickup{TLow: 10, THigh: 30}); !ok || fin != 40 {
-		t.Errorf("fin = %d, %v ; attendu 40, vrai", fin, ok)
+	seule := WeaponPad{Presence: []PadPresence{pres(0, 10, 30), pres(40, 40, 60)}}
+	if fin, ok := finDuCycle(seule, occ(10, 30)); !ok || fin != 40*f {
+		t.Errorf("fin = %d, %v ; attendu %d, vrai", fin, ok, 40*f)
 	}
 }
 
@@ -218,32 +225,23 @@ func TestPremierePriseDuCycleDejaLueFaitSAbstenir(t *testing.T) {
 	}
 }
 
-// LES DEUX REFUS DU LOCALISATEUR : deux ramassages bruts sous la même clé (vie, frame, objet), et un
-// ramassage antérieur à l'origine du document. Le cas nominal passe l'horodatage EXACT.
-//
-// MUTATION : retirer le refus des doublons de [localiserParLeCanalNatif] — ROUGE ; retirer la garde
-// de l origine — ROUGE (le ramassage de 50 µs prend la frame -1 et s y localise).
-func TestLocaliserParLeCanalNatifRefuse(t *testing.T) {
+// LE LOCALISATEUR POSE LA POSITION DU RAMASSEUR A L'INSTANT EXACT DU RAMASSAGE PUBLIE : deux ramassages d'une meme
+// vie et d'un meme objet dans une meme frame se localisent chacun a leur instant (la cle (vie, frame, objet) les
+// refusait aux pas assez larges pour les confondre). MUTATION : localiser a la frame — ROUGE.
+func TestLocaliserParLeCanalNatifSeFaitALInstantExact(t *testing.T) {
 	const fam = 0x11223344
-	clock := replayClock{origin: 1_000, step: 100_000}
-	natifs := []types.BipedPickup{
-		{TimestampUS: 1_000 + 250_000, Slot: 512, CatalogID: fam}, // frame 2, unique
-		{TimestampUS: 1_000 + 510_000, Slot: 513, CatalogID: fam}, // frame 5, doublon
-		{TimestampUS: 1_000 + 590_000, Slot: 513, CatalogID: fam}, // frame 5, doublon
-		{TimestampUS: 50, Slot: 514, CatalogID: fam},              // avant l origine
-	}
-	vus := map[uint64]bool{}
-	loc := localiserParLeCanalNatif(natifs, clock, func(slot uint32, ts uint64) (float32, float32, float32, bool) {
-		vus[ts] = true
-		return float32(slot), 0, 0, true
+	var vus []uint64
+	loc := localiserParLeCanalNatif(func(slot uint32, ts uint64) (float32, float32, float32, bool) {
+		vus = append(vus, ts)
+		return float32(slot), float32(ts), 0, true
 	})
-	if pos, ok := loc(Pickup{T: 2, Slot: 512, W: pickupWeaponForm(fam)}); !ok || pos[0] != 512 || !vus[251_000] {
-		t.Errorf("cas nominal : pos = %v, ok = %v, horodatages vus = %v ; attendu 512, vrai, 251000", pos, ok, vus)
+	for _, ts := range []uint64{510_000, 590_000} {
+		pos, ok := loc(Pickup{T: 5, tUS: ts, Slot: 513, W: pickupWeaponForm(fam)})
+		if !ok || pos[0] != 513 || pos[1] != float32(ts) {
+			t.Errorf("ramassage a %d us : pos = %v, ok = %v", ts, pos, ok)
+		}
 	}
-	if _, ok := loc(Pickup{T: 5, Slot: 513, W: pickupWeaponForm(fam)}); ok {
-		t.Error("doublon de cle : attendu non localise")
-	}
-	if _, ok := loc(Pickup{T: -1, Slot: 514, W: pickupWeaponForm(fam)}); ok {
-		t.Error("ramassage avant l origine : attendu non localise")
+	if len(vus) != 2 || vus[0] != 510_000 || vus[1] != 590_000 {
+		t.Errorf("instants lus = %v, attendu 510000 puis 590000", vus)
 	}
 }

@@ -159,3 +159,12 @@ func TestLinkShots_SansTirOuSansProjectile(t *testing.T) {
 		t.Error("sans tir")
 	}
 }
+
+// TestLienTirProjectileSansPasUtiliseLePasHistorique : un pas absent ne change pas le verdict, qui se juge en instants.
+func TestLienTirProjectileSansPasUtiliseLePasHistorique(t *testing.T) {
+	projs := []Projectile{projectileNeAuMS(1000, DefaultFrameIntervalMS, 0, 0)}
+	shots := []Shot{tirAuMS(950, DefaultFrameIntervalMS, 1, "A", 0, 0)}
+	if linked, _ := linkShotsToProjectiles(projs, shots, nil, 0); linked != 1 {
+		t.Errorf("pas absent : %d lien(s), attendu 1", linked)
+	}
+}

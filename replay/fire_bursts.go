@@ -306,7 +306,7 @@ func (b fireBurstBoard) finDeLaRafaleUS(f FireBurst, r types.ContinuousFireBurst
 // document, lui, ne publie les trous qu en frames entieres (`FireBurst.Holes`) : c est ce que le client
 // dessine, a la frame pres, et ce compte est le FAIT du film.
 func coupsDeLaRafale(f FireBurst, startUS, endUS uint64, holes []types.ContinuousFireHole) int {
-	if f.Rate <= 0 || endUS < startUS {
+	if !(f.Rate > 0) || math.IsInf(f.Rate, 0) || endUS < startUS {
 		return 0
 	}
 	duree := float64(endUS-startUS) / 1e6
@@ -318,6 +318,9 @@ func coupsDeLaRafale(f FireBurst, startUS, endUS uint64, holes []types.Continuou
 		cadence := f.Rate
 		if f.Rate0 > 0 && f.Ramp > 0 && e < f.Ramp {
 			cadence = f.Rate0 + (f.Rate-f.Rate0)*e/f.Ramp
+		}
+		if !(cadence > 0) || math.IsInf(cadence, 0) {
+			break // une cadence nulle, negative, infinie ou indefinie ne fait jamais avancer le temps
 		}
 		e += 1 / cadence
 	}
