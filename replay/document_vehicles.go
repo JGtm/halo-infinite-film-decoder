@@ -112,8 +112,8 @@ type VehicleTrack struct {
 	Samples []VehicleSample `json:"samples,omitempty"`
 	// Rides sont les EPISODES D OCCUPATION de cette vie, dans l ordre. Un meme vehicule en porte
 	// plusieurs : la vie `slot=771` de `0d76e8f1` a connu trois occupants successifs. Vide =
-	// aucun episode mesure — ce qui n est PAS « personne ne l a conduit » : la primitive
-	// n attribue que 15,6 a 21,1 % des vies (limite publiee au rapport V1, item 1).
+	// aucun episode publie — ce qui n est PAS « personne ne l a conduit » : la couverture est
+	// partielle, elle se lit dans `coverage.vehicles` (`ridesRead`, `ridesProximity`).
 	Rides []VehicleRide `json:"rides,omitempty"`
 	// Part dit que cette vie n est PAS un vehicule mais une PIECE MONTEE sur un vehicule —
 	// `turret` (schema 69, retours du rejeu 2026-09-23, lot M4a). Le film cree les tourelles
@@ -201,8 +201,8 @@ type VehicleSample struct {
 // derniere position connue etait a moins de 1,5 m de ce vehicule. C est la signature d un occupant
 // attache — signal a x20,3 et x30,5 le hasard sur les deux films du gate V1, temoin fantome NUL.
 //
-// CE QU IL NE GARANTIT PAS : l exhaustivite (la primitive n attribue que 15,6 a 21,1 % des vies
-// de vehicule), ni l unicite (une vie peut porter deux episodes chevauchants — conducteur et
+// CE QU IL NE GARANTIT PAS : l exhaustivite (une vie de vehicule sans episode n est pas une vie
+// sans occupant : la couverture est celle de `coverage.vehicles`), ni l unicite (une vie peut porter deux episodes chevauchants — conducteur et
 // passager ne se departagent pas par la geometrie ; l ambiguite est PUBLIEE, pas cachee).
 type VehicleRide struct {
 	// T0 / T1 bornent l episode sur l axe de frames.
