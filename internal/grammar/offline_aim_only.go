@@ -68,6 +68,8 @@ type BipedAim struct {
 type viseeLue struct {
 	BipedAim
 	bit int
+	// gen : la generation du handle, pour une visee que la marche a lue.
+	gen uint8
 }
 
 // indexDeLaVisee est l index du composant de visee (`unit-desired-aiming-vector`) dans l archetype

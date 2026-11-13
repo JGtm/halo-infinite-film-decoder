@@ -31,6 +31,9 @@ func avecCorpsCreeA(t *testing.T, fc *FilmContext, slot uint32, tUS uint64) *Fil
 	g.creations = slices.Clone(g.creations)
 	g.creations[slot] = []creationDatee{{tUS: 0, gen: 2}, {tUS: tUS, gen: 1}}
 	fc.vies.vivantes = &g
+	// Relever les generations a fait tourner la marche, qui lit les creations : ce qu elle a range
+	// sous les generations d avant est oublie, les lecteurs rejouent sous celles-ci.
+	fc.recup = memoDesRecuperations{}
 	return fc
 }
 
