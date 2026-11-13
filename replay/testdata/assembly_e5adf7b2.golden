@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 16360 frames · intervalle 33 ms · duree 539880 ms
-schema 112 · titre halo_infinite
+schema 113 · titre halo_infinite
 version majeure du film : 40
 origine de la frame 0 sur l horloge du fil : 15914 ms
 coup d envoi date par le film : 38453 ms · 212/216 piste(s) en mouvement · rafale 16 · marge depuis la frame 0 : 22539 ms
@@ -326,47 +326,47 @@ couverture : 216 vie(s) publiee(s) · camo 0 vie(s) / 0 episode(s) · surbouclie
   slot=733 t=[16204, 16232] ancre=(56.69, 17.88, 3.46)
 
 ## OBJETS D EQUIPEMENT — objets DEPLOYES et objets LACHES a la mort, par famille et origine
-calibre=true decoupage="8/3" · 681 vie(s) d objet · 1045 ancre(s) -> 656 confirmee(s) par l oracle de position -> 656 pose(s)
-656 nommee(s) · 0 `other` (nature non etablie : le manifeste ne les revendique pas) · 594 avec poseur mesure · 479 avec cap de visee
-origine lue : 17 deployee(s) (piece engendree) · 498 lachee(s) · 141 inconnue(s)
+calibre=true decoupage="8/3" · 681 vie(s) d objet · 1045 ancre(s) -> 656 confirmee(s) par l oracle de position -> 620 pose(s)
+620 nommee(s) · 0 `other` (nature non etablie : le manifeste ne les revendique pas) · 574 avec poseur mesure · 464 avec cap de visee
+origine lue : 17 deployee(s) (piece engendree) · 498 lachee(s) · 105 inconnue(s)
 provenance : 60 evenement(s) 103 lu(s) sur 7751 liste(s) d evenements non vides
   par cause both             1
   par cause death_written    468
-  par cause no_owner         62
-  par cause none             79
+  par cause no_owner         46
+  par cause none             59
   par cause spawn_event      17
   par cause taken_written    29
-  famille grapple  47
-  famille grenade_dynamo 79
-  famille grenade_frag 115
-  famille grenade_plasma 111
-  famille grenade_spike 95
-  famille repair_field 25
-  famille repulsor 34
-  famille sensor   27
+  famille grapple  46
+  famille grenade_dynamo 78
+  famille grenade_frag 111
+  famille grenade_plasma 101
+  famille grenade_spike 86
+  famille repair_field 24
+  famille repulsor 31
+  famille sensor   24
   famille shroud_screen 22
-  famille thruster 48
+  famille thruster 44
   famille wall     53
   famille x origine grapple/dropped              38
-  famille x origine grapple/unknown              9
+  famille x origine grapple/unknown              8
   famille x origine grenade_dynamo/dropped       62
-  famille x origine grenade_dynamo/unknown       17
+  famille x origine grenade_dynamo/unknown       16
   famille x origine grenade_frag/dropped         92
-  famille x origine grenade_frag/unknown         23
+  famille x origine grenade_frag/unknown         19
   famille x origine grenade_plasma/dropped       83
-  famille x origine grenade_plasma/unknown       28
+  famille x origine grenade_plasma/unknown       18
   famille x origine grenade_spike/dropped        72
-  famille x origine grenade_spike/unknown        23
+  famille x origine grenade_spike/unknown        14
   famille x origine repair_field/dropped         19
-  famille x origine repair_field/unknown         6
+  famille x origine repair_field/unknown         5
   famille x origine repulsor/dropped             27
-  famille x origine repulsor/unknown             7
+  famille x origine repulsor/unknown             4
   famille x origine sensor/dropped               21
-  famille x origine sensor/unknown               6
+  famille x origine sensor/unknown               3
   famille x origine shroud_screen/dropped        18
   famille x origine shroud_screen/unknown        4
   famille x origine thruster/dropped             35
-  famille x origine thruster/unknown             13
+  famille x origine thruster/unknown             9
   famille x origine wall/deployed                17
   famille x origine wall/dropped                 31
   famille x origine wall/unknown                 5
@@ -990,42 +990,6 @@ provenance : 60 evenement(s) 103 lu(s) sur 7751 liste(s) d evenements non vides
   wall unknown 0x2974c233 t=[16224, 16278] pos=(73.05, -44.60, 7.90) poseur=731 cap=143.5 deg
   grenade_dynamo unknown 0xaada07f3 t=[16224, 16277] pos=(73.17, -44.57, 7.82) poseur=731 cap=143.5 deg
   grenade_dynamo unknown 0xaada07f3 t=[16224, 16292] pos=(73.18, -44.60, 7.82) poseur=731 cap=143.5 deg
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(60.48, -12.08, 4.36) poseur=716 cap=47.5 deg
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(53.46, -27.76, 2.72) poseur=729 cap=80.9 deg
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(53.46, -27.79, 2.72) poseur=729 cap=80.9 deg
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(39.36, -23.39, 14.29) poseur=-1 cap=aucun
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(39.37, -23.36, 14.31) poseur=-1 cap=aucun
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(40.55, 26.71, 1.06) poseur=-1 cap=aucun
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(40.54, 26.71, 1.06) poseur=-1 cap=aucun
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(53.89, -11.49, 4.51) poseur=706 cap=aucun
-  grenade_spike unknown 0x0f5716ff t=[16359, 16359] pos=(53.89, -11.52, 4.52) poseur=706 cap=aucun
-  grapple unknown 0x273fe0eb t=[16359, 16359] pos=(59.34, 17.09, 5.61) poseur=733 cap=130.1 deg
-  repair_field unknown 0x32d97758 t=[16359, 16359] pos=(40.59, 26.76, 1.24) poseur=-1 cap=aucun
-  thruster unknown 0x430dda48 t=[16359, 16359] pos=(60.43, -12.03, 4.46) poseur=716 cap=47.5 deg
-  thruster unknown 0x430dda48 t=[16359, 16359] pos=(74.72, -15.09, 7.97) poseur=-1 cap=aucun
-  thruster unknown 0x430dda48 t=[16359, 16359] pos=(67.61, -4.32, 4.68) poseur=-1 cap=aucun
-  thruster unknown 0x430dda48 t=[16359, 16359] pos=(53.82, -11.37, 4.57) poseur=706 cap=aucun
-  sensor unknown 0x72b63d69 t=[16359, 16359] pos=(53.37, -27.78, 2.85) poseur=729 cap=80.9 deg
-  sensor unknown 0x72b63d69 t=[16359, 16359] pos=(58.83, 8.99, 4.57) poseur=728 cap=90.7 deg
-  sensor unknown 0x72b63d69 t=[16359, 16359] pos=(56.55, 20.05, 3.91) poseur=-1 cap=aucun
-  repulsor unknown 0x7ca85adc t=[16359, 16359] pos=(39.34, -23.13, 14.35) poseur=-1 cap=aucun
-  repulsor unknown 0x7ca85adc t=[16359, 16359] pos=(52.83, -7.54, 4.46) poseur=726 cap=324.5 deg
-  repulsor unknown 0x7ca85adc t=[16359, 16359] pos=(53.57, -38.38, 2.27) poseur=-1 cap=aucun
-  grenade_dynamo unknown 0xaada07f3 t=[16359, 16359] pos=(52.77, -7.66, 4.37) poseur=726 cap=324.5 deg
-  grenade_frag unknown 0xbcabbe43 t=[16359, 16359] pos=(53.38, -27.77, 2.72) poseur=729 cap=80.9 deg
-  grenade_frag unknown 0xbcabbe43 t=[16359, 16359] pos=(53.47, -27.77, 2.72) poseur=729 cap=80.9 deg
-  grenade_frag unknown 0xbcabbe43 t=[16359, 16359] pos=(56.92, 19.91, 3.81) poseur=-1 cap=aucun
-  grenade_frag unknown 0xbcabbe43 t=[16359, 16359] pos=(56.98, 19.86, 3.82) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(67.64, -4.22, 4.54) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(67.64, -4.26, 4.54) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(59.52, 17.06, 5.53) poseur=733 cap=130.1 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(59.56, 17.05, 5.52) poseur=733 cap=130.1 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(52.78, -7.73, 4.37) poseur=726 cap=324.5 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(52.79, -7.67, 4.36) poseur=726 cap=324.5 deg
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(53.62, -38.39, 2.19) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(53.69, -38.39, 2.20) poseur=-1 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(53.92, -11.44, 4.51) poseur=706 cap=aucun
-  grenade_plasma unknown 0xcaaadcb0 t=[16359, 16359] pos=(53.88, -11.43, 4.51) poseur=706 cap=aucun
 
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 2042 slot(s) · 582 ancre(s) -> 580 acceptee(s) -> 488 retenue(s) par l IDENTITE (92 ecartee(s))
