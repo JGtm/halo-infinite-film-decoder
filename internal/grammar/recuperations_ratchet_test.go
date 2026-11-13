@@ -40,6 +40,7 @@ var appelantsDesReleves = map[string]map[string]string{
 	"walkDeltaBipedPayloadJusqua": {
 		"delta_biped_walk.go:walkDeltaBipedRecordsJusqua": "le marcheur du film, payload par payload",
 		"delta_biped_walk.go:walkDeltaBipedPayload":       "le payload entier",
+		"positions_de_vehicule.go:positionsDeVehicule":    "l ancrage des vehicules derriere la marche, borne par la fermeture de chaque trame",
 	},
 	"walkDeltaBipedPayload": {
 		"offline_biped.go:ScanBipedRecords": "l ancrage d un payload sous des parametres autres que ceux du " +

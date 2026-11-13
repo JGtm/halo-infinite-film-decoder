@@ -61,7 +61,12 @@ type BipedAim struct {
 	TimestampUS uint64
 	// YawRaw / PitchRaw sont les deux scalaires bruts d'`i21` : R(12) puis R(11).
 	YawRaw, PitchRaw uint32
-	// bit : le premier bit de l en-tete du record dans son payload.
+}
+
+// viseeLue est une visee et le premier bit de l en-tete de son record dans son payload : la place
+// que la regle de la passe derriere la marche juge, et son rang dans le flux.
+type viseeLue struct {
+	BipedAim
 	bit int
 }
 
@@ -111,7 +116,7 @@ func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 	}
 	// Lot J5.2 : les generations vivantes du film, pas la seule 1 ; DATEES a l instant du paquet
 	// (lot R2-bis) : la visee d un corps n est pas lue avant son record de creation.
-	var out []BipedAim
+	var out []viseeLue
 	var trames map[paquetDuFlux]trameDuCanal
 	fin := payloadEntier
 	if lu, err := fc.lecturesBipedes(); err == nil {
@@ -148,17 +153,29 @@ func ScanBipedAimOnly(fc *FilmContext) ([]BipedAim, error) {
 	if marche > 0 && marche < len(out) {
 		rangerLesViseesDansLeFlux(out, nums)
 	}
-	return out, nil
+	return sansLeurBit(out), nil
+}
+
+// sansLeurBit rend les visees de `v`, dans leur ordre.
+func sansLeurBit(v []viseeLue) []BipedAim {
+	if len(v) == 0 {
+		return nil
+	}
+	out := make([]BipedAim, len(v))
+	for i := range v {
+		out[i] = v[i].BipedAim
+	}
+	return out
 }
 
 // rangerLesViseesDansLeFlux trie les visees dans l ordre du flux : rang du chunk, rang du paquet, bit
 // de l en-tete.
-func rangerLesViseesDansLeFlux(v []BipedAim, chunks []int) {
+func rangerLesViseesDansLeFlux(v []viseeLue, chunks []int) {
 	rang := make(map[int]int, len(chunks))
 	for i, c := range chunks {
 		rang[c] = i
 	}
-	slices.SortStableFunc(v, func(a, b BipedAim) int {
+	slices.SortStableFunc(v, func(a, b viseeLue) int {
 		return cmp.Or(cmp.Compare(rang[a.Chunk], rang[b.Chunk]), cmp.Compare(a.PacketIndex, b.PacketIndex),
 			cmp.Compare(a.bit, b.bit))
 	})
@@ -169,15 +186,15 @@ func rangerLesViseesDansLeFlux(v []BipedAim, chunks []int) {
 // Chunk/PacketIndex/TimestampUS sont laisses a zero (remplis par l'appelant). `gens` est le filtre de
 // generation du handle (lot J5.2) ; nil : tous les slots au repli nomme (generation 1).
 func ScanBipedAimRecords(payload []byte, slots SlotBand, gens *GenerationsVivantes, ctx ContexteDeLecture) []BipedAim {
-	return scanBipedAimRecordsJusqua(payload, slots, gens, ctx, len(payload)*8)
+	return sansLeurBit(scanBipedAimRecordsJusqua(payload, slots, gens, ctx, len(payload)*8))
 }
 
 // scanBipedAimRecordsJusqua est [ScanBipedAimRecords] arrete au bit `fin` : aucun en-tete n est cherche
 // a ce bit ni au-dela.
 func scanBipedAimRecordsJusqua(payload []byte, slots SlotBand, gens *GenerationsVivantes, ctx ContexteDeLecture,
-	fin int) []BipedAim {
+	fin int) []viseeLue {
 	total := len(payload) * 8
-	var out []BipedAim
+	var out []viseeLue
 	// UN SEUL lecteur de bits pour tout le payload : les composants de vitalite traverses avant
 	// `i21` le repositionnent par `SetBitPos`, la ou ils en allouaient un chacun PAR CANDIDAT.
 	br := LecteurSur(payload)
@@ -194,7 +211,7 @@ func scanBipedAimRecordsJusqua(payload []byte, slots SlotBand, gens *Generations
 			p++
 			continue
 		}
-		out = append(out, BipedAim{Slot: slot, YawRaw: d.YawRaw, PitchRaw: d.PitchRaw, bit: p})
+		out = append(out, viseeLue{BipedAim: BipedAim{Slot: slot, YawRaw: d.YawRaw, PitchRaw: d.PitchRaw}, bit: p})
 		p = at + 1 + aimYawBits + aimPitchBits // pas de re-scan chevauchant
 	}
 	return out

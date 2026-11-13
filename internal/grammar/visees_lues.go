@@ -23,8 +23,8 @@ func (c *canalDesLecturesBipedes) noterLaVisee(p *lecture.Paquet, r *FrameRecord
 			var d componentDirs
 			readAimingVectorComponent(p.Payload, comp.StartBit, len(p.Payload)*8, &d)
 			if d.HasYaw {
-				c.lu.visees = append(c.lu.visees, BipedAim{Slot: r.Slot, Chunk: p.Chunk, PacketIndex: p.Index,
-					TimestampUS: p.TS, YawRaw: d.YawRaw, PitchRaw: d.PitchRaw, bit: r.HeaderBit})
+				c.lu.visees = append(c.lu.visees, viseeLue{BipedAim: BipedAim{Slot: r.Slot, Chunk: p.Chunk,
+					PacketIndex: p.Index, TimestampUS: p.TS, YawRaw: d.YawRaw, PitchRaw: d.PitchRaw}, bit: r.HeaderBit})
 			}
 			return
 		}
