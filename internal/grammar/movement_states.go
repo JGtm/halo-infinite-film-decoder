@@ -12,7 +12,7 @@ package grammar
 //
 // # LA MARCHE EST CELLE DU FRAME-PROCESSEUR, ET C EST UNE DECISION MESUREE
 //
-// Elle n emploie PAS `walkDeltaBipedRecords`, la marche par CHERCHEUR D ANCRES des autres
+// Elle n emploie PAS `walkDeltaBipedRecordsJusqua`, la marche par CHERCHEUR D ANCRES des autres
 // balayages de capacite. Mesure sur `bfecd02b` (lot 5.3.6, sonde de production) : sur
 // 162 444 records reconnus par cette marche, les masques annoncent `i29` **ZERO** fois et `i62`
 // **UNE** fois. C est le defaut meme que le lot 5.3.2 avait constate et nomme — un chercheur

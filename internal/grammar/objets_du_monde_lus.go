@@ -219,6 +219,11 @@ func (c *FilmContext) finDuBalayage() func(chunk, index, total int) int {
 	if err != nil {
 		return payloadEntier
 	}
+	return finSelonLesTrames(trames)
+}
+
+// finSelonLesTrames est [FilmContext.finDuBalayage] sur des trames deja en main.
+func finSelonLesTrames(trames map[paquetDuFlux]trameDuCanal) func(chunk, index, total int) int {
 	return func(chunk, index, total int) int {
 		t, vu := trames[paquetDuFlux{chunk, index}]
 		if !vu || t.prouveeDes == rienDeProuve {

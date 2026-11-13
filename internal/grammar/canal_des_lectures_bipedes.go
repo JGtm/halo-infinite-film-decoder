@@ -389,7 +389,7 @@ func (c *canalDesLecturesBipedes) recuperer() []recordBipedeLu {
 	capt.brancher(obs)
 	g := grammaireRecord{lay: lay, arch: arch, prof: c.fc.ProfilDeBalayage(), obs: obs}
 	var out []recordBipedeLu
-	c.fc.parcourirLesAncresBipedes(func(r deltaBipedRecord) {
+	c.fc.parcourirLesAncresBipedesBornees(c.trames, func(r deltaBipedRecord) {
 		if t, vu := c.trames[paquetDuFlux{r.Chunk, r.Packet.Index}]; !rendParLAncrage(t, vu, r.Slot, BipedTypeIndex, r.I0) {
 			return
 		}

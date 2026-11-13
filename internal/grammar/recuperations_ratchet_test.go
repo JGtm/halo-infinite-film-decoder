@@ -18,7 +18,7 @@ package grammar
 // diminuer). Les sources de test sont hors portee : les instruments et les oracles appellent les
 // primitives directement, c est leur role.
 //
-// MUTATIONS — `var _ = walkDeltaBipedRecords` ajoute a `camo_state.go`, puis
+// MUTATIONS — `var _ = walkDeltaBipedRecordsJusqua` ajoute a `camo_state.go`, puis
 // `var _ = equipCreationWalk.creationA` ajoute a `ground_weapon_creation.go` : ROUGES.
 
 import (
@@ -34,11 +34,14 @@ import (
 // appelants de production — cle : fichier du paquet + « : » + fonction englobante (« paquet » pour
 // une reference hors fonction) — et la raison de chacun.
 var appelantsDesReleves = map[string]map[string]string{
-	"walkDeltaBipedRecords": {
+	"walkDeltaBipedRecordsJusqua": {
 		"ancres_bipedes.go:ancresBipedes": "le releve de l ancrage bipede du contexte, memorise",
 	},
+	"walkDeltaBipedPayloadJusqua": {
+		"delta_biped_walk.go:walkDeltaBipedRecordsJusqua": "le marcheur du film, payload par payload",
+		"delta_biped_walk.go:walkDeltaBipedPayload":       "le payload entier",
+	},
 	"walkDeltaBipedPayload": {
-		"delta_biped_walk.go:walkDeltaBipedRecords": "le marcheur du film, payload par payload",
 		"offline_biped.go:ScanBipedRecords": "l ancrage d un payload sous des parametres autres que ceux du " +
 			"contexte (bande des vehicules, options forcees) : un autre releve",
 	},

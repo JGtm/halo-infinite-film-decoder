@@ -62,7 +62,7 @@ package grammar
 // # TOUS LES LECTEURS DE RECORDS DELTA BIPEDES, PAS LES SEULES POSITIONS (lot R2-bis, 2026-09-29)
 //
 // Le lot R2 n avait date que le balayage des positions. Le MEME marcheur servait les huit canaux delta
-// (`walkDeltaBipedRecords` : rang et charges de capacite, impulsions, camouflage, grappin, arme tenue,
+// (`walkDeltaBipedRecordsJusqua` : rang et charges de capacite, impulsions, camouflage, grappin, arme tenue,
 // inventaire, equipement de l unite) avec le masque atemporel, et deux lecteurs voisins aussi (la
 // recuperation d equipement, `equipment_recovery.go`, et la visee seule, `offline_aim_only.go`) :
 // 32, 30, 20 et 102 en-tetes anterieurs a la creation de leur corps y etaient encore acceptes sur
