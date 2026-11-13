@@ -75,34 +75,53 @@ func U64LEAuBit(d []byte, pos int) uint64 {
 	return x
 }
 
-// ChercherMotif64 rend la PREMIERE position de bit `bp` (>= 0, `bp+64 <= len(d)*8`) ou les 64
-// bits qui suivent valent `cible`, et si une telle position existe.
+// ChercherMotifs64 rend, pour chaque motif de `cibles`, la PREMIERE position de bit `bp` (>= 0,
+// `bp+64 <= len(d)*8`) ou les 64 bits qui suivent valent ce motif ; -1 pour un motif absent.
 //
 // C est le balayage de `weaponv3.ResolveXuidToPI` — le xuid d un joueur est ecrit en huit
 // octets LITTLE-ENDIAN dans un flux NON aligne sur l octet, donc on cherche au niveau BIT le
 // motif obtenu en relisant ces huit octets en big-endian.
 //
-// IL LIT UN MOT PAR OCTET, pas 64 bits par position : pour chaque octet `i`, le mot big-endian
-// `w` donne directement la fenetre du decalage 0, et les sept decalages suivants se deduisent
-// de `w` et du seul octet `i+8`. L ORDRE DE PARCOURS EST CELUI D ORIGINE (bp croissant), donc
-// la position rendue est exactement celle que rendait la boucle bit a bit — qui pesait 21 a
-// 26 % du temps total d une cuisson (profil du 2026-09-02).
-func ChercherMotif64(d []byte, cible uint64) (int, bool) {
-	n := len(d)
-	for i := 0; i+8 <= n; i++ {
-		w := binary.BigEndian.Uint64(d[i : i+8])
-		if w == cible {
-			return i * 8, true
+// UN SEUL PARCOURS POUR TOUS LES MOTIFS : pour chaque octet `i`, le mot big-endian `w` donne la
+// fenetre du decalage 0, et les sept decalages suivants se deduisent de `w` et du seul octet
+// `i+8`. Une fenetre n est comparee aux motifs que si ses seize bits de tete sont ceux d un motif
+// encore cherche. Les positions sont parcourues par `bp` croissant : la position rendue pour un
+// motif est celle qu un parcours pour lui seul rendrait.
+func ChercherMotifs64(d []byte, cibles []uint64) []int {
+	out := make([]int, len(cibles))
+	for k := range out {
+		out[k] = -1
+	}
+	reste := len(cibles)
+	if reste == 0 {
+		return out
+	}
+	var tetes [1 << 16 / 64]uint64
+	for _, c := range cibles {
+		tetes[c>>48>>6] |= 1 << (c >> 48 & 63)
+	}
+	essayer := func(v uint64, bp int) {
+		if tetes[v>>48>>6]>>(v>>48&63)&1 == 0 {
+			return
 		}
+		for k, c := range cibles {
+			if c == v && out[k] < 0 {
+				out[k] = bp
+				reste--
+			}
+		}
+	}
+	n := len(d)
+	for i := 0; i+8 <= n && reste > 0; i++ {
+		w := binary.BigEndian.Uint64(d[i : i+8])
+		essayer(w, i*8)
 		if i+8 >= n { // les decalages 1..7 exigeraient l octet i+8, hors tampon
 			break
 		}
 		suivant := uint64(d[i+8])
 		for s := uint(1); s < 8; s++ {
-			if w<<s|suivant>>(8-s) == cible {
-				return i*8 + int(s), true
-			}
+			essayer(w<<s|suivant>>(8-s), i*8+int(s))
 		}
 	}
-	return 0, false
+	return out
 }

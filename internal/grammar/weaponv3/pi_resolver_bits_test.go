@@ -4,7 +4,7 @@ package weaponv3
 // xuid -> player_index.
 //
 // IL RESTE ICI APRES LE LOT 2.4.2, ET C EST DELIBERE : les deux primitives ont descendu dans la
-// couche source ([source.BitsTolerants], [source.ChercherMotif64]), mais la propriete
+// couche source ([source.BitsTolerants], [source.ChercherMotifs64]), mais la propriete
 // que ce fichier garde est celle du RESOLVEUR — qu il lise aujourd hui ce qu il lisait avant,
 // bornes negatives comprises. Les oracles sont les implantations d AVANT, recopiees ici et
 // nulle part ailleurs.
@@ -109,9 +109,9 @@ func TestFindPattern64MatchesReference(t *testing.T) {
 				}
 				writeBitsBE(buf, bp, 64, target)
 				wantPos, wantOK := refFindPattern64(buf, target)
-				gotPos, gotOK := source.ChercherMotif64(buf, target)
+				gotPos, gotOK := chercherUnMotif(buf, target)
 				if gotOK != wantOK || gotPos != wantPos {
-					t.Fatalf("ChercherMotif64(size=%d, implante a bp=%d) = (%d, %v), reference (%d, %v)",
+					t.Fatalf("ChercherMotifs64(size=%d, implante a bp=%d) = (%d, %v), reference (%d, %v)",
 						size, bp, gotPos, gotOK, wantPos, wantOK)
 				}
 			}
@@ -125,9 +125,9 @@ func TestFindPattern64AbsentMatchesReference(t *testing.T) {
 	for _, buf := range piFuzzBuffers() {
 		for _, target := range []uint64{0, ^uint64(0), 0x0123456789ABCDEF} {
 			wantPos, wantOK := refFindPattern64(buf, target)
-			gotPos, gotOK := source.ChercherMotif64(buf, target)
+			gotPos, gotOK := chercherUnMotif(buf, target)
 			if gotOK != wantOK || gotPos != wantPos {
-				t.Fatalf("ChercherMotif64(len=%d, target=%#x) = (%d, %v), reference (%d, %v)",
+				t.Fatalf("ChercherMotifs64(len=%d, target=%#x) = (%d, %v), reference (%d, %v)",
 					len(buf), target, gotPos, gotOK, wantPos, wantOK)
 			}
 		}
@@ -163,6 +163,40 @@ func writeBitsBE(buf []byte, bp, n int, v uint64) {
 		buf[p>>3] &^= mask
 		if bit == 1 {
 			buf[p>>3] |= mask
+		}
+	}
+}
+
+// chercherUnMotif rend la premiere position d un seul motif, dans la forme de la reference.
+func chercherUnMotif(buf []byte, cible uint64) (int, bool) {
+	if p := source.ChercherMotifs64(buf, []uint64{cible})[0]; p >= 0 {
+		return p, true
+	}
+	return 0, false
+}
+
+// TestChercherMotifs64PlusieursMotifs : plusieurs motifs cherches ensemble, dont deux de meme tete,
+// un absent et un en double, rendent chacun la position d un parcours pour lui seul.
+func TestChercherMotifs64PlusieursMotifs(t *testing.T) {
+	rng := rand.New(rand.NewSource(0x5EED_1701))
+	cibles := []uint64{0x0123456789ABCDEF, 0x0123FFFF00001111, 0xFEDCBA9876543210, 0x0123456789ABCDEF, 0x00090000DEADBEEF}
+	for essai := range 200 {
+		buf := make([]byte, 64+rng.Intn(200))
+		rng.Read(buf)
+		for _, c := range cibles[:3] {
+			if rng.Intn(4) > 0 {
+				writeBitsBE(buf, rng.Intn(len(buf)*8-64), 64, c)
+			}
+		}
+		got := source.ChercherMotifs64(buf, cibles)
+		for k, c := range cibles {
+			want, ok := refFindPattern64(buf, c)
+			if !ok {
+				want = -1
+			}
+			if got[k] != want {
+				t.Fatalf("essai %d, motif %#x : position %d, reference %d", essai, c, got[k], want)
+			}
 		}
 	}
 }

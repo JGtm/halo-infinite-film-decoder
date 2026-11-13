@@ -30,7 +30,7 @@ const PIBits = 5
 // motif. Les trois vivent desormais dans la couche source :
 //
 //	bitReader.readBits(bp, n)  ->  source.BitsTolerants(chunk, bp, n)
-//	findPattern64(d, cible)    ->  source.ChercherMotif64(d, cible)
+//	findPattern64(d, cible)    ->  source.ChercherMotifs64(d, cibles)
 //
 // LA CONVENTION DE BORD EST PRESERVEE, ET C EST POURQUOI C EST `BitsTolerants` ET PAS
 // `BitsAt` : ce resolveur relit les cinq bits qui PRECEDENT le motif trouve, donc sur un motif
@@ -49,9 +49,13 @@ func ResolveXuidToPI(rosterXuids []uint64, chunk []byte) map[uint64]int {
 	if len(chunk) == 0 {
 		return out
 	}
-	for _, x := range rosterXuids {
-		if bp, ok := source.ChercherMotif64(chunk, xuidTargetPattern(x)); ok {
-			out[x] = int(source.BitsTolerants(chunk, bp-PIBits, PIBits))
+	motifs := make([]uint64, len(rosterXuids))
+	for k, x := range rosterXuids {
+		motifs[k] = xuidTargetPattern(x)
+	}
+	for k, bp := range source.ChercherMotifs64(chunk, motifs) {
+		if bp >= 0 {
+			out[rosterXuids[k]] = int(source.BitsTolerants(chunk, bp-PIBits, PIBits))
 		}
 	}
 	return out
