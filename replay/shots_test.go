@@ -7,6 +7,9 @@ import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
+// grilleDeTest est la grille des tests de tirs : origine à 1 s, frames de 100 ms.
+var grilleDeTest = replayClock{origin: 1_000_000, step: 100_000}
+
 // posAt fabrique un échantillon de position portant un cap de visée i21.
 func posAt(slot uint32, tUS uint64, x, y float32, headingDeg float64) grammar.BipedPosition {
 	p := grammar.BipedPosition{Slot: slot, TimestampUS: tUS, X: x, Y: y, HasWorld: true}
@@ -52,9 +55,9 @@ func TestBuildShots_PlacesShotOnItsOwnerSlot(t *testing.T) {
 	events := []grammar.FireEvent{
 		fireAt(1_200_000, 3, 90),
 		fireAt(1_300_000, 3, 90),
-		{TimestampUS: 1_400_000, FilmIndex: 3, WeaponID: 1}, // sans visée : le pont suffit
+		{TimestampUS: 1_400_000, FilmIndex: 3, WeaponID: 1}, // sans visée lue dans le record
 	}
-	shots, _, cov := buildShots(pos, events, 1_000_000, 100_000, occupantsPlats(map[uint32]int{10: 3}))
+	shots, _, cov := buildShots(pos, events, grilleDeTest, occupantsPlats(map[uint32]int{10: 3}), nouveauViseur(pos, nil, nil))
 	// L'invariant de couverture vaut AUSSI sur le cas nominal : tout ce qui existait est
 	// soit rattache, soit rejete sous une cause nommee.
 	if !cov.Balanced() {
@@ -74,8 +77,11 @@ func TestBuildShots_PlacesShotOnItsOwnerSlot(t *testing.T) {
 	if shots[0].Weapon != "0x6ACDC44D42C9679F" {
 		t.Errorf("arme = %q, attendu l'identifiant 64 bits en hexadécimal", shots[0].Weapon)
 	}
-	if shots[2].H != 0 {
-		t.Errorf("un tir sans visée décodée ne doit porter aucun cap, reçu %v", shots[2].H)
+	// La direction est la visée i21 du tireur, que le record porte la sienne ou non.
+	for i, s := range shots {
+		if s.H != 90 {
+			t.Errorf("tir %d : cap %v, attendu 90 (la visée i21 du slot 10)", i, s.H)
+		}
 	}
 }
 
@@ -91,7 +97,7 @@ func TestBuildShots_RejectsAmbiguous(t *testing.T) {
 	events := []grammar.FireEvent{fireAt(1_200_000, 3, 90), fireAt(1_300_000, 3, 90)}
 	// DEUX slots pour le MEME joueur au meme instant : le rattachement est ambigu, et rien ne
 	// doit etre publie. C'est le cas que la categorie `Ambiguous` existe pour nommer.
-	shots, _, cov := buildShots(pos, events, 1_000_000, 100_000, occupantsPlats(map[uint32]int{10: 3, 11: 3}))
+	shots, _, cov := buildShots(pos, events, grilleDeTest, occupantsPlats(map[uint32]int{10: 3, 11: 3}), nouveauViseur(pos, nil, nil))
 	if len(shots) != 0 {
 		t.Fatalf("tirs publiés malgré l'ambiguïté : %+v", shots)
 	}

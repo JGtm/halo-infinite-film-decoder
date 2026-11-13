@@ -52,6 +52,10 @@ type LayerCoverage struct {
 	// build HI_1_4_1, ou pont slot -> joueur en defaut). Peuples par le seul calque des tirs.
 	ByUnit         int `json:"byUnit,omitempty"`
 	UnitOtherIndex int `json:"unitOtherIndex,omitempty"`
+	// Aim : D OU VIENT la direction de chaque tir pose (cf. shots_visee.go). Nil quand le calque
+	// n a pose aucun tir (ni a pied, ni en vehicule) : un bloc de quatre zeros ne dirait rien.
+	// Peuplee par le seul calque des tirs.
+	Aim *ShotAimCoverage `json:"aim,omitempty"`
 }
 
 // Balanced vérifie l'invariant : tout ce qui existait est soit rattaché, soit rejeté sous

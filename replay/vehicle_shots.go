@@ -63,24 +63,27 @@ type vehicleShotRide struct {
 // attachVehicleShots publie, dans `doc.Shots`, les tirs des joueurs embarqués et met la
 // couverture à jour. Rien à faire sans épisode ni orphelin — le document sort inchangé.
 func attachVehicleShots(ctx context.Context,
-	doc *ReplayDocument, orphans []orphanShot, reg IdentityRegistry, clock replayClock,
+	doc *ReplayDocument, orphans orphelinsDesTirs, reg IdentityRegistry, clock replayClock,
 ) {
 	cov := doc.Coverage
-	if len(orphans) == 0 || len(doc.Vehicles) == 0 || cov == nil {
+	if len(orphans.tirs) == 0 || len(doc.Vehicles) == 0 || cov == nil {
 		return
 	}
 	rides := vehicleRidesByOccupant(doc.Vehicles)
 	if len(rides) == 0 {
 		return
 	}
+	// LE VISEUR EST CELUI DE LA PREMIERE PORTE (cf. shots.go) : les lectures i21 sont les memes
+	// pour les deux, et la couverture des visees est partagee.
 	occ := reg.Occupants()
 	published := publishedSlots(doc.Tracks)
 	board := vehicleShotBoard{
 		rides: rides, tracks: doc.Vehicles, lives: vehicleLifeIndex(doc.Vehicles), clock: clock,
 		parSlot: vehicleLivesBySlot(doc.Vehicles),
+		viseur:  orphans.viseur,
 	}
 	var added []Shot
-	for _, o := range orphans {
+	for _, o := range orphans.tirs {
 		s, verdict, onCarrier, parUnite := board.shotOf(o, occ.slotsDe(o.ev.FilmIndex, int64(o.ev.TimestampUS)))
 		vehicleShotTally(doc.Coverage.Vehicles, verdict)
 		if verdict != vehicleShotPlaced {
@@ -140,6 +143,7 @@ type vehicleShotBoard struct {
 	lives   map[VehicleLifeRef]int
 	parSlot map[uint32][]int
 	clock   replayClock
+	viseur  *viseurDesTirs
 }
 
 // poseParUnite dit si un tir a ete pose par sa reference 0 (`vehicle_shots_unit.go`), et s il
@@ -200,7 +204,8 @@ func (b vehicleShotBoard) poser(o orphanShot, pick vehicleShotRide, fr int) (Sho
 }
 
 // poserSur pose l orphelin sur la vie `at` au nom de l occupant `occupant` ; `onCarrier` dit que
-// `at` porte le tir comme PORTEUR d une piece montee.
+// `at` porte le tir comme PORTEUR d une piece montee. La DIRECTION du tir est celle du viseur
+// partage (cf. shots_visee.go), comme pour les tirs a pied.
 func (b vehicleShotBoard) poserSur(
 	o orphanShot, at int, onCarrier bool, occupant uint32, fr int,
 ) (Shot, vehicleShotVerdict, bool) {
@@ -216,9 +221,7 @@ func (b vehicleShotBoard) poserSur(
 	}
 	v := b.tracks[at].Slot
 	s := Shot{T: fr, Slot: occupant, X: round2(x), Y: round2(y), Vehicle: &v, tUS: o.ev.TimestampUS}
-	if h, ok := o.ev.AimHeadingDeg(); ok {
-		s.H = headingForJSON(float32(h))
-	}
+	b.viseur.viser(&s, o.ev, occupant)
 	if o.ev.WeaponID != 0 {
 		s.Weapon = formatWeaponID(o.ev.WeaponID)
 	}

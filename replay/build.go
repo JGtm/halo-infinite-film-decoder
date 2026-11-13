@@ -153,7 +153,7 @@ type assemblage struct {
 	// Les mesures faites AVANT `composerLaCouverture` et posées par elle.
 	shotCov     LayerCoverage
 	grenCov     LayerCoverage
-	shotOrphans []orphanShot
+	shotOrphans orphelinsDesTirs
 	projCov     *ProjectileCoverage
 	// birthCov est la couverture des dotations de naissance (schema 69), mesuree a la pose des
 	// loadouts et posee par `composerLaCouverture`.

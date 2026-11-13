@@ -158,6 +158,9 @@ func (a *assemblage) poserArmesAuSolEtVehicules() {
 	// couverture des tirs deja publiee — cf. vehicle_shots.go.
 	attachVehicleShots(a.ctx, &a.doc, a.shotOrphans, a.reg,
 		replayClock{origin: a.origin, step: a.step, frames: a.doc.FrameCount, fb: a.opt.Fallbacks})
+	// LA COUVERTURE DES VISEES EST PARTAGEE ENTRE LES DEUX PORTES : le viseur la tient a jour,
+	// et les tirs poses en vehicule y entrent comme ceux poses a pied.
+	a.shotCov.Aim = a.shotOrphans.viseur.cov
 	// LE LIEN TIR -> PROJECTILE : APRÈS la seconde porte, qui insère des tirs et retrie `doc.Shots`
 	// (un index posé avant pointerait un autre tir) — cf. projectiles_tirs.go.
 	a.lierLesProjectilesAuxTirs()

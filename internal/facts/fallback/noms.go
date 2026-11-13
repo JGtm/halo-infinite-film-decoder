@@ -193,6 +193,8 @@ const (
 	NomPortageFermeALaPriseSuivante Nom = "repli_portage_ferme_a_la_prise_suivante"
 	// NomPorteurAnonymeSansFinParMort : compte par `bomb_carries.go` (lot J8.7).
 	NomPorteurAnonymeSansFinParMort Nom = "repli_porteur_anonyme_sans_fin_par_mort"
+	// NomViseeDuTirLueDansLeRecord : `replay/shots_visee.go`, `viser`.
+	NomViseeDuTirLueDansLeRecord Nom = "repli_visee_du_tir_lue_dans_le_record"
 
 	// LES REPLIS DE `grammar` ET `profile` (sous-lot grammar du lot J8.7, 2026-09-27) : comptes en
 	// DONNEES au rapport du contexte de film (`grammar.ComptesDesReplis`), et verses au compteur de
