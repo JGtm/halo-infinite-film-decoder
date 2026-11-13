@@ -4030,3 +4030,24 @@ package replay
 // AVEC ELLE       ne bouge.
 //
 // LE PARC         un artefact 113 : verdict `a republier` (les faits cuits restent frais). La recuisson est une decision de l utilisateur.
+
+// v115 (2026-11-13, passes derriere la marche). Aucun champ neuf, aucune forme qui change : c est le CONTENU CUIT qui change, pour
+// deux calques, parce que le DECODAGE change (`grammar-2026-11-13`, chronique de la couche).
+//
+//	`vehicles[].samples`   les positions de vehicule sont celles des records que la marche des trames lit, l ancrage bit a bit ne
+//	                passant plus que derriere elle. Meme nombre de vehicules ; 1 a 302 echantillons de plus par film sur dix films de
+//	                l equivalence, a 1 cm de mediane du trajet deja publie (42 cm au plus) ; 0 ou 1 de moins ;
+//	                `coverage.vehicles.echantillonsHorsEmprise` 9 -> 0 et 3 -> 0 la ou il n etait pas nul, et le repli
+//	                `repli_position_hors_emprise_ecartee` sort de `coverage.fallbacks` quand il tombe a zero.
+//	`vehicles[].rides[].aim`, `coverage.vehicles.aimReads`   la visee d un occupant est celle des records sans position que la marche
+//	                lit ; une lecture de la passe hors de tout record d une trame fermee n est plus rendue : 31 a 281 lectures brutes de
+//	                moins par film, dont des elevations de plus de 90 degres.
+//
+// Tout le reste du document est identique a l octet sur les vingt films de l equivalence (dix films sans vehicule ni visee a bord :
+// seule la ligne de l artefact change, par le numero de schema et la revision).
+//
+// CE QUI MONTE    `SchemaVersion` 114 -> 115, et avec lui `publication-115`. `grammar.Rev` -> `grammar-2026-11-13`. `SchemaDesFaits`
+// AVEC ELLE       reste 22 : le format des faits ne change pas, leur fraicheur se juge sur la revision.
+//
+// LE PARC         un artefact 114 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision
+//                 de l utilisateur.

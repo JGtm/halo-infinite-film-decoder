@@ -182,3 +182,23 @@ package grammar
 // fin de leur vue A et que la vue A arretee ne ferme pas, comme v1.0.1. Les cinq films dont v1.0.1 lisait des paquets que v1.2.4 ne lisait
 // plus n en perdent plus aucun (35 -> 0), et les sept fermetures fausses de v1.0.1 ne reviennent pas. Les rejeux et les faits cuits
 // avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-13` (2026-11-13, les passes bit a bit ne tournent plus que derriere la marche des trames). LE DECODAGE
+// CHANGE pour deux lectures, et pour elles seules. Jusqu ici, sept passes cherchaient leurs records a chaque bit de chaque paquet
+// delta, que la marche l ait lu ou non : creations et pistes des objets du monde, ancrage bipede, visee seule, positions de vehicule,
+// creations de bipede, lancers de grenade. Chacune prend desormais les records que la marche a lus, a leur en-tete, par son lecteur
+// de toujours, et ne cherche plus que la ou la fermeture de la trame ne prouve pas, pour un slot que la marche n y a pas lu
+// ([rendParLAncrage], [finSelonLesTrames]) ; un film sans registre garde la passe entiere. En cuisson, la marche ferme presque toutes
+// les trames (26 438 sur 26 439 et, au pire de dix temoins, 40 652 sur 41 019). CE QUI CHANGE : la VISEE SEULE ([ScanBipedAimOnly]) ne
+// rend plus une lecture de la passe hors de tout record d une trame fermee — 31 a 281 lectures de moins par film sur dix films de
+// l equivalence, toutes sur un slot que la marche n a pas lu dans la trame, la moitie a plus de 90 degres d elevation ; les POSITIONS
+// DE VEHICULE ([ScanVehiclePositions]) gagnent les records que la marche lit et que l ancrage manquait, et perdent ses lectures de
+// hasard — meme nombre de vehicules sur dix films, 1 a 302 echantillons de plus par film a 1 cm de mediane du trajet deja connu
+// (42 cm au plus), 0 ou 1 de moins, echantillons hors de l emprise de la carte 9 -> 0 et 3 -> 0. CE QUI NE CHANGE PAS : creations et
+// pistes du monde, ancrage et positions bipedes, creations de bipede, lancers de grenade, motifs de xuid ([source.ChercherMotifs64]),
+// table d entites d une image-cle lue une fois par contexte — documents identiques a l octet sur dix temoins et, hors vehicules et
+// visee, sur les vingt films de l equivalence. Le canal des lectures bipedes ne juge plus un record pendant la marche : il le porte a
+// un journal rejoue a la cloture sous les generations vivantes du film, memes gardes dans le meme ordre (`journal_des_bipedes.go`).
+// Les compteurs des passes changent de sens : une ancre de creation de bipede est un record lu, plus un en-tete de hasard (879 ancres
+// pour 105 creations -> 105). Duree du decodage seul sur dix temoins : mediane 7,4 s -> 2,5 s, pire 31,8 s -> 7,5 s. Les rejeux et
+// les faits cuits avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
