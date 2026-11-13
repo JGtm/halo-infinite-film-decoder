@@ -3976,3 +3976,40 @@ package replay
 //
 // LE PARC         un artefact 112 : verdict `a republier` (les faits cuits restent frais). La recuisson est une decision de
 //                 l utilisateur.
+
+// v114 (2026-11-13, faits independants du pas). Aucun champ neuf, aucune forme qui change : c est le CONTENU CUIT qui change. Un
+// FAIT du match ne depend pas du pas de publication : toute fenetre, tolerance ou relation d ordre qui decide d un fait se calcule
+// en temps (millisecondes ou microsecondes du film), jamais en nombre d images de la grille. Le schema 111 (grille a 33 ms) a montre,
+// sur dix-huit films cuits a 100, 66, 50, 33, 20 et 10 ms, des valeurs qui bougeaient avec le pas faute de cette regle.
+//
+//	`flagCarries`    le point qui localise un porteur est le DERNIER point publie a l instant ou avant, a au plus 200 ms
+//	                (`flagCarrierPointToleranceMS`) : un corps immobile ne replique rien, et une tolerance d une image valait 100 ms ou
+//	                33 ms. Le lacher volontaire d une vie libre se date en millisecondes exactes (`matchMSOfUS`), plus arrondi au
+//	                debut de sa frame. Un film de reference : 83 portages a tout pas (82, 81 a 66, 50 ms avant).
+//	`pickups[].origin`   l ordre entre le ramassage et la pose se decide en microsecondes ; une pose lachee par le RAMASSEUR LUI-MEME,
+//	                d une autre famille connue, est un echange et non l origine de ce qu il ramasse. `coverage.pickups.originGround`
+//	                baisse, `originUnknown` monte d autant, et la valeur est la meme a tout pas.
+//	`vehicleCycles`  les naissances et les morts datees d un emplacement se balayent en microsecondes ; chaque naissance s apparie a
+//	                la mort datee la plus recente qui n a pas servi, quelle que soit la vie qui la porte. Deux vies nees au meme lieu
+//	                et au meme instant ne changent plus l appariement. Un cycle de plus se mesure sur un film (un emplacement de
+//	                `shade` dont les ecarts de 20,5 s etaient perdus a tout pas).
+//	`continuousFire.shots`   les coups (a la cadence de l arme depuis l instant lu de la gachette) et les trous de gachette se
+//	                decident en microsecondes. Le document continue de publier les trous en frames entieres (`bursts[].holes`) :
+//	                c est ce que le client dessine. Seule la borne d une rafale que sa monture ou sa vie coupe reste une frame.
+//	`equipmentPlacements`   une pose nee apres la DERNIERE POSITION du film (en microsecondes) est hors de l axe ; le schema 113 la
+//	                comparait a la fin de la grille, qui tombe 0 a 99 ms (100 ms) ou 0 a 32 ms (33 ms) plus tard.
+//	`projectiles`    le pas impossible d un vol se juge entre enregistrements consecutifs du film, retenus ou non : a 100 ms un saut
+//	                entre deux enregistrements d une meme frame n etait jamais teste. `coverage.projectiles.truncated` est le meme a
+//	                tout pas ; le lien tir -> projectile compare des instants exacts a `projShotWindowMS`, plus des frames.
+//	`weaponPads`     la datation d une occupation de socle par un ramassage natif compare des instants exacts aux images-cles qui la
+//	                bornent : un ramassage a 50 ms de l image-cle qui separe deux occupations n est plus candidat des deux.
+//
+// CE QUI RESTE, ET POURQUOI : les fenetres de vie d une piste et d une monture, que le document ne publie qu en frames (`stances`,
+// `equipmentEpisodes[].k`, `continuousFire.noTrack` et `clippedToMount`), le nombre de projectiles publies (un vol d un seul point de
+// grille ne se dessine pas) et ce qui en decoule (`shotLinked`, `shotAmbiguous`), `t0Film.burst` et les bornes de carte. Ils varient
+// avec le pas d une quantite bornee par un pas, et aucun instant exact ne les accompagne dans le document.
+//
+// CE QUI MONTE    `SchemaVersion` 113 -> 114, et avec lui `publication-114`. Aucune revision de grammaire, de faits ni de profil ne bouge.
+// AVEC ELLE
+//
+// LE PARC         un artefact 113 : verdict `a republier` (les faits cuits restent frais). La recuisson est une decision de l utilisateur.
