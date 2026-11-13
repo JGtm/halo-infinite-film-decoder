@@ -67,6 +67,9 @@ type Shot struct {
 	// de longueur variable dans ~80 % des records) : le client dessine alors un simple
 	// marqueur, sans direction. Même PIÈGE omitempty que Point.H, même parade (0 -> 360).
 	H float32 `json:"h,omitempty"`
+	// P (optionnel) est l ÉLÉVATION DE VISÉE du tir, en degrés (positif = vers le haut), même
+	// convention que Point.P. Absent quand la visée n'était pas lisible (même porte que H).
+	P float32 `json:"p,omitempty"`
 	// Weapon est l'identifiant global 64 bits de l'arme, en hexadécimal (un entier 64 bits
 	// ne survit pas au `number` JavaScript). Clé de metadata.weapon_labels.weapon_id.
 	Weapon string `json:"w,omitempty"`

@@ -1510,8 +1510,12 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   records que la marche des trames lit ; les lectures de hasard de l ancrage bit a bit disparaissent. Aucun champ
 	//   neuf ; le contenu cuit de `vehicles` change. `grammar.Rev` monte : un v114 se lit « à redécoder ». Détail :
 	//   `document_chronicle.go`.
-	if SchemaVersion != 115 {
-		t.Fatalf("SchemaVersion = %d, attendu 115 : incrémenter exige une raison écrite ci-dessus "+
+	// - 116 (2026-11-13, directions de tir) : `shots[].h`/`p` portent la visee i21 du tireur (sa derniere lecture au plus
+	//   tard a l instant du tir, avec ou sans position), et `coverage.shots.aim` dit d ou vient chaque direction. Champs
+	//   optionnels, mais la version monte pour la raison des montees v3..v24 : la reprise du backfill se fait par
+	//   SchemaVersion, et un v115 ne porte ni l elevation `p` ni la couverture `aim`. Detail : `document_chronicle.go`.
+	if SchemaVersion != 116 {
+		t.Fatalf("SchemaVersion = %d, attendu 116 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

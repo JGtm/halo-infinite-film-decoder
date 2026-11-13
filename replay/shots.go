@@ -64,6 +64,13 @@ type orphanShot struct {
 	reason rejectReason
 }
 
+// orphelinsDesTirs est ce que la porte du vehicule recoit de celle du bipede : les orphelins, et le
+// viseur des tirs, dont elle partage les lectures i21 et la couverture.
+type orphelinsDesTirs struct {
+	tirs   []orphanShot
+	viseur *viseurDesTirs
+}
+
 // buildShots rattache les events de tir aux slots et produit les tirs publiables, AVEC la
 // couverture : combien rattachés sur combien disponibles, et pourquoi le reste est écarté.
 //
@@ -74,14 +81,18 @@ type orphanShot struct {
 // « sans slot » et « hors fenêtre », ceux dont la signature est celle d'un tireur embarqué. Les
 // AMBIGUS n'y sont PAS, et c'est une mesure : l'ambiguïté naît de DEUX slots du même joueur qui
 // répliquent tous deux une position à cet instant — donc d'un joueur qui n'est PAS embarqué.
-func buildShots(pos []grammar.BipedPosition, events []grammar.FireEvent, origin, step uint64,
-	occ occupantsDesSlots) ([]Shot, []orphanShot, LayerCoverage) {
-	cov := LayerCoverage{Available: len(events)}
+//
+// LA VISEE de chaque tir pose vient de viseur (cf. shots_visee.go), qui en tient la couverture :
+// la porte du vehicule la partage, et cov.Aim pointe la meme.
+func buildShots(pos []grammar.BipedPosition, events []grammar.FireEvent, clock replayClock,
+	occ occupantsDesSlots, viseur *viseurDesTirs) ([]Shot, []orphanShot, LayerCoverage) {
+	cov := LayerCoverage{Available: len(events), Aim: viseur.cov}
 	if len(pos) == 0 || len(events) == 0 || occ.vide() {
 		cov.NoSlot = len(events) // rien pour rattacher : tout est écarté, et c'est dit
 		return nil, nil, cov
 	}
 	tracks := indexBySlot(pos)
+	pose := poseurDeTirs{origin: clock.origin, step: clock.step, viseur: viseur}
 	var out []Shot
 	var orphans []orphanShot
 	for _, e := range events {
@@ -89,7 +100,7 @@ func buildShots(pos []grammar.BipedPosition, events []grammar.FireEvent, origin,
 		// bipede qui replique une position a l instant, le tir est le sien — sans passer par
 		// l index de tireur, qui n est pas le tireur sur toutes les builds (HI_1_4_1 : un champ
 		// `d` constant d un tireur a l autre, mesure sur a521164d).
-		if s, ok := tirParLUnite(tracks, e, origin, step); ok {
+		if s, ok := tirParLUnite(tracks, e, pose); ok {
 			cov.count(reasonAttached)
 			cov.ByUnit++
 			if pi, connu := occ.indexA(s.Slot, int64(e.TimestampUS)); connu && e.HasShooter && pi != e.FilmIndex {
@@ -113,7 +124,7 @@ func buildShots(pos []grammar.BipedPosition, events []grammar.FireEvent, origin,
 			continue
 		}
 		cov.count(reasonAttached)
-		out = append(out, tirPose(e, slot, p, origin, step))
+		out = append(out, pose.tir(e, slot, p))
 	}
 	trierTirs(out)
 	return out, orphans, cov
@@ -121,7 +132,7 @@ func buildShots(pos []grammar.BipedPosition, events []grammar.FireEvent, origin,
 
 // tirParLUnite pose un tir sur le bipede que sa reference 0 designe, quand ce bipede replique une
 // position assez pres de l instant du tir.
-func tirParLUnite(tracks map[uint32]slotTrack, e grammar.FireEvent, origin, step uint64) (Shot, bool) {
+func tirParLUnite(tracks map[uint32]slotTrack, e grammar.FireEvent, pose poseurDeTirs) (Shot, bool) {
 	if !e.Unit.Present {
 		return Shot{}, false
 	}
@@ -133,21 +144,26 @@ func tirParLUnite(tracks map[uint32]slotTrack, e grammar.FireEvent, origin, step
 	if d > shotPosToleranceUS || !p.HasWorld {
 		return Shot{}, false
 	}
-	return tirPose(e, e.Unit.Slot, p, origin, step), true
+	return pose.tir(e, e.Unit.Slot, p), true
 }
 
-// tirPose construit le tir publie d un evenement, pose sur le slot et la position donnes.
-func tirPose(e grammar.FireEvent, slot uint32, p grammar.BipedPosition, origin, step uint64) Shot {
+// poseurDeTirs construit les tirs publies a pied : la grille du document et le viseur.
+type poseurDeTirs struct {
+	origin, step uint64
+	viseur       *viseurDesTirs
+}
+
+// tir construit le tir publie d un evenement, pose sur le slot et la position donnes, avec la
+// visee du tireur a l instant du tir (cf. shots_visee.go).
+func (b poseurDeTirs) tir(e grammar.FireEvent, slot uint32, p grammar.BipedPosition) Shot {
 	s := Shot{
-		T:    int((e.TimestampUS - origin) / step),
+		T:    int((e.TimestampUS - b.origin) / b.step),
 		Slot: slot,
 		X:    round2(p.X),
 		Y:    round2(p.Y),
 		tUS:  e.TimestampUS,
 	}
-	if h, ok := e.AimHeadingDeg(); ok {
-		s.H = headingForJSON(float32(h))
-	}
+	b.viseur.viser(&s, e, slot)
 	if e.WeaponID != 0 {
 		s.Weapon = formatWeaponID(e.WeaponID)
 	}

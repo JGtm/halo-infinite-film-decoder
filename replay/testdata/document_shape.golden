@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 115
-empreinte-stockee 39a297d308194f20
-empreinte-servie 39a297d308194f20
-empreinte-cuite 4214014a3609cab4
+schema 116
+empreinte-stockee 3318d6e00521af10
+empreinte-servie 3318d6e00521af10
+empreinte-cuite 985cb252468fee9d
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -679,6 +679,7 @@ Label
   Text json:"i18n_text,omitempty" map[string]string
   Tinted json:"tinted,omitempty" bool
 LayerCoverage
+  Aim json:"aim,omitempty" *ShotAimCoverage
   Ambiguous json:"ambiguous" int
   Attached json:"attached" int
   Available json:"available" int
@@ -1025,12 +1026,18 @@ SeatCoverage
   TrousDEntite json:"trousDEntite" int
 Shot
   H json:"h,omitempty" float32
+  P json:"p,omitempty" float32
   Slot json:"slot" uint32
   T json:"t" int
   Vehicle json:"v,omitempty" *uint32
   Weapon json:"w,omitempty" string
   X json:"x" float32
   Y json:"y" float32
+ShotAimCoverage
+  None json:"none" int
+  Record json:"record" int
+  SameTick json:"sameTick" int
+  Track json:"track" int
 SkullCarriesCoverage
   CarrierAbsent json:"carrierAbsent" int
   Carries json:"carries" int

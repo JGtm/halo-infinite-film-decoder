@@ -4051,3 +4051,20 @@ package replay
 //
 // LE PARC         un artefact 114 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision
 //                 de l utilisateur.
+
+// v116 (2026-11-13, directions de tir). `shots[].h` venait du champ de visee du record de tir 36, lu sous
+// ses deux drapeaux nuls : la direction portee par un tir n est ecrite que quand le record le porte, et
+// elle ne dit rien de la visee du tireur.
+//
+//	`shots[].h`, `shots[].p`   la visee i21 du tireur : sa derniere lecture, avec ou sans position, au plus tard a
+//	                 l instant du tir et a moins de 5 s (`shots_visee.go`). Tenir bat interpoler, mesure contre la visee
+//	                 exacte des records qui la portent : mediane de l ecart a moins d un degre. Le champ du record n est
+//	                 plus qu un repli nomme et compte (`repli_visee_du_tir_lue_dans_le_record`). `p` nait : l elevation
+//	                 de la meme lecture.
+//	`coverage.shots.aim`   {track, sameTick, record, none} : d ou vient chaque direction ; track + record + none =
+//	                 attached + unpublished.
+//
+// CE QUI MONTE    `SchemaVersion` 115 -> 116 seule : la visee du record n est lue que sous ses deux drapeaux nuls (deja
+// AVEC ELLE       dans la grammaire du port : le contenu des faits change, pas leur format, `SchemaDesFaits` reste 22).
+//
+// LE PARC         un artefact 115 : verdict `a republier` (assemblage seul, aucun fait perime).

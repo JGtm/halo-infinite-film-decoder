@@ -34,13 +34,13 @@ func TestTirsEtLancers_AttribuesALaVieALInstant(t *testing.T) {
 
 	tirB := fireAt(t16, 1, 90)
 	tirB.HasShooter = true
-	shots, _, _ := buildShots(in.Positions, []grammar.FireEvent{tirB}, origin, step, occ)
+	shots, _, _ := buildShots(in.Positions, []grammar.FireEvent{tirB}, replayClock{origin: origin, step: step}, occ, nouveauViseur(in.Positions, nil, nil))
 	if len(shots) != 1 || shots[0].Slot != 100 {
 		t.Fatalf("tir de B a 16 s : %+v, attendu pose sur le slot 100 (son corps a l'instant)", shots)
 	}
 	tirA := fireAt(t16, 0, 90)
 	tirA.HasShooter = true
-	shots, _, cov := buildShots(in.Positions, []grammar.FireEvent{tirA}, origin, step, occ)
+	shots, _, cov := buildShots(in.Positions, []grammar.FireEvent{tirA}, replayClock{origin: origin, step: step}, occ, nouveauViseur(in.Positions, nil, nil))
 	if len(shots) != 0 || cov.NoSlot != 1 {
 		t.Fatalf("tir de A a 16 s : %+v (couverture %+v), attendu SANS slot — le slot 100 est le "+
 			"corps de B a cet instant", shots, cov)

@@ -50,7 +50,7 @@ func vsOwn() IdentityRegistry { return regDe(OwnerReport{Owner: map[uint32]int{1
 // a la position INTERPOLEE du vehicule et porte le slot de celui-ci.
 func TestTirEnVehiculePosePendantUnEpisode(t *testing.T) {
 	doc := vsDoc(nil, []VehicleSample{{T: 10, X: 0, Y: 0}, {T: 30, X: 20, Y: 40}})
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0x11725DC400000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0x11725DC400000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 1 {
 		t.Fatalf("tirs publies = %d, attendu 1", len(doc.Shots))
 	}
@@ -85,7 +85,7 @@ func TestTirEnVehiculePosePendantUnEpisode(t *testing.T) {
 // n'a pas su placer.
 func TestTirHorsEpisodeResteOrphelin(t *testing.T) {
 	doc := vsDoc(nil, []VehicleSample{{T: 10, X: 0, Y: 0}, {T: 30, X: 20, Y: 40}})
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(80, 0)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(80, 0)), vsOwn(), vsClock())
 	if len(doc.Shots) != 0 {
 		t.Fatalf("tirs publies = %d, attendu 0", len(doc.Shots))
 	}
@@ -108,7 +108,7 @@ func TestTirAmbiguDeuxVehicules(t *testing.T) {
 		Samples: []VehicleSample{{T: 10, X: 50, Y: 50}},
 		Rides:   []VehicleRide{{T0: 10, T1: 40, Slot: 10, Seat: &seat, Src: VehicleRideSrcProximity}},
 	})
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0)), vsOwn(), vsClock())
 	if len(doc.Shots) != 0 {
 		t.Fatalf("tirs publies = %d, attendu 0 (ambigu)", len(doc.Shots))
 	}
@@ -125,7 +125,7 @@ func TestTirAmbiguDeuxVehicules(t *testing.T) {
 func TestTirEnVehiculeSansTrajectoirePubliee(t *testing.T) {
 	doc := vsDoc(nil, []VehicleSample{{T: 10, X: 0, Y: 0}})
 	doc.Tracks = nil
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0)), vsOwn(), vsClock())
 	if len(doc.Shots) != 0 {
 		t.Fatalf("tirs publies = %d, attendu 0", len(doc.Shots))
 	}
@@ -165,7 +165,7 @@ func TestTirEnVehiculeSansEpisodeNeTouchePasLeDocument(t *testing.T) {
 	doc := vsDoc(nil, nil)
 	doc.Vehicles = nil
 	avant := doc.Coverage.Shots
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0)), vsOwn(), vsClock())
 	if doc.Coverage.Shots != avant || len(doc.Shots) != 0 {
 		t.Errorf("document modifie sans aucun vehicule : %+v", doc.Coverage.Shots)
 	}
@@ -191,7 +191,7 @@ func vsTourelle() *ReplayDocument {
 func TestTirDArtilleurPoseSurLePorteur(t *testing.T) {
 	doc := vsTourelle()
 	poseTurretsOnCarriers(doc.Vehicles, vehicleBoardingAnchors{}, nil)
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0xC7D5091200000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0xC7D5091200000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 1 {
 		t.Fatalf("tirs publies = %d, attendu 1", len(doc.Shots))
 	}
@@ -209,7 +209,7 @@ func TestTirDArtilleurPoseSurLePorteur(t *testing.T) {
 func TestTirDArtilleurDUnePieceNonReporteeSurLePorteur(t *testing.T) {
 	doc := vsTourelle()
 	doc.Vehicles[0].Carrier = &VehicleLifeRef{Slot: 701, Gen: 1}
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(30, 0x0BB6976B00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(30, 0x0BB6976B00000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 1 || *doc.Shots[0].Vehicle != 701 || doc.Shots[0].X != 30 {
 		t.Fatalf("tirs = %+v, attendu un tir pose sur 701 en x = 30", doc.Shots)
 	}
@@ -220,14 +220,14 @@ func TestTirDArtilleurDUnePieceNonReporteeSurLePorteur(t *testing.T) {
 func TestLArmeNommeLaVarianteGungoose(t *testing.T) {
 	doc := vsDoc(nil, []VehicleSample{{T: 10, X: 0, Y: 0}, {T: 30, X: 20, Y: 40}})
 	doc.Vehicles[0].Family = familleMongoose
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0x0042678E00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0x0042678E00000000)), vsOwn(), vsClock())
 	if doc.Vehicles[0].Variant != familleGungoose || doc.Coverage.Vehicles.Variants != 1 {
 		t.Errorf("variante = %q (%d), attendu gungoose (1)", doc.Vehicles[0].Variant,
 			doc.Coverage.Vehicles.Variants)
 	}
 	doc = vsDoc(nil, []VehicleSample{{T: 10, X: 0, Y: 0}, {T: 30, X: 20, Y: 40}})
 	doc.Vehicles[0].Family = familleWarthog
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(20, 0x0042678E00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(20, 0x0042678E00000000)), vsOwn(), vsClock())
 	if doc.Vehicles[0].Variant != "" {
 		t.Errorf("variante = %q sur un Warthog, attendu aucune", doc.Vehicles[0].Variant)
 	}
@@ -240,7 +240,7 @@ func TestTirDArtilleurHorsDeLaFenetreDuPorteurNonPose(t *testing.T) {
 	doc := vsTourelle()
 	doc.Vehicles[0].Carrier = &VehicleLifeRef{Slot: 701, Gen: 1}
 	doc.Vehicles[1].T1, doc.Vehicles[1].T1Max = 25, 25
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(30, 0x0BB6976B00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(30, 0x0BB6976B00000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 0 {
 		t.Fatalf("tirs = %+v, attendu aucun (le porteur n est plus publie a la frame 30)", doc.Shots)
 	}
@@ -261,7 +261,7 @@ func TestTirDUnOccupantALaFoisSurLaPieceEtSurSonPorteurNEstPasAmbigu(t *testing.
 	seat := 1
 	doc.Vehicles[0].Carrier = &VehicleLifeRef{Slot: 701, Gen: 1}
 	doc.Vehicles[1].Rides = []VehicleRide{{T0: 5, T1: 60, Slot: 10, Seat: &seat, Src: VehicleRideSrcFilm}}
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(30, 0x0BB6976B00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(30, 0x0BB6976B00000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 1 || *doc.Shots[0].Vehicle != 701 || doc.Shots[0].X != 30 {
 		t.Fatalf("tirs = %+v, attendu un tir pose sur le porteur 701 en x = 30", doc.Shots)
 	}
@@ -284,7 +284,7 @@ func TestTirDeDeuxPiecesDistinctesDuMemePorteurEstAmbigu(t *testing.T) {
 		Spawn: &VehicleSpawn{X: 500, Y: 500},
 		Rides: []VehicleRide{{T0: 10, T1: 40, Slot: 10, Seat: &seat, Src: VehicleRideSrcProximity}},
 	})
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(30, 0x0BB6976B00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(30, 0x0BB6976B00000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 0 || doc.Coverage.Vehicles.ShotsAmbiguous != 1 {
 		t.Errorf("tirs = %+v, shotsAmbiguous = %d : attendu aucun tir pose, 1 ambigu",
 			doc.Shots, doc.Coverage.Vehicles.ShotsAmbiguous)
@@ -301,7 +301,7 @@ func TestTirPoseSurLePorteurSeLitSurTousLesCandidats(t *testing.T) {
 	doc.Vehicles[0].Carrier = &VehicleLifeRef{Slot: 701, Gen: 1}
 	doc.Vehicles[0].Rides[0].Seat = nil
 	doc.Vehicles[1].Rides = []VehicleRide{{T0: 5, T1: 60, Slot: 10, Seat: &seat, Src: VehicleRideSrcFilm}}
-	attachVehicleShots(context.Background(), doc, []orphanShot{vsOrphan(30, 0x0BB6976B00000000)}, vsOwn(), vsClock())
+	attachVehicleShots(context.Background(), doc, orphelinsSansVisee(vsOrphan(30, 0x0BB6976B00000000)), vsOwn(), vsClock())
 	if len(doc.Shots) != 1 || *doc.Shots[0].Vehicle != 701 {
 		t.Fatalf("tirs = %+v, attendu un tir pose sur le porteur 701", doc.Shots)
 	}
@@ -309,4 +309,10 @@ func TestTirPoseSurLePorteurSeLitSurTousLesCandidats(t *testing.T) {
 		t.Errorf("shotsOnCarrier = %d, attendu 1 : un candidat tient le porteur par sa piece",
 			doc.Coverage.Vehicles.ShotsOnCarrier)
 	}
+}
+
+// orphelinsSansVisee enveloppe des orphelins dans un viseur vide : les tests de la seconde
+// porte n ont pas de lectures i21, la direction du tir tombe sur le repli du record (compte).
+func orphelinsSansVisee(o ...orphanShot) orphelinsDesTirs {
+	return orphelinsDesTirs{tirs: o, viseur: nouveauViseur(nil, nil, nil)}
 }

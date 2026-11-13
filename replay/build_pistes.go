@@ -176,7 +176,13 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	if a.indexTireur.estLaPlace() {
 		fire, a.siegeCov.TirsParPlace = nouveauxTireursParPlace(a.doc.Roster).tirsParPlace(a.fire, a.horloge())
 	}
-	shots, a.shotOrphans, a.shotCov = buildShots(a.sorted, fire, a.origin, a.step, a.reg.Occupants())
+	// LA VISEE DE CHAQUE TIR EST CELLE DU TIREUR A L INSTANT DU TIR (cf. shots_visee.go) : les
+	// lectures i21 de ses positions, et celles de ses records sans position (un occupant de
+	// vehicule cesse de repliquer la sienne) ; le champ du record ne sert qu en repli, compte.
+	var orphelins []orphanShot
+	viseur := nouveauViseur(a.sorted, a.opt.Vehicles.Aims, a.opt.Fallbacks)
+	shots, orphelins, a.shotCov = buildShots(a.sorted, fire, a.horloge(), a.reg.Occupants(), viseur)
+	a.shotOrphans = orphelinsDesTirs{tirs: orphelins, viseur: viseur}
 	a.doc.Shots = keepShotsOfPublishedTracks(shots, a.doc.Tracks)
 	a.shotCov.Unpublished = countUnpublished(len(shots), len(a.doc.Shots))
 	a.shotCov.Attached = len(a.doc.Shots)
