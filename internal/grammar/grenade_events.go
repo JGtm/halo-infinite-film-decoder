@@ -221,15 +221,17 @@ func ScanGrenadeThrows(fc *FilmContext) ([]GrenadeThrow, error) {
 	// ([rendParLAncrage]). Sans marche (pas de registre), la passe seule, sur chaque payload entier.
 	var trames map[paquetDuFlux]trameDuCanal
 	fin := payloadEntier
-	if objets, tr, err := fc.objetsDuMonde(); err == nil && g.tiParNom {
-		trames, fin = tr, finSelonLesTrames(tr)
-		objets.creations.parcourir(fc, g.ti, func(uint32) bool { return true },
-			func(pay []byte, chunk int, pk FilmPacket, r recordDuMonde) {
-				if t, ok := lancerA(pay, int(r.bit)+motifDepuisLEnTeteNEW, g, &cov); ok {
-					t.TimestampUS, t.Chunk, t.PacketIndex = pk.TimestampUS, chunk, pk.Index
-					out = append(out, t)
-				}
-			})
+	if g.tiParNom {
+		if objets, tr, err := fc.objetsDuMonde(); err == nil {
+			trames, fin = tr, finSelonLesTrames(tr)
+			objets.creations.parcourir(fc, g.ti, func(uint32) bool { return true },
+				func(pay []byte, chunk int, pk FilmPacket, r recordDuMonde) {
+					if t, ok := lancerA(pay, int(r.bit)+motifDepuisLEnTeteNEW, g, &cov); ok {
+						t.TimestampUS, t.Chunk, t.PacketIndex = pk.TimestampUS, chunk, pk.Index
+						out = append(out, t)
+					}
+				})
+		}
 	}
 	marche := len(out)
 	read := 0

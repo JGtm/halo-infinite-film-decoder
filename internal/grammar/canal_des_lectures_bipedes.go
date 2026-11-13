@@ -321,6 +321,11 @@ func (c *canalDesLecturesBipedes) recueillir(p *lecture.Paquet, recs []FrameReco
 // donne au contexte, avec le compte des records recuperes : tous ceux que l ancrage rend, pour un des
 // huit lecteurs ou pour leur seule position.
 func (c *canalDesLecturesBipedes) Clore(BilanDeMarche) {
+	// La distribution est en cours jusqu a la fin de cette cloture : une demande des creations qui
+	// n en trouverait pas de rangees (film sans bande bipede) lit la passe seule, elle ne relance pas
+	// une marche ([FilmContext.CreationsDeBipede]).
+	defer func(avant bool) { c.fc.vies.enMarche = avant }(c.fc.vies.enMarche)
+	c.fc.vies.enMarche = true
 	c.creations.ranger(c.trames)
 	gens := c.fc.GenerationsVivantes()
 	c.rejouerLeJournal(gens)
