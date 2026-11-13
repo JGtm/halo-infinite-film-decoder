@@ -53,6 +53,24 @@ func (c matchClock) matchMSOfFrame(frame int) int64 {
 	return int64(c.origin+uint64(frame)*c.step)/1000 - c.deathOffsetMS
 }
 
+// matchMSOfUS pose un instant de l'horloge du FILM (microsecondes) sur celle du MATCH, a la milliseconde
+// du film : l'instant EXACT d'un enregistrement, que la grille n'arrondit pas. C'est lui, et non
+// `matchMSOfFrame` de la frame de l'instant — qui rend le debut de cette frame, donc un instant qui bouge
+// avec le pas —, qui se compare a un instant du match (`t0`, `t1` d'un portage, fin d'une vie) : un fait ne depend pas de
+// la grille sur laquelle on le publie.
+func (c matchClock) matchMSOfUS(us uint64) int64 {
+	return int64(us/1000) - c.deathOffsetMS
+}
+
+// filmUSOfMatchMS pose un instant de l'horloge du MATCH (millisecondes) sur celle du FILM (microsecondes).
+func (c matchClock) filmUSOfMatchMS(matchMS int64) uint64 {
+	us := (matchMS + c.deathOffsetMS) * 1000
+	if us < 0 {
+		return 0
+	}
+	return uint64(us)
+}
+
 // slackFrames traduit une durée en millisecondes en nombre de frames, arrondi vers le
 // haut. Zéro quand l'axe n'a pas d'échelle — le seuil dégénère alors en « rien n'est
 // proche du bord », le comportement le plus prudent.

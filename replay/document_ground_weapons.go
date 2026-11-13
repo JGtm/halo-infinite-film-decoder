@@ -96,6 +96,9 @@ type PadPresence struct {
 	// l'arme est encore recensée à la DERNIÈRE image-clé du film — elle n'a alors pas été prise,
 	// ou elle l'a été après, ce que rien ne dit.
 	THigh int `json:"tHigh"`
+	// tUS, tLowUS et tHighUS sont les memes instants en microsecondes du film. Ils ne se publient pas : la datation
+	// d'une occupation et la fin de son cycle les comparent a des instants de ramassage, jamais a des frames.
+	tUS, tLowUS, tHighUS uint64
 }
 
 // PadCycle est le délai de réapparition d'un socle, en secondes, mesuré du moment où il se vide
@@ -139,6 +142,9 @@ type PadPickup struct {
 	// TLow / THigh : les bornes de la disparition, en frames (même axe que Point.T).
 	TLow  int `json:"tLow"`
 	THigh int `json:"tHigh"`
+	// tLowUS / tHighUS sont les memes bornes en microsecondes du film (les images-cles qui les prouvent) : la datation
+	// compare un ramassage a une occupation en instants, jamais en frames. Ils ne se publient pas.
+	tLowUS, tHighUS uint64
 	// XUID est le joueur qui a pris l'arme. RENSEIGNÉ DEPUIS LE SCHÉMA 29 (2026-08-31) quand
 	// l'événement natif `biped_pickup` date l'occupation ; `null` sinon, et c'est alors la
 	// vérité : le canal natif ne couvre pas cette fenêtre.

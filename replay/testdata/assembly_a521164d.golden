@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10293 frames · intervalle 33 ms · duree 339669 ms
-schema 113 · titre halo_infinite
+schema 114 · titre halo_infinite
 version majeure du film : 33
 origine de la frame 0 sur l horloge du fil : 27811 ms
 coup d envoi date par le film : 45235 ms · 125/128 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 17424 ms
@@ -611,7 +611,7 @@ POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 14 rete
     presence t0=4168 prouvee jusqu a 5830, absente a 6437
     presence t0=6888 prouvee jusqu a 7650, absente a 8257
     presence t0=7807 prouvee jusqu a 10078, absente a 10292
-69 occupation(s) achevee(s) publiee(s) · 41 datee(s) a l instant exact par l evenement natif · 41 avec un ramasseur nomme
+69 occupation(s) achevee(s) publiee(s) · 42 datee(s) a l instant exact par l evenement natif · 42 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
 337 loadout(s) publie(s) · 17 famille(s) distincte(s)
@@ -648,7 +648,7 @@ repli_origine_au_sol_lachee_par_fenetre          161
 repli_piece_engendree_sans_evenement             2
 repli_place_du_remplacant_par_chainage_d_equipe  4
 repli_position_hors_emprise_ecartee              36
-repli_prise_de_socle_premiere_du_cycle           12
+repli_prise_de_socle_premiere_du_cycle           13
 repli_tourelle_porteur_voisin_de_slot            23
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place

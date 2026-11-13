@@ -3976,3 +3976,57 @@ package replay
 //
 // LE PARC         un artefact 112 : verdict `a republier` (les faits cuits restent frais). La recuisson est une decision de
 //                 l utilisateur.
+
+// v114 (2026-11-13, faits independants du pas). Aucun champ neuf, aucune forme qui change : c est le CONTENU CUIT qui change. Un
+// FAIT du match ne depend pas du pas de publication : toute fenetre, tolerance ou relation d ordre qui decide d un fait se calcule
+// en temps (millisecondes ou microsecondes du film), jamais en nombre d images de la grille. Le schema 111 (grille a 33 ms) a montre,
+// sur dix-huit films cuits a 100, 66, 50, 33, 20 et 10 ms, des valeurs qui bougeaient avec le pas faute de cette regle.
+//
+//	`flagCarries`    le point qui localise un porteur est le point publie le plus proche en temps EXACT (`Point.us`, non publie), a au plus
+//	                200 ms (`flagCarrierPointToleranceMS`), a egalite celui d avant ; une piste qui nait entre un point et l instant (mort puis
+//	                reapparition dans la fenetre) a son premier point plus pres de l instant : c est elle qui l emporte. Un corps immobile ne replique rien, et une tolerance
+//	                d une image valait 100 ms ou 33 ms (puis 230 a 299 ms une fois convertie en images). Le lacher volontaire d une vie
+//	                libre se date en millisecondes exactes (`matchMSOfUS`), plus arrondi au debut de sa frame. Un film de reference :
+//	                83 portages a tout pas (82 et 81 a 66 et 50 ms avant).
+//	`pickups[].origin`   l ordre entre le ramassage et la pose se decide en microsecondes ; une pose lachee par le RAMASSEUR LUI-MEME,
+//	                d une autre famille connue, est un echange et non l origine de ce qu il ramasse. `coverage.pickups.originGround`
+//	                baisse, `originUnknown` monte d autant, et la valeur est la meme a tout pas.
+//	`vehicleCycles`  les naissances d un emplacement se rangent en microsecondes ; deux vies nees a moins de 100 ms (`vehicleTwinWindowUS`)
+//	                sont un seul occupant (le « shade » sans echantillon ni fin, cree 33 ms apres le vehicule), et chaque naissance ne
+//	                s apparie qu a la fin datee de l occupant juste avant elle : la mort d une vie qui vivait encore quand la suivante est
+//	                nee ne lui repond pas. Un film de reference : deux emplacements de `shade` (deux et trois ecarts de 20,0 a 20,7 s,
+//	                chacun la mort du vehicule suivie de sa renaissance) sont etablis a tout pas ; 11 cycles, contre 10 a 100 ms et 9 a
+//	                33 ms avant.
+//	`continuousFire.shots`   les coups (a la cadence de l arme depuis l instant lu de la gachette) et les trous de gachette se
+//	                decident en microsecondes. Le document continue de publier les trous en frames entieres (`bursts[].holes`) :
+//	                c est ce que le client dessine. Seule la borne d une rafale que sa monture ou sa vie coupe reste une frame.
+//	`equipmentPlacements`   une pose nee apres la DERNIERE POSITION du film (en microsecondes) est hors de l axe ; le schema 113 la
+//	                comparait a la fin de la grille, qui tombe 0 a 99 ms (100 ms) ou 0 a 32 ms (33 ms) plus tard.
+//	`projectiles`    le pas impossible d un vol se juge entre enregistrements consecutifs du film, retenus ou non : a 100 ms un saut
+//	                entre deux enregistrements d une meme frame n etait jamais teste. `coverage.projectiles.truncated` est le meme a
+//	                tout pas ; le lien tir -> projectile compare des instants exacts a `projShotWindowMS`, plus des frames.
+//	`weaponPads`     la datation d une occupation de socle par un ramassage natif compare des instants exacts aux images-cles qui la
+//	                bornent (un ramassage a 50 ms de l image-cle qui separe deux occupations n est plus candidat des deux), et la
+//	                prise du cycle, la fin du cycle et la position du ramasseur se jugent sur les instants de la presence et du ramassage.
+//	`vehicles` (tourelles)   la naissance commune d une tourelle et de son porteur se juge sur les instants exacts de naissance.
+//
+// CE QUI RESTE, ET POURQUOI. Ce qui suit varie encore avec le pas d une quantite bornee par un pas, faute d un instant exact dans le
+// document ou parce que la regle est celle d une API en frames :
+//
+//	`stances`, `equipmentEpisodes[].k`, `continuousFire.noTrack` et `clippedToMount`   fenetres de vie d une piste (`StartFrame`,
+//	                `EndFrame`) et d une monture (`VehicleRide.T0`, `T1`) publiees en frames ; `equipmentEpisodes[].k` est de plus une
+//	                regle de fenetre sans tolerance dont la decision n est pas etablie.
+//	`vehicles[].destruction` (marge d embarquement `vehicleDestructionAboardTolMS`)   compare la fin d un episode d occupation, en frames,
+//	                a la destruction.
+//	`mergeVehicleRelays`   la fenetre de relais est l intervalle non observe `[T1, T1Max]` (frames) d une vie, de l ordre de 20 s : une
+//	                naissance a moins d un pas d un bord peut tomber de l autre cote.
+//	`skull_carries`   (`slackFrames`) seuil de fermeture d un train de crane exprime en frames de la grille.
+//	`AttributeZones` (`AttributeOptions.MaxGapFrames`)   API exportee en frames.
+//	`coverage.projectiles` (`shotLinked`, `shotAmbiguous`)   un vol d un seul point de grille ne se dessine pas : le nombre de vols
+//	                publies depend du pas, les liens suivent. `coverage.t0Film.burst`, les bornes de carte, `birthLoadouts.snapped`,
+//	                `vehicles.samplesAfterEnd` et `aimRideFrames` sont des grandeurs de resolution.
+//
+// CE QUI MONTE    `SchemaVersion` 113 -> 114, et avec lui `publication-114`. Aucune revision de grammaire, de faits ni de profil
+// AVEC ELLE       ne bouge.
+//
+// LE PARC         un artefact 113 : verdict `a republier` (les faits cuits restent frais). La recuisson est une decision de l utilisateur.

@@ -40,7 +40,7 @@ func (a *assemblage) poserGrappinEtPoses() {
 	// vient du recensement ti=37 deja lu par la chaine des socles (opt.Pads.Powerups).
 	a.doc.EquipmentPlacements, a.doc.Coverage.Placements = buildEquipmentPlacements(
 		equipmentInputs{
-			Raw: a.opt.Placements, Stats: a.opt.PlacementStats, Positions: a.sorted,
+			Raw: a.opt.Placements, Stats: a.opt.PlacementStats, Positions: a.sorted, LastUS: a.lastUS,
 			Census: a.opt.Pads.Powerups.Keyframes,
 			Spawns: a.opt.SpawnEvents, SpawnStats: a.opt.SpawnStats,
 			// LES DEUX SIGNAUX ECRITS DE L'ORIGINE (lot 1.9.1, D13) : la MORT du poseur, que le
@@ -99,8 +99,7 @@ func (a *assemblage) poserPrisesEtSocles() {
 	// intact (pad_pickup_dating.go).
 	datation := lireLesOccupations(a.doc.WeaponPads, a.doc.PadPickups, a.doc.Pickups)
 	a.releverLesSocles(judge)
-	clockSocles := replayClock{origin: a.origin, step: a.step, frames: a.doc.FrameCount}
-	padDating := datation.trancherParLeCycle(localiserParLeCanalNatif(a.opt.Pickups, clockSocles, judge.positionDe))
+	padDating := datation.trancherParLeCycle(localiserParLeCanalNatif(judge.positionDe))
 	a.opt.Fallbacks.DeclencheN(fallback.NomPriseDeSoclePremiereDuCycle, padDating.FirstOfCycle)
 	a.doc.Coverage.PadDating = &padDating
 	slog.InfoContext(a.ctx, "rejeu : datation des occupations de socle",

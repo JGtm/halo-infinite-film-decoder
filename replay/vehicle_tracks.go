@@ -271,6 +271,7 @@ func vehicleTrackOf(
 	}
 	tr := VehicleTrack{Slot: l.key.Slot, Gen: l.key.Gen}
 	tr.End, tr.TEnd = vehicleEndOf(l, clock)
+	tr.bornUS = vehicleBornUS(l, spawn)
 	if l.deathUS > 0 {
 		d := l.death
 		tr.mort = &d
@@ -402,12 +403,8 @@ func clampVehicleRides(rides []VehicleRide, t0, t1max int) []VehicleRide {
 func vehicleBounds(
 	l vehicleLife, spawn types.EquipmentCreation, lastSeenUS uint64, clock replayClock,
 ) (t0, t1, t1max int) {
-	bornUS := l.firstUS
-	if spawn.TimestampUS > 0 && spawn.TimestampUS < bornUS {
-		bornUS = spawn.TimestampUS
-	}
 	lastProofUS := max(lastSeenUS, l.lastUS)
-	t0 = clock.frame(bornUS)
+	t0 = clock.frame(vehicleBornUS(l, spawn))
 	t1 = max(clock.frame(lastProofUS), t0)
 	t1max = clock.frames - 1
 	if l.goneByUS > 0 {

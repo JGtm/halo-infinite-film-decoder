@@ -116,11 +116,14 @@ type bipedPos struct {
 
 // droppedSpot est une pose `dropped` : ou, et PENDANT QUELLE FENETRE elle a pu etre ramassee.
 //
-// LES DEUX BORNES SONT NECESSAIRES, et n'en avoir qu'une etait un defaut releve en revue.
+// LES DEUX BORNES SONT NECESSAIRES, et n'en avoir qu'une etait un defaut releve en revue. Elles sont
+// en MICROSECONDES du film, comme le ramassage qu'on leur compare : deux evenements separes de
+// quelques dizaines de millisecondes tombaient dans la meme frame a 100 ms et dans deux frames a
+// 33 ms, et l'ordre rendu changeait avec le pas.
 //
-//	t        l'instant de la pose. En deca, l'objet n'existe pas encore : un ramassage
+//	t0US     l'instant de la pose. En deca, l'objet n'existe pas encore : un ramassage
 //	         anterieur ne peut pas venir de lui.
-//	jusqua   la PREMIERE PREUVE D'ABSENCE (`UntilMax` du schema 28). Au-dela, le document a
+//	jusquaUS la PREMIERE PREUVE D'ABSENCE (`UntilMax` du schema 28). Au-dela, le document a
 //	         MESURE que l'objet n'est plus la — lui attribuer un ramassage contredirait sa
 //	         propre mesure. Sans cette borne, un ramassage des milliers de frames apres la
 //	         disparition constatee sortait quand meme `ground`.
@@ -131,21 +134,35 @@ type bipedPos struct {
 // celui qui n'invente pas d'abstention. Aucune marge n'est ajoutee par-dessus : `UntilMax`
 // EST deja la premiere image-cle qui ne recense plus l'objet, donc deja genereux.
 //
-// `jusqua` vaut -1 quand rien ne prouve la disparition (`End == "open"`, ou artefact
+// `jusquaUS` vaut -1 quand rien ne prouve la disparition (`End == "open"`, ou artefact
 // anterieur au schema 28 dont `End` est vide) : la pose n'a alors pas de borne haute.
 //
 // LA VALEUR ZERO N'EST PAS NEUTRE, et c'est VOULU AINSI : un `droppedSpot` construit sans
-// renseigner `jusqua` borne a la frame 0, donc refuse tout ramassage et rend l'abstention. Un
+// renseigner `jusquaUS` borne a l'instant 0, donc refuse tout ramassage et rend l'abstention. Un
 // oubli echoue donc du cote PRUDENT — il fait perdre une origine, il n'en invente pas. C'est
 // exactement l'inverse du defaut que ce champ corrige.
+//
+// `poseur` et `famille` disent QUI a lache l'objet et QUEL objet : ils servent a refuser l'ECHANGE (cf.
+// [pickupOriginJudge.origineDe]).
 type droppedSpot struct {
-	t       int
-	jusqua  int
-	x, y, z float32
+	t0US     uint64
+	jusquaUS int64
+	x, y, z  float32
+	poseur   int
+	famille  string
 }
 
 // origineDe statue sur UN ramassage. Rend la chaine vide quand rien n'est etabli.
-func (j *pickupOriginJudge) origineDe(slot uint32, tsUS uint64, frame int) string {
+//
+// L'ORDRE ENTRE LE RAMASSAGE ET LA POSE SE DECIDE EN MICROSECONDES : une pose nee apres le
+// ramassage ne peut pas en etre l'origine.
+//
+// UN ECHANGE N'EST PAS UNE ORIGINE. Quand un joueur ramasse un equipement il LACHE le sien, a ses
+// pieds, quelques dizaines de millisecondes plus tard : cette pose est ce qu'il vient de donner, pas ce
+// qu'il prend. Une pose lachee par le RAMASSEUR LUI-MEME, d'une famille connue et differente de celle de
+// l'objet ramasse (`famille`, vide quand le catalogue ne la nomme pas : on ne tranche pas), est donc
+// ecartee. Ni l'ordre ni l'echange ne dependent du pas de la grille.
+func (j *pickupOriginJudge) origineDe(slot uint32, tsUS uint64, famille string) string {
 	x, y, z, ok := j.positionDe(slot, tsUS)
 	if !ok {
 		return ""
@@ -159,11 +176,14 @@ func (j *pickupOriginJudge) origineDe(slot uint32, tsUS uint64, frame int) strin
 		}
 	}
 	for _, d := range j.dropped {
-		if d.t > frame {
+		if d.t0US > tsUS {
 			continue // un objet ne se ramasse pas avant d'etre lache
 		}
-		if d.jusqua >= 0 && frame > d.jusqua {
+		if d.jusquaUS >= 0 && tsUS > uint64(d.jusquaUS) {
 			continue // le document a MESURE que l'objet n'etait plus la
+		}
+		if d.poseur == int(slot) && d.famille != "" && famille != "" && d.famille != famille {
+			continue // l'echange : la pose est ce que le ramasseur vient de lacher
 		}
 		if dist3([3]float32{x, y, z}, [3]float32{d.x, d.y, d.z}) < PickupOriginMatchM {
 			return PickupOriginGround
@@ -231,12 +251,16 @@ func newPickupOriginJudge(opt Options, pos []grammar.BipedPosition,
 			continue
 		}
 		// BORNE HAUTE : la premiere preuve d'absence, quand il y en a une.
-		jusqua := -1
+		jusqua := int64(-1)
 		if pl.End == GroundWeaponEndSeen {
-			jusqua = pl.UntilMax
+			jusqua = int64(pl.untilMaxUS)
 		}
-		j.dropped = append(j.dropped,
-			droppedSpot{t: pl.T0, jusqua: jusqua, x: pl.X, y: pl.Y, z: pl.Z})
+		famille := pl.Family
+		if famille == equipmentFamilyOther {
+			famille = "" // « other » est un resultat (nature non etablie), pas une famille a comparer
+		}
+		j.dropped = append(j.dropped, droppedSpot{t0US: pl.t0US, jusquaUS: jusqua,
+			x: pl.X, y: pl.Y, z: pl.Z, poseur: pl.Owner, famille: famille})
 	}
 	return j
 }

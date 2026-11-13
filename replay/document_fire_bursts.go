@@ -105,8 +105,10 @@ type ContinuousFireCoverage struct {
 	// tirs_par_place.go) ; ClippedToMount : bornees a la fin de leur monture ou de leur vie.
 	ByPlace        int `json:"byPlace"`
 	ClippedToMount int `json:"clippedToMount"`
-	// Shots : les coups que le client posera sur les rafales publiees, trous exclus — le CONTROLE
-	// du tir continu, a confronter aux sauts du numero de tir des records 36.
+	// Shots : les coups des rafales publiees, trous exclus — le CONTROLE du tir continu, a confronter aux
+	// sauts du numero de tir des records 36. Compte en TEMPS (coups a la cadence de l'arme depuis l'instant
+	// lu de la gachette, trous en microsecondes) : il ne depend pas du pas de la grille, et peut differer du
+	// nombre de coups que le client dessine, qui les pose frame par frame.
 	Shots int `json:"shots"`
 }
 

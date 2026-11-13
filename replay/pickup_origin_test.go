@@ -57,7 +57,7 @@ func poClock() replayClock {
 // TestPickupOriginSeauxEtInvariant — promesses 1 et 3.
 func TestPickupOriginSeauxEtInvariant(t *testing.T) {
 	points := []MapSpawnPoint{{X: 10, Y: 10, Z: 0, Kind: "grenade"}}
-	dropped := []droppedSpot{{t: 0, jusqua: -1, x: 50, y: 50, z: 0}}
+	dropped := []droppedSpot{{t0US: 0, jusquaUS: -1, x: 50, y: 50, z: 0}}
 	pos := []grammar.BipedPosition{
 		poPos(1, 1_000_000, 10.2, 10.1, 0), // sur le point -> spawner
 		poPos(2, 2_000_000, 50.3, 50.2, 0), // sur la pose  -> ground
@@ -112,7 +112,7 @@ func TestPickupOriginSeauxEtInvariant(t *testing.T) {
 func TestPickupOriginSocleLEmporteSurLeSol(t *testing.T) {
 	// Le point ET la pose sont au MEME endroit : les deux regles s'appliquent.
 	points := []MapSpawnPoint{{X: 10, Y: 10, Z: 0, Kind: "equipment"}}
-	dropped := []droppedSpot{{t: 0, jusqua: -1, x: 10, y: 10, z: 0}}
+	dropped := []droppedSpot{{t0US: 0, jusquaUS: -1, x: 10, y: 10, z: 0}}
 	pos := []grammar.BipedPosition{poPos(1, 1_000_000, 10, 10, 0)}
 	in := []types.BipedPickup{poRamassage(1, 1_000_000, 3)}
 	got, _ := buildPickups(in, poClock(), pickupInputs{occupant: nil, st: types.BipedPickupStats{}, weaponKeys: nil, judge: poJuge(points, SpawnPointsEstablished, pos, dropped)})
@@ -238,17 +238,17 @@ func TestPickupOriginRefuseUnePositionTropLointaineDansLeTemps(t *testing.T) {
 // sa SUPPRESSION. Les deux cas ci-dessous tombent si l'une ou l'autre garde disparait.
 func TestPickupOriginGroundEstBorneAuxDeuxBOUTS(t *testing.T) {
 	// La pose existe de la frame 100 a la frame 200 (premiere preuve d'absence).
-	dropped := []droppedSpot{{t: 100, jusqua: 200, x: 10, y: 10, z: 0}}
+	dropped := []droppedSpot{{t0US: 10_000_000, jusquaUS: 20_000_000, x: 10, y: 10, z: 0}}
 	cas := []struct {
 		nom     string
 		frame   int
 		attendu string
 	}{
-		// SUPPRIMER la garde `d.t > frame` fait passer ce cas a `ground` : il tombe.
+		// SUPPRIMER la garde `d.t0US > tsUS` fait passer ce cas a `ground` : il tombe.
 		{"avant la pose — anachronisme", 50, ""},
 		{"pendant la vie de la pose", 150, PickupOriginGround},
 		{"a la premiere preuve d absence", 200, PickupOriginGround},
-		// SUPPRIMER la garde `frame > d.jusqua` fait passer ce cas a `ground` : il tombe.
+		// SUPPRIMER la garde `tsUS > d.jusquaUS` fait passer ce cas a `ground` : il tombe.
 		// C'est le defaut d'origine, a l'echelle ou il se produisait vraiment.
 		{"apres la disparition mesuree", 2990, ""},
 	}
@@ -265,8 +265,8 @@ func TestPickupOriginGroundEstBorneAuxDeuxBOUTS(t *testing.T) {
 			}
 			if got[0].Origin != c.attendu {
 				t.Errorf("frame %d : origine %q, attendu %q — la pose vit de la frame %d a la "+
-					"frame %d", c.frame, got[0].Origin, c.attendu, dropped[0].t,
-					dropped[0].jusqua)
+					"frame %d", c.frame, got[0].Origin, c.attendu, dropped[0].t0US/100_000,
+					dropped[0].jusquaUS/100_000)
 			}
 		})
 	}
@@ -278,7 +278,7 @@ func TestPickupOriginGroundEstBorneAuxDeuxBOUTS(t *testing.T) {
 // ramassage tardif. Borner quand meme inventerait une abstention, ce qui est aussi faux que de
 // ne pas borner du tout — dans l'autre sens.
 func TestPickupOriginGroundSansPreuveDeDisparitionNEstPasBorne(t *testing.T) {
-	dropped := []droppedSpot{{t: 100, jusqua: -1, x: 10, y: 10, z: 0}}
+	dropped := []droppedSpot{{t0US: 10_000_000, jusquaUS: -1, x: 10, y: 10, z: 0}}
 	ts := uint64(2990) * 100_000
 	pos := []grammar.BipedPosition{poPos(1, ts, 10, 10, 0)}
 	in := []types.BipedPickup{poRamassage(1, ts, 2)}
@@ -299,21 +299,21 @@ func TestPickupOriginGroundSansPreuveDeDisparitionNEstPasBorne(t *testing.T) {
 func TestPickupOriginBorneHauteVientDeLaPoseMesuree(t *testing.T) {
 	poses := []EquipmentPlacement{
 		{T0: 100, X: 10, Y: 10, Z: 0, Origin: OriginDropped,
-			Until: 180, UntilMax: 200, End: GroundWeaponEndSeen},
+			Until: 180, UntilMax: 200, End: GroundWeaponEndSeen, t0US: 10_000_000, untilMaxUS: 20_000_000},
 		// Une pose `deployed` n'est PAS un objet qui gisait : elle ne doit pas entrer.
 		{T0: 100, X: 50, Y: 50, Z: 0, Origin: "deployed",
-			Until: 180, UntilMax: 200, End: GroundWeaponEndSeen},
+			Until: 180, UntilMax: 200, End: GroundWeaponEndSeen, t0US: 10_000_000, untilMaxUS: 20_000_000},
 	}
 	j := newPickupOriginJudge(Options{SpawnPointsState: SpawnPointsEstablished}, nil, poses)
 	if len(j.dropped) != 1 {
 		t.Fatalf("1 pose `dropped` retenue attendue, obtenu %d — une pose `deployed` est un "+
 			"geste du joueur, pas un objet au sol", len(j.dropped))
 	}
-	if j.dropped[0].jusqua != 200 {
-		t.Errorf("borne haute = %d, attendu 200 (UntilMax de la pose) — si elle vaut -1, la "+
-			"borne n'est pas cablee au document", j.dropped[0].jusqua)
+	if j.dropped[0].jusquaUS != 20_000_000 {
+		t.Errorf("borne haute = %d, attendu 20000000 (UntilMax de la pose, en us) — si elle vaut -1, la "+
+			"borne n'est pas cablee au document", j.dropped[0].jusquaUS)
 	}
-	if j.dropped[0].t != 100 {
-		t.Errorf("borne basse = %d, attendu 100 (T0)", j.dropped[0].t)
+	if j.dropped[0].t0US != 10_000_000 {
+		t.Errorf("borne basse = %d, attendu 10000000 (T0, en us)", j.dropped[0].t0US)
 	}
 }

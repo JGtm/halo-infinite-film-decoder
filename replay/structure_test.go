@@ -1502,8 +1502,12 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   nouveau ecartee (regle d avant le schema 111). Aucun champ neuf ; `equipmentPlacements` perd les poses que le
 	//   schema 111 publiait a la derniere frame. Aucune revision de decodage ne monte : un v112 se lit « à republier ».
 	//   Détail : `document_chronicle.go`.
-	if SchemaVersion != 113 {
-		t.Fatalf("SchemaVersion = %d, attendu 113 : incrémenter exige une raison écrite ci-dessus "+
+	// - 114 (2026-11-13, faits independants du pas) : les faits du match ne dependent plus du pas de la grille (drapeau,
+	//   origine des ramassages, cycles de vehicule, tir continu, poses de bord, vol de projectile, lien tir -> projectile,
+	//   datation des socles). Aucun champ neuf ; le contenu cuit change. Aucune revision de decodage ne monte : un v113 se
+	//   lit « à republier ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 114 {
+		t.Fatalf("SchemaVersion = %d, attendu 114 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

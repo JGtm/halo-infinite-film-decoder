@@ -124,7 +124,7 @@ func TestBuildEquipmentPlacementsPublieUneOrigineToujours(t *testing.T) {
 	clock := replayClock{origin: eqOrigin, step: eqStep, frames: 200,
 		families: map[uint32]string{0x2974c233: "wall"}}
 	out, cov := buildEquipmentPlacements(
-		equipmentInputs{Raw: raw, Stats: st, Positions: pos}, clock)
+		equipmentInputs{Raw: raw, Stats: st, Positions: pos, LastUS: eqTS(199)}, clock)
 	if len(out) != 2 {
 		t.Fatalf("%d pose(s) publiee(s), attendu 2", len(out))
 	}
@@ -198,7 +198,7 @@ func TestPieceEngendreeEstToujoursDeployee(t *testing.T) {
 		wallPanelGlobalID: usageFamilyWall, wallDeviceGlobalID: usageFamilyWall,
 	}}
 	out, cov := buildEquipmentPlacements(equipmentInputs{
-		Raw: raw, Stats: st, Positions: pos,
+		Raw: raw, Stats: st, Positions: pos, LastUS: eqTS(199),
 		Lives: []lifeSpan{{
 			slot: 512, from: int64(eqTS(0)), to: int64(eqTS(40)), cause: CauseVieMort,
 		}},

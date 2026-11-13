@@ -150,21 +150,51 @@ func logFlagAmbiguousSlots(ctx context.Context, slots []uint32) {
 		"slots", slots, "nombre", len(slots))
 }
 
-// pointOfXUIDAt rend le point PUBLIE le plus proche de la frame demandee, parmi les pistes d'un
-// joueur. Rend (_, false) si aucune piste n'a de point a moins d'une frame — le drapeau n'aurait
-// alors pas de position a dessiner, et on prefere ne rien poser.
-func pointOfXUIDAt(tracks []Track, frame int) (Point, bool) {
-	best, bd, found := Point{}, 0, false
+// flagCarrierPointToleranceMS est l'ecart maximal, en millisecondes, entre l'instant d'une prise ou
+// d'un lacher et le point publie qui le localise.
+//
+// C'EST UNE DUREE, JUGEE SUR LES INSTANTS EXACTS DES POINTS : le film ne replique que ce qui change,
+// un corps immobile n'a donc aucun point sur plusieurs dizaines a centaines de millisecondes. Une
+// tolerance d'une image de la grille valait 100 ms ou 33 ms selon le pas, et une tolerance convertie
+// en images (arrondie) acceptait de 230 ms a 299 ms selon le pas. 200 ms laisse a un corps immobile le
+// temps de ne rien repliquer sans aller chercher la position d'un autre instant du match.
+const flagCarrierPointToleranceMS = 200
+
+// pointOfXUIDAt rend le point PUBLIE qui localise un joueur a l'instant `atUS` (microsecondes du
+// film) : le point le plus proche en temps EXACT, a au plus [flagCarrierPointToleranceMS], et a
+// egalite celui d'avant — un corps immobile reste ou son dernier point le met. Il vient de la MEME
+// VIE que l'instant sans qu'il faille le tester : une piste qui NAIT entre un point et l'instant a son
+// premier point plus pres de l'instant que lui, donc c'est elle qui l'emporte (mort puis reapparition dans
+// la fenetre). Rend (_, false) quand aucun point ne convient : le drapeau n'aurait pas de position a
+// dessiner, et on prefere ne rien poser.
+func pointOfXUIDAt(tracks []Track, atUS uint64) (Point, bool) {
+	const tolUS = uint64(flagCarrierPointToleranceMS) * 1000
+	var best Point
+	var bestD uint64
+	var bestBefore, found bool
 	for _, tr := range tracks {
 		for _, p := range tr.Points {
-			d := p.T - frame
-			if d < 0 {
-				d = -d
+			d, before := p.us-atUS, false
+			if p.us <= atUS {
+				d, before = atUS-p.us, true
 			}
-			if !found || d < bd {
-				best, bd, found = p, d, true
+			if d > tolUS || (found && (d > bestD || (d == bestD && (!before || bestBefore)))) {
+				continue
 			}
+			best, bestD, bestBefore, found = p, d, before, true
 		}
 	}
-	return best, found && bd <= 1
+	return best, found
+}
+
+// finDeLAxeUS est l'instant (microsecondes du film) du dernier point publie de toutes les pistes : la fin de
+// l'axe du rejeu, la ou les instants demandes au dela s'arretent.
+func finDeLAxeUS(tracks []Track) uint64 {
+	var fin uint64
+	for _, tr := range tracks {
+		if n := len(tr.Points); n > 0 {
+			fin = max(fin, tr.Points[n-1].us)
+		}
+	}
+	return fin
 }

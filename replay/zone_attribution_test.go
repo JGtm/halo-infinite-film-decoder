@@ -33,7 +33,9 @@ func action(xuid string, frame int) ObjectiveAction {
 
 func track(xuid string, pts ...Point) Track { return Track{XUID: xuid, Points: pts} }
 
-func pointAt(frame int, x, y, z float32) Point { return Point{T: frame, X: x, Y: y, Z: z} }
+func pointAt(frame int, x, y, z float32) Point {
+	return Point{T: frame, us: uint64(frame) * 100_000, X: x, Y: y, Z: z}
+}
 
 // checkInvariant garde la promesse ecrite sur ZoneCoverage : les compteurs somment au
 // total. Un motif de rejet ajoute sans compteur ferait disparaitre des actions en

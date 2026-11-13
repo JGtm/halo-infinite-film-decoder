@@ -116,7 +116,7 @@ func (b fireBurstBoard) publier(r types.ContinuousFireBurst) (FireBurst, bool) {
 		b.cov.ByPlace++
 	}
 	b.cov.Published++
-	b.cov.Shots += coupsDeLaRafale(f, int(clock.step/1000)) //nolint:gosec // pas de la grille, en µs
+	b.cov.Shots += coupsDeLaRafale(f, r.StartUS, b.finDeLaRafaleUS(f, r), r.Holes)
 	return f, true
 }
 
@@ -285,47 +285,56 @@ func (b fireBurstBoard) poserLesTrous(f *FireBurst, holes []types.ContinuousFire
 	}
 }
 
+// finDeLaRafaleUS rend l instant ou la rafale cesse de tirer : le lacher lu, ou — quand la monture ou la
+// vie l a bornee (`borner`) — le debut de la derniere frame de cette borne, que le document ne date qu a la
+// frame. Une rafale non bornee finit a l instant EXACT du film : son compte ne depend pas du pas.
+func (b fireBurstBoard) finDeLaRafaleUS(f FireBurst, r types.ContinuousFireBurst) uint64 {
+	clock := b.vehicules.clock
+	if f.T1 < clock.frame(r.EndUS) {
+		return min(r.EndUS, clock.origin+uint64(f.T1)*clock.step) //nolint:gosec // frame positive
+	}
+	return r.EndUS
+}
+
 // coupsDeLaRafale compte les coups que la rafale porte hors de ses trous : le premier a la pose de
 // la gachette, les suivants a la cadence (lineaire de rate0 a rate sur `ramp` secondes, puis
-// constante). C est le compte que le client pose, frame de rejeu pour frame de rejeu.
-func coupsDeLaRafale(f FireBurst, frameMS int) int {
+// constante), jusqu a `endUS` inclus.
+//
+// LES COUPS ET LES TROUS SE DECIDENT EN MICROSECONDES, jamais frame par frame : chaque coup est un instant,
+// chaque trou un intervalle `[StartUS, EndUS)` du film. Un trou plus court que le pas de la grille mutait une
+// frame entiere a un pas et aucune a l autre, et le compte changeait avec la grille de publication. Le
+// document, lui, ne publie les trous qu en frames entieres (`FireBurst.Holes`) : c est ce que le client
+// dessine, a la frame pres, et ce compte est le FAIT du film.
+func coupsDeLaRafale(f FireBurst, startUS, endUS uint64, holes []types.ContinuousFireHole) int {
+	if !(f.Rate > 0) || math.IsInf(f.Rate, 0) || endUS < startUS {
+		return 0
+	}
+	duree := float64(endUS-startUS) / 1e6
 	n := 0
-	for _, t := range instantsDesCoups(f, frameMS) {
-		if !dansUnTrou(f.Holes, t) {
+	for e := 0.0; e <= duree+epsilonCoupS; {
+		if !coupDansUnTrou(startUS+uint64(math.Round(e*1e6)), holes) {
 			n++
 		}
+		cadence := f.Rate
+		if f.Rate0 > 0 && f.Ramp > 0 && e < f.Ramp {
+			cadence = f.Rate0 + (f.Rate-f.Rate0)*e/f.Ramp
+		}
+		if !(cadence > 0) || math.IsInf(cadence, 0) {
+			break // une cadence nulle, negative, infinie ou indefinie ne fait jamais avancer le temps
+		}
+		e += 1 / cadence
 	}
 	return n
 }
 
-// epsilonFrame : la tolerance de la borne de fin. Les coups s accumulent en flottants, et un coup qui
-// tombe EXACTEMENT sur la derniere frame (60/s : six coups par frame) ne doit pas s en perdre par
-// l arrondi. La meme que le client (`model/fireBursts.ts`, `EPSILON_FRAME`).
-const epsilonFrame = 1e-6
+// epsilonCoupS : la tolerance de la borne de fin, en secondes. Les coups s accumulent en flottants, et un
+// coup qui tombe EXACTEMENT sur le lacher ne doit pas s en perdre par l arrondi.
+const epsilonCoupS = 1e-9
 
-// instantsDesCoups rend les instants des coups d une rafale, en frames (fractionnaires).
-func instantsDesCoups(f FireBurst, frameMS int) []float64 {
-	if f.Rate <= 0 || frameMS <= 0 {
-		return nil
-	}
-	parFrame := float64(frameMS) / 1000
-	var out []float64
-	for t := float64(f.T0); t <= float64(f.T1)+epsilonFrame; {
-		out = append(out, t)
-		ecoule := (t - float64(f.T0)) * parFrame
-		cadence := f.Rate
-		if f.Rate0 > 0 && f.Ramp > 0 && ecoule < f.Ramp {
-			cadence = f.Rate0 + (f.Rate-f.Rate0)*ecoule/f.Ramp
-		}
-		t += 1 / (cadence * parFrame)
-	}
-	return out
-}
-
-// dansUnTrou dit si l instant tombe dans un passage muet.
-func dansUnTrou(holes []FireBurstHole, t float64) bool {
+// coupDansUnTrou dit si l instant (microsecondes) tombe dans un passage muet.
+func coupDansUnTrou(us uint64, holes []types.ContinuousFireHole) bool {
 	for _, h := range holes {
-		if t >= float64(h.T0) && t < float64(h.T1) {
+		if us >= h.StartUS && us < h.EndUS {
 			return true
 		}
 	}

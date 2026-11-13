@@ -77,6 +77,7 @@ func lecCuisson(in equipmentInputs) ([]EquipmentPlacement, *EquipmentPlacementCo
 	in.SpawnStats = types.EquipmentSpawnStats{
 		Chunks: 1, Packets: 100, Lists: 40, Events: len(in.Spawns), WithSpawned: len(in.Spawns),
 	}
+	in.LastUS = eqTS(199)
 	out, cov := buildEquipmentPlacements(in, lecClock(fb))
 	return out, cov, fb
 }

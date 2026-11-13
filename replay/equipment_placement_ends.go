@@ -22,6 +22,9 @@ import (
 type placEnd struct {
 	until, untilMax int
 	end             string
+	// untilMaxUS est la premiere image-cle qui ne recense plus l'objet, en microsecondes du film :
+	// l'instant exact dont `untilMax` est la frame. Zero pour une fin ouverte.
+	untilMaxUS uint64
 }
 
 // placementEnds borne la disparition de chaque pose par le recensement des images-clés —
@@ -72,7 +75,7 @@ func placementEnds(
 				e := placEnd{
 					until:    clampFrame(frameOf(b.LowUS, clock.origin, clock.step), clock.frames),
 					untilMax: clampFrame(frameOf(b.HighUS, clock.origin, clock.step), clock.frames),
-					end:      GroundWeaponEndSeen,
+					end:      GroundWeaponEndSeen, untilMaxUS: b.HighUS,
 				}
 				if e.untilMax < e.until {
 					e.untilMax = e.until

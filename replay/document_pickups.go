@@ -83,6 +83,9 @@ func pickupKindOfClass(c uint8) PickupKind {
 type Pickup struct {
 	// T est l'index de frame, sur le même axe que Point.T.
 	T int `json:"t"`
+	// tUS est l'instant EXACT du ramassage (microsecondes du film), dont T est la frame. Il ne se publie pas : la
+	// datation des occupations de socle compare le ramassage aux images-cles qui bornent une occupation, en instants.
+	tUS uint64
 	// Slot est le slot du bipède ramasseur : il désigne la Track concernée, donc une VIE.
 	// Même convention que WeaponChange.Slot.
 	Slot uint32 `json:"slot"`
@@ -217,6 +220,7 @@ func buildPickups(
 			continue
 		}
 		e := Pickup{
+			tUS:    p.TimestampUS,
 			T:      int((p.TimestampUS - clk.origin) / clk.step),
 			Slot:   p.Slot,
 			W:      fmt.Sprintf("%08x", p.CatalogID),
@@ -235,7 +239,7 @@ func buildPickups(
 		}
 		// L'ORIGINE NE SE POSE QUE SUR LES NON-ARMES (cf. Pickup.Origin).
 		if k != PickupWeapon && judge != nil {
-			e.Origin = judge.origineDe(p.Slot, p.TimestampUS, e.T)
+			e.Origin = judge.origineDe(p.Slot, p.TimestampUS, e.Family)
 		}
 		out = append(out, e)
 		cov.compterLePublie(k, e.Origin, judge)

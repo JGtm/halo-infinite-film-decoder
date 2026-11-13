@@ -164,6 +164,11 @@ type EquipmentPlacement struct {
 	// aucun objet suivi, que ce lien est ambigu ou que la suppression n'est pas lue : le client garde alors
 	// la durée de repli de la famille. Aucune fin n'est devinée (cf. `equipment_placement_life_end.go`).
 	LifeEnd *int `json:"lifeEnd,omitempty"`
+
+	// t0US et untilMaxUS sont les instants EXACTS (microsecondes du film) dont T0 et UntilMax sont les
+	// frames. Ils ne se publient pas : les lecteurs du document qui decident d'un ordre entre deux
+	// evenements (le juge d'origine des ramassages) les comparent a des instants, jamais a des frames.
+	t0US, untilMaxUS uint64
 }
 
 // EquipmentPlacementCoverage dit ce que le calque a lu et ce qu'il en a publié.
@@ -296,6 +301,8 @@ type equipmentInputs struct {
 	// Positions est le nuage NON décimé, TRIÉ par instant : la recherche du poseur est une
 	// fenêtre glissante, pas un balayage complet par pose.
 	Positions []grammar.BipedPosition
+	// LastUS est l'instant de la derniere position du film (microsecondes) : la fin de l'axe du rejeu.
+	LastUS uint64
 	// Census est le recensement `ti=37` des images-clés — la FIN OBSERVÉE (schéma 28).
 	Census grammar.WorldObjectKeyframes
 	// Spawns sont les événements 103 `EquipmentSpawnedObject` : « une PIÈCE a été engendrée » ;
@@ -347,9 +354,11 @@ func buildEquipmentPlacements(
 		t0 := frameOf(p.T0US, clock.origin, clock.step)
 		t1 := frameOf(p.T1US, clock.origin, clock.step)
 		// UNE POSE DATEE HORS DE L'AXE EST ECARTEE, des deux cotes : finie avant l'origine, ou nee apres la derniere
-		// frame. Les poses datees apres la fin sont les objets recenses au dernier instantane du film, sans fin lue ni
-		// origine ; le rejeu s'arrete a la derniere position et n'a aucune frame ou les montrer.
-		if t1 < 0 || t0 >= clock.frames {
+		// POSITION. Les poses datees apres la fin sont les objets recenses au dernier instantane du film, sans fin lue
+		// ni origine ; le rejeu s'arrete a la derniere position et n'a aucune frame ou les montrer. La fin se compare
+		// en MICROSECONDES : la fin de la grille tombe 0 a 99 ms (100 ms) ou 0 a 32 ms (33 ms) apres la derniere
+		// position, et un instantane tombant dans cet intervalle donnait une pose publiee a un pas et pas a l'autre.
+		if t1 < 0 || p.T0US > in.LastUS {
 			continue // hors de l'axe publié : rien à dessiner
 		}
 		pl := EquipmentPlacement{
@@ -359,6 +368,7 @@ func buildEquipmentPlacements(
 			ID:     fmt.Sprintf("0x%08x", p.GlobalID),
 			Owner:  -1,
 			Until:  ends[i].until, UntilMax: ends[i].untilMax, End: ends[i].end,
+			t0US: p.T0US, untilMaxUS: ends[i].untilMaxUS,
 		}
 		if pl.Family == "" {
 			pl.Family = equipmentFamilyOther

@@ -386,7 +386,7 @@ func logTrackCoverage(ctx context.Context, matchID string, c TrackCoverage) {
 func pointPublie(p grammar.BipedPosition, frame, lacuneMS int,
 	scoped func(slot uint32, tsUS uint64) int,
 ) Point {
-	pt := Point{T: frame, X: round2(p.X), Y: round2(p.Y), Z: round2(p.Z), G: lacuneMS}
+	pt := Point{us: p.TimestampUS, T: frame, X: round2(p.X), Y: round2(p.Y), Z: round2(p.Z), G: lacuneMS}
 	if h, ok := p.AimHeadingDeg(); ok { // cap de visée du MÊME record (i21), si répliqué
 		pt.H = headingForJSON(h)
 	}

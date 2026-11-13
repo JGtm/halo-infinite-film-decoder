@@ -35,6 +35,9 @@ import (
 type Projectile struct {
 	// T0 est l'index de frame du premier point, sur le même axe que Point.T.
 	T0 int `json:"t0"`
+	// t0US est l'instant EXACT du premier point (microsecondes du film), dont T0 est la frame. Il ne se publie
+	// pas : le lien tir -> projectile compare deux instants a une duree, jamais deux frames.
+	t0US uint64
 	// P est la suite des points [dt, x, y] où dt est le décalage en frames depuis T0.
 	// Format compact : une trajectoire porte des dizaines de points sur une seconde, et
 	// répéter l'index absolu à chaque point doublerait le poids du document pour rien.
@@ -80,7 +83,7 @@ type Projectile struct {
 // ici est la PUBLICATION d'une position fausse, qui faisait tracer au client une droite en
 // travers de toute la carte, à 300 m/s et plus.
 //
-// LA BORNE EST UNE VITESSE, APPLIQUEE A LA DUREE REELLE ENTRE DEUX ECHANTILLONS RETENUS, et non au pas
+// LA BORNE EST UNE VITESSE, APPLIQUEE A LA DUREE REELLE ENTRE DEUX ENREGISTREMENTS CONSECUTIFS, et non au pas
 // de la grille. Les deux horloges sont independantes : le premier echantillon de chaque frame est
 // separe du precedent d'une duree qui va d'un record (16,7 ms, les records arrivent a 60 Hz) a pres de
 // deux pas, si bien qu'une borne en metres par pas laissait passer ou coupait un meme vol selon la
@@ -149,7 +152,7 @@ func buildProjectiles(tracks []types.ProjectileTrack, origin, step uint64,
 		if len(vol.pts) < 2 { // une trajectoire d'un seul point de grille ne se dessine pas
 			continue
 		}
-		proj := Projectile{T0: vol.t0, P: vol.pts,
+		proj := Projectile{T0: vol.t0, P: vol.pts, t0US: tr.Pts[0].TimestampUS,
 			// `Rest` CERTIFIE une fin de vol : un vol coupé n'a pas la sienne, et le dire
 			// serait affirmer qu'on a vu le projectile s'immobiliser là.
 			Rest: !vol.coupe && tr.Pts[len(tr.Pts)-1].AtRest}
@@ -203,18 +206,24 @@ func volPublie(tr types.ProjectileTrack, origin, step uint64) (v vol, lu bool) {
 	}
 	v.t0 = int((tr.Pts[0].TimestampUS - origin) / step)
 	last := -1
+	var prec types.ProjectileSample
+	vuPrec := false
 	for _, p := range tr.Pts {
 		if p.TimestampUS < origin {
 			continue
 		}
+		// LE PAS IMPOSSIBLE SE JUGE ENTRE DEUX ENREGISTREMENTS CONSECUTIFS DU FILM, retenus ou non : un saut
+		// entre deux enregistrements d'une meme frame est aussi impossible qu'entre deux frames, et ne le jugeait
+		// que la grille — a 100 ms le saut tombait dans une frame et n'etait jamais teste, a 33 ms il separait deux
+		// points retenus. La decision ne depend plus du pas ; seule la decimation publiee en depend.
+		if vuPrec && planDist(round2(p.X), round2(p.Y), round2(prec.X), round2(prec.Y)) > projectileMaxStepM(elapsedUS(prec, p)) {
+			v.coupe = true
+			break
+		}
+		prec, vuPrec = p, true
 		f := int((p.TimestampUS - origin) / step)
 		if f == last {
 			continue // un seul point par frame de la grille
-		}
-		if n := len(v.pts); n > 0 &&
-			planDist(round2(p.X), round2(p.Y), v.pts[n-1][1], v.pts[n-1][2]) > projectileMaxStepM(elapsedUS(v.dernier, p)) {
-			v.coupe = true
-			break
 		}
 		last, v.dernier = f, p
 		v.pts = append(v.pts, [3]float32{float32(f - v.t0), round2(p.X), round2(p.Y)})

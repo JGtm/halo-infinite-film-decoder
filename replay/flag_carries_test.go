@@ -24,7 +24,7 @@ func flagTestCtx(tracks []Track, deaths []types.Death, frames int) flagCarryCtx 
 func flagTestTrack(slot uint32, xuid string, from, to int, x, y float32) Track {
 	tr := Track{Slot: slot, Team: TeamNeutral, XUID: xuid, StartFrame: from, EndFrame: to}
 	for t := from; t <= to; t++ {
-		tr.Points = append(tr.Points, Point{T: t, X: x, Y: y})
+		tr.Points = append(tr.Points, Point{T: t, us: uint64(t) * 100_000, X: x, Y: y})
 	}
 	return tr
 }

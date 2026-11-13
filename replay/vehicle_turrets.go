@@ -155,9 +155,6 @@ func poseTurretsOnCarriers(
 	var tally turretTally
 	search := turretSearch{
 		tracks: tracks, bySlot: vehicleTracksBySlot(tracks), fb: fb,
-		// La grille du calque est celle de l horloge que portent les ancres ; sans echelle (0), le
-		// pas de construction.
-		birthFrames: framesOfMS(vehicleTurretBirthMS, int(anchors.clock.step/1000)),
 	}
 	for i := range tracks {
 		spec, ok := vehicleTurretOf(tracks[i])
@@ -196,13 +193,12 @@ func vehicleTracksBySlot(tracks []VehicleTrack) map[uint32][]int {
 	return out
 }
 
-// turretSearch porte ce que la recherche d un porteur lit : les vies, leur index par slot, la
-// tolerance de naissance en frames du pas courant et le compteur de replis.
+// turretSearch porte ce que la recherche d un porteur lit : les vies, leur index par slot et le
+// compteur de replis.
 type turretSearch struct {
-	tracks      []VehicleTrack
-	bySlot      map[uint32][]int
-	birthFrames int
-	fb          *fallback.Compteur
+	tracks []VehicleTrack
+	bySlot map[uint32][]int
+	fb     *fallback.Compteur
 }
 
 // carrierOfTurret rend le rang du porteur de la piece `i`, par le REPLI du voisin de slot. Le
@@ -221,7 +217,7 @@ func (s turretSearch) carrierOfTurret(i int, spec vehicleTurret) (carrier int, f
 			if cand.Part != "" || cand.Family != spec.carrier || !vehicleWindowsOverlap(t, cand) {
 				continue
 			}
-			if !vehicleBornTogether(t, cand, s.birthFrames) {
+			if !vehicleBornTogether(t, cand) {
 				birthMismatch = true
 				continue
 			}
@@ -232,12 +228,12 @@ func (s turretSearch) carrierOfTurret(i int, spec vehicleTurret) (carrier int, f
 	return 0, false, birthMismatch
 }
 
-// vehicleBornTogether dit si deux vies sont nees ensemble : a `birthFrames` frames au plus l une
-// de l autre ([vehicleTurretBirthMS] converti avec le pas du document), et au meme point quand les
+// vehicleBornTogether dit si deux vies sont nees ensemble : a [vehicleTurretBirthMS] au plus l une de l autre,
+// jugees sur les instants EXACTS de naissance (jamais sur les frames de la grille), et au meme point quand les
 // deux naissances sont lues.
-func vehicleBornTogether(a, b VehicleTrack, birthFrames int) bool {
-	dt := a.T0 - b.T0
-	if dt < -birthFrames || dt > birthFrames {
+func vehicleBornTogether(a, b VehicleTrack) bool {
+	dt := int64(a.bornUS) - int64(b.bornUS)
+	if dt < -vehicleTurretBirthMS*1000 || dt > vehicleTurretBirthMS*1000 {
 		return false
 	}
 	if a.Spawn == nil || b.Spawn == nil {

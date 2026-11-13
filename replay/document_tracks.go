@@ -84,6 +84,10 @@ type Shot struct {
 	// `omitempty` sur un entier effacerait ce zéro exactement comme une absence de véhicule.
 	// Nil = tir à pied, et c'est le cas nominal.
 	Vehicle *uint32 `json:"v,omitempty"`
+
+	// tUS est l'instant EXACT du tir (microsecondes du film), dont T est la frame. Il ne se publie pas : le lien
+	// tir -> projectile compare deux instants a une duree, jamais deux frames.
+	tUS uint64
 }
 
 // Bounds est l'étendue alignée sur les axes de tous les points de trajectoire, dans le

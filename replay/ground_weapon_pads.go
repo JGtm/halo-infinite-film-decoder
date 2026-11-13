@@ -311,6 +311,7 @@ func gwBuildPad(
 		out.Spawns = append(out.Spawns, gwFrameOf(o.Appar.TUS, clock))
 		out.Presence = append(out.Presence, PadPresence{
 			T0: gwFrameOf(o.Appar.TUS, clock), TLow: low, THigh: high,
+			tUS: o.Appar.TUS, tLowUS: o.Bounds.LowUS, tHighUS: o.Bounds.HighUS,
 		})
 		switch o.Status {
 		case gwPickupStatusNever:
@@ -321,7 +322,7 @@ func gwBuildPad(
 		case gwPickupStatusUnknown:
 			cov.Unknown++
 		}
-		picks = append(picks, PadPickup{TLow: low, THigh: high})
+		picks = append(picks, PadPickup{TLow: low, THigh: high, tLowUS: o.Bounds.LowUS, tHighUS: o.Bounds.HighUS})
 	}
 	// `manques` VOYAGE AVEC LES ÉCARTS : ce sont les réapparitions dont la disparition
 	// précédente n'est pas datée, c'est-à-dire les écarts que ce socle offrait et que la mesure

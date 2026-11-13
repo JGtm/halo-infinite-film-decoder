@@ -143,6 +143,7 @@ func tirPose(e grammar.FireEvent, slot uint32, p grammar.BipedPosition, origin, 
 		Slot: slot,
 		X:    round2(p.X),
 		Y:    round2(p.Y),
+		tUS:  e.TimestampUS,
 	}
 	if h, ok := e.AimHeadingDeg(); ok {
 		s.H = headingForJSON(float32(h))
