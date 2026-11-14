@@ -1,0 +1,443 @@
+# Personal-score responses of the game's mode scripts, by script group and event rank.
+#
+# CREDIT. This table is taken from libfilmshell (OpenSpartan, https://github.com/OpenSpartan/libfilmshell,
+# MIT licence, copyright (c) 2026 OpenSpartan; licence text in LICENSE-libfilmshell next to this file), file
+# `src/game/events_data.rs`, commit ad17521 ("Generated from the game's files" in that file's own header).
+# The maintainers of libfilmshell derived the event trees from the game's mode scripts; this module did not
+# read them again.
+#
+# WHAT IS TAKEN. For each of the 11 groups of event scripts of that file, every response that gives personal
+# score: the script's name for the response, the points and the English text the game shows with them, the
+# string ids of the response's own text, and whether the id is unsure (one the walk of the tree cannot place
+# for certain: inside a script loop, or in Firefight's own files).
+#
+# WHAT IS TRANSFORMED. Only the responses that give score are kept (423 rows of 4,804 ids and 739
+# responses); the other responses (medals, announcer lines, kill-feed lines) are not. A group is named by
+# its script files joined by "+", in the file's own order. The id of an event is the "rank" of this module
+# (`lecture.EvenementDeJeu.Rang`). The table is regenerated from libfilmshell, not edited by hand.
+#
+# COLUMNS (tab-separated): group, rank (decimal), response name, points, English text, text word ids
+# (hexadecimal, comma-separated, may be empty), unsure (0 or 1).
+attritionevents.lua+eliminationconfig.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+attritionevents.lua+eliminationconfig.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+attritionevents.lua+eliminationconfig.lua	55	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+attritionevents.lua+eliminationconfig.lua	58	markAssistPersonalScore	10	Mark Assist		0
+attritionevents.lua+eliminationconfig.lua	116	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+attritionevents.lua+eliminationconfig.lua	235	empAssistPersonalScoreResponse	50	EMP Assist		0
+attritionevents.lua+eliminationconfig.lua	236	bansheeDestroyResponse	50	Destroyed Banshee		0
+attritionevents.lua+eliminationconfig.lua	237	chopperDestroyResponse	50	Destroyed Chopper		0
+attritionevents.lua+eliminationconfig.lua	238	falconDestroyResponse	75	Destroyed Falcon		0
+attritionevents.lua+eliminationconfig.lua	239	ghostDestroyResponse	50	Destroyed Ghost		0
+attritionevents.lua+eliminationconfig.lua	240	gungooseDestroyResponse	25	Destroyed Gungoose		0
+attritionevents.lua+eliminationconfig.lua	241	mongooseDestroyResponse	25	Destroyed Mongoose		0
+attritionevents.lua+eliminationconfig.lua	242	phantomDestroyResponse	100	Destroyed Phantom		0
+attritionevents.lua+eliminationconfig.lua	243	scorpionDestroyResponse	100	Destroyed Scorpion		0
+attritionevents.lua+eliminationconfig.lua	244	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+attritionevents.lua+eliminationconfig.lua	245	razorbackDestroyResponse	50	Destroyed Razorback		0
+attritionevents.lua+eliminationconfig.lua	246	warthogDestroyResponse	50	Destroyed Warthog		0
+attritionevents.lua+eliminationconfig.lua	247	waspDestroyResponse	50	Destroyed Wasp		0
+attritionevents.lua+eliminationconfig.lua	248	wraithDestroyResponse	100	Destroyed Wraith		0
+attritionevents.lua+eliminationconfig.lua	258	bansheeHijackResponse	25	Hijacked Banshee		0
+attritionevents.lua+eliminationconfig.lua	259	chopperHijackResponse	25	Hijacked Chopper		0
+attritionevents.lua+eliminationconfig.lua	260	falconHijackResponse	25	Hijacked Falcon		0
+attritionevents.lua+eliminationconfig.lua	261	ghostHijackResponse	25	Hijacked Ghost		0
+attritionevents.lua+eliminationconfig.lua	262	gungooseHijackResponse	25	Hijacked Gungoose		0
+attritionevents.lua+eliminationconfig.lua	263	mongooseHijackResponse	25	Hijacked Mongoose		0
+attritionevents.lua+eliminationconfig.lua	264	phantomHijackResponse	0	Hijacked Phantom		0
+attritionevents.lua+eliminationconfig.lua	265	scorpionHijackResponse	25	Hijacked Scorpion		0
+attritionevents.lua+eliminationconfig.lua	266	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+attritionevents.lua+eliminationconfig.lua	267	razorbackHijackResponse	25	Hijacked Razorback		0
+attritionevents.lua+eliminationconfig.lua	268	warthogHijackResponse	25	Hijacked Warthog		0
+attritionevents.lua+eliminationconfig.lua	269	waspHijackResponse	25	Hijacked Wasp		0
+attritionevents.lua+eliminationconfig.lua	270	wraithHijackResponse	25			0
+attritionevents.lua+eliminationconfig.lua	344	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+attritionevents.lua+eliminationconfig.lua	827	reviveSuccessReviverScoreResponse	100	Revived %pa	0xcc5637c3	0
+attritionevents.lua+eliminationconfig.lua	836	executeSucessExecutorResponse	100	Executed %pe	0x8aeddab8	0
+attritionevents.lua+eliminationconfig.lua	883	ReviverKillResponse	25	Revive Denied		0
+attritionevents.lua+eliminationconfig.lua	884	PlayerEliminatedScoreResponse	200	Eliminated %pe	0x8f95fe42	0
+attritionevents.lua+eliminationconfig.lua	885	PlayerEliminatedAssistScoreResponse	50	Kill Assist		0
+attritionevents.lua+eliminationconfig.lua	886	PlayerKilledScoreResponse	100	Killed %pe	0x3d097626	0
+attritionevents.lua+eliminationconfig.lua	887	PlayerKilledAssistScoreResponse	50	Kill Assist		0
+areacaptureeventstubs.lua+bastionevents.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+areacaptureeventstubs.lua+bastionevents.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+areacaptureeventstubs.lua+bastionevents.lua	49	assistPersonalScore	50	Kill Assist		0
+areacaptureeventstubs.lua+bastionevents.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+areacaptureeventstubs.lua+bastionevents.lua	59	markAssistPersonalScore	10	Mark Assist		0
+areacaptureeventstubs.lua+bastionevents.lua	78	killPersonalScore	100	Killed %pe	0x3d097626	0
+areacaptureeventstubs.lua+bastionevents.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+areacaptureeventstubs.lua+bastionevents.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+areacaptureeventstubs.lua+bastionevents.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+areacaptureeventstubs.lua+bastionevents.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+areacaptureeventstubs.lua+bastionevents.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+areacaptureeventstubs.lua+bastionevents.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+areacaptureeventstubs.lua+bastionevents.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+areacaptureeventstubs.lua+bastionevents.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+areacaptureeventstubs.lua+bastionevents.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+areacaptureeventstubs.lua+bastionevents.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+areacaptureeventstubs.lua+bastionevents.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+areacaptureeventstubs.lua+bastionevents.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+areacaptureeventstubs.lua+bastionevents.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+areacaptureeventstubs.lua+bastionevents.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+areacaptureeventstubs.lua+bastionevents.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+areacaptureeventstubs.lua+bastionevents.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+areacaptureeventstubs.lua+bastionevents.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+areacaptureeventstubs.lua+bastionevents.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+areacaptureeventstubs.lua+bastionevents.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+areacaptureeventstubs.lua+bastionevents.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+areacaptureeventstubs.lua+bastionevents.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+areacaptureeventstubs.lua+bastionevents.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+areacaptureeventstubs.lua+bastionevents.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+areacaptureeventstubs.lua+bastionevents.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+areacaptureeventstubs.lua+bastionevents.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+areacaptureeventstubs.lua+bastionevents.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+areacaptureeventstubs.lua+bastionevents.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+areacaptureeventstubs.lua+bastionevents.lua	272	wraithHijackResponse	25			0
+areacaptureeventstubs.lua+bastionevents.lua	346	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+areacaptureeventstubs.lua+bastionevents.lua	819	onHillSoreResponse	100	Hill Scored		0
+areacaptureeventstubs.lua+bastionevents.lua	830	onHillControlResponse	25	Hill Control		0
+bigteambattle.lua+btbslayerevents.lua	22	playerSuicidePersonalScore	-100	Self-destruction		0
+bigteambattle.lua+btbslayerevents.lua	38	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+bigteambattle.lua+btbslayerevents.lua	40	assistPersonalScore	50	Kill Assist		0
+bigteambattle.lua+btbslayerevents.lua	47	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+bigteambattle.lua+btbslayerevents.lua	50	markAssistPersonalScore	10	Mark Assist		0
+bigteambattle.lua+btbslayerevents.lua	107	killPersonalScore	100	Killed %pe	0x3d097626	0
+bigteambattle.lua+btbslayerevents.lua	109	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+bigteambattle.lua+btbslayerevents.lua	228	empAssistPersonalScoreResponse	50	EMP Assist		0
+bigteambattle.lua+btbslayerevents.lua	229	bansheeDestroyResponse	50	Destroyed Banshee		0
+bigteambattle.lua+btbslayerevents.lua	230	chopperDestroyResponse	50	Destroyed Chopper		0
+bigteambattle.lua+btbslayerevents.lua	231	falconDestroyResponse	75	Destroyed Falcon		0
+bigteambattle.lua+btbslayerevents.lua	232	ghostDestroyResponse	50	Destroyed Ghost		0
+bigteambattle.lua+btbslayerevents.lua	233	gungooseDestroyResponse	25	Destroyed Gungoose		0
+bigteambattle.lua+btbslayerevents.lua	234	mongooseDestroyResponse	25	Destroyed Mongoose		0
+bigteambattle.lua+btbslayerevents.lua	235	phantomDestroyResponse	100	Destroyed Phantom		0
+bigteambattle.lua+btbslayerevents.lua	236	scorpionDestroyResponse	100	Destroyed Scorpion		0
+bigteambattle.lua+btbslayerevents.lua	237	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+bigteambattle.lua+btbslayerevents.lua	238	razorbackDestroyResponse	50	Destroyed Razorback		0
+bigteambattle.lua+btbslayerevents.lua	239	warthogDestroyResponse	50	Destroyed Warthog		0
+bigteambattle.lua+btbslayerevents.lua	240	waspDestroyResponse	50	Destroyed Wasp		0
+bigteambattle.lua+btbslayerevents.lua	241	wraithDestroyResponse	100	Destroyed Wraith		0
+bigteambattle.lua+btbslayerevents.lua	251	bansheeHijackResponse	25	Hijacked Banshee		0
+bigteambattle.lua+btbslayerevents.lua	252	chopperHijackResponse	25	Hijacked Chopper		0
+bigteambattle.lua+btbslayerevents.lua	253	falconHijackResponse	25	Hijacked Falcon		0
+bigteambattle.lua+btbslayerevents.lua	254	ghostHijackResponse	25	Hijacked Ghost		0
+bigteambattle.lua+btbslayerevents.lua	255	gungooseHijackResponse	25	Hijacked Gungoose		0
+bigteambattle.lua+btbslayerevents.lua	256	mongooseHijackResponse	25	Hijacked Mongoose		0
+bigteambattle.lua+btbslayerevents.lua	257	phantomHijackResponse	0	Hijacked Phantom		0
+bigteambattle.lua+btbslayerevents.lua	258	scorpionHijackResponse	25	Hijacked Scorpion		0
+bigteambattle.lua+btbslayerevents.lua	259	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+bigteambattle.lua+btbslayerevents.lua	260	razorbackHijackResponse	25	Hijacked Razorback		0
+bigteambattle.lua+btbslayerevents.lua	261	warthogHijackResponse	25	Hijacked Warthog		0
+bigteambattle.lua+btbslayerevents.lua	262	waspHijackResponse	25	Hijacked Wasp		0
+bigteambattle.lua+btbslayerevents.lua	263	wraithHijackResponse	25			0
+bigteambattle.lua+btbslayerevents.lua	337	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+bigteambattle.lua+btbslayerevents.lua	809	reviveSuccessReviverScoreResponse	100	Revived %pa	0xcc5637c3	0
+bigteambattle.lua+btbslayerevents.lua	818	ExecuteSucessExecutorResponse	100	Executed %pe	0x8aeddab8	0
+bigteambattle.lua+btbslayerevents.lua	898	ReviverKillResponse	25	Revive Denied		0
+bigteambattle.lua+btbslayerevents.lua	899	PlayerEliminatedScoreResponse	200	Eliminated %pe	0x8f95fe42	0
+bigteambattle.lua+btbslayerevents.lua	900	PlayerEliminatedAssistScoreResponse	50	Kill Assist		0
+bigteambattle.lua+btbslayerevents.lua	901	PlayerKilledScoreResponse	100	Killed %pe	0x3d097626	0
+bigteambattle.lua+btbslayerevents.lua	902	PlayerKilledAssistScoreResponse	50	Kill Assist		0
+arenaflagevents.lua+flageventstubs.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+arenaflagevents.lua+flageventstubs.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+arenaflagevents.lua+flageventstubs.lua	49	assistPersonalScore	50	Kill Assist		0
+arenaflagevents.lua+flageventstubs.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+arenaflagevents.lua+flageventstubs.lua	59	markAssistPersonalScore	10	Mark Assist		0
+arenaflagevents.lua+flageventstubs.lua	116	killPersonalScore	100	Killed %pe	0x3d097626	0
+arenaflagevents.lua+flageventstubs.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+arenaflagevents.lua+flageventstubs.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+arenaflagevents.lua+flageventstubs.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+arenaflagevents.lua+flageventstubs.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+arenaflagevents.lua+flageventstubs.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+arenaflagevents.lua+flageventstubs.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+arenaflagevents.lua+flageventstubs.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+arenaflagevents.lua+flageventstubs.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+arenaflagevents.lua+flageventstubs.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+arenaflagevents.lua+flageventstubs.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+arenaflagevents.lua+flageventstubs.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+arenaflagevents.lua+flageventstubs.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+arenaflagevents.lua+flageventstubs.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+arenaflagevents.lua+flageventstubs.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+arenaflagevents.lua+flageventstubs.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+arenaflagevents.lua+flageventstubs.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+arenaflagevents.lua+flageventstubs.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+arenaflagevents.lua+flageventstubs.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+arenaflagevents.lua+flageventstubs.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+arenaflagevents.lua+flageventstubs.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+arenaflagevents.lua+flageventstubs.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+arenaflagevents.lua+flageventstubs.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+arenaflagevents.lua+flageventstubs.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+arenaflagevents.lua+flageventstubs.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+arenaflagevents.lua+flageventstubs.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+arenaflagevents.lua+flageventstubs.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+arenaflagevents.lua+flageventstubs.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+arenaflagevents.lua+flageventstubs.lua	272	wraithHijackResponse	25			0
+arenaflagevents.lua+flageventstubs.lua	350	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+arenaflagevents.lua+flageventstubs.lua	682	flagCaptureScore	300	Flag Captured		0
+arenaflagevents.lua+flageventstubs.lua	702	flagReturnScore	25	Flag Returned		0
+arenaflagevents.lua+flageventstubs.lua	722	flagStealScore	25	Flag Stolen		0
+arenaflagevents.lua+flageventstubs.lua	739	flagPickupScore	10	Flag Taken		0
+arenaflagevents.lua+flageventstubs.lua	750	flagRunnerKillScore	25	Runner Stopped		0
+arenaflagevents.lua+flageventstubs.lua	753	flagCaptureAssist	100	Capture Assist		0
+eevents.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+eevents.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+eevents.lua	49	assistPersonalScore	50	Kill Assist		0
+eevents.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+eevents.lua	59	markAssistPersonalScore	10	Mark Assist		0
+eevents.lua	78	killPersonalScore	100	Killed %pe	0x3d097626	0
+eevents.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+eevents.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+eevents.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+eevents.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+eevents.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+eevents.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+eevents.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+eevents.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+eevents.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+eevents.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+eevents.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+eevents.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+eevents.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+eevents.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+eevents.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+eevents.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+eevents.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+eevents.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+eevents.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+eevents.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+eevents.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+eevents.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+eevents.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+eevents.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+eevents.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+eevents.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+eevents.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+eevents.lua	272	wraithHijackResponse	25			0
+eevents.lua	346	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+eevents.lua	817	extractionConversionScore	50	Extraction Converted		0
+eevents.lua	819	extractionConverterKillScore	25	Conversion Denied		0
+eevents.lua	820	extractionCompleteScore	200	Extraction Complete		0
+eevents.lua	825	extractionInitiateScore	50	Extraction Initiated		0
+eevents.lua	864	onExtractorKillScoreResponse	25	Extraction Denied		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	18	playerSuicidePersonalScore	-100	Self-destruction		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	34	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	36	assistPersonalScore	50	Kill Assist		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	43	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	46	markAssistPersonalScore	10	Mark Assist		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	65	killPersonalScore	100	Killed %pe	0x3d097626	0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	105	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	224	empAssistPersonalScoreResponse	50	EMP Assist		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	225	bansheeDestroyResponse	50	Destroyed Banshee		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	226	chopperDestroyResponse	50	Destroyed Chopper		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	227	falconDestroyResponse	75	Destroyed Falcon		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	228	ghostDestroyResponse	50	Destroyed Ghost		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	229	gungooseDestroyResponse	25	Destroyed Gungoose		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	230	mongooseDestroyResponse	25	Destroyed Mongoose		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	231	phantomDestroyResponse	100	Destroyed Phantom		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	232	scorpionDestroyResponse	100	Destroyed Scorpion		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	233	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	234	razorbackDestroyResponse	50	Destroyed Razorback		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	235	warthogDestroyResponse	50	Destroyed Warthog		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	236	waspDestroyResponse	50	Destroyed Wasp		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	237	wraithDestroyResponse	100	Destroyed Wraith		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	247	bansheeHijackResponse	25	Hijacked Banshee		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	248	chopperHijackResponse	25	Hijacked Chopper		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	249	falconHijackResponse	25	Hijacked Falcon		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	250	ghostHijackResponse	25	Hijacked Ghost		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	251	gungooseHijackResponse	25	Hijacked Gungoose		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	252	mongooseHijackResponse	25	Hijacked Mongoose		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	253	phantomHijackResponse	0	Hijacked Phantom		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	254	scorpionHijackResponse	25	Hijacked Scorpion		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	255	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	256	razorbackHijackResponse	25	Hijacked Razorback		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	257	warthogHijackResponse	25	Hijacked Warthog		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	258	waspHijackResponse	25	Hijacked Wasp		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	259	wraithHijackResponse	25			0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	333	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	828	onHillSoreResponse	100	Hill Scored		1
+areacaptureeventstubs.lua+fbastionevents.lua+firefightevents.lua	839	onHillControlResponse	25	Hill Control		1
+gungameevents.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+gungameevents.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+gungameevents.lua	49	assistPersonalScore	50	Kill Assist		0
+gungameevents.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+gungameevents.lua	59	markAssistPersonalScore	10	Mark Assist		0
+gungameevents.lua	78	killPersonalScore	100	Killed %pe	0x3d097626	0
+gungameevents.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+gungameevents.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+gungameevents.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+gungameevents.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+gungameevents.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+gungameevents.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+gungameevents.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+gungameevents.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+gungameevents.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+gungameevents.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+gungameevents.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+gungameevents.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+gungameevents.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+gungameevents.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+gungameevents.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+gungameevents.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+gungameevents.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+gungameevents.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+gungameevents.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+gungameevents.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+gungameevents.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+gungameevents.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+gungameevents.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+gungameevents.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+gungameevents.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+gungameevents.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+gungameevents.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+gungameevents.lua	272	wraithHijackResponse	25			0
+gungameevents.lua	346	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+oddballevents.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+oddballevents.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+oddballevents.lua	49	assistPersonalScore	50	Kill Assist		0
+oddballevents.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+oddballevents.lua	59	markAssistPersonalScore	10	Mark Assist		0
+oddballevents.lua	116	killPersonalScore	100	Killed %pe	0x3d097626	0
+oddballevents.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+oddballevents.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+oddballevents.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+oddballevents.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+oddballevents.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+oddballevents.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+oddballevents.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+oddballevents.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+oddballevents.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+oddballevents.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+oddballevents.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+oddballevents.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+oddballevents.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+oddballevents.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+oddballevents.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+oddballevents.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+oddballevents.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+oddballevents.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+oddballevents.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+oddballevents.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+oddballevents.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+oddballevents.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+oddballevents.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+oddballevents.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+oddballevents.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+oddballevents.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+oddballevents.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+oddballevents.lua	272	wraithHijackResponse	25			0
+oddballevents.lua	346	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+oddballevents.lua	831	ballPickedUpCarrierPersonalScoreResponse	10	Ball Taken		0
+oddballevents.lua	839	carrierKilledPlayerResponse	25	Carrier Stopped		0
+oddballevents.lua	841	ballControlResponse	50	Ball Control		0
+slayerevents.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+slayerevents.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+slayerevents.lua	49	assistPersonalScore	50	Kill Assist		0
+slayerevents.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+slayerevents.lua	59	markAssistPersonalScore	10	Mark Assist		0
+slayerevents.lua	78	killPersonalScore	100	Killed %pe	0x3d097626	0
+slayerevents.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+slayerevents.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+slayerevents.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+slayerevents.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+slayerevents.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+slayerevents.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+slayerevents.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+slayerevents.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+slayerevents.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+slayerevents.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+slayerevents.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+slayerevents.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+slayerevents.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+slayerevents.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+slayerevents.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+slayerevents.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+slayerevents.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+slayerevents.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+slayerevents.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+slayerevents.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+slayerevents.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+slayerevents.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+slayerevents.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+slayerevents.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+slayerevents.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+slayerevents.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+slayerevents.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+slayerevents.lua	272	wraithHijackResponse	25			0
+slayerevents.lua	346	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+slayerevents.lua	831	PlayerKilledScoreResponse	100	Killed %pe	0x3d097626	0
+slayerevents.lua	832	PlayerKilledAssistScoreResponse	50	Kill Assist		0
+bigteambattle.lua+btbstockpileevents.lua	22	playerSuicidePersonalScore	-100	Self-destruction		0
+bigteambattle.lua+btbstockpileevents.lua	38	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+bigteambattle.lua+btbstockpileevents.lua	40	assistPersonalScore	50	Kill Assist		0
+bigteambattle.lua+btbstockpileevents.lua	47	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+bigteambattle.lua+btbstockpileevents.lua	50	markAssistPersonalScore	10	Mark Assist		0
+bigteambattle.lua+btbstockpileevents.lua	107	killPersonalScore	100	Killed %pe	0x3d097626	0
+bigteambattle.lua+btbstockpileevents.lua	109	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+bigteambattle.lua+btbstockpileevents.lua	228	empAssistPersonalScoreResponse	50	EMP Assist		0
+bigteambattle.lua+btbstockpileevents.lua	229	bansheeDestroyResponse	50	Destroyed Banshee		0
+bigteambattle.lua+btbstockpileevents.lua	230	chopperDestroyResponse	50	Destroyed Chopper		0
+bigteambattle.lua+btbstockpileevents.lua	231	falconDestroyResponse	75	Destroyed Falcon		0
+bigteambattle.lua+btbstockpileevents.lua	232	ghostDestroyResponse	50	Destroyed Ghost		0
+bigteambattle.lua+btbstockpileevents.lua	233	gungooseDestroyResponse	25	Destroyed Gungoose		0
+bigteambattle.lua+btbstockpileevents.lua	234	mongooseDestroyResponse	25	Destroyed Mongoose		0
+bigteambattle.lua+btbstockpileevents.lua	235	phantomDestroyResponse	100	Destroyed Phantom		0
+bigteambattle.lua+btbstockpileevents.lua	236	scorpionDestroyResponse	100	Destroyed Scorpion		0
+bigteambattle.lua+btbstockpileevents.lua	237	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+bigteambattle.lua+btbstockpileevents.lua	238	razorbackDestroyResponse	50	Destroyed Razorback		0
+bigteambattle.lua+btbstockpileevents.lua	239	warthogDestroyResponse	50	Destroyed Warthog		0
+bigteambattle.lua+btbstockpileevents.lua	240	waspDestroyResponse	50	Destroyed Wasp		0
+bigteambattle.lua+btbstockpileevents.lua	241	wraithDestroyResponse	100	Destroyed Wraith		0
+bigteambattle.lua+btbstockpileevents.lua	251	bansheeHijackResponse	25	Hijacked Banshee		0
+bigteambattle.lua+btbstockpileevents.lua	252	chopperHijackResponse	25	Hijacked Chopper		0
+bigteambattle.lua+btbstockpileevents.lua	253	falconHijackResponse	25	Hijacked Falcon		0
+bigteambattle.lua+btbstockpileevents.lua	254	ghostHijackResponse	25	Hijacked Ghost		0
+bigteambattle.lua+btbstockpileevents.lua	255	gungooseHijackResponse	25	Hijacked Gungoose		0
+bigteambattle.lua+btbstockpileevents.lua	256	mongooseHijackResponse	25	Hijacked Mongoose		0
+bigteambattle.lua+btbstockpileevents.lua	257	phantomHijackResponse	0	Hijacked Phantom		0
+bigteambattle.lua+btbstockpileevents.lua	258	scorpionHijackResponse	25	Hijacked Scorpion		0
+bigteambattle.lua+btbstockpileevents.lua	259	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+bigteambattle.lua+btbstockpileevents.lua	260	razorbackHijackResponse	25	Hijacked Razorback		0
+bigteambattle.lua+btbstockpileevents.lua	261	warthogHijackResponse	25	Hijacked Warthog		0
+bigteambattle.lua+btbstockpileevents.lua	262	waspHijackResponse	25	Hijacked Wasp		0
+bigteambattle.lua+btbstockpileevents.lua	263	wraithHijackResponse	25			0
+bigteambattle.lua+btbstockpileevents.lua	337	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+bigteambattle.lua+btbstockpileevents.lua	809	capacitorDepositedPersonalScoreResponse	100	Power Seed Secured		0
+bigteambattle.lua+btbstockpileevents.lua	818	onCapacitorStolenScore	50	Power Seed Stolen		0
+bigteambattle.lua+btbstockpileevents.lua	823	onCarrierKilledResponsePlayer	10	Carrier Killed		0
+bigteambattle.lua+btbstockpileevents.lua	836	onPointsScoredSFXNegResponse	150	Stockpile Scored		0
+areacaptureeventstubs.lua+sevents.lua	31	playerSuicidePersonalScore	-100	Self-destruction		0
+areacaptureeventstubs.lua+sevents.lua	47	wheelmanAssistPersonalScoreResponse	50	Driver Assist		0
+areacaptureeventstubs.lua+sevents.lua	49	assistPersonalScore	50	Kill Assist		0
+areacaptureeventstubs.lua+sevents.lua	56	threatSensorPersonalScoreResponse	10	Sensor Assist		0
+areacaptureeventstubs.lua+sevents.lua	59	markAssistPersonalScore	10	Mark Assist		0
+areacaptureeventstubs.lua+sevents.lua	78	killPersonalScore	100	Killed %pe	0x3d097626	0
+areacaptureeventstubs.lua+sevents.lua	118	betrayalPersonalScore	-100	Betrayed %pa	0x365be6b1	0
+areacaptureeventstubs.lua+sevents.lua	237	empAssistPersonalScoreResponse	50	EMP Assist		0
+areacaptureeventstubs.lua+sevents.lua	238	bansheeDestroyResponse	50	Destroyed Banshee		0
+areacaptureeventstubs.lua+sevents.lua	239	chopperDestroyResponse	50	Destroyed Chopper		0
+areacaptureeventstubs.lua+sevents.lua	240	falconDestroyResponse	75	Destroyed Falcon		0
+areacaptureeventstubs.lua+sevents.lua	241	ghostDestroyResponse	50	Destroyed Ghost		0
+areacaptureeventstubs.lua+sevents.lua	242	gungooseDestroyResponse	25	Destroyed Gungoose		0
+areacaptureeventstubs.lua+sevents.lua	243	mongooseDestroyResponse	25	Destroyed Mongoose		0
+areacaptureeventstubs.lua+sevents.lua	244	phantomDestroyResponse	100	Destroyed Phantom		0
+areacaptureeventstubs.lua+sevents.lua	245	scorpionDestroyResponse	100	Destroyed Scorpion		0
+areacaptureeventstubs.lua+sevents.lua	246	rockethogDestroyResponse	50	Destroyed Rocket Warthog		0
+areacaptureeventstubs.lua+sevents.lua	247	razorbackDestroyResponse	50	Destroyed Razorback		0
+areacaptureeventstubs.lua+sevents.lua	248	warthogDestroyResponse	50	Destroyed Warthog		0
+areacaptureeventstubs.lua+sevents.lua	249	waspDestroyResponse	50	Destroyed Wasp		0
+areacaptureeventstubs.lua+sevents.lua	250	wraithDestroyResponse	100	Destroyed Wraith		0
+areacaptureeventstubs.lua+sevents.lua	260	bansheeHijackResponse	25	Hijacked Banshee		0
+areacaptureeventstubs.lua+sevents.lua	261	chopperHijackResponse	25	Hijacked Chopper		0
+areacaptureeventstubs.lua+sevents.lua	262	falconHijackResponse	25	Hijacked Falcon		0
+areacaptureeventstubs.lua+sevents.lua	263	ghostHijackResponse	25	Hijacked Ghost		0
+areacaptureeventstubs.lua+sevents.lua	264	gungooseHijackResponse	25	Hijacked Gungoose		0
+areacaptureeventstubs.lua+sevents.lua	265	mongooseHijackResponse	25	Hijacked Mongoose		0
+areacaptureeventstubs.lua+sevents.lua	266	phantomHijackResponse	0	Hijacked Phantom		0
+areacaptureeventstubs.lua+sevents.lua	267	scorpionHijackResponse	25	Hijacked Scorpion		0
+areacaptureeventstubs.lua+sevents.lua	268	rockethogHijackResponse	25	Hijacked Rocket Warthog		0
+areacaptureeventstubs.lua+sevents.lua	269	razorbackHijackResponse	25	Hijacked Razorback		0
+areacaptureeventstubs.lua+sevents.lua	270	warthogHijackResponse	25	Hijacked Warthog		0
+areacaptureeventstubs.lua+sevents.lua	271	waspHijackResponse	25	Hijacked Wasp		0
+areacaptureeventstubs.lua+sevents.lua	272	wraithHijackResponse	25			0
+areacaptureeventstubs.lua+sevents.lua	346	onHackingTerminalPersonalScoreResponse	100	Hacked Terminal		0
+areacaptureeventstubs.lua+sevents.lua	798	areaCapturedContributingPlayerResponse	50	Zone Captured		0
+areacaptureeventstubs.lua+sevents.lua	821	areaSecuredPlayerResponse	25	Zone Secured		0
