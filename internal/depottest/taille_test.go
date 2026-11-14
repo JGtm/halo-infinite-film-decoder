@@ -22,7 +22,7 @@ var plafondsGeles = map[string]int{
 	"internal/facts/killsource/e197_identite_paquet_mesure_research_test.go": 651,
 	"internal/facts/objectives/assaut_pied_ancre_test.go":                    558,
 	"internal/facts/objectives/e1911_manches_mesure_research_test.go":        525,
-	"internal/grammar/components_hooks_test.go":                              600,
+	"internal/grammar/components_hooks_test.go":                              596,
 	"internal/grammar/golden_minibobine_test.go":                             549,
 	"internal/grammar/ground_weapon_lifecycle_research_test.go":              566,
 	"internal/grammar/i59_anchor_test.go":                                    1138,

@@ -14,7 +14,10 @@ package grammar
 //	3.0.1.0.i.1.j   le decalage dans ce bloc de la chaine i (0 : le nom, 1 : la description) pour la
 //	                langue j ; la langue 0 est l anglais. Une chaine ecrite une seule fois pour toutes
 //	                les langues (une variante sans traduction) a le meme decalage pour chacune
-//	1.2.3           delai minimal de reapparition (secondes)
+//	1.2.3           delai minimal de reapparition (secondes) ; 1.2.5, 1.2.6 : la penalite ajoutee a la
+//	                reapparition apres un suicide, apres une trahison (secondes)
+//	1.3.0.i         l ensemble des drapeaux de regles : chaque element est le numero d un drapeau ; le 3 est
+//	                celui des tirs allies
 //	1.7.0, 1.7.3    score de victoire, duree limite de la manche (secondes)
 //	1.7.9           duree de la prolongation (secondes) ; 1.7.10 : la derniere chance est active ;
 //	                1.7.11 : sa duree (secondes)
@@ -56,6 +59,8 @@ const (
 	profondeurDeChemin = 2
 	// octetsDuGUID : un identifiant de la variante de carte.
 	octetsDuGUID = 16
+	// drapeauTirsAllies : le numero du drapeau des tirs allies dans l ensemble des drapeaux de regles.
+	drapeauTirsAllies = 3
 )
 
 // modelesDeChemins : les chemins que la lecture suit, relatifs a la structure de la variante ;
@@ -64,6 +69,7 @@ const (
 type modelesDeChemins struct {
 	chaines, decalageNom, decalageDesc, reapparition, score, duree, prolongation []int
 	chanceActive, derniereChance, chargement, arme, aleatoire, equipement        []int
+	penaliteSuicide, penaliteTrahison, drapeaux                                  []int
 	optionNom, optionValeur                                                      []int
 	suivis                                                                       [][]int
 }
@@ -71,25 +77,28 @@ type modelesDeChemins struct {
 // nouveauxModelesDeChemins rend les modeles de chemins de la lecture.
 func nouveauxModelesDeChemins() modelesDeChemins {
 	m := modelesDeChemins{
-		chaines:        []int{3, 0, 0, 0},
-		decalageNom:    []int{3, 0, 1, 0, 0, 1, 0},
-		decalageDesc:   []int{3, 0, 1, 0, 1, 1, 0},
-		reapparition:   []int{1, 2, 3},
-		score:          []int{1, 7, 0},
-		duree:          []int{1, 7, 3},
-		prolongation:   []int{1, 7, 9},
-		chanceActive:   []int{1, 7, 10},
-		derniereChance: []int{1, 7, 11},
-		chargement:     []int{1, 6, 1, 0},
-		arme:           []int{1, 6, 1, 0, 1, jokerDeChemin, 0, 0},
-		aleatoire:      []int{1, 6, 1, 0, 1, jokerDeChemin, 2},
-		equipement:     []int{1, 6, 1, 0, 2, 0, 0},
-		optionNom:      []int{3, 9, 0, jokerDeChemin, 0, 0},
-		optionValeur:   []int{3, 9, 0, jokerDeChemin, 1, 0},
+		chaines:          []int{3, 0, 0, 0},
+		decalageNom:      []int{3, 0, 1, 0, 0, 1, 0},
+		decalageDesc:     []int{3, 0, 1, 0, 1, 1, 0},
+		reapparition:     []int{1, 2, 3},
+		penaliteSuicide:  []int{1, 2, 5},
+		penaliteTrahison: []int{1, 2, 6},
+		drapeaux:         []int{1, 3, 0, jokerDeChemin},
+		score:            []int{1, 7, 0},
+		duree:            []int{1, 7, 3},
+		prolongation:     []int{1, 7, 9},
+		chanceActive:     []int{1, 7, 10},
+		derniereChance:   []int{1, 7, 11},
+		chargement:       []int{1, 6, 1, 0},
+		arme:             []int{1, 6, 1, 0, 1, jokerDeChemin, 0, 0},
+		aleatoire:        []int{1, 6, 1, 0, 1, jokerDeChemin, 2},
+		equipement:       []int{1, 6, 1, 0, 2, 0, 0},
+		optionNom:        []int{3, 9, 0, jokerDeChemin, 0, 0},
+		optionValeur:     []int{3, 9, 0, jokerDeChemin, 1, 0},
 	}
 	m.suivis = [][]int{m.chaines, m.decalageNom, m.decalageDesc, m.reapparition, m.score, m.duree,
 		m.prolongation, m.chanceActive, m.derniereChance, m.chargement, m.arme, m.aleatoire, m.equipement,
-		m.optionNom, m.optionValeur}
+		m.optionNom, m.optionValeur, m.penaliteSuicide, m.penaliteTrahison, m.drapeaux}
 	return m
 }
 
@@ -105,6 +114,8 @@ type lectureDesInfos struct {
 	chanceActive bool
 	chance       *int64
 	dotation     *profile.DotationDeDepart
+	// drapeaux : l ensemble des drapeaux de regles est ecrit ; tirsAllies : le drapeau des tirs allies y figure.
+	drapeaux, tirsAllies bool
 }
 
 // suivre dit si le chemin est sur un modele suivi. Le chemin complet est [champ, rang de variante,
@@ -141,6 +152,13 @@ func (a *lectureDesInfos) feuille(chemin []int, e int64, octets []byte) {
 		a.decalageDesc = new(e)
 	case cheminEgal(rel, a.m.reapparition):
 		a.infos.DelaiDeReapparitionSecondes = new(e)
+	case cheminEgal(rel, a.m.penaliteSuicide):
+		a.infos.PenaliteDeSuicideSecondes = new(e)
+	case cheminEgal(rel, a.m.penaliteTrahison):
+		a.infos.PenaliteDeTrahisonSecondes = new(e)
+	case cheminEgal(rel, a.m.drapeaux):
+		a.drapeaux = true
+		a.tirsAllies = a.tirsAllies || e == drapeauTirsAllies
 	case cheminEgal(rel, a.m.score):
 		a.infos.ScoreDeVictoire = new(e)
 	case cheminEgal(rel, a.m.duree):
@@ -226,6 +244,9 @@ func lireLaVarianteDesInfos(l *lecteurDuCorps) profile.InfosDeMatch {
 		a.infos.DerniereChanceSecondes = a.chance
 	}
 	a.infos.Dotation = a.dotation
+	if a.drapeaux {
+		a.infos.TirsAllies = new(a.tirsAllies)
+	}
 	return *a.infos
 }
 

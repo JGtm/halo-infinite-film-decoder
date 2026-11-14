@@ -63,6 +63,13 @@ type InfosDeMatch struct {
 	DureeSecondes   *int64
 	// DelaiDeReapparitionSecondes : le delai minimal entre la mort et la reapparition.
 	DelaiDeReapparitionSecondes *int64
+	// PenaliteDeSuicideSecondes, PenaliteDeTrahisonSecondes : les secondes que la variante ajoute a la
+	// reapparition apres un suicide, apres une trahison.
+	PenaliteDeSuicideSecondes  *int64
+	PenaliteDeTrahisonSecondes *int64
+	// TirsAllies : le drapeau des tirs allies de la variante. nil : l ensemble des drapeaux de regles n est
+	// pas ecrit, et la valeur par defaut n est pas devinee.
+	TirsAllies *bool
 	// ProlongationSecondes : la duree de la prolongation.
 	ProlongationSecondes *int64
 	// DerniereChanceSecondes : la duree de la derniere chance, seulement quand la prolongation en

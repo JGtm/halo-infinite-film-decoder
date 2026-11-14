@@ -117,9 +117,17 @@ func consumeDefaultStateTI3(br *Lecteur) {
 
 // consumeDefaultStateTI5 porte FUN_140fed600 (archetype 5, « player-waypoint ») :
 // V ; R(6) (index de joueur, valide < 0x20 par la valeur de retour).
-func consumeDefaultStateTI5(br *Lecteur) {
+func consumeDefaultStateTI5(br *Lecteur) { readPlayerWaypointDefaultState(br) }
+
+// archetypeJoueurDuMoteur est l'archetype `player-waypoint` : l'entite joueur du moteur, qui porte
+// le compte a rebours de reapparition, le dernier traitre et la presence en partie.
+const archetypeJoueurDuMoteur = 5
+
+// readPlayerWaypointDefaultState porte la MEME grammaire que [consumeDefaultStateTI5] et REND
+// l'index de joueur de l'entite : le meme index que celui de l'entite `ti=9` du joueur.
+func readPlayerWaypointDefaultState(br *Lecteur) (playerIndex int) {
 	consumeVersionPrefix(br)
-	br.ReadBits(6)
+	return int(br.ReadBits(6))
 }
 
 // consumeDefaultStateTI6 porte FUN_140ff7f44 (archetype 6, « statborg ») : R(6) SEC,

@@ -234,3 +234,15 @@ package grammar
 // gardee si la table d entites de la marche lie le slot au bipede, comptee sinon. Le canal des etats de mouvement perd le filtre
 // « sur un film qui les transmet » pour ce seul composant. Les rejeux et les faits cuits avant se refusent sur cette revision :
 // la recuisson est une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-14.4` (2026-11-14, horloge de manche, comptes a rebours de reapparition, regles de la variante).
+// LA MARCHE DES TRAMES RENDUE DE NOUVELLES LECTURES ; AUCUN BIT DEJA LU NE CHANGE D INTERPRETATION. Un canal de la marche
+// ([canalDesHorloges]) range, dans l ordre du flux, les lectures que la couche de capture rend de deux composants qu elle
+// traversait sans les garder : l horloge de manche de l entite moteur (`game-engine-round-timer-component`, ti=0 i5 : limite, temps de la
+// minuterie, etat sur 5 bits) et le compte a rebours de reapparition de l entite joueur du moteur (`player-respawn-timer-component`,
+// ti=5 i1).
+// L entite joueur du moteur est nommee par l index de joueur que son etat de creation ecrit ([readPlayerWaypointDefaultState]),
+// lu a la creation dans une trame delta ([EntityTrace.JoueurDuMoteur]) ou, pour une entite deja la au debut du film, dans l etat
+// complet d une image-cle. La lecture de l identite rend en plus la penalite de reapparition apres un suicide, apres une trahison et le
+// drapeau des tirs allies de la variante ([lireLesInfosDeMatch]). Les faits cuits avant se refusent sur cette revision et sur
+// `replay.SchemaDesFaits` 25 : la recuisson est une decision de l utilisateur.

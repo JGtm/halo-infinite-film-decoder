@@ -15,7 +15,7 @@ func consumePlayerAndSceneComponent(br *Lecteur, name string, typeIndex uint32, 
 	case "player-waypoint-component": // ti=5 i0 (FUN_1410665dc) — R(3)
 		br.ReadBits(3)
 		return variant, nil, true
-	case "player-respawn-timer-component": // ti=5 i1 (FUN_140f3fb8c) — R(1)+R(10)+R(10) = 21 bits
+	case compPlayerRespawnTimer: // ti=5 i1 (FUN_140f3fb8c) — R(1)+R(10)+R(10) = 21 bits
 		// Grammaire dans decodePlayerRespawnTimer (vitality.go) — copie unique.
 		_ = decodePlayerRespawnTimer(br)
 		return variant, nil, true
@@ -196,7 +196,7 @@ func consumeCrewFlockAndMusicComponent(br *Lecteur, name string, typeIndex uint3
 	case "flock-relevancy-component": // ti=21 i13 (FUN_14110d2fc) — R(8) (float quant 0..1)
 		br.ReadBits(8)
 		return variant, nil, true
-	case "game-engine-round-timer-component": // ti=0 i5 (FUN_1407ee790) — R(16)+R(16)+R(5)
+	case compGameEngineRoundTimer: // ti=0 i5 (FUN_1407ee790) — R(16)+R(16)+R(5)
 		// Grammaire dans decodeGameEngineRoundTimer (vitality.go) — copie unique.
 		_ = decodeGameEngineRoundTimer(br)
 		return variant, nil, true

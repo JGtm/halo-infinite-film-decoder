@@ -65,6 +65,9 @@ type uneVarianteEcrite struct {
 	nom, description string // ecrits en bloc, avec decalage, quand non vides
 	score, duree     *int32
 	reapparition     *int32
+	penaliteSuicide  *int32
+	penaliteTrahison *int32
+	drapeaux         []int32 // l ensemble des drapeaux de regles ; nil : non ecrit
 	prolongation     *int32
 	chanceActive     bool
 	chance           *int32
@@ -132,8 +135,21 @@ func (v uneVarianteEcrite) ecrire(s *bondEcrit) {
 		if v.bruit {
 			ecrireDuBruit(o)
 		}
-		if v.reapparition != nil {
-			o.champStructure(2, func(r *bondEcrit) { r.entier32(3, *v.reapparition) })
+		if v.reapparition != nil || v.penaliteSuicide != nil || v.penaliteTrahison != nil {
+			o.champStructure(2, func(r *bondEcrit) {
+				if v.reapparition != nil {
+					r.entier32(3, *v.reapparition)
+				}
+				if v.penaliteSuicide != nil {
+					r.entier32(5, *v.penaliteSuicide)
+				}
+				if v.penaliteTrahison != nil {
+					r.entier32(6, *v.penaliteTrahison)
+				}
+			})
+		}
+		if v.drapeaux != nil {
+			o.champStructure(3, func(r *bondEcrit) { r.listeEntiers32(0, v.drapeaux...) })
 		}
 		if len(v.chargements) > 0 {
 			var es []func(*bondEcrit)
@@ -258,6 +274,7 @@ func TestLesInfosDeMatchSeLisentChampParChamp(t *testing.T) {
 	v := uneVarianteEcrite{
 		nom: "Slayer d essai", description: "Elimine tout le monde.",
 		score: p32(50), duree: p32(720), reapparition: p32(8), prolongation: p32(120),
+		penaliteSuicide: p32(5), penaliteTrahison: p32(12), drapeaux: []int32{0, 3, 10},
 		chanceActive: true, chance: p32(30),
 		chargements: []chargementEcrit{
 			{armes: []int32{-5, 1234567}, equipement: equip},
@@ -287,6 +304,11 @@ func TestLesInfosDeMatchSeLisentChampParChamp(t *testing.T) {
 	egal64(t, "score", got.ScoreDeVictoire, 50)
 	egal64(t, "duree", got.DureeSecondes, 720)
 	egal64(t, "reapparition", got.DelaiDeReapparitionSecondes, 8)
+	egal64(t, "penalite de suicide", got.PenaliteDeSuicideSecondes, 5)
+	egal64(t, "penalite de trahison", got.PenaliteDeTrahisonSecondes, 12)
+	if got.TirsAllies == nil || !*got.TirsAllies {
+		t.Errorf("tirs allies : %v", got.TirsAllies)
+	}
 	egal64(t, "prolongation", got.ProlongationSecondes, 120)
 	egal64(t, "derniere chance", got.DerniereChanceSecondes, 30)
 	d := got.Dotation
@@ -303,6 +325,30 @@ func TestLesInfosDeMatchSeLisentChampParChamp(t *testing.T) {
 	}
 }
 
+// TestLesTirsAlliesSeLisentDansLEnsembleDesDrapeaux : le drapeau 3 de l ensemble le leve ; un ensemble ecrit
+// sans lui le baisse ; un ensemble non ecrit le laisse absent. Une penalite ecrite a zero est lue.
+// MUTATIONS — le drapeau lu a un autre numero, un ensemble sans le 3 rendu absent, un ensemble absent rendu
+// baisse : ROUGES.
+func TestLesTirsAlliesSeLisentDansLEnsembleDesDrapeaux(t *testing.T) {
+	tests := []struct {
+		nom      string
+		drapeaux []int32
+		want     *bool
+	}{
+		{"drapeau 3 leve", []int32{4, 3}, new(true)},
+		{"ensemble sans le 3", []int32{0, 4, 5, 8, 9}, new(false)},
+		{"ensemble vide : aucun element, aucune lecture", []int32{}, nil},
+		{"ensemble non ecrit", nil, nil},
+	}
+	for _, c := range tests {
+		got := infosDe(t, bondDeLaVarianteDesInfos(uneVarianteEcrite{drapeaux: c.drapeaux, penaliteTrahison: p32(0)}))
+		if (got.TirsAllies == nil) != (c.want == nil) || (c.want != nil && *got.TirsAllies != *c.want) {
+			t.Errorf("%s : tirs allies %v, attendu %v", c.nom, got.TirsAllies, c.want)
+		}
+		egal64(t, c.nom+" : penalite de trahison ecrite a zero", got.PenaliteDeTrahisonSecondes, 0)
+	}
+}
+
 // TestUnChampNonEcritResteAbsent : un champ que la variante n ecrit pas est absent, jamais zero ; la
 // derniere chance sans son drapeau, et une variante sans chargement, sont absentes. Un zero ECRIT est lu.
 // MUTATIONS — le drapeau de derniere chance ignore, un pointeur pose a zero par defaut : ROUGES.
@@ -314,6 +360,11 @@ func TestUnChampNonEcritResteAbsent(t *testing.T) {
 	egal64(t, "score ecrit a zero", got.ScoreDeVictoire, 0)
 	absent64(t, "duree", got.DureeSecondes)
 	absent64(t, "reapparition", got.DelaiDeReapparitionSecondes)
+	absent64(t, "penalite de suicide", got.PenaliteDeSuicideSecondes)
+	absent64(t, "penalite de trahison", got.PenaliteDeTrahisonSecondes)
+	if got.TirsAllies != nil {
+		t.Errorf("ensemble de drapeaux non ecrit : tirs allies %v, attendu absent", *got.TirsAllies)
+	}
 	absent64(t, "prolongation", got.ProlongationSecondes)
 	absent64(t, "derniere chance sans drapeau", got.DerniereChanceSecondes)
 	if got.Nom != nil || got.Description != nil || got.Dotation != nil || len(got.Options) != 0 {
