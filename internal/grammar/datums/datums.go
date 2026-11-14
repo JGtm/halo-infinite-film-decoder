@@ -1,6 +1,6 @@
-package grammar
+package datums
 
-// type1_datums.go — LE BLOC DE TYPE 1 : LA TABLE DE DATUMS DU CHUNK, LUE A L OCTET
+// datums.go — LE BLOC DE TYPE 1 : LA TABLE DE DATUMS DU CHUNK, LUE A L OCTET
 // (lot 5.21.1, decouverte D1 du lot 5.20).
 //
 // # CE QUE CE BLOC EST, ET POURQUOI LE DEPOT NE LE LISAIT PAS
@@ -110,8 +110,8 @@ const (
 	datumEtatBits     = 32    // R(32) inline (compteur de generation)
 	datumMasqueBits   = 33    // FUN_140e74e6c, 0x21 tours
 	datumBitmapBits   = 0x100 // 256 bits par slot
-	datumQueueMots    = 5     // monde+0x160 .. +0x170
-	datumQueueBits    = datumQueueMots * 32
+	QueueMots         = 5     // monde+0x160 .. +0x170
+	datumQueueBits    = QueueMots * 32
 	datumEntreeBits   = datumDrapeauxBits + datumGenBits + datumEtatBits + datumMasqueBits
 	datumPasParSlot   = datumEntreeBits + datumBitmapBits
 	// datumCapSlots est `DAT_144706100` en rejeu : `0x1fff`. Il n est pas litteral dans le
@@ -180,7 +180,7 @@ type BlocDeDatums struct {
 	// bits a 1 qu ils portent. La matiere n est pas gardee : aucun lecteur ne la demande.
 	Bitmaps, BitmapBitsLeves int
 	// Queue : les cinq mots de 32 bits de `monde+0x160`.
-	Queue [datumQueueMots]uint32
+	Queue [QueueMots]uint32
 	// BitsLus et Bourrage : ce que la grammaire consomme, et ce qui reste jusqu a l octet.
 	BitsLus, Bourrage int
 }

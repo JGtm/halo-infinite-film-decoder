@@ -10,6 +10,7 @@ package main
 //	go test -tags=research ./research/cmd_fermeture/
 
 import (
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/datums"
 	"os"
 	"path/filepath"
 	"strings"
@@ -115,9 +116,9 @@ func TestClassesDeVueCEtDeReste(t *testing.T) {
 
 // collecteurDeDeuxBlocs rend un collecteur au chunk 1, dont le bloc et celui du chunk 2 portent
 // le slot 7 dans les etats donnes.
-func collecteurDeDeuxBlocs(avant, apres grammar.DatumEntry) *collecteurV2 {
-	bloc := func(e grammar.DatumEntry) blocDuChunk {
-		en := make([]grammar.DatumEntry, 8)
+func collecteurDeDeuxBlocs(avant, apres datums.DatumEntry) *collecteurV2 {
+	bloc := func(e datums.DatumEntry) blocDuChunk {
+		en := make([]datums.DatumEntry, 8)
 		en[7] = e
 		return blocDuChunk{present: true, entrees: en}
 	}
@@ -128,20 +129,20 @@ func collecteurDeDeuxBlocs(avant, apres grammar.DatumEntry) *collecteurV2 {
 // TestNaissanceDUnEidRejete : les classes de naissance, sur l eid `1<<30 | 7` (generation 1).
 func TestNaissanceDUnEidRejete(t *testing.T) {
 	const eid = 1<<30 | 7
-	vivant := grammar.DatumEntry{Drapeaux: grammar.DatumAlloue | grammar.DatumPublie, Gen: 1, Generation: 2}
-	libere := grammar.DatumEntry{Gen: 1, Generation: 2}
-	autre := grammar.DatumEntry{Drapeaux: grammar.DatumAlloue | grammar.DatumPublie, Gen: 2, Generation: 3}
+	vivant := datums.DatumEntry{Drapeaux: datums.DatumAlloue | datums.DatumPublie, Gen: 1, Generation: 2}
+	libere := datums.DatumEntry{Gen: 1, Generation: 2}
+	autre := datums.DatumEntry{Drapeaux: datums.DatumAlloue | datums.DatumPublie, Gen: 2, Generation: 3}
 	cas := []struct {
 		nom           string
-		avant, apres  grammar.DatumEntry
+		avant, apres  datums.DatumEntry
 		want, etatDeb string
 	}{
-		{"nee et vivante", grammar.DatumEntry{}, vivant, "naissance non lue", "vide"},
-		{"nee et morte", grammar.DatumEntry{}, libere, "naissance non lue", "vide"},
+		{"nee et vivante", datums.DatumEntry{}, vivant, "naissance non lue", "vide"},
+		{"nee et morte", datums.DatumEntry{}, libere, "naissance non lue", "vide"},
 		{"deja vivante", vivant, vivant, "vivant au bloc du chunk", "vivant"},
 		{"morte avant le chunk", libere, libere, "libere avant le chunk (meme generation)", "trace"},
-		{"autre generation", grammar.DatumEntry{}, autre, "realloue sous une autre generation", "vide"},
-		{"rien", grammar.DatumEntry{}, grammar.DatumEntry{}, "aucune allocation", "vide"},
+		{"autre generation", datums.DatumEntry{}, autre, "realloue sous une autre generation", "vide"},
+		{"rien", datums.DatumEntry{}, datums.DatumEntry{}, "aucune allocation", "vide"},
 	}
 	for _, c := range cas {
 		col := collecteurDeDeuxBlocs(c.avant, c.apres)
@@ -152,7 +153,7 @@ func TestNaissanceDUnEidRejete(t *testing.T) {
 			t.Errorf("%s : etat au bloc %q, attendu %q", c.nom, got, c.etatDeb)
 		}
 	}
-	col := collecteurDeDeuxBlocs(grammar.DatumEntry{}, vivant)
+	col := collecteurDeDeuxBlocs(datums.DatumEntry{}, vivant)
 	col.neufs[7] = true
 	if got := col.naissance(eid); got != "NEW lu dans le chunk" {
 		t.Errorf("NEW lu : naissance %q", got)
@@ -178,16 +179,16 @@ func TestNaissanceDUnEidRejete(t *testing.T) {
 // lue (D-44).
 func TestNaissanceGenerationZeroEtNeufDesynchronise(t *testing.T) {
 	const eid0 = 0<<30 | 7
-	trace3 := grammar.DatumEntry{Gen: 3, Generation: 4}
-	if got := collecteurDeDeuxBlocs(trace3, grammar.DatumEntry{}).naissance(eid0); got != "naissance non lue, generation 0" {
+	trace3 := datums.DatumEntry{Gen: 3, Generation: 4}
+	if got := collecteurDeDeuxBlocs(trace3, datums.DatumEntry{}).naissance(eid0); got != "naissance non lue, generation 0" {
 		t.Errorf("generation 0 nee puis liberee : %q", got)
 	}
-	if got := collecteurDeDeuxBlocs(grammar.DatumEntry{}, grammar.DatumEntry{}).naissance(eid0); got != "aucune allocation" {
+	if got := collecteurDeDeuxBlocs(datums.DatumEntry{}, datums.DatumEntry{}).naissance(eid0); got != "aucune allocation" {
 		t.Errorf("slot jamais alloue aux deux blocs : %q", got)
 	}
 	const eid1 = 1<<30 | 7
-	vivant := grammar.DatumEntry{Drapeaux: grammar.DatumAlloue | grammar.DatumPublie, Gen: 1, Generation: 2}
-	col := collecteurDeDeuxBlocs(grammar.DatumEntry{}, vivant)
+	vivant := datums.DatumEntry{Drapeaux: datums.DatumAlloue | datums.DatumPublie, Gen: 1, Generation: 2}
+	col := collecteurDeDeuxBlocs(datums.DatumEntry{}, vivant)
 	col.neufsDesync[7] = true
 	if got := col.naissance(eid1); got != "NEW lu desynchronise · naissance non lue" {
 		t.Errorf("NEW lu desynchronise : %q", got)

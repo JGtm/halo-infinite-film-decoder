@@ -31,6 +31,7 @@ package grammar
 
 import (
 	"fmt"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/datums"
 	"os"
 	"sort"
 	"strings"
@@ -81,11 +82,11 @@ func l9UnFilm(t *testing.T, racine, id string, s *l9Sorties) {
 		if !ok {
 			continue
 		}
-		var bloc BlocDeDatums
+		var bloc datums.BlocDeDatums
 		aBloc, k := false, 0
 		for _, pk := range pks {
-			if pk.Type == PacketTypeDatums {
-				bl, err := LireBlocDeDatums(pk.Payload(data))
+			if pk.Type == datums.PacketTypeDatums {
+				bl, err := datums.LireBlocDeDatums(pk.Payload(data))
 				bloc, aBloc = bl, err == nil
 			}
 			if pk.Type != PacketTypeKeyframe {
@@ -109,7 +110,7 @@ func l9UnFilm(t *testing.T, racine, id string, s *l9Sorties) {
 }
 
 // ajouterRecords ajoute les records d'un paquet (et, sous L9_TABLE, sa table de datums).
-func (s *l9Sorties) ajouterRecords(id string, c, k int, pay []byte, recs []KeyframeRec, bloc BlocDeDatums,
+func (s *l9Sorties) ajouterRecords(id string, c, k int, pay []byte, recs []KeyframeRec, bloc datums.BlocDeDatums,
 	aBloc bool) {
 	for _, r := range recs {
 		s.recs = append(s.recs, fmt.Sprintf("%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s", id, c, k, r.Bit, r.Slot, r.Gen, r.TI,
@@ -125,7 +126,7 @@ func (s *l9Sorties) ajouterRecords(id string, c, k int, pay []byte, recs []Keyfr
 }
 
 // l9Verdict juge un identifiant contre le bloc qui precede l'image-cle.
-func l9Verdict(bloc BlocDeDatums, aBloc bool, slot, gen int) string {
+func l9Verdict(bloc datums.BlocDeDatums, aBloc bool, slot, gen int) string {
 	switch {
 	case !aBloc:
 		return "sans bloc"
@@ -143,7 +144,7 @@ func l9Verdict(bloc BlocDeDatums, aBloc bool, slot, gen int) string {
 
 // l9Temoin compte, par classe d'entree du bloc et tranche de slot, les entrees, celles dont
 // l'en-tete exact est dans le payload (`exacts`), et celles que la marche declare.
-func l9Temoin(classes map[string]*l9Compte, bloc BlocDeDatums, exacts map[uint32]bool, recs []KeyframeRec) {
+func l9Temoin(classes map[string]*l9Compte, bloc datums.BlocDeDatums, exacts map[uint32]bool, recs []KeyframeRec) {
 	declares := map[uint32]bool{}
 	for _, r := range recs {
 		declares[uint32(r.Gen)<<30|uint32(r.Slot)] = true //nolint:gosec // gen < 4, slot < 8192
@@ -193,7 +194,7 @@ func l9EnTetesExacts(pay []byte) map[uint32]bool {
 
 // l9Gen0 rend, pour chaque entree vivante de generation 0 du bloc, les positions de son en-tete
 // exact et les records declares (slot@bit) qui encadrent la premiere.
-func l9Gen0(id string, c int, pay []byte, recs []KeyframeRec, bloc BlocDeDatums) []string {
+func l9Gen0(id string, c int, pay []byte, recs []KeyframeRec, bloc datums.BlocDeDatums) []string {
 	tries := append([]KeyframeRec(nil), recs...)
 	sort.Slice(tries, func(i, j int) bool { return tries[i].Bit < tries[j].Bit })
 	var out []string
@@ -256,11 +257,11 @@ func l9UnSlot(fc *FilmContext, id string, c, slot int) []string {
 		return nil
 	}
 	var out []string
-	var bloc BlocDeDatums
+	var bloc datums.BlocDeDatums
 	k := 0
 	for _, pk := range pks {
-		if pk.Type == PacketTypeDatums {
-			bloc, _ = LireBlocDeDatums(pk.Payload(data))
+		if pk.Type == datums.PacketTypeDatums {
+			bloc, _ = datums.LireBlocDeDatums(pk.Payload(data))
 		}
 		if pk.Type != PacketTypeKeyframe {
 			continue
@@ -272,7 +273,7 @@ func l9UnSlot(fc *FilmContext, id string, c, slot int) []string {
 				cands = append(cands, fmt.Sprintf("g%d ti%d", e.Gen(), e.TI))
 			}
 		}
-		e := DatumEntry{}
+		e := datums.DatumEntry{}
 		if slot < len(bloc.Entrees) {
 			e = bloc.Entrees[slot]
 		}

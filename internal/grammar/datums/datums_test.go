@@ -1,4 +1,4 @@
-package grammar
+package datums
 
 import (
 	"errors"
@@ -12,7 +12,29 @@ import (
 // bit et rend les memes valeurs. Sans cet ecrivain, « bit-exact » ne serait qu une intention.
 
 // ecrireBlocDeDatums fabrique un bloc de type 1 a partir d entrees et d une queue.
-func ecrireBlocDeDatums(t *testing.T, ent []DatumEntry, queue [datumQueueMots]uint32) []byte {
+// bitWriter ecrit des champs de bits, poids fort d abord.
+type bitWriter struct {
+	buf []byte
+	n   int
+}
+
+func (w *bitWriter) bit(b uint64) {
+	if w.n/8 >= len(w.buf) {
+		w.buf = append(w.buf, 0)
+	}
+	if b&1 != 0 {
+		w.buf[w.n/8] |= 1 << (7 - uint(w.n%8))
+	}
+	w.n++
+}
+
+func (w *bitWriter) bits(v uint64, n int) {
+	for i := n - 1; i >= 0; i-- {
+		w.bit((v >> uint(i)) & 1)
+	}
+}
+
+func ecrireBlocDeDatums(t *testing.T, ent []DatumEntry, queue [QueueMots]uint32) []byte {
 	t.Helper()
 	w := &bitWriter{}
 	for _, e := range ent {
@@ -43,7 +65,7 @@ func TestBlocDeDatumsAllerRetour(t *testing.T) {
 			MasqueVue: 1<<32 | 1<<3},
 		{Drapeaux: 0, Gen: 0, Generation: DatumGenerationVierge, MasqueVue: 0},
 	}
-	queue := [datumQueueMots]uint32{1, 2, 3, 4, 5}
+	queue := [QueueMots]uint32{1, 2, 3, 4, 5}
 	b, err := LireBlocDeDatums(ecrireBlocDeDatums(t, ent, queue))
 	if err != nil {
 		t.Fatalf("lecture : %v", err)
