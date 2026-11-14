@@ -169,7 +169,7 @@ func e1911SitesDuPaquet(f types.Packet) []e1911Site {
 	var out []e1911Site
 	lim := len(pay)*8 - statTailBits
 	for b := 1; b < lim; b++ {
-		_, idx, at, ok := matchRecordHeader(pay, b)
+		_, idx, at, ok := matchRecordHeader(pay, b, StatborgSlotBandeSure)
 		if !ok {
 			continue
 		}

@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 117
-empreinte-stockee 09a8f898dd439131
-empreinte-servie 09a8f898dd439131
-empreinte-cuite 71a7e4fc624e9871
+schema 118
+empreinte-stockee e03f1a26ab0b1814
+empreinte-servie e03f1a26ab0b1814
+empreinte-cuite ca6cd0a5f0482e33
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -850,6 +850,7 @@ PlayerScore
   Deaths json:"deaths" ScoreSeries
   Kills json:"kills" ScoreSeries
   Score json:"score" ScoreSeries
+  Stats json:"stats,omitempty" map[string]ScoreSeries
   XUID json:"xuid" string
 Point
   G json:"g,omitempty" int
@@ -984,6 +985,7 @@ ScoreCoverage
   RoundsContradictedRecords json:"roundsContradictedRecords,omitempty" int
   RoundsDecreed json:"roundsDecreed,omitempty" bool
   RoundsWritten json:"roundsWritten,omitempty" []int
+  StatsWithheld json:"statsWithheld,omitempty" int
   TeamIdentity json:"teamIdentity" string
   Truncated json:"truncated" bool
 ScoreRound

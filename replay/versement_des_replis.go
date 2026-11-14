@@ -138,6 +138,7 @@ var versementsDesReplis = []ligneDeVersement{
 	// J8.7, sous-lot objectives).
 	{fallback.NomEnregistrementStatborgAbandonne, func(s sourcesDeReplis) int { return s.objectifs.EnregistrementsAbandonnes }},
 	{fallback.NomComposantsStatborgArretes, func(s sourcesDeReplis) int { return s.objectifs.ComposantsArretes }},
+	{fallback.NomBandeStatborgParDefaut, func(s sourcesDeReplis) int { return s.objectifs.BandesParDefaut }},
 	{fallback.NomTableIdentiteVide, func(s sourcesDeReplis) int { return s.objectifs.TablesIdentiteVides }},
 	{fallback.NomDebutDeMancheAuMinimum, func(s sourcesDeReplis) int { return s.objectifs.DebutsDeMancheAuMinimum }},
 	{fallback.NomSlotAbandonneAuPremierArrive, func(s sourcesDeReplis) int { return s.objectifs.SlotsAbandonnes }},

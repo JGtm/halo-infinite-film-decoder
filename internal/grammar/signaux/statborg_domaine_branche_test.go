@@ -31,10 +31,13 @@ const statBrancheComp = 22
 // statVecteurUnCompo fabrique un paquet FRAME portant UN enregistrement d'entite ancre au bit 1 :
 // slot 24, manche 0, liste creuse d'un seul composant [statBrancheComp] dont le canal A vaut `a`
 // (ecrit sur 32 bits) et le canal B vaut 8 (sur 8 bits).
-func statVecteurUnCompo(a uint64) []byte {
-	pay := make([]byte, 48)                 // large devant [statTailBits] : l'ancrage au bit 1 reste balaye.
-	pay = setBitsBE(pay, 0, 1, 1)           // le bit marqueur qui precede l'en-tete
-	pay = setBitsBE(pay, 1, statIDBits, 24) // slot d'entite
+func statVecteurUnCompo(a uint64) []byte { return statVecteurAuSlot(a, 24) }
+
+// statVecteurAuSlot est [statVecteurUnCompo] pour le slot `slot`.
+func statVecteurAuSlot(a uint64, slot uint64) []byte {
+	pay := make([]byte, 48)                   // large devant [statTailBits] : l'ancrage au bit 1 reste balaye.
+	pay = setBitsBE(pay, 0, 1, 1)             // le bit marqueur qui precede l'en-tete
+	pay = setBitsBE(pay, 1, statIDBits, slot) // slot d'entite
 	pay = setBitsBE(pay, 1+statIDBits, statGenBits, statGenValue)
 	m := 1 + statIDBits + statGenBits
 	pay = setBitsBE(pay, m, 1, 0)   // forme CREUSE
@@ -69,7 +72,7 @@ func statPorteComp(recs []types.StatRecord, a int64) bool {
 // serait satisfait par un vecteur que le balayage refuse pour une tout autre raison (ancrage
 // rate, liste mal formee) et ne prouverait rien du filtre.
 func TestLeBalayageGARDELEnregistrementDansLeDomaine(t *testing.T) {
-	recs := scanFrameForRecords(statVecteurUnCompo(10), 764967)
+	recs := scanFrameForRecords(statVecteurUnCompo(10), StatborgSlotBandeSure)
 	if !statPorteComp(recs, 10) {
 		t.Fatalf("le vecteur de controle (comp %d A = 10) ne ressort pas du balayage : "+
 			"%d enregistrement(s) rendus — revoir le vecteur avant de conclure sur le filtre",
@@ -86,7 +89,7 @@ func TestLeBalayageJETTELEnregistrementHorsDomaine(t *testing.T) {
 	if hors <= statMaxCounter {
 		t.Fatalf("le vecteur n'est plus hors domaine : %d <= %d", hors, statMaxCounter)
 	}
-	recs := scanFrameForRecords(statVecteurUnCompo(hors), 764967)
+	recs := scanFrameForRecords(statVecteurUnCompo(hors), StatborgSlotBandeSure)
 	if statPorteComp(recs, hors) {
 		t.Errorf("le balayage rend un enregistrement dont le canal A vaut %d : le filtre de "+
 			"domaine n'est plus branche sur scanFrameForRecords", hors)
@@ -99,18 +102,18 @@ func TestLeBalayageJETTELEnregistrementHorsDomaine(t *testing.T) {
 // versement (`objectives.ComptesDesReplis`).
 func TestLeBalayageDuStatborgCompteSesAbandons(t *testing.T) {
 	var c LectureDuStatborg
-	if recs := scanFrameAvecReplis(statVecteurUnCompo(statMaxCounter+1), 764967, &c); len(recs) != 0 {
+	if recs := scanFrameAvecReplis(statVecteurUnCompo(statMaxCounter+1), 764967, StatborgSlotBandeSure, &c); len(recs) != 0 {
 		t.Fatalf("enregistrement hors domaine publie : %v", recs)
 	}
 	if c.EnregistrementsAbandonnes == 0 {
 		t.Error("l enregistrement hors domaine est abandonne sans etre compte")
 	}
 	var sain LectureDuStatborg
-	if recs := scanFrameAvecReplis(statVecteurUnCompo(10), 764967, &sain); len(recs) == 0 {
+	if recs := scanFrameAvecReplis(statVecteurUnCompo(10), 764967, StatborgSlotBandeSure, &sain); len(recs) == 0 {
 		t.Fatal("l enregistrement sain n est plus lu")
 	}
 	pay := statVecteurUnCompo(10)
-	_, idx, at, ok := matchRecordHeader(pay, 1)
+	_, idx, at, ok := matchRecordHeader(pay, 1, StatborgSlotBandeSure)
 	if !ok {
 		t.Fatal("le vecteur sain ne porte plus d en-tete a son bit d ancrage")
 	}
@@ -119,5 +122,19 @@ func TestLeBalayageDuStatborgCompteSesAbandons(t *testing.T) {
 	}
 	if _, _, arrete := decodeComponentsAvecArret(make([]byte, 2), 0, []int{0, 1}); !arrete { // tampon trop court : le premier composant deborde
 		t.Error("un composant non decodable doit arreter la boucle ET le dire")
+	}
+}
+
+// TestLeBalayageNeLitPasAuDelaDuSlotMax : un enregistrement de slot 26 n'est rendu que si la borne
+// de lecture l'atteint — la bande des huit premiers joueurs le laisse, la bande d'un match a
+// treize joueurs le lit. Le vecteur est le meme dans les deux cas, seule la borne change.
+func TestLeBalayageNeLitPasAuDelaDuSlotMax(t *testing.T) {
+	pay := statVecteurAuSlot(10, 26)
+	if recs := scanFrameForRecords(pay, StatborgSlotBandeSure); len(recs) != 0 {
+		t.Errorf("slot 26 lu avec la bande des huit premiers joueurs : %v", recs)
+	}
+	recs := scanFrameForRecords(pay, 26)
+	if len(recs) != 1 || recs[0].Slot != 26 || !statPorteComp(recs, 10) {
+		t.Errorf("slot 26 non lu avec la bande de treize joueurs : %v", recs)
 	}
 }

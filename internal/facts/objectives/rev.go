@@ -274,10 +274,19 @@ package objectives
 // la couche et ses fixtures sont ceux d avant ; les mesures du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot
 // dedie du decodeur ; l empreinte du golden est recopiee au meme rang.
 
+// ENTREE `objectives-2026-11-14` (2026-11-14, tableau des scores sur tous les sieges) : LA SORTIE CHANGE. Le statborg se lit
+// jusqu'au dernier siege que la table de datums du film declare (jusqu'au slot 58 sur un BTB de 25 entites ; la lecture
+// s'arretait au slot 24, les huit premiers joueurs), et les compteurs nommes du tableau des scores (`ScoreboardStats` :
+// suicides, trahisons, serie maximale, tirs a la tete, tirs, corps a corps, grenades, armes lourdes, degats subis,
+// reapparitions) se lisent par joueur, avec le retour a zero d'une ligne videe et les emissions mal alignees ecartes. Les
+// enregistrements des slots 26 et au-dela de chaque film, les identites qu'ils nomment et `scoreTimeline.players` changent ;
+// les faits persistes de la couche et les calques dates `objectives-2026-10-17` deviennent `redecoder`. Aucun backlog
+// killsource ne s'ouvre.
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
 //
 // A REVISION CONSTANTE (medailles des temps forts lues par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` (`grammar-2026-11-14`)
 // monte ; aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-10-17"
+const Rev = "objectives-2026-11-14"

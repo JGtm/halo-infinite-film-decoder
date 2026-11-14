@@ -145,6 +145,12 @@ type PlayerScore struct {
 	Kills   ScoreSeries `json:"kills"`
 	Deaths  ScoreSeries `json:"deaths"`
 	Assists ScoreSeries `json:"assists"`
+	// Stats sont les autres compteurs du tableau des scores que le film remplit, par nom
+	// (`objectives.ScoreboardStats` : suicides, betrayals, maxSpree, headshots, meleeKills,
+	// grenadeKills, powerWeaponKills, spawns). Un compteur que le film ne remplit pas pour ce joueur
+	// est absent, et tout le champ l'est sur un film a plusieurs manches (`coverage.score.statsWithheld`).
+	// `maxSpree` est un maximum : sa courbe par manche se publie sans total.
+	Stats map[string]ScoreSeries `json:"stats,omitempty"`
 }
 
 // ScoreTimeline est le calque du score dans le temps.
@@ -220,6 +226,10 @@ type ScoreCoverage struct {
 	// `a` (score final), `a0` (score final d un match a sens unique, schema 69), `b` (somme des
 	// frags) ou `unresolved`.
 	TeamIdentity string `json:"teamIdentity"`
+	// StatsWithheld est le nombre de joueurs privés de `players[].stats` parce que le film a plusieurs
+	// manches : l'association (slot, manche) -> xuid n'y atteint pas le niveau d'une manche, les
+	// compteurs nommes ne s'y publient pas. Absent (zero) sur un film d'une manche.
+	StatsWithheld int `json:"statsWithheld,omitempty"`
 	// Rounds est le nombre de manches RETENUES par le decodeur (les manches fantomes,
 	// ancrages fortuits, sont ecartees). 1 sur un match sans manches multiples.
 	Rounds int `json:"rounds"`

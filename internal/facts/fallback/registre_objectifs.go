@@ -56,6 +56,21 @@ var registreObjectifsEtConstruction = []Repli{
 		CompteurBranche: true,
 	},
 	{
+		Nom:       "repli_bande_statborg_par_defaut",
+		Fait:      "jusqu'ou vont les slots de joueur du statborg",
+		Mecanisme: "aucune table de datums du film ne porte la bande des joueurs (absente ou refusee) : la lecture s'arrete au slot des huit premiers joueurs",
+		Condition: CondSectionAbsente,
+		Ordre:     OrdreApresLecture,
+		Sites: []Site{{Fichier: pkgSignaux + "statborg_bande.go", Ancre: "b.ParDefaut = best == 0"}, {Fichier: pkgObjectiveEvents + "statborg.go", Ancre: "BandesParDefaut:           boolVersCompte(l.BandeParDefaut),"}, siteDeVersement("NomBandeStatborgParDefaut"), {
+			Fichier: pkgSignaux + "statborg_bande.go",
+			Ancre:   "b.SlotMax = min(max(best, StatborgSlotBandeSure), StatborgSlotMax)",
+		}},
+		DatePose:        "2026-11-14",
+		CibleRetrait:    "la table de datums de chaque build lue ; a defaut, " + retraitRegle4,
+		CritereRetrait:  "0 film sans bande de datums sur le parc",
+		CompteurBranche: true,
+	},
+	{
 		Nom:       "repli_manche_zero_decretee",
 		Fait:      "quelles manches d'un match sont REELLES",
 		Mecanisme: "aucune manche n'est admise par les deux criteres : la manche 0 est DECRETEE reelle pour que le film reste lisible",

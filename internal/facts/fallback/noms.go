@@ -292,6 +292,8 @@ const (
 	NomEnregistrementStatborgAbandonne Nom = "repli_enregistrement_statborg_abandonne"
 	// NomComposantsStatborgArretes : `grammar/signaux/statborg.go`, porte par `objectives/statborg.go`.
 	NomComposantsStatborgArretes Nom = "repli_composants_statborg_arretes"
+	// NomBandeStatborgParDefaut : `grammar/signaux/statborg_bande.go`, porte par `objectives/statborg.go`.
+	NomBandeStatborgParDefaut Nom = "repli_bande_statborg_par_defaut"
 	// NomTableIdentiteVide : `objectives/slotidentity_deaths.go`.
 	NomTableIdentiteVide Nom = "repli_table_identite_vide"
 	// NomDebutDeMancheAuMinimum : `objectives/slotidentity_rounds.go`.

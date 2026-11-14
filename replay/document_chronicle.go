@@ -4104,3 +4104,40 @@ package replay
 //
 // LE PARC         un artefact 116 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est
 //                 une decision de l utilisateur.
+
+// v118 (2026-11-14, tableau des scores de tous les sieges). Le statborg se lisait pour les huit premiers joueurs seulement : le
+// dernier slot lu etait 24. Il se lit desormais jusqu'au dernier siege que la table de datums du film declare (index contigus a partir
+// de 3, un par equipe puis un par joueur ; slot 58 sur un BTB de 25 entites), et chaque joueur d'un film a une manche porte les
+// compteurs nommes du tableau.
+//
+//	`scoreTimeline.players[].stats`   neuf ; par nom, une serie `{rounds, total}` comme `kills` : suicides, betrayals, maxSpree (sans
+//	                 total : un maximum ne se cumule pas), headshots, meleeKills, grenadeKills, powerWeaponKills, spawns. Un compteur que
+//	                 le film ne remplit pas pour un joueur est absent ; le champ entier l'est sur un film a plusieurs manches.
+//	`coverage.score.statsWithheld`   neuf ; le nombre de joueurs privés de `stats` parce que le film a plusieurs manches. Absent a zero.
+//	`scoreTimeline.players[]`        porte aussi les joueurs des slots 26 et au-dela quand l'identite les nomme.
+//
+// CE QUI N'EST PAS PUBLIE. Les tirs (6B) et les degats subis (10A) : le film ne les replique qu'a de rares instants, leur derniere valeur
+// n'est pas la valeur finale (accord avec l'API : 5,2 % et 39,7 % ; 16 % et 51 % meme quand le dernier point tombe dans la derniere
+// minute). Les compteurs nommes d'un film a plusieurs manches : l'association (slot, manche) -> xuid n'y atteint pas le niveau d'une
+// manche (somme des fins de manche contre l'API, 30 films, 288 couples : frags 85 %, morts 80 %, assistances 88 % avec les lignes du match,
+// compteurs nommes 92 a 96 %, contre 99 % a une manche). Le calque du drapeau garde les equipes et les huit premiers joueurs
+// (`EntreeDuDrapeau`) : sur un CTF de plus de huit sieges sa lecture elargie change sans oracle.
+//
+// LA MESURE (1 612 films du parc). La bande : la derniere ligne lue est celle que la table de datums declare sur 1 608 films, les
+// quatre autres ayant moins de huit joueurs ; 158 films vont au-dela du slot 24, jusqu'au slot 62. Une borne de slot posee sans la
+// table laissait passer des ancrages fortuits sur des slots que le film n'a pas ; une table absente ou refusee ramene a la bande
+// des huit premiers et se compte (`repli_bande_statborg_par_defaut`). Les valeurs, sur les 1 422 films a une manche : valeur finale
+// egale a celle de libfilmshell, qui relit les memes compteurs par la table d'entites du film sans l'ancrage : frags 99,8 %, morts
+// 99,6 %, suicides 99,6 %, serie maximale 99,2 %, tirs a la tete 99,8 %, corps a corps 99,8 %, grenades 99,6 %, armes lourdes 99,9 %,
+// reapparitions 98,1 % (99,6 % contre le nombre de vies du film) ; contre le fil des temps forts : frags 99,7 %, morts 99,7 %, serie
+// maximale 99,8 % (6 944 couples), suicides 9 sur 9, trahisons 7 sur 9. Contre `match_participants` : frags 99,7 %, morts 99,6 %,
+// tirs a la tete 99,3 %, serie maximale 99,1 %, corps a corps 99,3 %, grenades 99,1 %, armes lourdes 99,2 % (9 000 a 12 700 couples
+// par champ) ; sur les 158 films de plus de huit sieges (2 783 couples) : frags 99,2 %, morts 99,5 %, assistances 96,5 %, score
+// personnel 97,4 %. L'identite des joueurs au-dela du slot 24 : le pont par instants de mort nomme 3 047 slots sur 3 292 dans les
+// films de plus de huit sieges ; sur les 784 slots que le pont par le triplet des compteurs nomme aussi, il n'y a aucun desaccord.
+//
+// CE QUI MONTE    `SchemaVersion` 117 -> 118, `objectives.Rev` -> `objectives-2026-11-14`. `grammar.Rev` reste : la lecture du statborg
+// AVEC ELLE       (`grammar/signaux`) n'alimente que les objectifs, `killsource` ne l'importe pas. `SchemaDesFaits` reste 22.
+//
+// LE PARC         un artefact 117 : verdict `a redecoder` (les faits des objectifs se refusent sur la revision). La recuisson est une
+//                 decision de l'utilisateur.

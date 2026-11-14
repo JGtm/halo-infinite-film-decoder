@@ -1517,8 +1517,14 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	// - 117 (2026-11-14, medailles) : `medals[]` (instant, joueur, indice, nom) et `coverage.medals` portent les medailles du
 	//   morceau des temps forts, sur le meme axe que le reste. Champs optionnels, mais la version monte pour la raison des montees
 	//   v3..v24 : un v116 ne porte aucune medaille, et ses faits se refusent (`SchemaDesFaits` 23, `grammar.Rev`) : a redecoder. Detail : `document_chronicle.go`.
-	if SchemaVersion != 117 {
-		t.Fatalf("SchemaVersion = %d, attendu 117 : incrémenter exige une raison écrite ci-dessus "+
+	// - 118 (2026-11-14, tableau des scores de tous les sieges) : le statborg se lit jusqu'au dernier siege du film et
+	//   `scoreTimeline.players[].stats` porte les compteurs nommes du tableau (suicides, tirs a la tete...), et
+	//   `coverage.score.statsWithheld` compte les joueurs de films a plusieurs manches qui n'en ont pas. Champs
+	//   optionnels, mais la version monte pour la raison des montees v3..v24 : un v117 ne porte ni les compteurs ni les
+	//   joueurs des slots 26 et au-dela. `objectives.Rev` monte : un v117 se lit « à redécoder ». Detail :
+	//   `document_chronicle.go`.
+	if SchemaVersion != 118 {
+		t.Fatalf("SchemaVersion = %d, attendu 118 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

@@ -12,7 +12,7 @@ import (
 //
 // # Le probleme, et il bloquait le collage au rejeu 2D
 //
-// Les evenements nommes portent un slot d'ENTITE STATBORG (10..24 pairs). Le rejeu 2D, lui,
+// Les evenements nommes portent un slot d'ENTITE STATBORG (10 jusqu'au dernier siege, pairs). Le rejeu 2D, lui,
 // indexe ses trajectoires par slot de BIPED et identifie ses vies par XUID. **Ce sont deux
 // espaces de slots differents** : rien ne garantit qu'ils coincident, et le supposer
 // collerait des evenements sur les mauvais joueurs sans que rien ne le signale.

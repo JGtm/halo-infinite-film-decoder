@@ -34,7 +34,7 @@ func TestDomaineAccepteUnEnregistrementREEL(t *testing.T) {
 		if !statCountersInDomain(v.comps) {
 			t.Errorf("%s : l'enregistrement REEL %v est refuse par le domaine", nom, v.comps)
 		}
-		_, idx, at, ok := matchRecordHeader(v.data, v.bits)
+		_, idx, at, ok := matchRecordHeader(v.data, v.bits, StatborgSlotBandeSure)
 		if !ok {
 			t.Fatalf("%s : le vecteur ne s'ancre plus — revoir les vecteurs avant ce test", nom)
 		}
