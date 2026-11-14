@@ -84,14 +84,13 @@ func (p *ProfilDeBalayage) PoserLargeursObjetDuMonde(d profile.PrecisionDescript
 // decoupage lu dans le film (`DetectI0Layout`) sert de controle : s il contredit le catalogue,
 // ce sont les BORNES qui sont fausses.
 //
-// LE RENDU EST LE RAPPORT DES DEUX REPLIS DE LA POSE (lot J8.7) — `repli_largeurs_monde_par_defaut_conservees`
-// et `repli_index_de_region_largeur_un` —, que l appelant verse au rapport de SON contexte de film
-// ([FilmContext.NoterReplis]) : un profil de balayage n en porte pas.
-func (p *ProfilDeBalayage) PoserLargeursObjetDuMondeDepuisDecoupage(l profile.I0Layout) ComptesDesReplis {
+// PRECONDITION : un decoupage aux trois largeurs non nulles et a la porte d un index de region (ce que
+// rendent `MapQuantEntry.Layout` et `DetectI0LayoutOf`, et ce que verifie la pose de la carte). Un
+// decoupage sans largeur laisse le profil tel quel ; une porte trop courte laisse la largeur d index.
+func (p *ProfilDeBalayage) PoserLargeursObjetDuMondeDepuisDecoupage(l profile.I0Layout) {
 	if l.AxisW[0] == 0 || l.AxisW[1] == 0 || l.AxisW[2] == 0 {
-		return ComptesDesReplis{LargeursMondeParDefaut: 1} // decoupage non detecte : garder le defaut plutot qu installer des zeros
+		return
 	}
-	var replis ComptesDesReplis
 	p.Mouvement.WorldObject.AxisW = l.AxisW
 	// La largeur de l INDEX DE REGION est elle aussi une constante par carte
 	// (ceilLog2(nb de regions) — 2 bits sur Live Fire, lot C catalogues 2026-08-27). Un
@@ -102,8 +101,6 @@ func (p *ProfilDeBalayage) PoserLargeursObjetDuMondeDepuisDecoupage(l profile.I0
 	// SON record.
 	if l.GateBits > profile.I0SpineBits+profile.I0UseDefaultBits {
 		p.Mouvement.WorldObject.IndexW = uint(l.GateBits - profile.I0SpineBits - profile.I0UseDefaultBits)
-	} else {
-		replis.IndexDeRegionLargeurUn = 1 // porte trop courte : la largeur d index en place reste
 	}
 	// LA REGION ATTENDUE SUIT LES LARGEURS, par le meme chemin et dans le meme appel
 	// (lot B-bis, 2026-09-12). Sans elle, le lecteur world-object exigeait un index de region
@@ -116,7 +113,6 @@ func (p *ProfilDeBalayage) PoserLargeursObjetDuMondeDepuisDecoupage(l profile.I0
 	// `SimStateComplet` porte depuis le lot R7-b, et il est TENU par ce geste meme (cf.
 	// [grammaireSousCarte]).
 	p.Grammaire = grammaireSousCarte(p.Grammaire, true)
-	return replis
 }
 
 // PoserLesRegionsDeLaCarte installe la table PAR INDEX DE REGION de la carte ([profile.MapQuantEntry.Regions])

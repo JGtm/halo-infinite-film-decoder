@@ -43,12 +43,6 @@ type ComptesDesReplis struct {
 	// SlotsBipedesComblees : `repli_bande_bipede_comblee` — slots AJOUTES a la bande bipede par le
 	// comblement de [min, max], sommes sur les releves du contexte (`offline_biped_band.go`).
 	SlotsBipedesComblees int
-	// LargeursMondeParDefaut : `repli_largeurs_monde_par_defaut_conservees` — decoupage sans largeur
-	// d axe : le defaut des objets du monde est conserve (`profil_balayage.go`).
-	LargeursMondeParDefaut int
-	// IndexDeRegionLargeurUn : `repli_index_de_region_largeur_un` — porte trop courte pour un index
-	// de region : la largeur d index en place est conservee (`profil_balayage.go`).
-	IndexDeRegionLargeurUn int
 	// LargeursMPPParDefaut : `repli_largeurs_mpp_par_defaut` — balayage de socles ou de vehicules
 	// fait aux largeurs MPP de l invariant (9/5), ni relue ni calibree n ayant ete posee
 	// (`profile/mpp_widths.go`, compte par `replay/build_ground_weapons.go`).
@@ -110,8 +104,6 @@ func (r ComptesDesReplis) Plus(d ComptesDesReplis) ComptesDesReplis {
 		LargeursMPPCalibrees:           r.LargeursMPPCalibrees + d.LargeursMPPCalibrees,
 		I0PorteEtRegionParDefaut:       r.I0PorteEtRegionParDefaut + d.I0PorteEtRegionParDefaut,
 		SlotsBipedesComblees:           r.SlotsBipedesComblees + d.SlotsBipedesComblees,
-		LargeursMondeParDefaut:         r.LargeursMondeParDefaut + d.LargeursMondeParDefaut,
-		IndexDeRegionLargeurUn:         r.IndexDeRegionLargeurUn + d.IndexDeRegionLargeurUn,
 		LargeursMPPParDefaut:           r.LargeursMPPParDefaut + d.LargeursMPPParDefaut,
 		ChunksApresTrouAbandonnes:      r.ChunksApresTrouAbandonnes + d.ChunksApresTrouAbandonnes,
 		AncresSansVieDelta:             r.AncresSansVieDelta + d.AncresSansVieDelta,

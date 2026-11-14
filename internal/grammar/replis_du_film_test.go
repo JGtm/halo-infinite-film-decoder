@@ -63,27 +63,32 @@ func TestLeContexteCompteLesChunksAbandonnesAuTrou(t *testing.T) {
 	}
 }
 
-// TestLaPoseDesLargeursRendSesReplis : les deux replis de la pose des largeurs de la carte se rendent
-// en donnees, et le contexte qui pose les note.
-func TestLaPoseDesLargeursRendSesReplis(t *testing.T) {
+// TestLaPoseDesLargeursSuitSaPrecondition : un decoupage sans largeur laisse le profil, une porte trop
+// courte laisse la largeur d index ; un decoupage complet pose les deux. Aucun repli n est note : les
+// poseurs de production ne passent que des decoupages complets.
+func TestLaPoseDesLargeursSuitSaPrecondition(t *testing.T) {
+	defaut := ProfilDeBalayageParDefaut().Mouvement.WorldObject
 	cas := []struct {
-		nom  string
-		lay  profile.I0Layout
-		want ComptesDesReplis
+		nom    string
+		lay    profile.I0Layout
+		axes   [3]uint
+		indexW uint
 	}{
-		{"decoupage non detecte", profile.I0Layout{}, ComptesDesReplis{LargeursMondeParDefaut: 1}},
-		{"porte trop courte", profile.I0Layout{AxisW: [3]uint{13, 13, 14}}, ComptesDesReplis{IndexDeRegionLargeurUn: 1}},
-		{"carte complete", profile.I0Layout{GateBits: profile.DefaultI0GateBits, AxisW: [3]uint{13, 13, 14}}, ComptesDesReplis{}},
+		{"decoupage sans largeur", profile.I0Layout{}, defaut.AxisW, defaut.IndexW},
+		{"porte trop courte", profile.I0Layout{AxisW: [3]uint{13, 13, 14}}, [3]uint{13, 13, 14}, defaut.IndexW},
+		{"carte complete", profile.I0Layout{GateBits: profile.DefaultI0GateBits + 1, AxisW: [3]uint{13, 13, 14}},
+			[3]uint{13, 13, 14}, 2},
 	}
 	for _, c := range cas {
 		p := ProfilDeBalayageParDefaut()
-		if got := p.PoserLargeursObjetDuMondeDepuisDecoupage(c.lay); got != c.want {
-			t.Errorf("%s : rapport %+v, attendu %+v", c.nom, got, c.want)
+		p.PoserLargeursObjetDuMondeDepuisDecoupage(c.lay)
+		if got := p.Mouvement.WorldObject; got.AxisW != c.axes || got.IndexW != c.indexW {
+			t.Errorf("%s : axes %v index %d, attendu %v index %d", c.nom, got.AxisW, got.IndexW, c.axes, c.indexW)
 		}
 		fc := NewFilmContext(nil)
 		fc.PoserLargeursObjetDuMondeDepuisDecoupage(c.lay)
-		if got := fc.ComptesDesReplis(); got != c.want {
-			t.Errorf("%s : le contexte a note %+v, attendu %+v", c.nom, got, c.want)
+		if got := fc.ComptesDesReplis(); got != (ComptesDesReplis{}) {
+			t.Errorf("%s : le contexte a note %+v, attendu aucun repli", c.nom, got)
 		}
 	}
 }

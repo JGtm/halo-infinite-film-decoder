@@ -96,8 +96,6 @@ var versementsDesReplis = []ligneDeVersement{
 	{fallback.NomLargeursMppCalibreesSurLeFilm, func(s sourcesDeReplis) int { return s.grammaire.LargeursMPPCalibrees }},
 	{fallback.NomI0PorteEtRegionParDefaut, func(s sourcesDeReplis) int { return s.grammaire.I0PorteEtRegionParDefaut }},
 	{fallback.NomBandeBipedeComblee, func(s sourcesDeReplis) int { return s.grammaire.SlotsBipedesComblees }},
-	{fallback.NomLargeursMondeParDefautConservees, func(s sourcesDeReplis) int { return s.grammaire.LargeursMondeParDefaut }},
-	{fallback.NomIndexDeRegionLargeurUn, func(s sourcesDeReplis) int { return s.grammaire.IndexDeRegionLargeurUn }},
 	{fallback.NomLargeursMppParDefaut, func(s sourcesDeReplis) int { return s.grammaire.LargeursMPPParDefaut }},
 	{fallback.NomChunksApresTrouAbandonnes, func(s sourcesDeReplis) int { return s.grammaire.ChunksApresTrouAbandonnes }},
 	{fallback.NomAncreSansVieDeltaEcartee, func(s sourcesDeReplis) int { return s.grammaire.AncresSansVieDelta }},

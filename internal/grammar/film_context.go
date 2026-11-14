@@ -209,7 +209,7 @@ func (c *FilmContext) PoserLargeursObjetDuMonde(d profile.PrecisionDescriptor) {
 // PoserLargeursObjetDuMondeDepuisDecoupage installe les largeurs d axe de la CARTE sur ce
 // contexte : la porte de l enveloppe D2 et des instruments (la cuisson : [FilmContext.PoserLaCarteEtLeDecoupage]).
 func (c *FilmContext) PoserLargeursObjetDuMondeDepuisDecoupage(l profile.I0Layout) {
-	c.NoterReplis(c.bal.PoserLargeursObjetDuMondeDepuisDecoupage(l))
+	c.bal.PoserLargeursObjetDuMondeDepuisDecoupage(l)
 }
 
 // ContexteDeLecture rend ce que les lecteurs de ce contexte portent : son profil de balayage et

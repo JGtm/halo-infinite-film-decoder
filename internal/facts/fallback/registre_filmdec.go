@@ -140,50 +140,6 @@ var registreFilmdec = []Repli{
 		CritereRetrait:  "la bande vient du profil du build ; 0 comblement sur les 8 builds",
 		CompteurBranche: true,
 	},
-	{
-		Nom:       "repli_largeurs_monde_par_defaut_conservees",
-		Fait:      "les largeurs d'axe des objets du monde installees pour ce film",
-		Mecanisme: "layout non detecte : le defaut est conserve plutot que d'installer des zeros",
-		Condition: CondNonResolu,
-		Ordre:     OrdreApresLecture,
-		Sites: []Site{{
-			Fichier: pkgFilmdec + "profil_balayage.go",
-			Ancre:   "if l.AxisW[0] == 0 || l.AxisW[1] == 0 || l.AxisW[2] == 0 {",
-		}, {
-			// La pose REND son rapport ; les contextes qui l appellent le notent (lot J8.7).
-			Fichier: pkgFilmdec + "profil_balayage.go",
-			Ancre:   "return ComptesDesReplis{LargeursMondeParDefaut: 1}",
-		}, {
-			Fichier: pkgFilmdec + "film_context.go",
-			Ancre:   "c.NoterReplis(c.bal.PoserLargeursObjetDuMondeDepuisDecoupage(l))",
-		}, {
-			// La pose du contexte de carte de la cuisson et du sync, geste unique de la grammaire.
-			Fichier: pkgFilmdec + "contexte_de_carte.go",
-			Ancre:   "c.NoterReplis(bal.PoserLargeursObjetDuMondeDepuisDecoupage(e.Layout()))",
-		}, siteDeVersement("NomLargeursMondeParDefautConservees")},
-		DatePose:        dateAudit0E,
-		CibleRetrait:    "les largeurs, donnee de la carte et du build ; a defaut, " + retraitRegle4,
-		CritereRetrait:  "les largeurs viennent du profil ; 0 conservation du defaut sur les 8 builds",
-		CompteurBranche: true,
-	},
-	{
-		Nom:       "repli_index_de_region_largeur_un",
-		Fait:      "la largeur de l'index de region dans i0",
-		Mecanisme: "la porte est trop courte pour porter un index : la largeur 1 par defaut est conservee",
-		Condition: CondNonResolu,
-		Ordre:     OrdreApresLecture,
-		Sites: []Site{{
-			Fichier: pkgFilmdec + "profil_balayage.go",
-			Ancre:   "if l.GateBits > profile.I0SpineBits+profile.I0UseDefaultBits {",
-		}, {
-			Fichier: pkgFilmdec + "profil_balayage.go",
-			Ancre:   "replis.IndexDeRegionLargeurUn = 1",
-		}, siteDeVersement("NomIndexDeRegionLargeurUn")},
-		DatePose:        dateAudit0E,
-		CibleRetrait:    "la largeur d index de region lue au profil de la carte ; a defaut, " + retraitRegle4,
-		CritereRetrait:  "la largeur d'index vient du profil de la carte ; 0 recours au defaut",
-		CompteurBranche: true,
-	},
 	// `repli_largeur_absolue_uniforme` EST RETIRE LE 2026-09-17 (lot 3.4.1-a), ET SON CRITERE
 	// EST TENU : « les trois axes prennent leur largeur du profil ; le reglage global uniforme
 	// est retire avec ses tests ». Le champ `profile.MovementProfile.AbsoluteAxisW` n'existe

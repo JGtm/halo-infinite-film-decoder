@@ -158,11 +158,8 @@ func ProfilDeDepartPourCarte(carte *profile.MapQuantEntry) (grammar.ProfilDeBala
 	if !carteApplicable(carte) {
 		return p, false
 	}
-	// Les replis de la pose ne se comptent pas ICI : [carteApplicable] vient d exiger des largeurs
-	// d axe non nulles, et la cuisson pose la MEME carte sur son contexte, qui compte l index de
-	// region (lot J8.7 ; `repli_carte_absente_largeurs_par_defaut` est retire depuis le 2026-09-27,
-	// carte obligatoire).
-	_ = p.PoserLargeursObjetDuMondeDepuisDecoupage(carte.Layout())
+	// [carteApplicable] vient d exiger des largeurs d axe non nulles : la precondition de la pose.
+	p.PoserLargeursObjetDuMondeDepuisDecoupage(carte.Layout())
 	p.PoserLesRegionsDeLaCarte(*carte)
 	return p, true
 }

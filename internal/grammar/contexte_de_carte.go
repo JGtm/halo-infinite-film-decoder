@@ -23,8 +23,7 @@ type PoseDeLaCarte struct {
 // PoserLaCarteEtLeDecoupage pose sur ce contexte les largeurs d axe de la carte que son profil de
 // film porte ([profile.Profile.Map]) — largeurs, index et region de la plage, et `SimStateComplet`
 // avec elles ([ProfilDeBalayage.PoserLargeursObjetDuMondeDepuisDecoupage]), puis la table par index de
-// region ([ProfilDeBalayage.PoserLesRegionsDeLaCarte]) —, en verse les replis au
-// rapport du contexte, puis pose le decoupage du bloc MPP que [FilmContext.ResolutionMPP] decide. Une
+// region ([ProfilDeBalayage.PoserLesRegionsDeLaCarte]) —, puis pose le decoupage du bloc MPP que [FilmContext.ResolutionMPP] decide. Une
 // entree sans largeurs laisse le profil ; un decoupage qui ne decide pas laisse le contexte.
 func (c *FilmContext) PoserLaCarteEtLeDecoupage() PoseDeLaCarte {
 	var pose PoseDeLaCarte
@@ -33,7 +32,7 @@ func (c *FilmContext) PoserLaCarteEtLeDecoupage() PoseDeLaCarte {
 		pose.LargeursAbsentes = true
 	} else {
 		bal := c.ProfilDeBalayage()
-		c.NoterReplis(bal.PoserLargeursObjetDuMondeDepuisDecoupage(e.Layout()))
+		bal.PoserLargeursObjetDuMondeDepuisDecoupage(e.Layout())
 		bal.PoserLesRegionsDeLaCarte(e)
 		c.PoserProfilDeBalayage(bal)
 	}
