@@ -38,3 +38,23 @@ type HighlightEvent struct {
 	TimeMS    int
 	MedalType int
 }
+
+// MedalAward est une médaille du morceau des temps forts, réduite à ce que la publication en
+// garde : qui l'a gagnée, quand, et le couple d'octets qui l'identifie dans le bloc d'événement.
+//
+// La médaille n'est identifiée que par ces deux octets, jamais par un nom : `MedalType` est
+// l'indice de médaille du jeu, `TypeHint` son poids de tri. Le nom est une table de lecture
+// (`medalname`), que la publication applique. Les champs sont ceux de [HighlightEvent] du même
+// nom, pour les événements `medal`.
+type MedalAward struct {
+	// XUID est le joueur qui a gagné la médaille.
+	XUID uint64
+	// TimeMS est l'instant de l'événement sur l'horloge des temps forts, la même que celle des
+	// morts du fil.
+	TimeMS int64
+	// TypeHint est le poids de tri de la médaille (octet 47 du bloc d'événement).
+	TypeHint int
+	// MedalType est l'indice de médaille du jeu (octet 59 du bloc d'événement), unique parmi les
+	// médailles connues.
+	MedalType int
+}

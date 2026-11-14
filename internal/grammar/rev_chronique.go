@@ -202,3 +202,12 @@ package grammar
 // Les compteurs des passes changent de sens : une ancre de creation de bipede est un record lu, plus un en-tete de hasard (879 ancres
 // pour 105 creations -> 105). Duree du decodage seul sur dix temoins : mediane 7,4 s -> 2,5 s, pire 31,8 s -> 7,5 s. Les rejeux et
 // les faits cuits avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-14` (2026-11-14, les medailles du morceau des temps forts sont rendues avec le fil des morts). LE DECODAGE
+// GAGNE UNE LECTURE, et aucune n en change. Le morceau des temps forts etait parse pour ses seules morts ; il l est desormais UNE fois
+// pour ses morts ET ses medailles ([scanTempsForts], [medaillesDesTempsForts]) : xuid, instant, poids de tri et indice de medaille
+// de chaque evenement `medal`, dans l ordre total instant, xuid, indice ([LecturesDuPont.Medailles], [LecturesDuPont.MedaillesLues]).
+// Le fil des morts, son erreur et le verdict du repli du numero sont rendus a l identique ; aucun bit n est lu autrement. CE QUI NE
+// CHANGE PAS : le parseur ([ParseHighlightEvents]), le choix du morceau, les morts. Le zero de l horloge des temps forts se mesure a part
+// (publication) : sur les films que libfilmshell lit, son zero calcule par les kills tombe a moins de 11 ms du premier paquet du film.
+// Les rejeux et les faits cuits avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.

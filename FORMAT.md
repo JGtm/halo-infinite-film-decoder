@@ -467,6 +467,8 @@ same records and layout, counts an unknown hint as a kill, reads the player's te
 fixed 15,406 bits from the XUID where this decoder searches. It also reports that the chunk starts with a packet of type 9; whether
 a 16-byte packet header precedes the events here, and whether the scan crosses it without effect, is unverified.
 
+**Clock and medals.** An event time counts from the film's first packet: the zero of the highlights clock sits within a tick (16.7 ms) of it. On the 11 films libfilmshell reads, its zero, placed by pairing each death record with its kill event, falls between -11.3 and +2.4 ms of the first packet. A medal is identified by its two bytes: the medal type byte `[59]` is the game's medal index (unique among the 124 known), the hint byte `[47]` its sorting weight; per player and per medal, this decoder and libfilmshell count the same on those 11 films (351 keys, names included). The replay document places a medal on its frame by `(ms - originMs) / frameIntervalMs`, with no death-feed offset.
+
 **Status.** Read: the event block, by major version. Recovered: every record, by bit scan and marker search. Not read: the team
 byte, the chunk's packet structure, records with an unknown hint.
 

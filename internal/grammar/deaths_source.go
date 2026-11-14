@@ -121,17 +121,40 @@ func ScanDeaths(film *source.Film) ([]types.Death, error) {
 // morceau des temps forts designe par son numero faute de manifeste type), que l etage du pont
 // d identite verse au rapport de son contexte (lot J8.7).
 func scanDeaths(film *source.Film) ([]types.Death, bool, error) {
+	tf := scanTempsForts(film)
+	return tf.morts, tf.auDernierNumero, tf.err
+}
+
+// tempsForts est ce qu UNE lecture du morceau des temps forts rend : le fil des morts et les
+// medailles, avec le verdict du repli du numero et l erreur du fil des morts.
+type tempsForts struct {
+	morts     []types.Death
+	medailles []highlightevent.MedalAward
+	// lu dit que le morceau a ete decompresse et parse : les medailles (possiblement aucune) sont
+	// alors une mesure. Faux : le morceau est absent, ne se lit pas ou n est pas designe, et
+	// l absence de medaille ne veut rien dire.
+	lu              bool
+	auDernierNumero bool
+	// err est l erreur du FIL DES MORTS, la seule qu un appelant des morts regarde ;
+	// [ErrFilDesMortsSansMort] accompagne un morceau lu, medailles comprises.
+	err error
+}
+
+// scanTempsForts lit le morceau des temps forts UNE fois et en rend les morts et les medailles.
+func scanTempsForts(film *source.Film) tempsForts {
 	nums := FilmChunkNumbers(film)
 	if len(nums) == 0 {
-		return nil, false, ErrNoReadableFilmChunk
+		return tempsForts{err: ErrNoReadableFilmChunk}
 	}
 	n, auDernierNumero, err := numeroDesTempsForts(film, nums)
 	if err != nil {
-		return nil, false, err
+		return tempsForts{err: err}
 	}
+	tf := tempsForts{auDernierNumero: auDernierNumero}
 	raw, _, ok := FilmChunkAt(film, n)
 	if !ok {
-		return nil, auDernierNumero, fmt.Errorf("chunk highlight (%d) : absent du film", n)
+		tf.err = fmt.Errorf("chunk highlight (%d) : absent du film", n)
+		return tf
 	}
 	// LE WARN DU REGISTRE ABSENT MONTE CHEZ L APPELANT, ET C EST DELIBERE (revue adversariale du
 	// 2026-09-12, constat P2-4). Deux raisons : cette fonction ne connait pas le `match_id` — elle
@@ -146,8 +169,11 @@ func scanDeaths(film *source.Film) ([]types.Death, bool, error) {
 	// pour une valeur qui tient dans les quatre premiers octets.
 	evs, err := ParseHighlightEvents(raw, HighlightProfileOfFilm(film).MajorVersion)
 	if err != nil {
-		return nil, auDernierNumero, fmt.Errorf("chunk highlight (%d) : %w", n, err)
+		tf.err = fmt.Errorf("chunk highlight (%d) : %w", n, err)
+		return tf
 	}
+	tf.lu = true
+	tf.medailles = medaillesDesTempsForts(evs)
 	out := make([]types.Death, 0, len(evs))
 	for _, e := range evs {
 		if e.EventType != highlightevent.EventTypeDeath {
@@ -156,10 +182,30 @@ func scanDeaths(film *source.Film) ([]types.Death, bool, error) {
 		out = append(out, types.Death{XUID: e.XUID, Gamertag: e.Gamertag, TimeMS: int64(e.TimeMS)})
 	}
 	if len(out) == 0 {
-		return nil, auDernierNumero, fmt.Errorf("chunk highlight (%d) : %w", n, ErrFilDesMortsSansMort)
+		tf.err = fmt.Errorf("chunk highlight (%d) : %w", n, ErrFilDesMortsSansMort)
+		return tf
 	}
 	trierMortsDuFil(out)
-	return out, auDernierNumero, nil
+	tf.morts = out
+	return tf
+}
+
+// medaillesDesTempsForts rend les medailles des evenements lus, dans un ordre TOTAL : instant,
+// xuid, medaille. Le couple (type de tri, medaille) est celui du bloc d evenement ; la table des
+// noms vit dans `medalname`, la publication nomme.
+func medaillesDesTempsForts(evs []highlightevent.HighlightEvent) []highlightevent.MedalAward {
+	var out []highlightevent.MedalAward
+	for _, e := range evs {
+		if e.EventType != highlightevent.EventTypeMedal {
+			continue
+		}
+		out = append(out, highlightevent.MedalAward{XUID: e.XUID, TimeMS: int64(e.TimeMS), TypeHint: e.TypeHint, MedalType: e.MedalType})
+	}
+	slices.SortFunc(out, func(a, b highlightevent.MedalAward) int {
+		return cmp.Or(cmp.Compare(a.TimeMS, b.TimeMS), cmp.Compare(a.XUID, b.XUID),
+			cmp.Compare(a.MedalType, b.MedalType), cmp.Compare(a.TypeHint, b.TypeHint))
+	})
+	return out
 }
 
 // trierMortsDuFil range le fil des morts dans un ordre TOTAL (lot J10.1, 2026-09-27, DT-9) :

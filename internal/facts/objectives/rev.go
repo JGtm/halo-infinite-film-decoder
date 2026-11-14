@@ -277,4 +277,7 @@ package objectives
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
+//
+// A REVISION CONSTANTE (medailles des temps forts lues par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` (`grammar-2026-11-14`)
+// monte ; aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
 const Rev = "objectives-2026-10-17"
