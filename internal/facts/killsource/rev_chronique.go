@@ -476,3 +476,6 @@ package killsource
 // A REVISION CONSTANTE (horloge de manche, comptes a rebours, regles de la variante, 2026-11-14) : les VALEURS de `profile.Rev`
 // (`profile-2026-11-14`) et de `grammar.Rev` (`grammar-2026-11-14.4`) montent ; aucune source de cette couche ne change. Sur la
 // mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne change. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (messages de jeu et scripts lus par la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte
+// (`grammar-2026-11-15`) ; le fil des couples et les kills que ce paquet en tire ne changent pas. Golden regenere a revision constante.

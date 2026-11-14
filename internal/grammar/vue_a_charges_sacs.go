@@ -19,8 +19,8 @@ const longueurChaineDePropriete = 16
 // chargeEvenementJoueurCourt porte `FUN_14080add8` (`PlayerGameEventSmall`) : `FUN_14080b30c`
 // (initialisation, aucun bit), `FUN_14080ae70` (R(32), R(8), le sac, le sous-sac), puis
 // `FUN_14080ae28` (32 x R(1), le masque des destinataires). Un message dont le sous-sac nomme un
-// couple ([coupleDuSacTexte]) est range sur le lecteur ([Lecteur.filLu]), que la lecture de la vue A
-// recueille.
+// couple ([coupleDuSacTexte]) est range sur le lecteur ([Lecteur.filLu]), et TOUT message l'est aussi sur
+// [Lecteur.evenementLu] ([evenementDeJeu]) ; la lecture de la vue A les recueille.
 func chargeEvenementJoueurCourt(br *Lecteur) bool {
 	br.filACouple = false
 	e, ok := lireEnTeteDEvenementDeJeu(br, largeurCompteSacCourt)
@@ -28,6 +28,7 @@ func chargeEvenementJoueurCourt(br *Lecteur) bool {
 		return false
 	}
 	masque := uint32(br.ReadBits(ParticipantsDuFil)) //nolint:gosec // R(32)
+	br.evenementLu = evenementDeJeu(e, masque)
 	if tueur, victime, couple := coupleDuSacTexte(e.texte); couple {
 		br.filLu = lecture.EvenementDeFil{Type: e.typ, Destinataires: masque, Tueur: tueur, Victime: victime}
 		br.filACouple = true
@@ -120,16 +121,17 @@ const (
 // enTeteDEvenementDeJeu est ce que [lireEnTeteDEvenementDeJeu] rend : le `R(32)` de tete et le
 // sous-sac.
 type enTeteDEvenementDeJeu struct {
-	typ   uint32
-	texte sacTexte
+	typ      uint32
+	sequence uint8
+	texte    sacTexte
 }
 
 // lireEnTeteDEvenementDeJeu porte `FUN_14080ae70` (sac court) et `FUN_142efb480` (sac long) :
 // R(32), R(8), le sac principal, puis le sous-sac `FUN_14080b034`.
 func lireEnTeteDEvenementDeJeu(br *Lecteur, largeurCompte uint) (enTeteDEvenementDeJeu, bool) {
 	var e enTeteDEvenementDeJeu
-	e.typ = uint32(br.ReadBits(32)) //nolint:gosec // R(32)
-	br.Skip(8)
+	e.typ = uint32(br.ReadBits(32))    //nolint:gosec // R(32)
+	e.sequence = uint8(br.ReadBits(8)) //nolint:gosec // R(8)
 	if !lireSacDeProprietes(br, largeurCompte) {
 		return e, false
 	}
@@ -199,4 +201,25 @@ func chargeDEvenementDeJeu(genre int) func(*Lecteur) bool {
 		return chargeEvenementDEquipeCourt
 	}
 	return nil
+}
+
+// evenementDeJeu range le message de genre 82 que [chargeEvenementJoueurCourt] vient de lire : son rang, sa
+// séquence, son mot texte, ses deux premiers participants et le masque de ses destinataires.
+func evenementDeJeu(e enTeteDEvenementDeJeu, masque uint32) lecture.EvenementDeJeu {
+	ev := lecture.EvenementDeJeu{
+		Rang: e.typ, Sequence: e.sequence, Destinataires: masque,
+		Texte: uint32(e.texte.Nom), ATexte: e.texte.Present, //nolint:gosec // R(32)
+		Participants: [2]int8{lecture.RefAbsente, lecture.RefAbsente},
+	}
+	n := 0
+	for _, s := range e.texte.Entrees {
+		if s.SousType != sacTexteParticipant || n == len(ev.Participants) {
+			continue
+		}
+		if s.AValeur {
+			ev.Participants[n] = int8(s.Valeur) //nolint:gosec // indice R(5)
+		}
+		n++
+	}
+	return ev
 }

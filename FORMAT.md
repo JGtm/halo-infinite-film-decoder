@@ -244,6 +244,18 @@ executable's native versions, with no build name and no major version:
 
 The game writes the event list, a `0` bit, then view B, with no length prefix (`FUN_142f2c3b0`).
 
+**Game events (genre 82, `PlayerGameEventSmall`).** The mode script's reply to a player: a kill, an assist, a flag capture, a personal
+score. The payload is `R(32)` **rank**, `R(8)` sequence number, a property bag (`R(3)` entries, each a name `R(32)` and a typed value),
+a text bag (`R(1)`; if set a `R(32)` text word, `R(3)` slots, each a 3-bit type then its value: type 1 is a participant, `R(1)` absent or
+`R(5)` index), and a 32-bit mask of the recipients (the first bit is participant 0). The message names no response and carries no
+points: the rank is a position in the event tree of the film's mode scripts, so the same rank is another response in another mode. The
+scripts are named in chunk 0: strings ending in `.lua`, written byte by byte 3 bits after a byte boundary
+(`internal/grammar/film_scripts.go`); `slayerevents.lua`, or `arenaflagevents.lua` with `flageventstubs.lua`, fix the tree. The game sends
+one copy per recipient, and may send a copy again 10 to 25 ticks later with the same sequence number: the decoder keeps the first copy
+of an identical (rank, sequence, text word, mask) seen in the previous second. A participant slot is the film's player index, the same
+index space as the recipient mask. On 11 films it reads exactly the messages libfilmshell reads (2,085 of them carry personal score);
+a view A that stops at an unread message loses the ones behind it, which the films of builds 38 and 39 measured do, for a cause that is still open.
+
 **View B, the entity view** is a list of records ended by record type 0 (section 5). **View C, the control view** loops on
 `{ R(1); 0 ends; kind = R(2); handler(kind) }`; a source path in the game's code calls it `replication_control_view`, and its
 entries are per-player control messages, not entities.
