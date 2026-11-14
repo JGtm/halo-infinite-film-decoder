@@ -54,8 +54,6 @@ func (f v0Fid) Taux() float64 {
 	return 1
 }
 
-func (f *v0Fid) ajouter(g v0Fid) { f.RefMS += g.RefMS; f.OkMS += g.OkMS; f.ExtraMS += g.ExtraMS }
-
 // v0Resultat : la mesure V0.2 d'un film.
 type v0Resultat struct {
 	MatchID, Variante, Famille, RegistreEcart string
