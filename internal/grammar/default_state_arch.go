@@ -120,7 +120,7 @@ func consumeDefaultStateTI3(br *Lecteur) {
 func consumeDefaultStateTI5(br *Lecteur) { readPlayerWaypointDefaultState(br) }
 
 // archetypeJoueurDuMoteur est l'archetype `player-waypoint` : l'entite joueur du moteur, qui porte
-// le compte a rebours de reapparition, le dernier traitre et la presence en partie.
+// le compte a rebours de reapparition et la presence en partie.
 const archetypeJoueurDuMoteur = 5
 
 // readPlayerWaypointDefaultState porte la MEME grammaire que [consumeDefaultStateTI5] et REND

@@ -473,6 +473,6 @@ package killsource
 // aucune source de cette couche ne change. Sur la mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne
 // change. Les mesures de kills du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur.
 // Golden regenere a revision constante.
-// A REVISION CONSTANTE (horloge de manche, comptes a rebours, dernier traitre, 2026-11-14) : les VALEURS de `profile.Rev`
+// A REVISION CONSTANTE (horloge de manche, comptes a rebours, regles de la variante, 2026-11-14) : les VALEURS de `profile.Rev`
 // (`profile-2026-11-14`) et de `grammar.Rev` (`grammar-2026-11-14.4`) montent ; aucune source de cette couche ne change. Sur la
 // mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne change. Golden regenere a revision constante.

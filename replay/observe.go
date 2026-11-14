@@ -61,6 +61,8 @@ var buildFromFilmSteps = []string{
 	"continuousFire", "continuousFire.stats",
 	// LE JOUEUR AUX COMMANDES DE CHAQUE BIPEDE (`unit-control`) : la MEME marche, le crochet des etats.
 	"unitControls", "unitControls.stats",
+	// L HORLOGE DE MANCHE ET LES COMPTES A REBOURS : la MEME marche, le canal des horloges.
+	"horloges",
 	// LES MORTS DE VEHICULE ET L OCCUPATION : la MEME marche, le canal des morts ; vides quand le
 	// calque des vehicules n a pas ete balaye.
 	"vehicleDeaths", "vehicleDeaths.stats",

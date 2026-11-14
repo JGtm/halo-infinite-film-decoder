@@ -125,6 +125,7 @@ type Options struct {
 	// distinguerait pas un film sans tir continu d un film dont la vue de controle n est pas lue.
 	ContinuousFire      []types.ContinuousFireBurst
 	ContinuousFireStats types.ContinuousFireStats
+	Horloges            grammar.HorlogesLues // horloge de manche et comptes a rebours : la marche des trames
 	// AbilityCharges / AbilityChargeStats : les CHARGES RESTANTES lues sur les emplacements
 	// ARMES du composant i56 (cf. filmdec/ability_charges.go). Entree de DONNEES, comme
 	// AbilityImpulses — meme canal d'identite (i48), autre grandeur.

@@ -65,6 +65,7 @@ func encodeurDeFaits(g *FilmFacts) *gwriter {
 	encodeMonde(w, g)
 	encodeVehicleScan(w, g.Vehicles)
 	encodeQueue(w, g)
+	encodeHorloges(w, g.Horloges)
 	return w
 }
 

@@ -285,7 +285,7 @@ package objectives
 // A REVISION CONSTANTE (presence et joueur aux commandes, 2026-11-14) : la VALEUR de `grammar.Rev` monte a `grammar-2026-11-14.3` ;
 // aucune source de cette couche ne change. Les tests de la couche et ses fixtures sont ceux d avant ; les mesures du banc de verite du
 // `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur ; l empreinte du golden est recopiee au meme rang.
-// A REVISION CONSTANTE (horloge de manche, comptes a rebours, dernier traitre, 2026-11-14) : les VALEURS de `profile.Rev`
+// A REVISION CONSTANTE (horloge de manche, comptes a rebours, regles de la variante, 2026-11-14) : les VALEURS de `profile.Rev`
 // (`profile-2026-11-14`) et de `grammar.Rev` (`grammar-2026-11-14.4`) montent ; aucune source de cette couche ne change. Les tests de la
 // couche et ses fixtures sont ceux d avant ; l empreinte du golden est recopiee au meme rang.
 

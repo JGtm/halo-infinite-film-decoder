@@ -4177,3 +4177,37 @@ package replay
 //
 // LE PARC         un artefact 118 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision
 //                 de l utilisateur.
+
+// v120 (2026-11-15, horloge de manche, comptes a rebours de reapparition, regles de la variante). Trois champs neufs, tous lus dans le
+// film ; aucune forme existante ne change.
+//
+//	`roundClock[]`          {t, left, limit, state} : les lectures de l horloge de manche (`game-engine-round-timer-component`), une par seconde
+//	                tant qu elle court ; t est une frame, negative avant la frame 0 ; `left` et `limit` en secondes ; `state` 1 (arretee), 6 (descend)
+//	                ou 19 (monte), les seuls etats que la mesure soutient (`coverage.clocks.clockUnmeasuredState`).
+//	`respawnCountdowns[]`   {filmIndex, from, to, seconds, startRead, endRead} : par joueur du film, les periodes de compte a rebours de
+//	                reapparition (`player-respawn-timer-component`, ti=5 i1) ; le joueur est celui que l etat de creation de l entite ecrit. Un
+//	                compte n est publie que si cet index n a eu qu un occupant et que le compte tombe pendant sa presence (une presence vide :
+//	                l entree n est presente a aucun instant) : un arrivant qui
+//	                reprend un siege lit l index de son predecesseur. Les autres sont retenus et comptes (`coverage.clocks.withheldUnknownIndex`,
+//	                `withheldReusedIndex`, `withheldOutsidePresence`). Un compte dont une lecture manque reste une periode.
+//	`rules`                 {minRespawnS, suicidePenaltyS, betrayalPenaltyS, friendlyFire} : ce que la variante ecrit (`profile.InfosDeMatch`).
+//	`coverage.clocks`       les denominateurs et ce qui est ecarte, par cause.
+//
+// LA MESURE (20 films de l equivalence, plus cinq films ; le parc de 1 345 films pour la variante).
+//
+//	horloge         la limite vaut la duree de la variante a un quantum pres (0,55 s) sur les 21 films qui en ont une ; sur trois des quatre films
+//	                dont la pente moyenne s ecarte de 1 (01e1f945, d9781168, 9f57c612, que libfilmshell lit), la suite des etats et des
+//	                temps aux changements d etat est celle de libfilmshell, 111 changements sur 111, 77 sur 77, 9 sur 9, a 0,6 s pres : la pente
+//	                s ecarte parce que la minuterie s arrete et repart souvent, pas parce que l horloge est fausse ; le quatrieme (60ae07c4) n est
+//	                lu par aucun decodeur tiers. 40 lectures d un etat non mesure et 4 impossibles sur 12 480 ; les remises a la limite se lisent sur
+//	                les cinq films a plusieurs manches.
+//	compte a rebours  3 156 periodes sur 25 films, dont 3 064 de la duree du delai de la variante et 92 d une seconde de plus ; 421 retenus faute
+//	                d index au roster, 255 hors de la presence de l unique entree (la presence est celle que le listage de session donne) ; toutes appariees a la vie suivante du joueur, dont
+//	                2 539 a moins d une seconde de la derniere lecture (mediane 165 ms apres) ; sur les 11 films que libfilmshell lit, le
+//	                nombre de periodes n est jamais superieur au sien (egal sur 1, de 3 a 17 de moins ailleurs : les comptes retenus).
+//	variante        delai, penalites, tirs allies et duree egaux a ceux du decodeur tiers sur 1 345 films sur 1 345.
+//
+// CE QUI MONTE    `SchemaVersion` 119 -> 120, et avec lui `publication-120`. `grammar.Rev` -> `grammar-2026-11-14.4`, `profile.Rev` ->
+// AVEC ELLE       `profile-2026-11-14`, `SchemaDesFaits` 24 -> 25, `filmFactsMagic` 29 -> 30.
+//
+// LE PARC         un artefact 119 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision de l utilisateur.

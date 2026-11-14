@@ -44,7 +44,7 @@ package replay
 // donc aux deux : le retrait de ces notes-ci a fait disparaitre la seule description de la v51,
 // restauree a la chronique le meme jour. Une entree de chronique se pose DANS LE COMMIT qui
 // monte la version, jamais apres.
-const SchemaVersion = 119
+const SchemaVersion = 120
 
 // ReplayDocument est le rejeu 2D sérialisé d'un match.
 type ReplayDocument struct {
@@ -56,9 +56,7 @@ type ReplayDocument struct {
 	FrameCount int     `json:"frameCount"`
 	Bounds     Bounds  `json:"bounds"`
 	Tracks     []Track `json:"tracks"`
-
 	// --- Champs OPTIONNELS (n'incrémentent pas SchemaVersion) ---
-
 	// FrameIntervalMS est la durée réelle d'un pas de temps, en millisecondes. Absent =
 	// axe de temps sans échelle (anciens artefacts) : le client choisit sa cadence.
 	// Présent, la vitesse « 1x » vaut 1000/FrameIntervalMS frames par seconde réelle.
@@ -459,16 +457,17 @@ type ReplayDocument struct {
 	BombEvents []BombEvent `json:"bombEvents,omitempty"`
 	// Coverage dit, pour chaque calque, COMBIEN il a rattaché SUR COMBIEN existaient, et
 	// pourquoi il a écarté le reste (cf. coverage.go).
-	//
 	// POURQUOI C'EST DANS LE DOCUMENT ET PAS SEULEMENT DANS LES JOURNAUX : publier 147 tirs
 	// sans dire que 519 existent laisse croire à l'exhaustivité. L'écart doit être lisible
 	// là où le résultat l'est. Absent des artefacts construits avant cette version.
-	Coverage *Coverage `json:"coverage,omitempty"`
+	Coverage          *Coverage          `json:"coverage,omitempty"`
+	RoundClock        []ClockSample      `json:"roundClock,omitempty"`        // document_horloges.go
+	RespawnCountdowns []RespawnCountdown `json:"respawnCountdowns,omitempty"` // document_horloges.go
+	Rules             *MatchRules        `json:"rules,omitempty"`             // document_regles.go
 	// Identity est LE REGISTRE D'IDENTITÉ du film (schéma 50, lot P2) : chaque lien entre une
 	// entité du film et un joueur, avec sa PROVENANCE (`direct` / `catalogue` / `externe` /
 	// `deduit` / `non_resolu`), la voie exacte qui l'a produit, et les BORNES entre lesquelles
 	// il vaut (cf. identity_registry_section.go).
-	//
 	// POURQUOI ELLE EST PUBLIÉE. Le document disait DÉJÀ qui porte une trace (`tracks[].xuid`)
 	// sans jamais dire SUR QUOI ce nom repose : une lecture du film, un pont par morts, une
 	// fermeture, une déduction par élimination — quatre forces de preuve que rien ne
