@@ -108,6 +108,7 @@ func (s *filmScan) balayerPont() {
 	s.poserLeFilDesMorts(s.pont.Morts, s.pont.ErrMorts)
 	deaths := s.in.Deaths
 	s.opt.observe(s.ctx, "deaths", s.in.Deaths)
+	s.in.Medals, s.in.MedalsRead = s.pont.Medailles, s.pont.MedaillesLues
 	// LA TABLE DES JOUEURS QUE LE FILM ÉCRIT (lot 1.6) : `chunk_00` porte les 32 sièges du match avec
 	// leur XUID et leur gamertag, le lien DIRECT que le registre emploie AVANT la table des chunks de
 	// réplication (cf. film_player_table.go). Un refus est NOMMÉ, journalisé et publié. Elle se lit

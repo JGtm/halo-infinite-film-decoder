@@ -172,5 +172,5 @@ func kickoffFrameOf(doc *ReplayDocument) (int, bool) {
 	if doc.T0FilmMs == nil || doc.OriginMs == nil || doc.FrameIntervalMS <= 0 {
 		return 0, false
 	}
-	return int((*doc.T0FilmMs - *doc.OriginMs) / int64(doc.FrameIntervalMS)), true
+	return frameOfOriginMS(*doc.T0FilmMs, *doc.OriginMs, doc.FrameIntervalMS), true
 }

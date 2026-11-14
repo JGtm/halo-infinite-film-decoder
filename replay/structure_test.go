@@ -1514,8 +1514,11 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   tard a l instant du tir, avec ou sans position), et `coverage.shots.aim` dit d ou vient chaque direction. Champs
 	//   optionnels, mais la version monte pour la raison des montees v3..v24 : la reprise du backfill se fait par
 	//   SchemaVersion, et un v115 ne porte ni l elevation `p` ni la couverture `aim`. Detail : `document_chronicle.go`.
-	if SchemaVersion != 116 {
-		t.Fatalf("SchemaVersion = %d, attendu 116 : incrémenter exige une raison écrite ci-dessus "+
+	// - 117 (2026-11-14, medailles) : `medals[]` (instant, joueur, indice, nom) et `coverage.medals` portent les medailles du
+	//   morceau des temps forts, sur le meme axe que le reste. Champs optionnels, mais la version monte pour la raison des montees
+	//   v3..v24 : un v116 ne porte aucune medaille, et ses faits se refusent (`SchemaDesFaits` 23, `grammar.Rev`) : a redecoder. Detail : `document_chronicle.go`.
+	if SchemaVersion != 117 {
+		t.Fatalf("SchemaVersion = %d, attendu 117 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

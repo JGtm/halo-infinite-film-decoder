@@ -44,7 +44,7 @@ package replay
 // donc aux deux : le retrait de ces notes-ci a fait disparaitre la seule description de la v51,
 // restauree a la chronique le meme jour. Une entree de chronique se pose DANS LE COMMIT qui
 // monte la version, jamais apres.
-const SchemaVersion = 116
+const SchemaVersion = 117
 
 // ReplayDocument est le rejeu 2D sérialisé d'un match.
 type ReplayDocument struct {
@@ -335,6 +335,8 @@ type ReplayDocument struct {
 	// il n'a qu'un repère générique à y poser. Absente = aucune mort de ce type établie sur
 	// ce film — le fil garde son repère neutre, jamais l'icône d'une autre mort.
 	NeutralDeaths []NeutralDeath `json:"neutralDeaths,omitempty"`
+	// Medals : les medailles gagnees, datees sur l axe (document_medals.go) ; absent si aucune n est posee.
+	Medals []Medal `json:"medals,omitempty"`
 	// Roster est la liste des joueurs du film : leur identité et leur index de film.
 	//
 	// CE QU'IL SERT : le client y trouve l'ensemble des joueurs du match, y compris ceux dont

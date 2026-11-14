@@ -186,7 +186,7 @@ func TestCalquesGardesNommentUnCalqueDeLaTable(t *testing.T) {
 	}
 }
 
-// optionsToutesGardesOuvertes rend les options minimales qui ouvrent LES SEIZE gardes.
+// optionsToutesGardesOuvertes rend les options minimales qui ouvrent LES DIX-SEPT gardes.
 func optionsToutesGardesOuvertes() Options {
 	return Options{
 		MapQuant:            &profile.MapQuantEntry{},
@@ -200,6 +200,7 @@ func optionsToutesGardesOuvertes() Options {
 		Bomb:                BombInput{Scanned: true, CarryScanned: true},
 		Zone:                ZoneInput{Scanned: true},
 		Vehicles:            VehicleScan{Scanned: true},
+		Medals:              MedalInput{Read: true},
 	}
 }
 
@@ -256,7 +257,7 @@ func TestCalquesProduitsSuiventLesGardes(t *testing.T) {
 // quatrieme), et le remede — une constante par nom — rendrait les deux tables de `layers.go`
 // illisibles ligne a ligne, ce qui est exactement ce qu elles existent pour etre.
 const calquesGardesGeles = "abilityCharges abilityImpulses bombArmings bombCarries bombEvents " +
-	"bombStats flagCarries flagReturnZone grappleLines inventory scoreTimeline skullCarries " +
+	"bombStats flagCarries flagReturnZone grappleLines inventory medals scoreTimeline skullCarries " +
 	"t0FilmMs vehicles vipCrown zoneStates"
 
 // TestCalquesGardesSontLaListeGelee : le jeu des calques gardes ne bouge pas en silence.

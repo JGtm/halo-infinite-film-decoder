@@ -4073,3 +4073,34 @@ package replay
 // AVEC ELLE       dans la grammaire du port : le contenu des faits change, pas leur format, `SchemaDesFaits` reste 22).
 //
 // LE PARC         un artefact 115 : verdict `a republier` (assemblage seul, aucun fait perime).
+
+// v117 (2026-11-14, medailles). Le morceau des temps forts du film porte, avec les kills et les morts, une ligne par medaille gagnee ;
+// le document n en publiait rien. Il publie desormais chaque medaille posee sur l axe de frames, sans aucun calcul de score.
+//
+//	`medals[]`            {t, ms, xuid, id, name} : la frame, l instant sur l horloge des temps forts (millisecondes, la meme que les morts du fil),
+//	                le joueur (xuid decimal), l indice de medaille du jeu et son nom anglais (cle de referentiel, `medalname`). Un couple d octets
+//	                hors de la table garde son indice et perd son nom. Triees par frame, xuid, indice. Absent : morceau des temps forts non lu, ou
+//	                aucune medaille posee.
+//	`coverage.medals`     {decoded, published, noOrigin, beforeOrigin, afterEnd, unknownName} : ce que le calque a pose et ecarte ; absent quand le
+//	                morceau n a pas ete lu. Entree `medals` de `layers`, sous `grammar-...`, gardee sur la lecture du morceau.
+//
+// L HORLOGE (document_medals.go). Frame = `(ms - originMs) / frameIntervalMs`, sans calage : le zero des temps forts est le premier paquet du
+// film. Sans origine publiee rien ne se pose (`noOrigin`). Le calage du fil des morts (`coverage.bridge.deathOffsetMs`) ne sert pas.
+//
+// LA MESURE (20 films de l equivalence). Le zero des temps forts : sur les 11 films que libfilmshell lit, son zero calcule par les kills,
+// morts apparies a leur evenement de kill a un tic pres, tombe de -11,3 a +2,4 ms du premier paquet du film (tic = 16,7 ms). Le calage du
+// fil des morts, lui, est un plateau cherche par appariement dans une fenetre : il s ecarte de ce premier paquet de 23 a 161 ms selon le
+// film (18 films qui le portent ; 2 sans calage), soit jusqu a cinq frames, et le poser sur les medailles les decalerait d autant. Les
+// fins de piste, comparees aux morts du fil sur 18 films (2 773 morts), precedent la mort ecrite de 37 a 52 ms (mediane de chaque film),
+// avec l origine lue ; avec le calage, l ecart s etale de -16 a +109 ms selon le film. Les 1 415 medailles des 20 films sont posees dans
+// l axe (0 avant la frame 0, 0 apres la derniere) ; les 124 couples de la table suffisent : 0 sans nom. Les comptes par joueur et par
+// medaille sont ceux de libfilmshell sur les 11 films qu il lit (351 cles, toutes egales, noms compris). Contre `medals_earned` de l API (18 films,
+// 42 couples film-joueur, hors la medaille synthetique du sync) : 188 cles sur 195 egales en compte, aucune differente ; les 7 autres sont
+// toutes d un joueur que le morceau des temps forts n ecrit pas. Les medailles ne comptent pour aucun point du score personnel de l API
+// (somme des recompenses = score sur 22 couples sur 23) : aucun point n est publie.
+//
+// CE QUI MONTE    `SchemaVersion` 116 -> 117, et avec lui `publication-117`. `grammar.Rev` -> `grammar-2026-11-14`, `SchemaDesFaits` 22 -> 23
+// AVEC ELLE       (le complement de la section 1 porte le temoin de lecture et les medailles).
+//
+// LE PARC         un artefact 116 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est
+//                 une decision de l utilisateur.

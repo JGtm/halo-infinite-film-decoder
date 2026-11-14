@@ -33,6 +33,7 @@ package grammar
 // de l appelant, en donnees (lot J8.7) — c est l appelant qui les publie, ou non.
 
 import (
+	"github.com/JGtm/halo-infinite-film-decoder/highlightevent"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
@@ -66,6 +67,12 @@ type LecturesDuPont struct {
 
 	Morts    []types.Death
 	ErrMorts error
+
+	// Medailles sont les medailles du MEME morceau des temps forts que le fil des morts, lu une
+	// seule fois avec lui. MedaillesLues dit que le morceau l a ete : une liste vide est alors une
+	// mesure (aucune medaille), et non l absence de lecture.
+	Medailles     []highlightevent.MedalAward
+	MedaillesLues bool
 
 	// IndexLu dit si la table d index a ete lue : seulement quand le fil des morts a rendu au
 	// moins une mort et que l appelant a fourni son roster.
@@ -106,9 +113,9 @@ func (e etageDuPont) lire(fc *FilmContext, opt OptionsDuPont) LecturesDuPont {
 	// LES DEUX LECTURES DE L ETAGE QUI SE REPLIENT RENDENT LEUR COMPTE (lot J8.7) : le fil des morts lu
 	// au dernier numero faute de manifeste, les chunks de replication sautes par la table d index.
 	// Ils rejoignent le rapport du contexte de l APPELANT.
-	var auDernierNumero bool
-	l.Morts, auDernierNumero, l.ErrMorts = scanDeaths(film)
-	fc.NoterReplis(ComptesDesReplis{TempsFortsAuDernierNumero: unSi(auDernierNumero)})
+	tf := scanTempsForts(film)
+	l.Morts, l.ErrMorts, l.Medailles, l.MedaillesLues = tf.morts, tf.err, tf.medailles, tf.lu
+	fc.NoterReplis(ComptesDesReplis{TempsFortsAuDernierNumero: unSi(tf.auDernierNumero)})
 	if l.ErrMorts == nil && len(l.Morts) > 0 && opt.RosterDesMorts != nil {
 		l.IndexLu = true
 		var sautes int

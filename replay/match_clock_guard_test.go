@@ -80,3 +80,27 @@ func TestInstantExactNEstPasArrondiALaGrille(t *testing.T) {
 		}
 	}
 }
+
+// TestFrameDuFilmSurLAxeSingleImplementation : la division d'un instant du film, moins l'origine publiée, par le
+// pas n'est écrite que dans [frameOfOriginMS] (match_clock.go). Elle était recopiée par la courbe de score, le coup
+// d'envoi et les médailles.
+func TestFrameDuFilmSurLAxeSingleImplementation(t *testing.T) {
+	copie := regexp.MustCompile(`(originMS|OriginMs|originMs)\)\s*/\s*(c\.intervalMS|int64\(|intervalMS)`)
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		t.Fatalf("lecture du paquet : %v", err)
+	}
+	for _, e := range entries {
+		nom := e.Name()
+		if e.IsDir() || filepath.Ext(nom) != ".go" || strings.HasSuffix(nom, "_test.go") || nom == "match_clock.go" {
+			continue
+		}
+		src, err := os.ReadFile(nom) //nolint:gosec // fichiers du paquet lui-meme
+		if err != nil {
+			t.Fatalf("lecture de %s : %v", nom, err)
+		}
+		if m := copie.Find(src); m != nil {
+			t.Errorf("%s recopie la conversion instant du film -> frame (%q) : utiliser frameOfOriginMS", nom, m)
+		}
+	}
+}

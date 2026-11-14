@@ -28,3 +28,10 @@ func countShotsWithWeapon(doc ReplayDocument) int {
 	}
 	return n
 }
+
+func renderBounds(p func(string, ...any), doc ReplayDocument) {
+	p("## BORNES — l etendue des points publies, dans le repere monde partage")
+	p("x [%.2f, %.2f] · y [%.2f, %.2f] · z [%.2f, %.2f]",
+		doc.Bounds.MinX, doc.Bounds.MaxX, doc.Bounds.MinY, doc.Bounds.MaxY,
+		doc.Bounds.MinZ, doc.Bounds.MaxZ)
+}

@@ -461,3 +461,7 @@ package killsource
 // A REVISION CONSTANTE (pose des largeurs de la carte sans rapport de replis, 2026-11-14) : `PoserLargeursObjetDuMondeDepuisDecoupage`
 // ne rend plus de rapport ; ses deux replis, inatteignables depuis toute pose de production (largeurs non nulles et porte d un index
 // exigees en amont), sont retires du registre. Le profil pose est le meme. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (medailles des temps forts rendues par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` monte
+// (`grammar-2026-11-14`) ; le morceau des temps forts se lit desormais pour ses morts et ses medailles, et le fil des kills que ce
+// paquet en tire n en depend pas. Golden regenere a revision constante.

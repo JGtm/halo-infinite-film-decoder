@@ -70,6 +70,9 @@ func xuidsDesEntrees(g *FilmFacts) []uint64 {
 	for _, s := range g.FilmTable.Seats {
 		out = append(out, s.XUID)
 	}
+	for _, m := range g.Medals {
+		out = append(out, m.XUID)
+	}
 	return out
 }
 
@@ -122,7 +125,7 @@ func lireTableIdentites(t *testing.T, chemin string) map[uint64]uint64 {
 	return out
 }
 
-// remplacerXuidsDesEntrees applique la table aux morts, a la table des index et a celle des sieges ;
+// remplacerXuidsDesEntrees applique la table aux morts, aux medailles, a la table des index et a celle des sieges ;
 // un xuid que la table ne connait pas reste tel quel (le garde-rail le refusera ensuite). Rend le
 // nombre de xuids remplaces.
 func remplacerXuidsDesEntrees(g *FilmFacts, table map[uint64]uint64) int {
@@ -144,6 +147,9 @@ func remplacerXuidsDesEntrees(g *FilmFacts, table map[uint64]uint64) int {
 	g.PlayerIndices.ByXUID = index
 	for i := range g.FilmTable.Seats {
 		g.FilmTable.Seats[i].XUID = chg(g.FilmTable.Seats[i].XUID)
+	}
+	for i := range g.Medals {
+		g.Medals[i].XUID = chg(g.Medals[i].XUID)
 	}
 	return n
 }

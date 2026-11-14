@@ -31,6 +31,7 @@ package replay
 // l'assemblage recoit — c'est la seule ecriture, et elle est ecrite une fois.
 
 import (
+	"github.com/JGtm/halo-infinite-film-decoder/highlightevent"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
@@ -161,6 +162,10 @@ type FilmInputs struct {
 	// rejeu) : une entree comme les autres, pour que le rejeu depuis les faits publie le meme
 	// `coverage.bridge.deathsFeed` que le decodage (cf. fil_des_morts_verdict.go).
 	DeathsFeed VerdictDuFilDesMorts
+	// Medals sont les medailles du MEME morceau des temps forts que le fil des morts, et MedalsRead dit
+	// qu il a ete lu : sans lui une liste vide ne se distingue pas d un morceau qui ne s est pas lu.
+	Medals     []highlightevent.MedalAward
+	MedalsRead bool
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -249,6 +254,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Detonations = in.Detonations
 	opt.Deaths = in.Deaths
 	opt.DeathsFeed = in.DeathsFeed.Verdict
+	opt.Medals = MedalInput{Read: in.MedalsRead, Awards: in.Medals}
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable
 	opt.PlayerTeams, opt.TeamScan = in.PlayerTeams, in.TeamScan

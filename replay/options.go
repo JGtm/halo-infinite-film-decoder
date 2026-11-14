@@ -221,6 +221,8 @@ type Options struct {
 	// portent avec sa cause (lot M8, 2026-09-24) : le rejeu depuis les faits pose le meme. Vide =
 	// aucune lecture de film derriere ces entrees (positions fournies) : cf. [deathsFeedPublie].
 	DeathsFeed string
+	// Medals : les medailles du morceau des temps forts, que le fil des morts partage (cf. [MedalInput]).
+	Medals MedalInput
 	// PlayerIndices est la table identité -> index de joueur, LUE dans le film (cf.
 	// player_index.go). Second maillon du pont, et lui aussi une lecture. Absente, un tir ou un
 	// lancer reste publie si le registre nomme son slot par la table des sieges (`FilmTable`).
@@ -472,28 +474,4 @@ type Options struct {
 	// ([niveauDePublication], journal_de_publication.go). NON EXPORTE : aucun appelant hors du paquet ne peut le poser (le compilateur le
 	// tient) ; faux, sa valeur zero, est celui de toute cuisson publiee.
 	documentInterne bool
-}
-
-func (o Options) frameIntervalMS() int {
-	if o.FrameIntervalMS > 0 {
-		return o.FrameIntervalMS
-	}
-	return DefaultFrameIntervalMS
-}
-
-// compteurDeReplis rend le compteur de la cuisson, en creant le sien quand l'appelant n'en a pas
-// fourni. MEME PATRON QUE `frameIntervalMS` / `minPoints` : le defaut vit ici, une seule fois,
-// et l'assemblage n'a pas a le connaitre.
-func (o Options) compteurDeReplis() *fallback.Compteur {
-	if o.Fallbacks != nil {
-		return o.Fallbacks
-	}
-	return fallback.NouveauCompteur()
-}
-
-func (o Options) minPoints() int {
-	if o.MinPoints > 0 {
-		return o.MinPoints
-	}
-	return DefaultMinPoints
 }
