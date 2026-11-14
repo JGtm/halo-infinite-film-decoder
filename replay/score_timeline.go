@@ -74,7 +74,7 @@ func (c scoreClock) frameOf(timeMS int) (int, bool) {
 	if c.intervalMS <= 0 || c.frames <= 0 || timeMS < c.originMS {
 		return 0, false
 	}
-	t := (timeMS - c.originMS) / c.intervalMS
+	t := frameOfOriginMS(int64(timeMS), int64(c.originMS), c.intervalMS)
 	if t >= c.frames {
 		return 0, false
 	}

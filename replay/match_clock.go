@@ -80,3 +80,10 @@ func (c matchClock) slackFrames(ms int) int {
 	}
 	return int((uint64(ms)*1000 + c.step - 1) / c.step)
 }
+
+// frameOfOriginMS pose un instant de l'horloge du FILM sur l'axe de frames : la division entière de son
+// écart à l'origine publiée (`originMs`, l'instant de la frame 0) par le pas. Le pas est positif, et c'est
+// à l'appelant de juger un résultat négatif ou au-delà de l'axe.
+func frameOfOriginMS(timeMS, originMS int64, intervalMS int) int {
+	return int((timeMS - originMS) / int64(intervalMS))
+}

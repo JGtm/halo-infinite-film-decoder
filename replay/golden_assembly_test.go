@@ -405,6 +405,7 @@ func renderAssembly(doc ReplayDocument) string {
 	renderReplis(p, doc)
 	renderLabels(p, doc)
 	renderBounds(p, doc)
+	renderMedailles(p, doc)
 	return b.String()
 }
 
@@ -1130,13 +1131,6 @@ func renderBilingualMap(in map[string]Label) string {
 			k, enOf(in[k].Text), frOf(in[k].Text), in[k].Family))
 	}
 	return strings.Join(parts, ", ")
-}
-
-func renderBounds(p func(string, ...any), doc ReplayDocument) {
-	p("## BORNES — l etendue des points publies, dans le repere monde partage")
-	p("x [%.2f, %.2f] · y [%.2f, %.2f] · z [%.2f, %.2f]",
-		doc.Bounds.MinX, doc.Bounds.MaxX, doc.Bounds.MinY, doc.Bounds.MaxY,
-		doc.Bounds.MinZ, doc.Bounds.MaxZ)
 }
 
 func countPoints(doc ReplayDocument, keep func(Point) bool) int {

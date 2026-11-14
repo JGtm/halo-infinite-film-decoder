@@ -260,7 +260,7 @@ const VersionCodecFaits = 2
 // record NEW (`profile.EcritureDuBuild`, `profile-2026-11-12.2`). Relu par `json.Unmarshal`, un profil du schema 21 rendrait ces deux
 // bascules fausses sans erreur, et un profil qui les croit fausses lit un film HI_1_11_0 a HI_1_13_0 comme avant : c est le refus SUR
 // L EN-TETE qui doit le dire. `grammar.Rev` (`grammar-2026-11-12.4`) et `profile.Rev` montent avec ce numero, comme aux schemas 11 et 15.
-const SchemaDesFaits = 22
+const SchemaDesFaits = 23
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.
@@ -470,6 +470,7 @@ func lireSectionJSON(charge []byte, cible any, libelle string) error {
 //	d inventaire      liste en tranche VIDE, or `Inventory == nil` est une garde de calque
 //	poussees          les poussees d equipement et leurs denominateurs (schema des faits 12)
 //	equipement porte  les lectures des objets portes et leurs denominateurs (schema des faits 13)
+//	medailles         le temoin de lecture et les medailles des temps forts
 //	verdict           le verdict du fil des morts (lot M8), EN DERNIER
 func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodeGardesDeMode(w, g.FilmInputs)
@@ -477,6 +478,7 @@ func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	w.bool8(g.Inventory != nil)
 	encodePoussees(w, g.Knockbacks, g.KnockbackStats)
 	encodeEquipementPorte(w, g.CarriedEquipment, g.CarriedEquipmentStats)
+	encodeMedailles(w, g.MedalsRead, g.Medals)
 	encodeVerdictDuFilDesMorts(w, g.DeathsFeed)
 }
 
@@ -488,5 +490,6 @@ func decodeComplementDesEntrees(r *greader, g *FilmFacts) {
 	}
 	g.Knockbacks, g.KnockbackStats = decodePoussees(r)
 	g.CarriedEquipment, g.CarriedEquipmentStats = decodeEquipementPorte(r)
+	g.MedalsRead, g.Medals = decodeMedailles(r)
 	g.DeathsFeed = decodeVerdictDuFilDesMorts(r)
 }

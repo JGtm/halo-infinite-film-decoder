@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10293 frames · intervalle 33 ms · duree 339669 ms
-schema 116 · titre halo_infinite
+schema 117 · titre halo_infinite
 version majeure du film : 33
 origine de la frame 0 sur l horloge du fil : 27811 ms
 coup d envoi date par le film : 45235 ms · 125/128 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 17424 ms
@@ -674,3 +674,26 @@ n emprunte pas le nom d une arme voisine
 
 ## BORNES — l etendue des points publies, dans le repere monde partage
 x [-0.14, 100.58] · y [-68.00, 62.09] · z [-0.39, 15.42]
+## MEDAILLES — posees par (ms - originMs) / pas, nom anglais ; absentes si le morceau des temps forts n a pas ete lu
+38 lue(s) · 38 posee(s) · 0 sans origine · 0 avant la frame 0 · 0 apres la fin · 0 sans nom
+  0 Double Kill x9
+  1 Triple Kill x1
+  100 Whiplash x1
+  105 Reversal x1
+  108 Snipe x2
+  117 Guardian Angel x1
+  127 From the Grave x2
+  131 Last Shot x1
+  140 Shot Caller x1
+  141 Yard Sale x4
+  156 Splatter x1
+  26 Killjoy x3
+  70 Tanker x1
+  79 Marksman x1
+  82 Back Smack x2
+  86 Cluster Luck x1
+  9 Killing Spree x3
+  97 Skyjack x2
+  98 Stick x1
+premiere : t=1950 ms=92193 xuid=2731649127743970 id=0 · derniere : t=9867 ms=353430 xuid=2553767541407218 id=156
+

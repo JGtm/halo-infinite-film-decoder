@@ -162,6 +162,7 @@ var couchesDesCalques = map[string]string{
 	"equipmentPlacements": grammar.Rev, // build_calques.go <- FilmInputs.Placements + SpawnEvents + CarriedEquipment (la fin lue, `LifeEnd`)
 	"weaponChanges":       grammar.Rev, // build_calques.go <- FilmInputs.WeaponChanges
 	"pickups":             grammar.Rev, // build_calques.go <- FilmInputs.Pickups
+	"medals":              grammar.Rev, // document_medals.go <- FilmInputs.Medals (morceau des temps forts, lu avec le fil des morts)
 	"weaponPads":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (ti=42 et ti=37)
 	"padPickups":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
@@ -279,6 +280,9 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// Archetype ti=40 absent des images-cles, creations illisibles, ou assemblage sur positions
 	// figees sans film (vehicle_tracks.go, `buildVehicleTracks`).
 	"vehicles": func(_ *ReplayDocument, opt Options) bool { return opt.Vehicles.Scanned },
+	// Morceau des temps forts illisible ou non designe : aucune medaille ne se lit, et le calque ne se
+	// produit pas plutot que d affirmer « aucune medaille » (document_medals.go, `poserLesMedailles`).
+	"medals": func(_ *ReplayDocument, opt Options) bool { return opt.Medals.Read },
 }
 
 // calquesProduits rend, pour CETTE cuisson, les calques produits et la revision de la couche qui

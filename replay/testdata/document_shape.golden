@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 116
-empreinte-stockee 3318d6e00521af10
-empreinte-servie 3318d6e00521af10
-empreinte-cuite 985cb252468fee9d
+schema 117
+empreinte-stockee 09a8f898dd439131
+empreinte-servie 09a8f898dd439131
+empreinte-cuite 71a7e4fc624e9871
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -298,6 +298,7 @@ Coverage
   Inventory json:"inventory,omitempty" *InventoryCoverage
   Keyframes json:"keyframes,omitempty" *KeyframeCoverage
   Knockbacks json:"knockbacks,omitempty" *KnockbackCoverage
+  Medals json:"medals,omitempty" *MedalCoverage
   ObjectiveObjects json:"objectiveObjects,omitempty" *ObjectiveObjectsCoverage
   Objectives json:"objectives" LayerCoverage
   OriginResolved json:"originResolved" bool
@@ -728,6 +729,19 @@ MapWeaponPadDTO
 MapWeaponPads
   CatalogN json:"catalogN" int
   Pads json:"pads" []MapWeaponPadDTO
+Medal
+  ID json:"id" int
+  MS json:"ms" int64
+  Name json:"name,omitempty" string
+  T json:"t" int
+  XUID json:"xuid" string
+MedalCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  Decoded json:"decoded" int
+  NoOrigin json:"noOrigin" int
+  Published json:"published" int
+  UnknownName json:"unknownName" int
 NeutralDeath
   FeedMs json:"feedMs" int
   Img json:"img,omitempty" string
@@ -910,6 +924,7 @@ ReplayDocument
   MapObjectives json:"mapObjectives,omitempty" *MapObjectives
   MapWeaponPads json:"mapWeaponPads,omitempty" *MapWeaponPads
   MatchID json:"matchId" string
+  Medals json:"medals,omitempty" []Medal
   NeutralDeaths json:"neutralDeaths,omitempty" []NeutralDeath
   ObjectiveObjects json:"objectiveObjects,omitempty" []ObjectiveObjectLife
   Objectives json:"objectives,omitempty" []ObjectiveAction

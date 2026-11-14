@@ -287,6 +287,7 @@ func TestGoldenBuildsInputsRoundTrip(t *testing.T) {
 			// exemple) manqueraient a l assemblage relu.
 			again.Knockbacks, again.KnockbackStats = g.Knockbacks, g.KnockbackStats
 			again.CarriedEquipment, again.CarriedEquipmentStats = g.CarriedEquipment, g.CarriedEquipmentStats
+			again.MedalsRead, again.Medals = g.MedalsRead, g.Medals // hors du blob, cf. golden_medailles_test.go
 			a := renderAssembly(assemblerGoldenBuild(t, b, g, entry))
 			c := renderAssembly(assemblerGoldenBuild(t, b, again, entry))
 			if a != c {
@@ -326,5 +327,7 @@ func chargerGoldenBuild(t *testing.T, b goldenBuild) (*FilmFacts, profile.MapQua
 	g.PlayerEntities = chargerEntitesDuBuild(t, b.Short8)
 	// LES POUSSEES ET L EQUIPEMENT PORTE non plus : golden_equipement_test.go.
 	chargerEquipementDuBuild(t, b.Short8, g)
+	// LES MEDAILLES AUSSI : golden_medailles_test.go.
+	chargerMedaillesDuBuild(t, b.Short8, g)
 	return g, entry
 }
