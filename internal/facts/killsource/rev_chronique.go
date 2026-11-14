@@ -457,3 +457,7 @@ package killsource
 // film qu il partage avec la cuisson ; la marche de ce decodage porte alors aussi les canaux de la cuisson
 // ([grammar.LireLaMarcheCommune]). Sans contexte donne, rien ne change ; avec, le resultat est celui du decodage seul
 // (`TestLaMarcheCommuneRendCeQueRendentLesDeuxMarches`, mini-bobine). Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (pose des largeurs de la carte sans rapport de replis, 2026-11-14) : `PoserLargeursObjetDuMondeDepuisDecoupage`
+// ne rend plus de rapport ; ses deux replis, inatteignables depuis toute pose de production (largeurs non nulles et porte d un index
+// exigees en amont), sont retires du registre. Le profil pose est le meme. Golden regenere a revision constante.

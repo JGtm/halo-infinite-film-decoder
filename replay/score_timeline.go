@@ -35,8 +35,9 @@ type ScoreInput struct {
 	// TeamScores porte `team_0_score` / `team_1_score` du registre. Nil = absents : la
 	// resolution (a) ne s'applique pas, on retombe sur (b) puis (c).
 	TeamScores *[2]int
-	// TargetScore est la cible de victoire de la variante (regulation.toml [score_target]).
-	// 0 = inconnue : rien n'est publie, le client retombe sur son repli.
+	// TargetScore est la cible de victoire de la variante, prise dans la table mesuree de
+	// l'appelant (regulation.toml [score_target]). Le film la porte aussi (`decfilm.ReadMatchInfo`),
+	// sans en etre la source ici. 0 = inconnue : rien n'est publie, le client retombe sur son repli.
 	TargetScore int
 	// HillScoring dit que la variante MARQUE EN TENANT UNE COLLINE : la GARDE DE MODE de la barre
 	// de garde. `comp 23 A` existe sur tous les modes, il ne porte des tics de colline que sur un

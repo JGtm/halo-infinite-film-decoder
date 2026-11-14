@@ -275,7 +275,7 @@ func vaPoserLeProfilDeLaCuisson(t *testing.T, id string, fc *FilmContext) {
 	}
 	fc.PoserProfilDeBalayage(p)
 	bal := fc.ProfilDeBalayage()
-	fc.NoterReplis(bal.PoserLargeursObjetDuMondeDepuisDecoupage(fc.Profile().Map().Layout()))
+	bal.PoserLargeursObjetDuMondeDepuisDecoupage(fc.Profile().Map().Layout())
 	fc.PoserProfilDeBalayage(bal)
 }
 

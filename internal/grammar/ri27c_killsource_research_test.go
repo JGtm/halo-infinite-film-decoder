@@ -103,7 +103,7 @@ func ri27cContexte(t *testing.T, dir, court string, declare bool) *FilmContext {
 	fc := NewFilmContextForMap(film, &entree, nil)
 	bal := ProfilDeBalayageParDefaut()
 	bal.Grammaire.GenerationStricte = true
-	_ = bal.PoserLargeursObjetDuMondeDepuisDecoupage(entree.Layout())
+	bal.PoserLargeursObjetDuMondeDepuisDecoupage(entree.Layout())
 	bal, _ = GrammaireSousFilm(bal, film)
 	if iw := ri27cPoignee(court); iw > 0 {
 		bal.Mouvement.Traversal.IndexW = iw

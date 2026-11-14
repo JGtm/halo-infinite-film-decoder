@@ -17,40 +17,75 @@
 # dans le budget ; la dispersion de la base etait de 22 %, celle-ci de 1 %), TraverseEntity -3,8 %,
 # KeyframeClosure -5,0 % (informatif). Le paquet mesure est desormais film/internal/grammar.
 #
-# Regeneration : go test -bench . -run '^$' -count 10 ./internal/grammar/ (depuis libs/film)
+# Re-figee le 2026-11-14 (tete b84ef68, branche feat/fin-phase-a) apres la marche complete : TraverseEntity
+# -40 % (352 -> 212 ms), KeyframeClosure -34 % (362 -> 240 ms, informatif). BitReaderReadBits +60 %
+# (122 -> 196 us) N EST PAS UN RALENTISSEMENT DU CODE : le tag v1.0.0, mesure dans la meme minute sur la
+# meme machine, rend la meme mediane (197 us contre 195 us). C est l etat de la machine (charge, frequence)
+# qui a change depuis la base de M2 ; la base se compare desormais a elle-meme. Bancs neufs depuis la base
+# precedente : ObjetsDuMonde, BalayageBitABit, RecuperationAncree (informatifs).
+#
+# Regeneration : go test -bench . -run '^$' -count 10 ./internal/grammar/
 goos: windows
 goarch: amd64
-pkg: levelup/go-api/internal/games/halo_infinite/film/internal/grammar
+pkg: github.com/JGtm/halo-infinite-film-decoder/internal/grammar
 cpu: AMD Ryzen 7 9850X3D 8-Core Processor           
-BenchmarkBitReaderReadBits-16    	    9982	    124645 ns/op	 525.78 MB/s
-BenchmarkBitReaderReadBits-16    	    9651	    122349 ns/op	 535.65 MB/s
-BenchmarkBitReaderReadBits-16    	    9952	    124204 ns/op	 527.65 MB/s
-BenchmarkBitReaderReadBits-16    	    9670	    123796 ns/op	 529.39 MB/s
-BenchmarkBitReaderReadBits-16    	    9926	    122793 ns/op	 533.71 MB/s
-BenchmarkBitReaderReadBits-16    	    9921	    122190 ns/op	 536.34 MB/s
-BenchmarkBitReaderReadBits-16    	    9915	    122201 ns/op	 536.30 MB/s
-BenchmarkBitReaderReadBits-16    	    9740	    122051 ns/op	 536.96 MB/s
-BenchmarkBitReaderReadBits-16    	    9830	    121320 ns/op	 540.19 MB/s
-BenchmarkBitReaderReadBits-16    	    9643	    122286 ns/op	 535.92 MB/s
-BenchmarkTraverseEntity-16       	       3	 349992200 ns/op
-BenchmarkTraverseEntity-16       	       3	 352819667 ns/op
-BenchmarkTraverseEntity-16       	       3	 356162233 ns/op
-BenchmarkTraverseEntity-16       	       3	 359276767 ns/op
-BenchmarkTraverseEntity-16       	       3	 349745700 ns/op
-BenchmarkTraverseEntity-16       	       3	 350172333 ns/op
-BenchmarkTraverseEntity-16       	       3	 353061467 ns/op
-BenchmarkTraverseEntity-16       	       3	 351941300 ns/op
-BenchmarkTraverseEntity-16       	       3	 348576100 ns/op
-BenchmarkTraverseEntity-16       	       3	 353006800 ns/op
-BenchmarkKeyframeClosure-16      	       3	 362289000 ns/op
-BenchmarkKeyframeClosure-16      	       3	 360804733 ns/op
-BenchmarkKeyframeClosure-16      	       3	 362167333 ns/op
-BenchmarkKeyframeClosure-16      	       3	 359052200 ns/op
-BenchmarkKeyframeClosure-16      	       3	 362445400 ns/op
-BenchmarkKeyframeClosure-16      	       3	 361969400 ns/op
-BenchmarkKeyframeClosure-16      	       3	 363427933 ns/op
-BenchmarkKeyframeClosure-16      	       3	 361739300 ns/op
-BenchmarkKeyframeClosure-16      	       3	 369632067 ns/op
-BenchmarkKeyframeClosure-16      	       3	 368836500 ns/op
-PASS
-ok  	levelup/go-api/internal/games/halo_infinite/film/internal/grammar	55.902s
+BenchmarkBalayageBitABit-16       	       2	 653268650 ns/op
+BenchmarkBalayageBitABit-16       	       2	 710165850 ns/op
+BenchmarkBalayageBitABit-16       	       2	 800340400 ns/op
+BenchmarkBalayageBitABit-16       	       2	 816734100 ns/op
+BenchmarkBalayageBitABit-16       	       2	 804933300 ns/op
+BenchmarkBalayageBitABit-16       	       2	 819773000 ns/op
+BenchmarkBalayageBitABit-16       	       2	 828139600 ns/op
+BenchmarkBalayageBitABit-16       	       2	 807920400 ns/op
+BenchmarkBalayageBitABit-16       	       2	 816775400 ns/op
+BenchmarkBalayageBitABit-16       	       2	 815520550 ns/op
+BenchmarkBitReaderReadBits-16     	    6252	    196013 ns/op	 334.35 MB/s
+BenchmarkBitReaderReadBits-16     	    6208	    192938 ns/op	 339.67 MB/s
+BenchmarkBitReaderReadBits-16     	    6092	    195866 ns/op	 334.60 MB/s
+BenchmarkBitReaderReadBits-16     	    6336	    199321 ns/op	 328.80 MB/s
+BenchmarkBitReaderReadBits-16     	    6452	    195681 ns/op	 334.91 MB/s
+BenchmarkBitReaderReadBits-16     	    6820	    196420 ns/op	 333.65 MB/s
+BenchmarkBitReaderReadBits-16     	    6026	    196424 ns/op	 333.65 MB/s
+BenchmarkBitReaderReadBits-16     	    5971	    195290 ns/op	 335.58 MB/s
+BenchmarkBitReaderReadBits-16     	    6186	    196914 ns/op	 332.82 MB/s
+BenchmarkBitReaderReadBits-16     	    6688	    197231 ns/op	 332.28 MB/s
+BenchmarkTraverseEntity-16        	       5	 212771320 ns/op
+BenchmarkTraverseEntity-16        	       5	 212628900 ns/op
+BenchmarkTraverseEntity-16        	       5	 211069660 ns/op
+BenchmarkTraverseEntity-16        	       5	 211569660 ns/op
+BenchmarkTraverseEntity-16        	       5	 212374360 ns/op
+BenchmarkTraverseEntity-16        	       5	 211035560 ns/op
+BenchmarkTraverseEntity-16        	       5	 211393780 ns/op
+BenchmarkTraverseEntity-16        	       5	 211384200 ns/op
+BenchmarkTraverseEntity-16        	       5	 212804080 ns/op
+BenchmarkTraverseEntity-16        	       5	 212661320 ns/op
+BenchmarkKeyframeClosure-16       	       5	 239143840 ns/op
+BenchmarkKeyframeClosure-16       	       5	 241616300 ns/op
+BenchmarkKeyframeClosure-16       	       5	 240461940 ns/op
+BenchmarkKeyframeClosure-16       	       5	 238181100 ns/op
+BenchmarkKeyframeClosure-16       	       5	 242397420 ns/op
+BenchmarkKeyframeClosure-16       	       5	 240124520 ns/op
+BenchmarkKeyframeClosure-16       	       5	 244145440 ns/op
+BenchmarkKeyframeClosure-16       	       5	 240182560 ns/op
+BenchmarkKeyframeClosure-16       	       5	 241213360 ns/op
+BenchmarkKeyframeClosure-16       	       5	 244643140 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 487630500 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 477500267 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 482460567 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 474420100 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 484661133 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 477895067 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 476086333 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 473603367 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 470039767 ns/op
+BenchmarkObjetsDuMonde-16         	       3	 477958233 ns/op
+BenchmarkRecuperationAncree-16    	       3	 454567267 ns/op
+BenchmarkRecuperationAncree-16    	       3	 457015033 ns/op
+BenchmarkRecuperationAncree-16    	       3	 448798700 ns/op
+BenchmarkRecuperationAncree-16    	       3	 451870233 ns/op
+BenchmarkRecuperationAncree-16    	       3	 451321600 ns/op
+BenchmarkRecuperationAncree-16    	       3	 453133400 ns/op
+BenchmarkRecuperationAncree-16    	       3	 452634567 ns/op
+BenchmarkRecuperationAncree-16    	       3	 455949500 ns/op
+BenchmarkRecuperationAncree-16    	       3	 459650200 ns/op
+BenchmarkRecuperationAncree-16    	       3	 459939100 ns/op

@@ -210,10 +210,6 @@ const (
 	NomI0PorteEtRegionParDefaut Nom = "repli_i0_porte_et_region_par_defaut"
 	// NomBandeBipedeComblee : `grammar/offline_biped_band.go`.
 	NomBandeBipedeComblee Nom = "repli_bande_bipede_comblee"
-	// NomLargeursMondeParDefautConservees : `grammar/profil_balayage.go`.
-	NomLargeursMondeParDefautConservees Nom = "repli_largeurs_monde_par_defaut_conservees"
-	// NomIndexDeRegionLargeurUn : `grammar/profil_balayage.go`.
-	NomIndexDeRegionLargeurUn Nom = "repli_index_de_region_largeur_un"
 	// NomLargeursMppParDefaut : `profile/mpp_widths.go`, compte par `replay/build_ground_weapons.go`.
 	NomLargeursMppParDefaut Nom = "repli_largeurs_mpp_par_defaut"
 	// NomChunksApresTrouAbandonnes : `grammar/film_chunks.go`.
