@@ -12,7 +12,7 @@ import (
 //
 // # Ce qu'est un enregistrement
 //
-// Chaque entite du match (2 equipes + 8 joueurs) est serialisee dans les paquets FRAME par
+// Chaque entite du match (2 equipes + un joueur par siege) est serialisee dans les paquets FRAME par
 // un enregistrement portant une liste CREUSE de composants : l'enregistrement DIT quels
 // composants il transporte, on n'a donc pas a parcourir les 58 de l'archetype. Un composant
 // n'est reemis QUE lorsqu'il change — c'est ce qui rend la resolution temporelle bien plus
@@ -31,7 +31,8 @@ import (
 // Chaque constante a ete lue sur 1 078 en-tetes et 2 708 lectures de composant issus d'une
 // capture Cheat Engine, pas supposee :
 //   - le bit qui precede l'identifiant vaut 1 dans 1 077/1 078 (c'est le code de record DELTA) ;
-//   - les slots valent 6 et 8 (equipes) et 10..24 pairs (les 8 joueurs), soit
+//   - les slots valent 6 et 8 (equipes) et 10..24 pairs (les 8 joueurs de ces films ; au-dela, cf.
+//     [StatborgSlotMax]), soit
 //     2 x (identifiant runtime - 0x40000000) ;
 //   - la generation vaut 1 et le selecteur d'etat de base vaut 0 dans 1 077/1 078.
 //
@@ -81,10 +82,23 @@ const (
 	// contrainte sur chacun des deux en-tetes, soit 4 des 10 bits de filtre anti-faux-positifs
 	// de la forme d'origine. Sans borne, l'ancrage laisserait passer 151 faux positifs par film.
 	StatborgMancheMax = 7
-	// StatborgSlotEquipeMax / StatborgSlotMax delimitent les slots d'entite avec [statSlotMin] :
-	// 6 et 8 pour les deux equipes, 10 a 24 (pairs) pour les huit joueurs.
+	// StatborgSlotEquipeMax delimite les slots d'entite d'equipe avec [statSlotMin] : 6 et 8.
+	// Les slots de joueur sont les pairs au-dela, 10 jusqu'au dernier siege du film.
+	//
+	// Un slot est 2 x l'index d'entite, et le statborg porte une entite par equipe (index 3 et 4)
+	// puis une par joueur, dans une bande CONTIGUE : 10 a 24 pour huit joueurs, jusqu'a 58 sur un
+	// BTB de 25 entites. Le dernier siege se lit dans la table de datums du film
+	// ([LaBandeDuStatborg]), jamais dans le flux d'enregistrements : l'en-tete d'un
+	// enregistrement ne se distingue pas d'un ancrage fortuit par lui seul, et un slot qui n'est
+	// pas une entite du film recoit pourtant des ancrages fortuits.
 	StatborgSlotEquipeMax = 8
-	StatborgSlotMax       = 24
+	// StatborgSlotBandeSure est le dernier slot de joueur lu quand la table de datums ne porte pas
+	// la bande du statborg : les huit premiers joueurs.
+	StatborgSlotBandeSure = 24
+	// StatborgSlotMax est le plus grand slot que la bande puisse atteindre. Le statborg replique
+	// au plus 0x30 entrees (borne de l'etat par defaut de son archetype) : les index vont de 3 a
+	// 50, soit jusqu'au slot 100.
+	StatborgSlotMax = 100
 	// StatborgEnregistrementsMax plafonne ce qu'un film peut rendre.
 	//
 	// POURQUOI CE PLAFOND EXISTE : ce balayage a rendu la machine de l'utilisateur inutilisable
@@ -149,18 +163,19 @@ const (
 	statMaxCounter = 1 << 20
 )
 
-// scanFrameForRecords balaie un paquet FRAME et rend les enregistrements qu'il porte.
-func scanFrameForRecords(pay []byte, tMS int) []types.StatRecord {
-	return scanFrameAvecReplis(pay, tMS, nil)
+// scanFrameForRecords balaie un paquet FRAME et rend les enregistrements qu'il porte, jusqu'au slot
+// `slotMax` inclus.
+func scanFrameForRecords(pay []byte, slotMax int) []types.StatRecord {
+	return scanFrameAvecReplis(pay, 0, slotMax, nil)
 }
 
 // scanFrameAvecReplis est [scanFrameForRecords], qui compte ses deux replis dans `c` (nil : rien).
-func scanFrameAvecReplis(pay []byte, tMS int, c *LectureDuStatborg) []types.StatRecord {
+func scanFrameAvecReplis(pay []byte, tMS, slotMax int, c *LectureDuStatborg) []types.StatRecord {
 	var out []types.StatRecord
 	var abandonnes, arretes int
 	lim := len(pay)*8 - statTailBits
 	for b := 1; b < lim; b++ {
-		slot, idx, at, ok := matchRecordHeader(pay, b)
+		slot, idx, at, ok := matchRecordHeader(pay, b, slotMax)
 		if !ok {
 			continue
 		}
@@ -196,13 +211,14 @@ func statCountersInDomain(comps map[int]types.StatValue) bool {
 }
 
 // matchRecordHeader teste l'en-tete d'enregistrement d'entite a la position b. Il rend le
-// slot, la liste creuse d'index de composants et la position du premier composant.
-func matchRecordHeader(pay []byte, b int) (slot int, idx []int, compAt int, ok bool) {
+// slot (au plus `slotMax`), la liste creuse d'index de composants et la position du premier
+// composant.
+func matchRecordHeader(pay []byte, b, slotMax int) (slot int, idx []int, compAt int, ok bool) {
 	if source.BitsTronques(pay, b-1, 1) != 1 {
 		return 0, nil, 0, false
 	}
 	slot = int(source.BitsTronques(pay, b, statIDBits))
-	if slot < statSlotMin || slot > StatborgSlotMax || slot%2 != 0 {
+	if slot < statSlotMin || slot > slotMax || slot%2 != 0 {
 		return 0, nil, 0, false
 	}
 	if source.BitsTronques(pay, b+statIDBits, statGenBits) != statGenValue {

@@ -2,17 +2,18 @@ package objectives
 
 import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar/signaux"
 
-// rosterfit.go — L'EFFECTIF DU MATCH TIENT-IL DANS LE STATBORG ? La garde d'effectif du calque
-// des ACTIONS d'objectif.
+// rosterfit.go — L'EFFECTIF DU MATCH EST-IL CELUI QUE LE CALQUE DES ACTIONS SAIT LIRE ? La garde
+// d'effectif du calque des ACTIONS d'objectif.
 //
 // # Pourquoi cette question se pose
 //
-// Le statborg ne connait que HUIT slots d'entite de joueur — les slots pairs au-dela de
-// `signaux.StatborgSlotEquipeMax` jusqu'a `signaux.StatborgSlotMax`, soit 10, 12, ... 24 (cf. les
-// constantes de `grammar/signaux/statborg.go`). C'est une contrainte de FORMAT, pas un reglage : au-dela,
-// le film n'a plus de place pour dire de qui il parle. Sur un match a plus de huit joueurs, les
-// compteurs lus sur ces huit slots ne sont pas « les huit premiers joueurs » — ils ne
-// correspondent a personne de facon reproductible.
+// La lecture du statborg couvre tous les slots de joueur du film ([signaux.StatborgSlotMax]), mais
+// le calque des ACTIONS (prises de drapeau, captures de zone, ...) n'a ete mesure que sur les
+// films de huit sieges au plus : la bande de huit slots, de `signaux.StatborgSlotEquipeMax` exclu a
+// `signaux.StatborgSlotBandeSure` inclus, soit 10, 12, ... 24. Sur un match a plus de huit
+// joueurs, ses comptes ne sont pas garantis (cf. les comptes ci-dessous) : la garde refuse le
+// calque tant qu'une mesure sur l'effectif complet ne l'a pas leve. Les compteurs de base du
+// tableau des scores, eux, se lisent sur tous les sieges.
 //
 // # Ce que ca coutait, mesure
 //
@@ -31,23 +32,23 @@ import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar/signaux"
 // # La regle, et pourquoi elle est de la meme famille qu'`IsFlagFilm`
 //
 // Un silence DOCUMENTE vaut mieux qu'un calque faux. La garde refuse le film entier plutot que
-// de trier les actions une a une : rien dans le film ne dit LESQUELLES des huit series
-// correspondent a un joueur reel — c'est la question meme que le plafond de slots rend
-// insoluble. Le refus se COMPTE (`refusedByRoster` a la couverture) et se JOURNALISE : un
-// calque muet dont personne ne sait pourquoi il est muet est pire que le calque faux.
+// de trier les actions une a une. Le refus se COMPTE (`refusedByRoster` a la couverture) et se
+// JOURNALISE : un calque muet dont personne ne sait pourquoi il est muet est pire que le calque
+// faux.
 //
-// CE QU'ELLE NE DIT PAS. Elle ne prouve pas que le plafond de slots CAUSE les comptes faux —
-// l'audit range ce lien parmi les hypotheses non fermees (§10). Elle constate que le format ne
-// peut pas porter l'effectif, et refuse de publier sur cette base.
+// CE QU'ELLE NE DIT PAS. Elle ne prouve pas que la bande de slots CAUSAIT les comptes faux :
+// l'audit range ce lien parmi les hypotheses non fermees (§10). Depuis que le statborg se lit sur
+// tous les sieges, elle ne constate plus une limite du format mais l'absence de mesure du calque
+// des actions au-dela de huit sieges.
 
-// StatPlayerSlots est le nombre de slots d'entite de JOUEUR que le statborg peut porter : les
-// slots pairs de [signaux.StatborgSlotEquipeMax] exclu a [signaux.StatborgSlotMax] inclus.
+// StatPlayerSlots est le nombre de sieges que le calque des actions sait lire : les slots pairs de
+// [signaux.StatborgSlotEquipeMax] exclu a [signaux.StatborgSlotBandeSure] inclus.
 //
 // DERIVE DES CONSTANTES DE FORMAT, jamais ecrit en dur : si la bande de slots change, ce compte
 // change avec elle.
-const StatPlayerSlots = (signaux.StatborgSlotMax - signaux.StatborgSlotEquipeMax) / 2
+const StatPlayerSlots = (signaux.StatborgSlotBandeSure - signaux.StatborgSlotEquipeMax) / 2
 
-// RosterFitsStatborg dit si `n` SIEGES tiennent dans les slots du statborg.
+// RosterFitsStatborg dit si `n` SIEGES tiennent dans la bande que le calque des actions sait lire.
 //
 // # CE QUI SE COMPTE EST UN SIEGE, PAS UNE PERSONNE — et la mesure l'a impose
 //
@@ -66,8 +67,8 @@ const StatPlayerSlots = (signaux.StatborgSlotMax - signaux.StatborgSlotEquipeMax
 //	films BTB       18, 21 et 23 sieges               (`4f77afc1` 36 lignes, `5676a9ba` 31,
 //	                                                  `879a4dba` 26)
 //
-// Les deux populations sont separees d'un facteur superieur a DEUX, et le plafond de format
-// (huit slots) tombe exactement a la frontiere haute des arenes.
+// Les deux populations sont separees d'un facteur superieur a DEUX, et la bande mesuree (huit
+// slots) tombe exactement a la frontiere haute des arenes.
 //
 // `n <= 0` rend VRAI : un appelant qui ne connait pas l'effectif (cuisson sans faits de match)
 // ne doit pas voir son calque disparaitre — la garde refuse ce qu'elle MESURE, jamais ce

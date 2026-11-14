@@ -8,6 +8,7 @@ package grammar
 
 import (
 	"fmt"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/datums"
 	"sort"
 	"strings"
 )
@@ -50,8 +51,8 @@ func cmCles(m map[string]*cmCompte) []string {
 
 // cmBlocs : ce que le film dit de ses slots hors de la marche.
 type cmBlocs struct {
-	entrees map[int][]DatumEntry
-	queue   map[int][datumQueueMots]uint32
+	entrees map[int][]datums.DatumEntry
+	queue   map[int][datums.QueueMots]uint32
 	suivant map[int]int
 	// plafond : le plus grand slot ALLOUE (generation ou drapeaux poses) par un bloc du film.
 	plafond uint32
@@ -71,7 +72,7 @@ type cmBlocs struct {
 
 // cmLireBlocs lit tout ce que le film dit de ses slots.
 func cmLireBlocs(f *cmFilm) *cmBlocs {
-	b := &cmBlocs{entrees: map[int][]DatumEntry{}, queue: map[int][datumQueueMots]uint32{},
+	b := &cmBlocs{entrees: map[int][]datums.DatumEntry{}, queue: map[int][datums.QueueMots]uint32{},
 		suivant: map[int]int{}, gens: map[uint32]uint8{}, kf: map[uint64]bool{},
 		kfSlots: map[uint32]bool{}, declares: map[int]map[uint32]uint32{},
 		dico: map[[4]uint64]map[uint32]bool{}}
@@ -88,8 +89,8 @@ func cmLireBlocs(f *cmFilm) *cmBlocs {
 		premiere := true
 		for _, pk := range pks {
 			switch pk.Type {
-			case PacketTypeDatums:
-				bl, err := LireBlocDeDatums(pk.Payload(data))
+			case datums.PacketTypeDatums:
+				bl, err := datums.LireBlocDeDatums(pk.Payload(data))
 				if err != nil {
 					continue
 				}
@@ -127,16 +128,16 @@ func cmLireBlocs(f *cmFilm) *cmBlocs {
 }
 
 // entree rend l entree d un slot au bloc du chunk `c`, et si le bloc la porte.
-func (b *cmBlocs) entree(c int, slot uint32) (DatumEntry, bool) {
+func (b *cmBlocs) entree(c int, slot uint32) (datums.DatumEntry, bool) {
 	e := b.entrees[c]
 	if int(slot) >= len(e) {
-		return DatumEntry{}, false
+		return datums.DatumEntry{}, false
 	}
 	return e[slot], true
 }
 
 // cmAlloueSous : l entree porte une allocation (vivante ou liberee) sous la generation `gen`.
-func cmAlloueSous(e DatumEntry, gen uint8) bool {
+func cmAlloueSous(e datums.DatumEntry, gen uint8) bool {
 	return e.Gen == gen && (e.Gen != 0 || e.Drapeaux != 0)
 }
 

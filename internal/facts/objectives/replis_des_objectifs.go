@@ -29,6 +29,9 @@ type ComptesDesReplis struct {
 	// ComposantsArretes : `repli_composants_statborg_arretes` — enregistrements GARDES dont la
 	// lecture des composants s est arretee avant le dernier annonce (`grammar/signaux/statborg.go`).
 	ComposantsArretes int
+	// BandesParDefaut : `repli_bande_statborg_par_defaut` — films dont aucune table de datums ne porte
+	// la bande des joueurs : la lecture s'arrete aux huit premiers (`grammar/signaux/statborg_bande.go`).
+	BandesParDefaut int
 	// TablesIdentiteVides : `repli_table_identite_vide` — ponts par instants de mort sans aucune
 	// mort, rendus vides (`slotidentity_deaths.go`).
 	TablesIdentiteVides int
@@ -50,6 +53,7 @@ func (c ComptesDesReplis) Plus(d ComptesDesReplis) ComptesDesReplis {
 	return ComptesDesReplis{
 		EnregistrementsAbandonnes:  c.EnregistrementsAbandonnes + d.EnregistrementsAbandonnes,
 		ComposantsArretes:          c.ComposantsArretes + d.ComposantsArretes,
+		BandesParDefaut:            c.BandesParDefaut + d.BandesParDefaut,
 		TablesIdentiteVides:        c.TablesIdentiteVides + d.TablesIdentiteVides,
 		DebutsDeMancheAuMinimum:    c.DebutsDeMancheAuMinimum + d.DebutsDeMancheAuMinimum,
 		SlotsAbandonnes:            c.SlotsAbandonnes + d.SlotsAbandonnes,

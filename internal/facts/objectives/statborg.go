@@ -31,6 +31,20 @@ const statMaxModeScore = 250
 // la contiguite des manches ([contiguousRounds]) ne cherche pas au-dela.
 const statMaxRound = signaux.StatborgMancheMax
 
+// RecordsDeLaBandeSure rend les enregistrements des equipes et des huit premiers joueurs : la bande
+// que les calques d'objectif ont ete mesures sur. Au-dela, un slot de joueur n'est lu que pour le
+// tableau des scores ; les calques d'objectif (drapeau) attendent leur mesure sur les films de plus de
+// huit sieges.
+func RecordsDeLaBandeSure(recs []types.StatRecord) []types.StatRecord {
+	out := make([]types.StatRecord, 0, len(recs))
+	for _, r := range recs {
+		if r.Slot <= signaux.StatborgSlotBandeSure {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
 // IsTeamSlot dit si un slot designe une entite d'equipe (par opposition a un joueur).
 func IsTeamSlot(slot int) bool { return slot <= signaux.StatborgSlotEquipeMax }
 
@@ -59,8 +73,8 @@ func StatRecordsBornes(film *source.Film, matchID string) (
 	return recs, truncated, diags
 }
 
-// StatRecordsAvecReplis est [StatRecordsBornes], plus les comptes des deux replis de la lecture —
-// enregistrements abandonnes et composants arretes (lot J8.7). La cuisson les porte avec la section
+// StatRecordsAvecReplis est [StatRecordsBornes], plus les comptes des replis de la lecture —
+// enregistrements abandonnes, composants arretes (lot J8.7) et bande des joueurs par defaut. La cuisson les porte avec la section
 // statborg des faits persistes, et les verse au compteur a l assemblage.
 func StatRecordsAvecReplis(film *source.Film, matchID string) (
 	recs []types.StatRecord, truncated bool, replis ComptesDesReplis, diags []constat.Diagnostic,
@@ -69,13 +83,22 @@ func StatRecordsAvecReplis(film *source.Film, matchID string) (
 	return l.Records, l.Tronque, comptesDuStatborg(l), diagnosticsDuStatborg(l, film, matchID)
 }
 
-// comptesDuStatborg porte les deux replis de la lecture dans les comptes de ce paquet, champ pour
-// champ : c est sous ces deux noms que la cuisson les persiste et les verse.
+// comptesDuStatborg porte les replis de la lecture dans les comptes de ce paquet, champ pour
+// champ : c est sous ces noms que la cuisson les persiste et les verse.
 func comptesDuStatborg(l signaux.LectureDuStatborg) ComptesDesReplis {
 	return ComptesDesReplis{
 		EnregistrementsAbandonnes: l.EnregistrementsAbandonnes,
 		ComposantsArretes:         l.ComposantsArretes,
+		BandesParDefaut:           boolVersCompte(l.BandeParDefaut),
 	}
+}
+
+// boolVersCompte rend 1 pour un repli declenche, 0 sinon : un repli de film se compte une fois.
+func boolVersCompte(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 // diagnosticsDuStatborg rend ce que la lecture constate, dans l ordre ou elle le rencontre : un
@@ -94,6 +117,12 @@ func diagnosticsDuStatborg(l signaux.LectureDuStatborg, film *source.Film, match
 			Message: "statborg: plafond d'enregistrements atteint, lecture tronquee",
 			Attrs: []any{"match_id", matchID, "records", len(l.Records),
 				"limite", signaux.StatborgEnregistrementsMax, "chunk", l.ChunkTronque}})
+	}
+	if l.BandeParDefaut {
+		diag.Signaler(constat.Diagnostic{Code: DiagStatborgBandeParDefaut, Niveau: constat.NiveauWarn,
+			Message: "statborg: aucune table de datums ne porte la bande des joueurs, lecture limitee aux huit premiers",
+			Attrs: []any{"match_id", matchID, "blocs_refuses", l.BlocsDeDatumsRefuses,
+				"slot_max", signaux.StatborgSlotBandeSure}})
 	}
 	return diag.Relever()
 }

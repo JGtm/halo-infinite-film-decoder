@@ -35,19 +35,26 @@ type LectureDuStatborg struct {
 	// ComposantsArretes : `repli_composants_statborg_arretes` — enregistrements GARDES dont la
 	// lecture des composants s est arretee avant le dernier annonce ([decodeComponentsAvecArret]).
 	ComposantsArretes int
+	// BandeParDefaut : `repli_bande_statborg_par_defaut` — aucune table de datums ne portait la
+	// bande des joueurs, la lecture s'est arretee au slot [StatborgSlotBandeSure] ([BandeDuStatborg]).
+	BandeParDefaut bool
+	// BlocsDeDatumsRefuses : les blocs de type 1 que la lecture de la table a refuses.
+	BlocsDeDatumsRefuses int
 }
 
-// LireLeStatborg decode tous les enregistrements d'entite d'un film, tries par temps puis par
-// slot, sous le plafond [StatborgEnregistrementsMax]. L'ancrage est DIRECT : les contraintes de
-// l'en-tete suffisent a localiser un enregistrement, aucune traversee de la chaine n'est
-// necessaire.
+// LireLeStatborg decode tous les enregistrements d'entite d'un film jusqu'au dernier siege de son
+// statborg ([LaBandeDuStatborg]), tries par temps puis par slot, sous le plafond
+// [StatborgEnregistrementsMax]. L'ancrage est DIRECT : les contraintes de l'en-tete suffisent a
+// localiser un enregistrement, aucune traversee de la chaine n'est necessaire.
 //
 // LE FILM ARRIVE DEJA CHARGE, et seuls les chunks du MANIFESTE sont balayes ([manifestChunks]) :
 // chaque paquet FRAME est date par le `start_ms` de son chunk, l'origine etant le premier paquet
 // FRAME du chunk.
 func LireLeStatborg(film *source.Film) LectureDuStatborg {
 	chunks := manifestChunks(film)
-	l := LectureDuStatborg{ChunksDatables: len(chunks)}
+	bande := LaBandeDuStatborg(film)
+	slotMax := bande.SlotMax
+	l := LectureDuStatborg{ChunksDatables: len(chunks), BandeParDefaut: bande.ParDefaut, BlocsDeDatumsRefuses: bande.Refuses}
 	var out []types.StatRecord
 	for _, c := range chunks {
 		frames := framesOf(film, c.pos)
@@ -57,7 +64,7 @@ func LireLeStatborg(film *source.Film) LectureDuStatborg {
 		base := frames[0].TS
 		for _, f := range frames {
 			tMS := c.meta.StartMS + int((f.TS-base)/1000)
-			out = append(out, scanFrameAvecReplis(f.Payload, tMS, &l)...)
+			out = append(out, scanFrameAvecReplis(f.Payload, tMS, slotMax, &l)...)
 			if len(out) >= StatborgEnregistrementsMax {
 				l.Records, l.Tronque, l.ChunkTronque = sortRecords(out), true, c.meta.Index
 				return l

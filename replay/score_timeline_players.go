@@ -45,15 +45,21 @@ import (
 // slots muets (lot 6.7-B1). LA MEME CHAINE QUE LE PONT DE LA CUISSON ([PontParManche]) :
 // deux lecteurs du meme pont doivent dire la meme chose du meme match. `lines` vide rend
 // l'identite inchangee.
+//
+// LES COMPTEURS NOMMES (`PlayerScore.Stats`) NE SE PUBLIENT QU'EN MONO-MANCHE : l'association (slot,
+// manche) -> xuid d'un film a plusieurs manches ne tient pas le niveau d'une manche (somme des fins de
+// manche contre l'API, sur 30 films : 63 a 88 % pour les frags, morts et assistances, 92 a 96 % pour les
+// compteurs nommes, contre 99 % a une manche). Le second retour compte les joueurs que cette regle prive de
+// compteurs nommes (`coverage.score.statsWithheld`).
 func buildPlayerScores(recs []types.StatRecord, flat map[int]string,
-	lines []types.PlayerLine, deaths []types.Death, c scoreClock) []PlayerScore {
+	lines []types.PlayerLine, deaths []types.Death, c scoreClock) ([]PlayerScore, int) {
 	if len(objectives.RealRounds(recs)) > 1 {
 		round := objectives.ResolveRoundIdentity(recs, deathInstantsOf(deaths), c.cons).
 			CompletedByElimination(recs, lines).
 			CompletedByRoundResidue(recs, lines)
 		return buildPlayerScoresByRound(recs, round, c)
 	}
-	return buildPlayerScoresFlat(recs, flat, c)
+	return buildPlayerScoresFlat(recs, flat, c), 0
 }
 
 // buildPlayerScoresFlat est le chemin MONO-MANCHE : un PlayerScore par slot apparie par le pont
@@ -66,6 +72,7 @@ func buildPlayerScoresFlat(recs []types.StatRecord, identity map[int]string, c s
 	kills := loadScoreSeries(recs, objectives.KillsComponent(), false, c.cons)
 	deaths := loadScoreSeries(recs, objectives.DeathsComponent(), false, c.cons)
 	assists := loadScoreSeries(recs, objectives.AssistsComponent(), false, c.cons)
+	stats := loadNamedStats(recs, c.cons)
 
 	slots := make([]int, 0, len(identity))
 	for slot := range identity {
@@ -81,6 +88,7 @@ func buildPlayerScoresFlat(recs []types.StatRecord, identity map[int]string, c s
 			Kills:   kills.at(slot, c),
 			Deaths:  deaths.at(slot, c),
 			Assists: assists.at(slot, c),
+			Stats:   stats.at(slot, c),
 		}
 		if p.empty() {
 			continue
@@ -98,13 +106,15 @@ func buildPlayerScoresFlat(recs []types.StatRecord, identity map[int]string, c s
 // manche, chaque segment rattache au joueur de SA manche (`AtRound`), les segments d'un meme xuid
 // fusionnes en une entree — courbe recomposee dans l'ordre du temps.
 func buildPlayerScoresByRound(recs []types.StatRecord,
-	round objectives.RoundIdentity, c scoreClock) []PlayerScore {
+	round objectives.RoundIdentity, c scoreClock) ([]PlayerScore, int) {
 	personal := playerRoundsByXUID(recs, objectives.PersonalScoreComponent(), round, c.cons)
 	kills := playerRoundsByXUID(recs, objectives.KillsComponent(), round, c.cons)
 	deaths := playerRoundsByXUID(recs, objectives.DeathsComponent(), round, c.cons)
 	assists := playerRoundsByXUID(recs, objectives.AssistsComponent(), round, c.cons)
+	named := xuidsWithNamedStats(recs, round, c.cons)
 
 	out := make([]PlayerScore, 0)
+	withheld := 0
 	for _, xuid := range sortedXUIDs(personal, kills, deaths, assists) {
 		p := PlayerScore{
 			XUID:    xuid,
@@ -116,12 +126,15 @@ func buildPlayerScoresByRound(recs []types.StatRecord,
 		if p.empty() {
 			continue
 		}
+		if named[xuid] {
+			withheld++
+		}
 		out = append(out, p)
 	}
 	if len(out) == 0 {
-		return nil
+		return nil, withheld
 	}
-	return out
+	return out, withheld
 }
 
 // playerRoundsByXUID regroupe les segments par MANCHE d'un composant sous le xuid qui occupait le
@@ -204,12 +217,15 @@ func sortedXUIDs(maps ...map[string]map[int][]types.ScorePoint) []string {
 	return out
 }
 
-// empty dit qu'aucun des quatre compteurs d'un joueur n'a rien a publier.
+// empty dit qu'aucun des compteurs d'un joueur n'a rien a publier.
 func (p PlayerScore) empty() bool {
 	for _, s := range []ScoreSeries{p.Score, p.Kills, p.Deaths, p.Assists} {
-		if len(s.Rounds) > 0 || len(s.Total) > 0 {
+		if !s.empty() {
 			return false
 		}
 	}
-	return true
+	return len(p.Stats) == 0
 }
+
+// empty dit qu'une serie ne porte aucun point.
+func (s ScoreSeries) empty() bool { return len(s.Rounds) == 0 && len(s.Total) == 0 }

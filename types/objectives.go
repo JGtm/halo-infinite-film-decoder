@@ -67,7 +67,7 @@ type PlayerLine struct {
 type ScorePoint struct {
 	// TimeMS est l'instant de l'emission sur l'horloge du film.
 	TimeMS int
-	// Slot identifie l'entite : 6 et 8 sont les deux equipes, 10..24 les huit joueurs.
+	// Slot identifie l'entite : 6 et 8 sont les deux equipes, 10 jusqu'au dernier siege (pairs) les joueurs.
 	Slot int
 	// Value est le score a cet instant.
 	Value int64
@@ -99,7 +99,7 @@ type StatRecord struct {
 	// TimeMS est l'instant de l'emission sur l'horloge du film (meme base que le
 	// TimeMS des objectiveevent.Event).
 	TimeMS int
-	// Slot identifie l'entite : 6 et 8 sont les deux equipes, 10..24 les huit joueurs.
+	// Slot identifie l'entite : 6 et 8 sont les deux equipes, 10 jusqu'au dernier siege (pairs) les joueurs.
 	Slot int
 	// Round est la MANCHE que decrit cet enregistrement, 0-based (0 = premiere manche). Elle
 	// est lue dans les en-tetes de 5 bits du premier composant. Un compteur repart de zero a

@@ -68,6 +68,18 @@ type StatComponent struct {
 	// Les borner effacerait des courbes vraies. D'ou l'opt-in explicite plutot qu'un filtre
 	// pose sur toutes les series : le domaine de validite de la borne est SA calibration.
 	Unitary bool
+	// HoldOnClear dit que le compteur est lu avec les deux regles des compteurs nommes du tableau
+	// des scores ([ScoreboardStats]) : une emission qui porte une valeur negative, sur l'un de ses
+	// quatre canaux, est mal alignee et jetee ; un retour a zero apres une valeur positive, dans
+	// une meme manche, est le vidage de la ligne d'un joueur qui part et il est ecarte. Sans la
+	// seconde, un compteur que le film n'emet qu'une ou deux fois (un par vie) finit sur le zero
+	// du vidage, la suite d'un point etant departagee en faveur de la derniere emission
+	// ([longestRun]).
+	HoldOnClear bool
+	// Joint dit, en plus, que les DEUX valeurs du composant ne decroissent jamais : une emission
+	// dont l'une recule est mal alignee, et la suite retenue est la plus longue qui les tient
+	// toutes deux ([jointRun]). Faux quand la valeur A du composant n'est pas un compteur.
+	Joint bool
 }
 
 // ModeScoreComponent : le score de MODE (comp 0, valeur A) — celui que l'ECRAN affiche,
@@ -130,7 +142,7 @@ func (c StatComponent) key() statSlotKey {
 // valeurs propres a la manche, NON cumulees. C'est la forme que publie l'artefact de rejeu,
 // ou chaque manche est une courbe distincte.
 //
-// teams choisit les slots d'equipe (6 et 8) plutot que ceux de joueur (10..24 pairs). Les
+// teams choisit les slots d'equipe (6 et 8) plutot que ceux de joueur (10 jusqu'au dernier siege, pairs). Les
 // manches FANTOMES — celles que [RealRounds] refuse — sont ecartees : les cumuler ferait
 // exploser les compteurs (mesure : le score d'equipe d'un CTF passait de 1 a 2 104).
 //
@@ -146,7 +158,7 @@ func SeriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
 	real := RealRounds(recs)
 	out := map[int]map[int][]types.ScorePoint{}
-	for slot, byRound := range rawSeriesByRound(recs, c.key(), teams, cons) {
+	for slot, byRound := range rawSeries(recs, c, teams, cons) {
 		for round, pts := range byRound {
 			if !real[round] {
 				continue
@@ -181,7 +193,7 @@ func SeriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 // `cons` : l enregistreur des replis a la consultation du document ([ReplisALaConsultation], lot
 // J8.7-bis) ; nil hors production.
 func SeriesTotal(recs []types.StatRecord, c StatComponent, teams bool, cons *ReplisALaConsultation) map[int][]types.ScorePoint {
-	out := cumulateRounds(rawSeriesByRound(recs, c.key(), teams, cons), RealRounds(recs), cons.Diagnostics())
+	out := cumulateRounds(rawSeries(recs, c, teams, cons), RealRounds(recs), cons.Diagnostics())
 	for slot, pts := range out {
 		if c.Unitary {
 			pts = boundedSeries(pts)

@@ -201,9 +201,10 @@ func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, c scoreClock,
 	slots := teamSlotsOf(teamScore, teamFrags)
 	teamID, method := resolveTeamIdentity(in, slots, teamScore, teamFrags, playerFrags, identity)
 
+	players, withheld := buildPlayerScores(recs, identity, in.Lines, deaths, c)
 	tl := &ScoreTimeline{
 		Teams:   buildTeamScores(slots, teamScore, teamID, c),
-		Players: buildPlayerScores(recs, identity, in.Lines, deaths, c),
+		Players: players,
 	}
 	tl.TargetScore = publishableTarget(in.TargetScore, slots, teamScore, len(tl.Teams))
 	var threshold *holdThresholdReading
@@ -216,6 +217,7 @@ func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, c scoreClock,
 		Truncated:     in.Truncated,
 		Oracle:        ScoreOracleDisplayed,
 		Points:        countScorePoints(tl),
+		StatsWithheld: withheld,
 	}
 	attachRoundsCoverage(cov, objectives.ResolveRounds(recs), fb)
 	if len(tl.Teams) == 0 && len(tl.Players) == 0 {
@@ -325,6 +327,9 @@ func countScorePoints(tl *ScoreTimeline) int {
 	}
 	for _, p := range tl.Players {
 		for _, s := range []ScoreSeries{p.Score, p.Kills, p.Deaths, p.Assists} {
+			n += countSeriesPoints(s)
+		}
+		for _, s := range p.Stats {
 			n += countSeriesPoints(s)
 		}
 	}

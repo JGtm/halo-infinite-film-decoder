@@ -465,3 +465,7 @@ package killsource
 // A REVISION CONSTANTE (medailles des temps forts rendues par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` monte
 // (`grammar-2026-11-14`) ; le morceau des temps forts se lit desormais pour ses morts et ses medailles, et le fil des kills que ce
 // paquet en tire n en depend pas. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (statborg lu jusqu'au dernier siege, 2026-11-14) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-14.2`) ;
+// la lecture du statborg (`grammar/signaux`) n'alimente que les objectifs et le fil des kills de ce paquet n'en depend pas. Golden
+// regenere a revision constante.

@@ -60,7 +60,7 @@ type mesureV2 struct {
 	borne     borneV2
 	chunk3    chunk3
 	// sansBloc / blocsIllisibles : chunks CONSULTES (celui d un rejet et son suivant) sans paquet de
-	// type 1, et blocs de type 1 que `grammar.LireBlocDeDatums` refuse.
+	// type 1, et blocs de type 1 que `datums.LireBlocDeDatums` refuse.
 	sansBloc, blocsIllisibles int
 	// l0 : les mesures du lot L0 (v2_ecrivain.go).
 	l0 ecrivainV2

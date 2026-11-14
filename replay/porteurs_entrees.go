@@ -84,8 +84,13 @@ func GardesDeLaVariante(variante string) GardesDesPorteurs {
 //
 // AUCUN FAIT DE MATCH N'ENTRE DANS LE CALQUE : ce qui descend est une TABLE slot -> xuid. Les
 // SOCLES s'y ajoutent chez l'appelant (ils viennent du catalogue de carte, pas du film).
+//
+// LE CALQUE NE LIT QUE LES EQUIPES ET LES HUIT PREMIERS JOUEURS ([objectives.RecordsDeLaBandeSure]) : le
+// statborg se lit jusqu'au dernier siege pour le tableau des scores, mais les portages et la jauge de retour
+// du drapeau n'ont ete mesures que sur cette bande, et sur un CTF de plus de huit sieges leur lecture
+// elargie change sans oracle.
 func EntreeDuDrapeau(recs []types.StatRecord, bursts []int, pont *PontParManche) FlagInput {
-	return withFlagIdentity(FlagInput{Scanned: true, Records: recs, Bursts: bursts}, pont)
+	return withFlagIdentity(FlagInput{Scanned: true, Records: objectives.RecordsDeLaBandeSure(recs), Bursts: bursts}, pont)
 }
 
 // withFlagIdentity pose le pont COMPLETE sur l'entree du calque — et SEULEMENT sur un film que les

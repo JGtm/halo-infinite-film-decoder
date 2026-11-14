@@ -312,6 +312,14 @@ ported, 32 with a written grammar and no caller, plus 14 spelling aliases. The s
 parser: its bits are consumed to keep the chain aligned and its values are found by anchoring on record headers, because an
 earlier port read 841 records out of 841 wrongly.
 
+**Scoreboard rows.** The statborg holds one entity per team and one per player, in contiguous datum indexes from 3 (two teams, then
+a row per seat); a record's slot is twice that index. Every such entity raises component 57 in its datum bitmap, so the last seat of
+a match is read from the datum tables of the film (`internal/grammar/signaux/statborg_bande.go`) and records are anchored up to that
+slot, 58 on a 25-seat match. A row is a list of components of two values (A, B): component `c` side A or B is libfilmshell's
+slot `2c` or `2c+1`. Named and measured: 0A mode score, 1B personal score, 2A kills, 2B deaths, 3A assists, 4A suicides, 4B
+betrayals, 5B longest kill spree, 6A headshot kills, 8A melee kills, 8B grenade kills, 9A power weapon kills, 10B spawns. A row
+is cleared to zero when its player leaves.
+
 **Entity table and guard.** The reader keeps a table slot -> (full id, archetype, provenance of the binding). The game's guard on an
 update requires the id to be in its datum table (slot in range, stored id equal to the record's) and otherwise reads no bit of the
 body; the decoder reproduces this, and an update not in the table ends view B as a *rejection*. A binding comes from a NEW the

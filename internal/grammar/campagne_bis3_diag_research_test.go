@@ -16,6 +16,7 @@ package grammar
 
 import (
 	"fmt"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/datums"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 )
@@ -166,7 +167,7 @@ func (d *b3Diag) finir() {
 }
 
 // etat nomme l etat d une entree de bloc.
-func b3Etat(e DatumEntry, ok bool) string {
+func b3Etat(e datums.DatumEntry, ok bool) string {
 	switch {
 	case !ok:
 		return "absent"
@@ -312,7 +313,7 @@ func (d *b3Diag) dernierRecord(p *cmPaquet) string {
 }
 
 // p1 ventile l image-cle incomplete.
-func (d *b3Diag) p1(r *cmRejet, slot uint32, g uint8, cur, nx DatumEntry, nxOK bool, k cmCompte) {
+func (d *b3Diag) p1(r *cmRejet, slot uint32, g uint8, cur, nx datums.DatumEntry, nxOK bool, k cmCompte) {
 	kf := "en-tete exact absent de l image-cle"
 	autre := false
 	for _, pay := range d.kfPays {
@@ -379,7 +380,7 @@ func b3EnTeteDImageCle(pay []byte, eid uint32) int {
 }
 
 // pontDuBloc : l archetype que le pont masque -> archetype donne a une entree.
-func (b *cmBlocs) pontDuBloc(e DatumEntry) (uint32, string) {
+func (b *cmBlocs) pontDuBloc(e datums.DatumEntry) (uint32, string) {
 	if e.Composants == ([4]uint64{}) {
 		return 0, "masque vide"
 	}

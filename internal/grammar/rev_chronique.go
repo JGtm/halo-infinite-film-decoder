@@ -211,3 +211,12 @@ package grammar
 // CHANGE PAS : le parseur ([ParseHighlightEvents]), le choix du morceau, les morts. Le zero de l horloge des temps forts se mesure a part
 // (publication) : sur les films que libfilmshell lit, son zero calcule par les kills tombe a moins de 11 ms du premier paquet du film.
 // Les rejeux et les faits cuits avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-14.2` (2026-11-14, le statborg se lit jusqu'au dernier siege du film). LA SORTIE DE LA LECTURE DU STATBORG
+// CHANGE (`signaux`, que seuls les objectifs consomment ; `killsource` ne l'importe pas). Le balayage des enregistrements d'entite ne
+// s'arrete plus au slot 24 : il va jusqu'au dernier siege que les tables de datums du film declarent ([signaux.LaBandeDuStatborg] : index
+// contigus a partir de 3 qui levent le composant 57), au plus le slot 100 ; une table absente ou refusee ramene aux huit premiers
+// joueurs et se compte (`repli_bande_statborg_par_defaut`). Le lecteur du bloc de datums sort de ce paquet vers `grammar/datums` sans
+// changer de lecture. Sur 1 612 films du parc, la derniere ligne lue egale la bande des datums sur 1 608 (les quatre autres ont moins de
+// huit joueurs) ; 158 films vont au-dela du slot 24, jusqu'au slot 62. Les rejeux et les faits cuits avant se refusent sur cette
+// revision : la recuisson est une decision de l utilisateur.

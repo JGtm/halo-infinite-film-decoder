@@ -5,7 +5,7 @@ package main
 // v2_datums.go — LE SLOT REJETE CONTRE LE BLOC DE TYPE 1 (item 1.2 de la carte v2).
 //
 // Chaque chunk porte, juste avant son image-cle, un bloc de type 1 : la table de datums du jeu a
-// cet instant (`grammar.LireBlocDeDatums`). Pour chaque paquet dont la vue B sort sur un
+// cet instant (`datums.LireBlocDeDatums`). Pour chaque paquet dont la vue B sort sur un
 // en-tete REJETE, la carte demande au bloc du MEME chunk ce qu il sait du slot — la mesure de
 // `TestBloc521Rejets` (un seul film), etendue au corpus et aux deux sorties — et
 // au bloc du chunk SUIVANT si l eid y est ne entre-temps :
@@ -39,6 +39,7 @@ package main
 
 import (
 	"errors"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/datums"
 	"io"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
@@ -53,13 +54,13 @@ const (
 // blocDuChunk est la table de datums d un chunk ; `present` faux : aucun bloc lisible.
 type blocDuChunk struct {
 	present bool
-	entrees []grammar.DatumEntry
+	entrees []datums.DatumEntry
 }
 
 // entree rend l entree d un slot, et dit si le bloc la porte.
-func (b blocDuChunk) entree(slot uint32) (grammar.DatumEntry, bool) {
+func (b blocDuChunk) entree(slot uint32) (datums.DatumEntry, bool) {
 	if !b.present || int(slot) >= len(b.entrees) {
-		return grammar.DatumEntry{}, false
+		return datums.DatumEntry{}, false
 	}
 	return b.entrees[slot], true
 }
@@ -156,10 +157,10 @@ func lireBlocDuChunk(fc *grammar.FilmContext, n int) (blocDuChunk, error) {
 	}
 	out, err := blocDuChunk{}, errSansBloc
 	for _, pk := range pks {
-		if pk.Type != grammar.PacketTypeDatums {
+		if pk.Type != datums.PacketTypeDatums {
 			continue
 		}
-		b, e := grammar.LireBlocDeDatums(pk.Payload(data))
+		b, e := datums.LireBlocDeDatums(pk.Payload(data))
 		if e != nil {
 			err = e
 			continue
@@ -229,6 +230,6 @@ func (c *collecteurV2) naissanceParBlocs(slot uint32, gen uint8) string {
 
 // alloueSous dit si une entree porte une allocation (vivante ou liberee) sous la generation `gen`.
 // Une entree `generation 0, drapeaux 0` est celle d un slot jamais alloue (cf. l en-tete).
-func alloueSous(e grammar.DatumEntry, gen uint8) bool {
+func alloueSous(e datums.DatumEntry, gen uint8) bool {
 	return e.Gen == gen && (e.Gen != 0 || e.Drapeaux != 0)
 }

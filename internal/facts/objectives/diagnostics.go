@@ -17,6 +17,8 @@ const (
 	DiagFilmSansManifeste constat.Code = "objectives.film_sans_manifeste"
 	// DiagStatborgTronque : le plafond d enregistrements du statborg est atteint.
 	DiagStatborgTronque constat.Code = "objectives.statborg_tronque"
+	// DiagStatborgBandeParDefaut : aucune table de datums ne porte la bande des joueurs du statborg.
+	DiagStatborgBandeParDefaut constat.Code = "objectives.statborg_bande_par_defaut"
 	// DiagDeroulageRejete : un deroulage aberrant a ete rejete par la borne par pas.
 	DiagDeroulageRejete constat.Code = "objectives.deroulage_rejete"
 	// DiagPlafondEvenements : le plafond d evenements du film est atteint.

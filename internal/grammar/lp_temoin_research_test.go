@@ -8,7 +8,7 @@ package grammar
 // Chaque test lit la marche d image-cle DU CONTEXTE ([FilmContext.MarcheDImageCle]) et la marche de
 // trames ([FilmContext.Trames]) de l arbre compile : joue sur la tete, il decrit la marche de
 // reference ; joue sous la surcouche du lot (`-overlay`), la marche sous temoin. Les deux sorties se
-// comparent hors ligne. Le bloc de type 1 est lu ici par [LireBlocDeDatums], sans rien du lot.
+// comparent hors ligne. Le bloc de type 1 est lu ici par [datums.LireBlocDeDatums], sans rien du lot.
 //
 //	TestLPTemoins     lp_paquets.tsv (paquets d image-cle par bloc qui les precede) et
 //	                  lp_records.tsv (ancres declarees, classees par l entree de leur slot au bloc :
@@ -26,6 +26,7 @@ package grammar
 
 import (
 	"fmt"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/datums"
 	"os"
 	"strings"
 	"testing"
@@ -35,14 +36,14 @@ import (
 )
 
 // lpBloc : la table de datums d un bloc de type 1, nil quand il n y en a pas de lisible.
-type lpBloc []DatumEntry
+type lpBloc []datums.DatumEntry
 
 // lpLireBloc lit un bloc de type 1.
 func lpLireBloc(pay []byte) lpBloc {
 	if len(pay) == 0 {
 		return nil
 	}
-	b, err := LireBlocDeDatums(pay)
+	b, err := datums.LireBlocDeDatums(pay)
 	if err != nil {
 		return nil
 	}
@@ -117,7 +118,7 @@ func lpUnFilm(fc *FilmContext, id string) (paquets, records []string) {
 		var bloc lpBloc
 		lu, juste := false, false
 		for _, pk := range pks {
-			if pk.Type == PacketTypeDatums {
+			if pk.Type == datums.PacketTypeDatums {
 				bloc, lu, juste = lpLireBloc(pk.Payload(data)), true, true
 				continue
 			}
@@ -206,7 +207,7 @@ func lpUnSlot(fc *FilmContext, id string, chunk, slot int) []string {
 		var bloc lpBloc
 		k := 0
 		for _, pk := range pks {
-			if pk.Type == PacketTypeDatums {
+			if pk.Type == datums.PacketTypeDatums {
 				bloc = lpLireBloc(pk.Payload(data))
 			}
 			if pk.Type != PacketTypeKeyframe {
@@ -270,7 +271,7 @@ func lpUneBande(fc *FilmContext, id string, ti, slot uint32) []string {
 		}
 		var bloc lpBloc
 		for _, pk := range pks {
-			if pk.Type == PacketTypeDatums {
+			if pk.Type == datums.PacketTypeDatums {
 				bloc = lpLireBloc(pk.Payload(data))
 			}
 			if pk.Type != PacketTypeKeyframe {
@@ -371,7 +372,7 @@ func lpTetesDuFilm(fc *FilmContext, id string, paquets map[[2]int]bool) []string
 	for _, c := range fc.ChunkNumbers() {
 		if data, pks, ok := fc.ChunkAt(c); ok {
 			for _, pk := range pks {
-				if pk.Type == PacketTypeDatums && blocs[c] == nil {
+				if pk.Type == datums.PacketTypeDatums && blocs[c] == nil {
 					blocs[c] = lpLireBloc(pk.Payload(data))
 				}
 			}
@@ -400,7 +401,7 @@ func lpVerdict(suivant lpBloc, slot, gen int) string {
 	switch {
 	case suivant == nil || slot >= len(suivant):
 		return "pas de bloc suivant"
-	case int(suivant[slot].Gen) == gen && suivant[slot].Drapeaux&DatumAlloue != 0:
+	case int(suivant[slot].Gen) == gen && suivant[slot].Drapeaux&datums.DatumAlloue != 0:
 		return "bloc suivant : meme generation, allouee"
 	case int(suivant[slot].Gen) == gen:
 		return "bloc suivant : meme generation, liberee"

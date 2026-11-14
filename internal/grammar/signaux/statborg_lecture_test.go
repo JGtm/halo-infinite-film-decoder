@@ -73,7 +73,7 @@ func TestStatborgVectorsReels(t *testing.T) {
 		"liste dense":             vecDense,
 	} {
 		t.Run(name, func(t *testing.T) {
-			slot, idx, at, ok := matchRecordHeader(v.data, v.bits)
+			slot, idx, at, ok := matchRecordHeader(v.data, v.bits, StatborgSlotBandeSure)
 			if !ok {
 				t.Fatalf("en-tete non reconnu")
 			}
@@ -102,7 +102,7 @@ func TestStatborgVectorsReels(t *testing.T) {
 // « les deux en-tetes valent 0 » rejetait le vecteur de la deuxieme manche. Si un jour quelqu'un
 // la remet, ce test tombe.
 func TestStatborgManche2RejeteeParLAncienneGrammaire(t *testing.T) {
-	_, idx, at, ok := matchRecordHeader(vecRound1.data, vecRound1.bits)
+	_, idx, at, ok := matchRecordHeader(vecRound1.data, vecRound1.bits, StatborgSlotBandeSure)
 	if !ok {
 		t.Fatal("en-tete non reconnu")
 	}
@@ -126,7 +126,7 @@ func TestStatborgListeDenseLue(t *testing.T) {
 	if got := source.BitsTronques(vecDense.data, vecDense.bits+statIDBits+statGenBits, 1); got != 1 {
 		t.Fatalf("ce vecteur n'est pas en forme dense (gate = %d)", got)
 	}
-	_, idx, _, ok := matchRecordHeader(vecDense.data, vecDense.bits)
+	_, idx, _, ok := matchRecordHeader(vecDense.data, vecDense.bits, StatborgSlotBandeSure)
 	if !ok {
 		t.Fatal("en-tete dense non reconnu")
 	}
@@ -248,7 +248,7 @@ func setBitsBE(data []byte, bitPos, n int, v uint64) []byte {
 // format, et c'est cette redondance qui remplace la contrainte « nuls » comme filtre
 // anti-faux-positifs. Un couple depareille est un ancrage fortuit.
 func TestDecodeComponentsRefuseUnCoupleDepareille(t *testing.T) {
-	_, idx, at, ok := matchRecordHeader(vecRound0.data, vecRound0.bits)
+	_, idx, at, ok := matchRecordHeader(vecRound0.data, vecRound0.bits, StatborgSlotBandeSure)
 	if !ok {
 		t.Fatal("le vecteur de reference ne s'ancre plus — revoir les vecteurs avant ce test")
 	}
@@ -269,7 +269,7 @@ func TestDecodeComponentsRefuseUnCoupleDepareille(t *testing.T) {
 // observe, et la borne conserve deux bits de contrainte sur chacun des deux en-tetes. Sans elle,
 // l'ancrage laisserait passer 151 faux positifs par film (mesure d'A.1.0).
 func TestDecodeComponentsRefuseUneMancheHorsBorne(t *testing.T) {
-	_, idx, at, ok := matchRecordHeader(vecRound0.data, vecRound0.bits)
+	_, idx, at, ok := matchRecordHeader(vecRound0.data, vecRound0.bits, StatborgSlotBandeSure)
 	if !ok {
 		t.Fatal("le vecteur de reference ne s'ancre plus")
 	}
