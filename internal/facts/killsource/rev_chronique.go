@@ -469,3 +469,7 @@ package killsource
 // A REVISION CONSTANTE (statborg lu jusqu'au dernier siege, 2026-11-14) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-14.2`) ;
 // la lecture du statborg (`grammar/signaux`) n'alimente que les objectifs et le fil des kills de ce paquet n'en depend pas. Golden
 // regenere a revision constante.
+// A REVISION CONSTANTE (presence et joueur aux commandes, 2026-11-14) : la VALEUR de `grammar.Rev` monte a `grammar-2026-11-14.3` ;
+// aucune source de cette couche ne change. Sur la mini-bobine de 000d5950 (`minibobine.golden`) aucune attribution de kill ne
+// change. Les mesures de kills du banc de verite du `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur.
+// Golden regenere a revision constante.

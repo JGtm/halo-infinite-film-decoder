@@ -194,6 +194,16 @@ type FilmInputs struct {
 	// image-cle porteuse. C'est la source de la PRESENCE et de l'EQUIPE PAR ENTREE du roster ;
 	// `PlayerTeams` n'en est plus que le controle par index.
 	PlayerEntities grammar.PlayerEntityScan
+	// RosterListings / RosterListingStats sont les PLAGES DE LISTAGE des humains dans la population de la
+	// session que les paquets de type 8 rafraichissent : arrivee et depart de chacun, et le siege moteur sous
+	// lequel il est liste. Les statistiques voyagent avec la liste : `Scanned` faux (film sans table des
+	// joueurs lisible) ne se confond pas avec un film sans arrivee ni depart.
+	RosterListings     []types.RosterListing
+	RosterListingStats types.RosterListingStats
+	// UnitControls / UnitControlStats sont les lectures du joueur aux commandes de chaque bipede
+	// (`unit-control`), lues par la marche des trames sur le meme crochet que les etats de mouvement.
+	UnitControls     []types.UnitControlRead
+	UnitControlStats types.UnitControlStats
 	// FilmClockOriginUS est l'horodatage moteur du PREMIER paquet du film. Zero = origine
 	// incalculable : le document sort sans origine.
 	FilmClockOriginUS uint64
@@ -259,5 +269,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.FilmTable = in.FilmTable
 	opt.PlayerTeams, opt.TeamScan = in.PlayerTeams, in.TeamScan
 	opt.PlayerEntities = in.PlayerEntities
+	opt.Presences = LecturesDePresence{Listings: in.RosterListings, ListingStats: in.RosterListingStats,
+		Controls: in.UnitControls, ControlStats: in.UnitControlStats}
 	opt.FilmClockOriginUS = in.FilmClockOriginUS
 }

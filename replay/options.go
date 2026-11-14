@@ -256,6 +256,9 @@ type Options struct {
 	// roster (cf. occupants.go). `Scanned` faux = aucune entité lue : le roster retombe alors sur
 	// l'enveloppe des vies, repli nommé et compté.
 	PlayerEntities grammar.PlayerEntityScan
+	// Presences : les plages de listage des humains (paquets de type 8) et le joueur aux commandes des bipedes ;
+	// vide = lectures non faites, le roster garde la presence par entites et vies.
+	Presences LecturesDePresence
 	// ScoreboardTeams est la table `identifiant -> équipe` de la FEUILLE DE MATCH (xuid d'un humain,
 	// `bid(N.0)` d'un bot). Elle CONTRÔLE : elle alimente `coverage.teams.{accord, contradiction,
 	// silence}` — une contradiction avec le film se compte, elle ne se corrige pas en silence. Elle
@@ -445,12 +448,9 @@ type Options struct {
 	// Fallbacks compte les declenchements de REPLIS de CETTE cuisson (cf. le paquet `fallback`,
 	// decision D14 du plan du decodeur). Le rapport est publie dans `coverage.fallbacks`.
 	//
-	// NIL EST VALIDE ET NE COMPTE RIEN : toutes les methodes du compteur acceptent un recepteur
-	// nil. `BuildFromFilm` en pose un avant le premier balayage (pour que les replis du BALAYAGE
-	// et ceux de l'ASSEMBLAGE tombent dans le meme compte), et `BuildFromPositions` en cree un
-	// s'il n'en trouve pas — de sorte que tout document cuit dise ce qu'il doit a un repli, quel
-	// que soit le point d'entree.
-	//
+	// NIL EST VALIDE ET NE COMPTE RIEN : toutes les methodes du compteur acceptent un recepteur nil.
+	// `BuildFromFilm` en pose un avant le premier balayage (replis du BALAYAGE et de l'ASSEMBLAGE dans le
+	// meme compte), et `BuildFromPositions` en cree un s'il n'en trouve pas.
 	// PAR CUISSON, JAMAIS PAR PAQUET : deux films decodes en parallele melangeraient leurs
 	// comptes, et le critere S1 du plan retire les variables de paquet du decodeur.
 	Fallbacks *fallback.Compteur

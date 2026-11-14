@@ -10,6 +10,7 @@ import (
 	"slices"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
 // instantDeFrame rend l'instant, en microsecondes de film, du debut d'une frame du document.
@@ -116,7 +117,11 @@ func presenceDe(e RosterEntry, occ occupantDuRoster, in entreesDesOccupants) ([]
 		}
 	}
 	decls := presencesDeclarees(e, in)
+	listees := presencesListees(e, in)
 	switch {
+	case len(listees) > 0:
+		// LE LISTAGE EST EXACT, ARRIVEE ET DEPART : les entites ne servent plus qu a la liaison des corps.
+		return etendreParLesVies(fusionnerLesPresences(listees), occ.vies), true
 	case len(decls) > 0:
 		// LE RETRAIT DU BOT EST EXACT : les entites ne font qu'avancer son arrivee, jamais
 		// reculer son depart au pas des images-cles.
@@ -305,6 +310,80 @@ func fusionnerLesPresences(ivs []intervalleDePresence) []intervalleDePresence {
 			continue
 		}
 		out = append(out, iv)
+	}
+	return out
+}
+
+// presencesListees rend les presences EXACTES que les paquets de type 8 donnent a un humain sur la
+// grille du document : du paquet qui le liste pour la premiere fois, sous un siege, a la veille du
+// premier paquet qui ne le liste plus. Vide pour un bot, et pour un humain qu aucune plage ne nomme.
+func presencesListees(e RosterEntry, in entreesDesOccupants) []intervalleDePresence {
+	if e.Bot {
+		return nil
+	}
+	var out []intervalleDePresence
+	for _, l := range plagesDeLEntree(e, in.listages[e.XUID], in.multiples[e.XUID]) {
+		if iv, ok := presenceDuListage(l, in.horloge); ok {
+			out = append(out, iv)
+		}
+	}
+	return out
+}
+
+// presenceDuListage traduit une plage de listage en presence EXACTE, comme [presenceDeLaDeclaration]
+// le fait d une declaration de bot. Faux : elle ne touche pas la grille du document.
+func presenceDuListage(l types.RosterListing, h replayClock) (intervalleDePresence, bool) {
+	iv := intervalleDePresence{de: frameBrute(h, l.FromUS)}
+	fin := h.frames - 1
+	if l.ToUS != 0 {
+		fin = max(iv.de, frameBrute(h, l.ToUS)-1)
+	}
+	iv.a, iv.aMax = fin, fin
+	return bornerALaGrille(iv, h.frames)
+}
+
+// presencesListees compte les entrees dont la presence est datee par un listage.
+func (o *occupants) presencesListees() int {
+	n := 0
+	for _, e := range o.parEntree {
+		if e.listee && len(e.presence) > 0 {
+			n++
+		}
+	}
+	return n
+}
+
+// plagesDeLEntree rend les plages de listage d'une entree : un humain que le roster porte sous plusieurs index a une
+// entree par index, et chacune ne prend que les plages qui le liste sous SON index (`multiple`) ; avec une seule
+// entree, toutes ses plages sont les siennes, siege change compris. Une lecture sans siege (format ancien) les donne
+// toutes ; un index que aucune plage ne porte ne donne rien, et la presence vient des entites et des vies.
+func plagesDeLEntree(e RosterEntry, plages []types.RosterListing, multiple bool) []types.RosterListing {
+	if !multiple {
+		return plages
+	}
+	var siens []types.RosterListing
+	for _, l := range plages {
+		if l.Slot < 0 {
+			return plages
+		}
+		if l.Slot == e.FilmIndex {
+			siens = append(siens, l)
+		}
+	}
+	return siens
+}
+
+// xuidsSousPlusieursIndex rend les xuids d'humains que le roster porte sous au moins deux index.
+func xuidsSousPlusieursIndex(roster []RosterEntry) map[string]bool {
+	vus, out := map[string]bool{}, map[string]bool{}
+	for _, e := range roster {
+		if e.Bot || e.XUID == "" {
+			continue
+		}
+		if vus[e.XUID] {
+			out[e.XUID] = true
+		}
+		vus[e.XUID] = true
 	}
 	return out
 }

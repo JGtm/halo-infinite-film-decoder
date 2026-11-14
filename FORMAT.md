@@ -185,6 +185,14 @@ chunk 0. Differences with chunk 0: no 85-bit header, no 32-bit tail, and the XUI
 most-significant-first is byte-reversed. The game rejects the packet only when it reads more bits than the payload holds; the
 decoder reports both the overflow and the bits left over.
 
+The packet is sent when the population changes, not on a cadence: the first packet that names a player dates their arrival, the first
+packet that no longer names them dates their departure, and a player named by the first packet is there at the start. The decoder
+reads the packets the source has already cut (no bit scan), skips a packet identical to the previous one, and keeps per human the
+runs during which an XUID is listed under one engine seat (the `R(5)` index): a player who leaves and returns has two runs, and a
+joiner who takes a leaver's seat opens a run of their own. On 1,455 films: 49,625 packets, 7,641 distinct, none refused; every human of the
+published roster is listed; the 154,247 lives of listed humans fall inside the runs but 36 (a body still moves 2 to 10 s after its
+player left). libfilmshell reads the same packets with the same method (first listing, first listing without the player).
+
 **Type 12, bot metadata** (a state, written again at the head of each chunk and at each change of bots). `R(32)` entry count; per
 bot three `R(32)` (absolute index, slot, bot id) and a player-record body. A bot's team is a signed byte of the 44-byte block, at
 a position that differs between `HI_1_12_0` and `HI_1_13_0`. Two readers coexist: a scan for names (a UTF-16 big-endian run of
@@ -194,7 +202,7 @@ printable ASCII closed by `0x0000`) and the writer's grammar. A team is kept onl
 kill-source layer's roster; in a packet that closes, a scanned name that is the strict suffix of a name the walk reads is dropped
 as a fragment and counted. Not read: a bot's team when the walk does not close or the build's team position is unknown.
 
-*Sources: `internal/grammar/roster_type8.go`, `bot_metadata.go`; `internal/profile/equipe_bot.go`.*
+*Sources: `internal/grammar/roster_type8.go`, `roster_listages.go`, `bot_metadata.go`; `internal/profile/equipe_bot.go`.*
 
 ## 4. A delta packet (type 0)
 
@@ -329,6 +337,16 @@ decoder read, from the chunk's keyframe (record chain or header search), by anti
 player; 14 crew; 21 flock; 35 biped (a player's body); 37 equipment or item; 38 generic rigid body; 40 vehicle (presumed); 41
 projectile; 42 ground weapon; 43 device. libfilmshell also names 36 (item) and 39 (rigid body), which this table leaves unnamed.
 
+**Who controls a body.** A biped's `unit-control` component (`i18`) opens with a gate and, when it is set, a 5-bit player index, then an
+optional second gate and 6-bit index, then an optional 32-bit word. A biped is created with the index of the player who controls it
+and the component is written again, gate closed, when that player gives the body up, which a death does: on 21 films the closing
+read falls within 0.1 s of the end of the published life for 2,816 of 3,075 lives that have one (3,036 within 0.5 s). The index is the one the player table, the kill feed and the type-8
+seats use; it names a player only through the seat the type-8 packets give it at that instant (a joiner can take a leaver's seat), and
+an index no human holds is a bot (bot metadata gives its seat). The record that creates the body is read before its slot is bound to
+the biped archetype, so the decoder keeps each read until the end of the packet and keeps it if the entity table then binds the slot to a
+biped. On 21 films, 3,230 lives are named by their controller as they are by the published tracks and none by a different human; the
+film `4f77afc1` shows lives of a bot (seat 1 from 1,101 s) published under the human who left that seat at 86 s.
+
 **Death and parenting.** An entity that dies writes its own dead-state component (`object-dead-state`, `i11` on archetypes 35 and 40) in the packet where it dies: a vehicle's carries the killer's player index and the damage effect, a biped's also the victim's player index. A biped inside a vehicle is not linked to it from the vehicle side; the biped's own parent-state component (`object-parent-state`, `i10`) is a transition, attached to a parent entity or free, and the last one before the biped's death says what it was in. A player killed with a destroyed vehicle is therefore read from two facts, with no time window: the biped's dead-state is written in the vehicle's death packet (or in a later packet that also writes the biped's free read), and the biped's last parent state before it was attached to the vehicle or to a part mounted on it. A death whose damage effect is the end-of-round cleanup (4208020) is not counted.
 
 **Status.** Read: record type, id, mask, and the components with a ported reader, in NEW and DELTA records. Recovered: the
@@ -339,7 +357,7 @@ view is an opaque tail); the 32 bits of a DEL; the creation records of entities 
 instead). An entity present at the start of a chunk but absent from its keyframe table, and designated by an update before any
 NEW, is a measured gap.
 
-*Sources: `internal/grammar/frame_records.go`, `entete.go`, `traverse.go`, `ecrivain_invariants.go`, `world.go`, `frame_infer.go`,
+*Sources: `internal/grammar/frame_records.go`, `unit_control.go`, `unit_control_scan.go`, `entete.go`, `traverse.go`, `ecrivain_invariants.go`, `world.go`, `frame_infer.go`,
 `doc.go`, `testdata/ecs_table.tsv`, `testdata/ecs_table.README.md`; libfilmshell `payload.rs`, `events.rs`.*
 
 ## 6. Positions

@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10500 frames · intervalle 33 ms · duree 346500 ms
-schema 118 · titre halo_infinite
+schema 119 · titre halo_infinite
 version majeure du film : 40
 origine de la frame 0 sur l horloge du fil : 12904 ms
 coup d envoi date par le film : 35641 ms · 55/57 piste(s) en mouvement · rafale 5 · marge depuis la frame 0 : 22737 ms
@@ -336,7 +336,7 @@ voies des liens d index : PlayerIndexTable=3 · bid=4 · film_table=8
 
 ## SIEGES — la fiche d un occupant, et la part qui vient d un appariement
 entrees 15 · sieges 8 · lus 8 · tirs 0 · apparies 7 · ouvertes 0 · sans place 0 · reprises ecrites 0 · presences film
-arrivants 7 · presences closes 7 · sans presence 0 · occupants au plus 8 · depassements 0 · relais bornes 4 · sans table false
+arrivants 7 · presences closes 7 · sans presence 0 · occupants au plus 8 · depassements 0 · relais bornes 0 · sans table false
 
 ## REPLIS DECLENCHES — la part de ce document qui ne vient PAS d une lecture du film
 repli_fin_de_vie_sans_tableau_api                6

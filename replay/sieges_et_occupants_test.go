@@ -23,8 +23,8 @@ import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
-// lecturesDuNommage : les deux lectures du film que [lireSiegesEtOccupants] est seule a appeler.
-var lecturesDuNommage = []string{"ScanFilmPlayerTable", "ScanPlayerTeams"}
+// lecturesDuNommage : les trois lectures du film que [lireSiegesEtOccupants] est seule a appeler.
+var lecturesDuNommage = []string{"ScanFilmPlayerTable", "ScanPlayerTeams", "ScanRosterListings"}
 
 // appelsParFonction rend, pour chaque fonction de production du paquet, les noms simples qu'elle
 // appelle.

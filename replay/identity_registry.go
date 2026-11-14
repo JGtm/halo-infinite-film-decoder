@@ -88,6 +88,10 @@ type IdentityInput struct {
 	// plusieurs occupants se relaient (identity_registry_entites.go). Non balaye = la lecture se
 	// tait et le registre fait ce qu'il faisait avant le lot M2.3.
 	Entities grammar.PlayerEntityScan
+	// Presences : les plages de listage des humains (paquets de type 8) et le joueur aux commandes des bipedes
+	// (`unit-control`) : le joueur qui tient un siege a l instant d un corps, et le nom d un corps sans record de
+	// creation (identity_registry_listages.go). Vide : la table d index nomme comme avant.
+	Presences LecturesDePresence
 	// Fire : les evenements de tir, pour la fermeture A (un joueur qui agit a un corps).
 	Fire []FireEventRef
 	// RosterXUIDs : le roster COMPLET du match, tel que la base le connait. Source EXTERNE :

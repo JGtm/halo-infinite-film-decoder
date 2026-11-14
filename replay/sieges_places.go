@@ -48,7 +48,7 @@ type poseDesPlaces struct {
 }
 
 func nouvellePoseDesPlaces(roster []RosterEntry, occ *occupants, in entreesDesPlaces) *poseDesPlaces {
-	pp := &poseDesPlaces{roster: roster, occ: occ, in: in, origines: siegesDuDebut(in.table),
+	pp := &poseDesPlaces{roster: roster, occ: occ, in: in, origines: siegesDuDebut(in.table, in.tableEmployee),
 		tailleDuMode: in.tailleDEquipe}
 	if pp.origines == nil {
 		return pp

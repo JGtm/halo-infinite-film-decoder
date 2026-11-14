@@ -45,6 +45,7 @@ import (
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
 // entitesFaitsEnv : le dossier des fichiers de faits dont la regeneration relit les entites.
@@ -145,7 +146,7 @@ func TestRegleDesPlacesContreLesEntitesDesBuilds(t *testing.T) {
 				t.Fatalf("presences %+v : le build doit sortir par le chemin `film`", doc.Coverage.Seats)
 			}
 			h := horlogeDuDocument(g, doc)
-			controlerLesHumainsContreLeursEntites(t, doc, g.PlayerEntities, h)
+			controlerLesHumainsContreLeursEntites(t, doc, g.PlayerEntities, g.RosterListings, h)
 			controlerLaTailleDesEquipes(t, doc, tailleDEquipeDesBuilds[b.Short8])
 		})
 	}
@@ -164,7 +165,7 @@ func horlogeDuDocument(g *FilmFacts, doc ReplayDocument) replayClock {
 // controlerLesHumainsContreLeursEntites : pour chaque humain SEUL sur son index, ses presences
 // publiees contre les entites brutes de cet index (cf. l'en-tete).
 func controlerLesHumainsContreLeursEntites(t *testing.T, doc ReplayDocument, scan grammar.PlayerEntityScan,
-	h replayClock) {
+	listages []types.RosterListing, h replayClock) {
 	t.Helper()
 	parIndex := map[int]int{}
 	for _, e := range doc.Roster {
@@ -208,7 +209,13 @@ func controlerLesHumainsContreLeursEntites(t *testing.T, doc ReplayDocument, sca
 			}
 		}
 		if us, ok := scan.KeyframeUS(premier); ok && premier > 0 {
-			if borne := min(frameBrute(h, us), debutVie); e.Presence[0].From < borne {
+			// L ARRIVEE EST CELLE DU LISTAGE quand un paquet de type 8 la date : l entite ne se lit qu a l image-cle
+			// suivante, et l humain etait deja la (la borne des entites n est qu un minorant sans listage).
+			borne := min(frameBrute(h, us), debutVie)
+			for _, l := range listagesParXUID(listages)[e.XUID] {
+				borne = min(borne, frameBrute(h, l.FromUS))
+			}
+			if e.Presence[0].From < borne {
 				t.Errorf("%s (index %d) affiche des %d : sa premiere entite est a f%d, sa premiere vie a %d",
 					e.Name, e.FilmIndex, e.Presence[0].From, frameBrute(h, us), debutVie)
 			}

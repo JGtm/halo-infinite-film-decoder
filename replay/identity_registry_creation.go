@@ -99,6 +99,11 @@ type creationReport struct {
 	// et que les declarations BOT_METADATA ont nommees (cf. identity_registry_declarations.go).
 	// SOUS-COMPTE de `Direct` + `Propagated`.
 	ParDeclaration int
+	// ParListage : vies dont l humain liste sous l index a la creation du corps a ete pose (SOUS-COMPTE de `Direct` +
+	// `Propagated`) ; HumainRetire : lectures dont l index n a aucun humain liste a cet instant, le xuid de la table
+	// n est pas pose ; ParControle : vies sans record de creation nommees par la tete d `unit-control` (SOUS-COMPTE de
+	// `Direct`). Cf. identity_registry_listages.go.
+	ParListage, HumainRetire, ParControle int
 	// Recycled : slots qui portent PLUSIEURS records de creation, donc plusieurs corps
 	// successifs. Le temoin du rebouclage du pool de handles — celui que le lot E2 avait
 	// mesure a zero sur cinq films et que `084a804d` porte a 123 sur 256 slots. Il n'alarme
@@ -139,7 +144,7 @@ func (r IdentityRegistry) CauseNonResolue(i int) identity.LinkMethod {
 // effective, plus l'index des chunks hors table `chunks` (index -> xuid, nil = aucun ; cf.
 // identity_registry_index_des_chunks.go, qui decide lesquels survivent a la garde).
 func nommerAvecLesTables(lives []lifeSpan, in IdentityInput, chunks map[int]uint64) creationReport {
-	creations, idx, bots, scan := in.BipedCreations, in.PlayerIndices, in.Bots, in.Entities
+	creations := in.BipedCreations
 	rep := creationReport{Records: len(creations), causes: map[int]identity.LinkMethod{},
 		indexLu: map[int]uint32{}, parIndexDesChunks: map[int]int{}}
 	if len(lives) == 0 {
@@ -152,48 +157,22 @@ func nommerAvecLesTables(lives []lifeSpan, in IdentityInput, chunks map[int]uint
 			rep.Recycled++
 		}
 	}
-	if len(corps) == 0 {
-		// AUCUNE LECTURE DIRECTE : toutes les vies sont `sans_record`, et c'est la SEULE
-		// situation ou le pont par morts garde un role de nommage (cf. identity_registry.go).
-		for i := range lives {
-			rep.causes[i] = identity.MethodNoCreationRecord
-		}
-		return rep
-	}
-	res := resolutionDIndex{versXUID: indexToXUIDOf(idx.ByXUID), versBot: indexDesBotsDeclares(bots),
-		parEntite:      lireEntitesDesIndexPartages(scan, bots, idx),
-		parDeclaration: lireLesDeclarations(bots, idx, scan), parChunks: map[int]bool{}}
-	for j, x := range chunks {
-		if _, tenu := res.versXUID[j]; !tenu {
-			res.versXUID[j], res.parChunks[j] = x, true
-		}
-	}
+	res := resolutionDesIndex(in, chunks)
 	for slot, vies := range indicesDeViesParSlot(lives) {
 		c, ok := corps[slot]
 		if !ok {
-			for _, i := range vies {
+			// SANS RECORD DE CREATION SUR CE SLOT (sur un film sans aucun record, tous les slots : la SEULE
+			// situation ou le pont par morts garde un role de nommage, cf. identity_registry.go) : la tete d
+			// `unit-control` du slot nomme la vie quand elle le peut.
+			for k, i := range vies {
 				rep.causes[i] = identity.MethodNoCreationRecord
+				rep.nommerParLeControle(lives, i, viePrecedente(lives, vies, k), res.controles[slot], res)
 			}
 			continue
 		}
 		rep.appliquerAuCorps(lives, vies, c, res)
 	}
 	return rep
-}
-
-// resolutionDIndex porte les resolutions d un index de participant. Une structure plutot que des
-// parametres de plus : le depot borne a cinq, et elles vont toujours ensemble.
-type resolutionDIndex struct {
-	versXUID map[int]uint64
-	versBot  map[int]bool
-	// parEntite : les index que plusieurs occupants se relaient, lus par entite (lot M2.3).
-	parEntite entitesDesIndexPartages
-	// parDeclaration : les index que plusieurs occupants se relaient, lus par les declarations de leurs bots
-	// (identity_registry_declarations.go).
-	parDeclaration lectureParDeclaration
-	// parChunks : les index de `versXUID` que seule la lecture des chunks attribue (index des chunks
-	// hors table, identity_registry_index_des_chunks.go).
-	parChunks map[int]bool
 }
 
 // indicesDeViesParSlot groupe les INDICES des vies par slot, dans l'ordre chronologique.
@@ -275,6 +254,22 @@ func (r *creationReport) poser(lives []lifeSpan, i int, d dateDeCreation, t reso
 	if !connu {
 		r.refuserFauteDeTable(i, pi)
 		return false
+	}
+	if t.sieges.valide {
+		// LE LISTAGE CORRIGE LA TABLE, JAMAIS L INVERSE : la table ne garde qu un occupant par index. Le joueur que les
+		// plages listent sous cet index a la creation du corps est le sien ; aucun humain a cet instant, et le xuid de
+		// la table n est plus celui du corps (identity_registry_listages.go).
+		y, tenu := t.sieges.humainA(pi, uint64(d.tUS)) //nolint:gosec // instant de film positif
+		switch {
+		case !tenu, y != x && !t.connus[y]:
+			// Personne, ou un humain que la table ne nomme pas : le corps n est jamais celui de la table.
+			r.HumainRetire++
+			r.refuserFauteDeTable(i, pi)
+			return false
+		case y != x:
+			x = y
+			r.ParListage++
+		}
 	}
 	lives[i].xuid = x
 	if t.parChunks[pi] {
@@ -459,7 +454,8 @@ func (r creationReport) alarmerSurLesRefus(ctx context.Context, matchID string, 
 	slog.InfoContext(ctx, "rejeu : lien direct corps -> joueur",
 		"match_id", matchID, "records", r.Records, "corps", r.Slots,
 		"direct", r.Direct, "propage", r.Propagated, "indexBot", r.IndexBot,
-		"parEntite", r.ParEntite, "parDeclaration", r.ParDeclaration, "slotsRecycles", r.Recycled,
+		"parEntite", r.ParEntite, "parDeclaration", r.ParDeclaration, "parListage", r.ParListage,
+		"humainRetire", r.HumainRetire, "parControle", r.ParControle, "slotsRecycles", r.Recycled,
 		"parIndexDesChunks", len(r.parIndexDesChunks), "indexDesChunksRefuses", r.IndexDesChunksRefuses)
 	if causes.IndexOutOfTable > 0 {
 		// `index` porte la piece : chaque index lu des vies restees sans nom, et leur nombre.

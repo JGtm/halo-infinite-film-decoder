@@ -91,6 +91,7 @@ func loadGoldenInputs(t *testing.T) *FilmFacts {
 	// LES POUSSEES ET L EQUIPEMENT PORTE non plus : golden_equipement_test.go.
 	chargerEquipementDuBuild(t, goldenFilm, g)
 	chargerMedaillesDuBuild(t, goldenFilm, g)
+	chargerPresencesDuBuild(t, goldenFilm, g)
 	return g
 }
 

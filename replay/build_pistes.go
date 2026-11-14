@@ -44,7 +44,7 @@ func (a *assemblage) poserLesPistes() {
 		return IdentityInput{
 			Positions: a.sorted, BipedCreations: a.opt.BipedCreations,
 			Deaths: a.opt.Deaths, PlayerIndices: a.opt.PlayerIndices, FilmTable: a.opt.FilmTable,
-			Bots: a.opt.Bots, Entities: a.opt.PlayerEntities, Fire: refs, RosterXUIDs: a.opt.RosterXUIDs,
+			Bots: a.opt.Bots, Entities: a.opt.PlayerEntities, Presences: a.opt.Presences, Fire: refs, RosterXUIDs: a.opt.RosterXUIDs,
 			Participants: a.opt.Participants,
 			Statborg: StatborgIdentityInput{
 				Identity: a.opt.StatborgIdentity, Records: scoreRecordsOf(a.opt.Score)},
@@ -126,7 +126,7 @@ func (a *assemblage) poserLesEquipesEtLeRoster() {
 	// (occupants_equipe_arbitree.go) ; elle ne pose aucune autre equipe.
 	occ := lierLesOccupants(a.doc.Roster, a.doc.Tracks, entreesDesOccupants{
 		scan: a.opt.PlayerEntities, bots: a.opt.Bots, horloge: a.horloge(), parIndex: a.opt.PlayerTeams,
-		base: a.opt.ScoreboardTeams})
+		base: a.opt.ScoreboardTeams, listages: listagesParXUID(a.opt.Presences.Listings)})
 	journaliserLesEquipesDeclarees(a.ctx, a.matchID, occ)
 	a.equipes.poserEquipesParEntree(a.doc.Roster, occ)
 	a.viesTotal, a.viesNommees, a.viesSlotAmbigu = a.equipes.poserSurLesTraces(a.doc.Tracks)
@@ -147,7 +147,7 @@ func (a *assemblage) poserLesEquipesEtLeRoster() {
 		tireurs = tireursDesTirs(a.fire, a.doc.Tracks, a.horloge())
 	}
 	a.siegeCov = poserLesSieges(a.ctx, a.doc.Roster, occ, entreesDesPlaces{
-		table: a.opt.FilmTable, fire: tirsDesPlaces, tireurs: tireurs, horloge: a.horloge(),
+		table: a.opt.FilmTable, tableEmployee: a.reg.TableDuFilmEmployee(), fire: tirsDesPlaces, tireurs: tireurs, horloge: a.horloge(),
 		tailleDEquipe: a.opt.TeamSize})
 	// LE BOT SANS VIE NI PLACE SORT DU ROSTER PUBLIE (sieges_bots_sans_place.go) : une tuile de trop sinon.
 	a.doc.Roster = sansLesBotsEcartes(a.doc.Roster, a.siegeCov)
