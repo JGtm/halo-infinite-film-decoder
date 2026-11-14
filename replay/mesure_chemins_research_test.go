@@ -3,9 +3,7 @@
 package replay
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -34,15 +32,4 @@ func cheminMesureRequis(t *testing.T, env string) string {
 		t.Fatalf("%s absente : cette mesure lit le parc d'un poste, poser le chemin (voir l'en-tete du fichier de mesure)", env)
 	}
 	return v
-}
-
-// lireArtefactMesure lit `nom` dans le dossier de [envMesureArtefacts]. L artefact est FACULTATIF pour
-// les mesures qui l utilisent : variable absente ou fichier absent rendent une erreur que l appelant
-// traite comme « pas d artefact ».
-func lireArtefactMesure(nom string) ([]byte, error) {
-	dir := os.Getenv(envMesureArtefacts)
-	if dir == "" {
-		return nil, fmt.Errorf("%s absente", envMesureArtefacts)
-	}
-	return os.ReadFile(filepath.Join(dir, nom)) //nolint:gosec // mesure
 }
