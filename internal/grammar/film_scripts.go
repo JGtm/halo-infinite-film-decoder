@@ -53,7 +53,8 @@ func fluxDesNomsDeScript(chunk []byte) []byte {
 	return flux
 }
 
-// nomsDeScriptDuFlux rend les noms de fichier de script que `flux` écrit, triés et sans doublon.
+// nomsDeScriptDuFlux rend les noms de fichier de script que `flux` écrit, triés et sans doublon. Le nom finit
+// au suffixe : l'octet qui le suit est un autre champ de l'enregistrement, et peut être une lettre.
 func nomsDeScriptDuFlux(flux []byte) []string {
 	vus := map[string]bool{}
 	for debut := 0; ; {
@@ -63,9 +64,6 @@ func nomsDeScriptDuFlux(flux []byte) []string {
 		}
 		fin := debut + i + len(suffixeDeScript)
 		debut = fin
-		if fin < len(flux) && estCaractereDeNom(flux[fin]) {
-			continue // `.luac` : le suffixe n'est pas celui du nom
-		}
 		if nom, ok := nomDeScriptAvant(flux, fin); ok {
 			vus[nom] = true
 		}

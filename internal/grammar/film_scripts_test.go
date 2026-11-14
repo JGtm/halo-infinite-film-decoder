@@ -26,7 +26,7 @@ func chunkAvecNoms(noms ...string) []byte {
 // minuscules, trié, sans doublon ; un nom sans séparateur de chemin, une autre extension et un chunk sans
 // nom n'en rendent aucun.
 //
-// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : ne pas exiger de séparateur ; garder le chemin entier ; ne pas
+// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : refuser un nom suivi d'une lettre ; ne pas exiger de séparateur ; garder le chemin entier ; ne pas
 // mettre en minuscules ; lire sans décalage.
 func TestLesNomsDeScriptSeLisentDansLeChunk0(t *testing.T) {
 	cas := []struct {
@@ -40,7 +40,8 @@ func TestLesNomsDeScriptSeLisentDansLeChunk0(t *testing.T) {
 			[]string{"arenaflagevents.lua", "flageventstubs.lua"}},
 		{"chiffres, tiret bas et espace", []string{`x\evenement_2 b.lua`}, []string{"evenement_2 b.lua"}},
 		{"sans séparateur de chemin", []string{`slayerevents.lua`}, nil},
-		{"autre extension", []string{`a\slayerevents.luac`, `a\notes.txt`}, nil},
+		{"autre extension", []string{`a\notes.txt`}, nil},
+		{"le nom finit au suffixe, même si l'octet suivant est une lettre", []string{`a\SlayerEvents.luaa`}, []string{"slayerevents.lua"}},
 		{"aucun nom", nil, nil},
 	}
 	for _, c := range cas {

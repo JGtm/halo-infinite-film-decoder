@@ -78,3 +78,12 @@ func (c *canalDesEvenementsDeJeu) Tete(p *lecture.Paquet) {
 		c.stats.Messages++
 	}
 }
+
+// PremierParticipant rend l'index de joueur du film que le premier emplacement participant du texte du
+// message nomme (`%pa`, `%pe`), ou faux quand le message n'en porte pas.
+func (e EvenementDeJeuLu) PremierParticipant() (int, bool) {
+	if e.Participants[0] == lecture.RefAbsente {
+		return 0, false
+	}
+	return int(e.Participants[0]), true
+}
