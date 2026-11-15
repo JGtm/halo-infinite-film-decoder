@@ -4211,6 +4211,7 @@ package replay
 // AVEC ELLE       `profile-2026-11-14`, `SchemaDesFaits` 24 -> 25, `filmFactsMagic` 29 -> 30.
 //
 // LE PARC         un artefact 119 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision de l utilisateur.
+
 // v121 (2026-11-15, score par action). Le jeu envoie a chaque joueur une reponse de score personnel quand il agit (kill, assistance,
 // capture...) : un message de jeu (genre 82 de la vue A) que le film porte avec l instant de sa trame ; le document n en publiait rien.
 // Il publie desormais chaque reponse qui donne du score, au joueur qui la recoit, sur l axe de frames, sans aucun calcul de bareme : les
