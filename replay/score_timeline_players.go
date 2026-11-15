@@ -46,7 +46,8 @@ import (
 // deux lecteurs du meme pont doivent dire la meme chose du meme match. `lines` vide rend
 // l'identite inchangee.
 //
-// LES COMPTEURS NOMMES (`PlayerScore.Stats`) NE SE PUBLIENT QU'EN MONO-MANCHE : l'association (slot,
+// CE PONT NE SERT PLUS QUE LORSQUE LES ENTREES DU TABLEAU NE SE LISENT PAS ([buildPlayerScoresOf]). Ses compteurs
+// nommes (`PlayerScore.Stats`) ne se publient alors qu'en mono-manche : l'association (slot,
 // manche) -> xuid d'un film a plusieurs manches ne tient pas le niveau d'une manche (somme des fins de
 // manche contre l'API, sur 30 films : 63 a 88 % pour les frags, morts et assistances, 92 a 96 % pour les
 // compteurs nommes, contre 99 % a une manche). Le second retour compte les joueurs que cette regle prive de
@@ -57,7 +58,7 @@ func buildPlayerScores(recs []types.StatRecord, flat map[int]string,
 		round := objectives.ResolveRoundIdentity(recs, deathInstantsOf(deaths), c.cons).
 			CompletedByElimination(recs, lines).
 			CompletedByRoundResidue(recs, lines)
-		return buildPlayerScoresByRound(recs, round, c)
+		return buildPlayerScoresByRound(recs, round.AtRound, c, false)
 	}
 	return buildPlayerScoresFlat(recs, flat, c), 0
 }
@@ -102,16 +103,28 @@ func buildPlayerScoresFlat(recs []types.StatRecord, identity map[int]string, c s
 	return out
 }
 
-// buildPlayerScoresByRound est le chemin MULTI-MANCHE : la courbe de chaque slot est decoupee par
-// manche, chaque segment rattache au joueur de SA manche (`AtRound`), les segments d'un meme xuid
-// fusionnes en une entree — courbe recomposee dans l'ordre du temps.
-func buildPlayerScoresByRound(recs []types.StatRecord,
-	round objectives.RoundIdentity, c scoreClock) ([]PlayerScore, int) {
-	personal := playerRoundsByXUID(recs, objectives.PersonalScoreComponent(), round, c.cons)
-	kills := playerRoundsByXUID(recs, objectives.KillsComponent(), round, c.cons)
-	deaths := playerRoundsByXUID(recs, objectives.DeathsComponent(), round, c.cons)
-	assists := playerRoundsByXUID(recs, objectives.AssistsComponent(), round, c.cons)
-	named := xuidsWithNamedStats(recs, round, c.cons)
+// slotOwner rend le xuid du joueur d'un slot a une manche, "" quand personne n'est nomme : l'identite par manche du pont des
+// slots ([objectives.RoundIdentity.AtRound]) ou la lecture des entrees du tableau ([objectives.EntryResolver.Split]).
+type slotOwner func(round, slot int) string
+
+// buildPlayerScoresByRound est le chemin PAR MANCHE : la courbe de chaque slot est decoupee par
+// manche, chaque segment rattache au joueur de SA manche (`owner`), les segments d'un meme xuid
+// fusionnes en une entree — courbe recomposee dans l'ordre du temps. `byEntries` dit que `owner` lit les entrees du tableau : les
+// compteurs nommes de chaque joueur se publient et les quatre compteurs de base ecartent le vidage de la ligne d'un joueur parti ;
+// faux, les compteurs nommes se comptent seulement (le second retour) et les compteurs de base gardent leur lecture.
+func buildPlayerScoresByRound(recs []types.StatRecord, owner slotOwner, c scoreClock, byEntries bool) ([]PlayerScore, int) {
+	// Les entrees nomment aussi un joueur parti : la ligne videe qu'il laisse ne doit pas finir sa serie.
+	base := func(comp objectives.StatComponent) objectives.StatComponent {
+		if byEntries {
+			return comp.ClearsDropped()
+		}
+		return comp
+	}
+	personal := playerRoundsByXUID(recs, base(objectives.PersonalScoreComponent()), owner, c.cons, true)
+	kills := playerRoundsByXUID(recs, base(objectives.KillsComponent()), owner, c.cons, true)
+	deaths := playerRoundsByXUID(recs, base(objectives.DeathsComponent()), owner, c.cons, true)
+	assists := playerRoundsByXUID(recs, base(objectives.AssistsComponent()), owner, c.cons, true)
+	named := namedStatsByXUID(recs, owner, c)
 
 	out := make([]PlayerScore, 0)
 	withheld := 0
@@ -126,7 +139,10 @@ func buildPlayerScoresByRound(recs []types.StatRecord,
 		if p.empty() {
 			continue
 		}
-		if named[xuid] {
+		switch {
+		case byEntries:
+			p.Stats = named[xuid]
+		case len(named[xuid]) > 0:
 			withheld++
 		}
 		out = append(out, p)
@@ -138,23 +154,50 @@ func buildPlayerScoresByRound(recs []types.StatRecord,
 }
 
 // playerRoundsByXUID regroupe les segments par MANCHE d'un composant sous le xuid qui occupait le
-// slot A CETTE MANCHE (`AtRound`). Un couple (slot, manche) sans joueur nomme est ecarte. Rend
+// slot A CETTE MANCHE (`owner`). Un couple (slot, manche) sans joueur nomme est ecarte. Rend
 // xuid -> manche -> points (valeurs propres a la manche, deja triees et filtrees par
-// `SeriesByRound`). L'identite par manche garantit qu'aucun xuid n'est revendique par deux slots
-// dans la meme manche (`withoutContestedXUID`) : chaque (xuid, manche) recoit au plus un segment.
-func playerRoundsByXUID(recs []types.StatRecord, comp objectives.StatComponent,
-	round objectives.RoundIdentity, cons *objectives.ReplisALaConsultation) map[string]map[int][]types.ScorePoint {
-	out := map[string]map[int][]types.ScorePoint{}
+// `SeriesByRound`). Un xuid qui tient deux slots dans une meme manche (une ligne videe puis reprise) a
+// ses segments mis bout a bout dans l'ordre du temps, le second decale du total du premier quand le
+// compteur `cumulative` se cumule (un maximum ne se decale pas).
+func playerRoundsByXUID(recs []types.StatRecord, comp objectives.StatComponent, owner slotOwner,
+	cons *objectives.ReplisALaConsultation, cumulative bool) map[string]map[int][]types.ScorePoint {
+	segments := map[string]map[int][][]types.ScorePoint{}
 	for slot, byRound := range objectives.SeriesByRound(recs, comp, false, cons) {
 		for r, pts := range byRound {
-			xuid := round.AtRound(r, slot)
+			xuid := owner(r, slot)
 			if xuid == "" {
 				continue
 			}
-			if out[xuid] == nil {
-				out[xuid] = map[int][]types.ScorePoint{}
+			if segments[xuid] == nil {
+				segments[xuid] = map[int][][]types.ScorePoint{}
 			}
-			out[xuid][r] = pts
+			segments[xuid][r] = append(segments[xuid][r], pts)
+		}
+	}
+	out := make(map[string]map[int][]types.ScorePoint, len(segments))
+	for xuid, byRound := range segments {
+		out[xuid] = make(map[int][]types.ScorePoint, len(byRound))
+		for r, segs := range byRound {
+			out[xuid][r] = joinSegments(segs, cumulative)
+		}
+	}
+	return out
+}
+
+// joinSegments met bout a bout les segments d'un joueur dans une manche, dans l'ordre de leur premier point.
+func joinSegments(segs [][]types.ScorePoint, cumulative bool) []types.ScorePoint {
+	if len(segs) == 1 {
+		return segs[0]
+	}
+	slices.SortStableFunc(segs, func(a, b []types.ScorePoint) int { return cmp.Compare(a[0].TimeMS, b[0].TimeMS) })
+	var out []types.ScorePoint
+	var offset int64
+	for _, seg := range segs {
+		for _, p := range seg {
+			out = append(out, types.ScorePoint{TimeMS: p.TimeMS, Slot: p.Slot, Value: p.Value + offset})
+		}
+		if cumulative {
+			offset = out[len(out)-1].Value
 		}
 	}
 	return out

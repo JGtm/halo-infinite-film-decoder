@@ -41,21 +41,23 @@ type ScoreboardStat struct {
 
 // ScoreboardStats rend les compteurs nommes publies avec le score, dans l'ordre de leur composant.
 func ScoreboardStats() []ScoreboardStat {
-	held := func(comp int, side bool, unit bool) StatComponent {
-		return StatComponent{Comp: comp, SideB: side, Unitary: unit, HoldOnClear: true, Joint: true}
+	// Chaque unite d'un compteur nomme est un evenement du joueur (une mort, une reapparition...) : la
+	// borne par pas des compteurs unitaires ecarte les emissions mal alignees qui portent un saut.
+	held := func(comp int, side bool) StatComponent {
+		return StatComponent{Comp: comp, SideB: side, Unitary: true, HoldOnClear: true, Joint: true}
 	}
 	// La valeur A du composant 5 n'est pas un compteur (elle recule d'une vie a l'autre) : seule
 	// sa valeur B, la serie maximale, est lue.
 	spree := StatComponent{Comp: 5, SideB: true, HoldOnClear: true}
 	return []ScoreboardStat{
-		{Name: StatSuicides, Component: held(4, false, true)},
-		{Name: StatBetrayals, Component: held(4, true, true)},
+		{Name: StatSuicides, Component: held(4, false)},
+		{Name: StatBetrayals, Component: held(4, true)},
 		{Name: StatMaxSpree, Component: spree, Peak: true},
-		{Name: StatHeadshots, Component: held(6, false, false)},
-		{Name: StatMeleeKills, Component: held(8, false, false)},
-		{Name: StatGrenadeKills, Component: held(8, true, false)},
-		{Name: StatPowerWeaponKills, Component: held(9, false, false)},
-		{Name: StatSpawns, Component: held(10, true, true)},
+		{Name: StatHeadshots, Component: held(6, false)},
+		{Name: StatMeleeKills, Component: held(8, false)},
+		{Name: StatGrenadeKills, Component: held(8, true)},
+		{Name: StatPowerWeaponKills, Component: held(9, false)},
+		{Name: StatSpawns, Component: held(10, true)},
 	}
 }
 
@@ -64,8 +66,34 @@ func ScoreboardStats() []ScoreboardStat {
 func rawSeries(recs []types.StatRecord, c StatComponent, teams bool,
 	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
 	if !c.HoldOnClear {
-		return rawSeriesByRound(recs, c.key(), teams, cons)
+		if c.DropClears && c.Comp == coreKillsComp {
+			recs = withoutNegativeChannels(recs, c, cons)
+		}
+		raw := rawSeriesByRound(recs, c.key(), teams, cons)
+		if c.DropClears {
+			for slot, byRound := range raw {
+				for round, pts := range byRound {
+					byRound[round] = dropClearPoints(pts, slot, round, c, cons)
+				}
+			}
+		}
+		return raw
 	}
+	pairs := valuePairsByRound(recs, c, teams, cons)
+	raw := make(map[int]map[int][]types.ScorePoint, len(pairs))
+	for slot, byRound := range pairs {
+		raw[slot] = map[int][]types.ScorePoint{}
+		for round, pts := range byRound {
+			raw[slot][round] = c.series(pts, slot, round, cons)
+		}
+	}
+	return raw
+}
+
+// valuePairsByRound range par slot puis par manche les couples (A, B) de l'emplacement `c`, hors manches exclues ; une emission qui
+// porte un canal negatif est ecartee et notee dans `cons`.
+func valuePairsByRound(recs []types.StatRecord, c StatComponent, teams bool,
+	cons *ReplisALaConsultation) map[int]map[int][]valuePair {
 	bornes := ResolveRoundBounds(recs)
 	pairs := map[int]map[int][]valuePair{}
 	for _, r := range recs {
@@ -82,14 +110,49 @@ func rawSeries(recs []types.StatRecord, c StatComponent, teams bool,
 		}
 		pairs[r.Slot][r.Round] = append(pairs[r.Slot][r.Round], valuePair{r.TimeMS, v.A, v.B})
 	}
-	raw := make(map[int]map[int][]types.ScorePoint, len(pairs))
-	for slot, byRound := range pairs {
-		raw[slot] = map[int][]types.ScorePoint{}
-		for round, pts := range byRound {
-			raw[slot][round] = c.series(pts, slot, round, cons)
+	return pairs
+}
+
+// withoutNegativeChannels ecarte les enregistrements dont l'un des deux canaux du composant de `c` est negatif, et note chacun dans
+// `cons`. Les deux valeurs du composant des frags et des morts sortent de la MEME emission : un canal aberrant prouve l'emission mal
+// alignee, et la valeur de l'autre canal ne vaut rien non plus. Mesure : sur b1b62f38, des enregistrements fortuits (frags A = -31744,
+// morts B = 16) apres la derniere vraie mort (7) la prolongeaient par [longestRun] et publiaient 16 morts pour 7 a l'API.
+// LA REGLE NE VAUT QUE POUR CE COMPOSANT : le canal B des assistances est un signe legitime (-100, -66, -533 avec chaque assistance
+// d'un joueur de 00ba2e1c), l'ecarter perdait les assistances de 700 joueurs. Elle ne vaut que pour les compteurs du tableau des
+// scores : les series qui nomment les evenements (pont d'identite, drapeau, crane) gardent leur domaine.
+func withoutNegativeChannels(recs []types.StatRecord, c StatComponent, cons *ReplisALaConsultation) []types.StatRecord {
+	out := make([]types.StatRecord, 0, len(recs))
+	for _, r := range recs {
+		if v, ok := r.Comps[c.Comp]; ok && (v.A < 0 || v.B < 0) {
+			cons.noterEmissionJetee(c.key(), r)
+			continue
 		}
+		out = append(out, r)
 	}
-	return raw
+	return out
+}
+
+// ClearsDropped rend le meme emplacement lu avec la regle du vidage d'une ligne ([StatComponent.DropClears]).
+func (c StatComponent) ClearsDropped() StatComponent {
+	c.DropClears = true
+	return c
+}
+
+// dropClearPoints ecarte d'une suite d'emissions d'un slot et d'une manche celles qui retombent a zero apres une valeur
+// positive, et note chacune dans `cons`. La suite est triee par instant.
+func dropClearPoints(pts []types.ScorePoint, slot, round int, c StatComponent, cons *ReplisALaConsultation) []types.ScorePoint {
+	slices.SortStableFunc(pts, func(x, y types.ScorePoint) int { return cmp.Compare(x.TimeMS, y.TimeMS) })
+	out := make([]types.ScorePoint, 0, len(pts))
+	positive := false
+	for _, p := range pts {
+		if p.Value == 0 && positive {
+			cons.noterEmissionJetee(c.key(), types.StatRecord{TimeMS: p.TimeMS, Slot: slot, Round: round})
+			continue
+		}
+		positive = positive || p.Value > 0
+		out = append(out, p)
+	}
+	return out
 }
 
 // series rend les points de la valeur lue de `c` parmi des emissions d'un slot et d'une manche. Chaque

@@ -148,7 +148,8 @@ type PlayerScore struct {
 	// Stats sont les autres compteurs du tableau des scores que le film remplit, par nom
 	// (`objectives.ScoreboardStats` : suicides, betrayals, maxSpree, headshots, meleeKills,
 	// grenadeKills, powerWeaponKills, spawns). Un compteur que le film ne remplit pas pour ce joueur
-	// est absent, et tout le champ l'est sur un film a plusieurs manches (`coverage.score.statsWithheld`).
+	// est absent, et tout le champ l'est sur un film a plusieurs manches que le pont d'identite des slots nomme
+	// (`coverage.score.statsWithheld`) ; nomme par les entrees du tableau, un tel film publie ses compteurs.
 	// `maxSpree` est un maximum : sa courbe par manche se publie sans total.
 	Stats map[string]ScoreSeries `json:"stats,omitempty"`
 }
@@ -227,8 +228,9 @@ type ScoreCoverage struct {
 	// frags) ou `unresolved`.
 	TeamIdentity string `json:"teamIdentity"`
 	// StatsWithheld est le nombre de joueurs privés de `players[].stats` parce que le film a plusieurs
-	// manches : l'association (slot, manche) -> xuid n'y atteint pas le niveau d'une manche, les
-	// compteurs nommes ne s'y publient pas. Absent (zero) sur un film d'une manche.
+	// manches et que ses entrees ne se lisent pas : l'association (slot, manche) -> xuid du pont d'identite
+	// des slots n'y atteint pas le niveau d'une manche. Absent (zero) sur un film d'une manche, et sur tout film
+	// dont les entrees du tableau et les plages de listage se lisent.
 	StatsWithheld int `json:"statsWithheld,omitempty"`
 	// Rounds est le nombre de manches RETENUES par le decodeur (les manches fantomes,
 	// ancrages fortuits, sont ecartees). 1 sur un match sans manches multiples.
@@ -250,6 +252,10 @@ type ScoreCoverage struct {
 	// fait « quelles manches sont reelles », avant tout jugement. Publie seulement quand le
 	// film en ecrit plus d'un — sur un film mono-manche il redirait `Rounds`.
 	RoundsWritten []int `json:"roundsWritten,omitempty"`
+	// RoundsUnplayed sont les numeros de manche dont les enregistrements sont ecartes parce que les issues que le film
+	// porte aux images-cles ne montrent aucune manche jouee a ce rang : ancrages fortuits portant un numero de manche
+	// valide. Absent quand le film porte ses issues et qu'aucune manche n'est en trop, et quand il ne les porte pas.
+	RoundsUnplayed []int `json:"roundsUnplayed,omitempty"`
 	// RoundsContradicted sont les designateurs MATERIELS que l'ordre des manches refuse : le
 	// film les ecrit avec assez d'emissions pour une manche, mais il ne declare AUCUNE des
 	// manches qui les precedent. C'est une CONTRADICTION au sens de D14 (c) — pas un repli :

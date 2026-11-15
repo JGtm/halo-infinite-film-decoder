@@ -53,7 +53,7 @@ func TestCollineSeuilGardeVariantes(t *testing.T) {
 		in.TeamScores = &[2]int{s0, s1}
 	}
 	c := scoreClock{intervalMS: 100, frames: 1 << 20}
-	tl, cov, lu := assembleScoreTimeline(in, nil, c, nil)
+	tl, cov, lu := assembleScoreTimeline(in, nil, nil, c, nil)
 	var seuil any = "absent"
 	if tl != nil && tl.HoldTicksPerPoint != nil {
 		seuil = *tl.HoldTicksPerPoint

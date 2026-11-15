@@ -50,6 +50,21 @@ func decodeListagesDeRoster(r *greader) ([]types.RosterListing, types.RosterList
 	return out, st
 }
 
+// encodePresenceEtEntrees ecrit, dans l'ordre du format, les plages de listage, les lectures d `unit-control` et les entrees
+// du tableau des scores de `g`.
+func encodePresenceEtEntrees(w *gwriter, g *FilmFacts) {
+	encodeListagesDeRoster(w, g.RosterListings, g.RosterListingStats)
+	encodeControlesDeBipede(w, g.UnitControls, g.UnitControlStats)
+	encodeEntreesDuStatborg(w, g.StatborgEntries, g.StatborgEntryStats)
+}
+
+// decodePresenceEtEntrees relit ce que [encodePresenceEtEntrees] ecrit.
+func decodePresenceEtEntrees(r *greader, g *FilmFacts) {
+	g.RosterListings, g.RosterListingStats = decodeListagesDeRoster(r)
+	g.UnitControls, g.UnitControlStats = decodeControlesDeBipede(r)
+	g.StatborgEntries, g.StatborgEntryStats = decodeEntreesDuStatborg(r)
+}
+
 // encodeControlesDeBipede ecrit les lectures d `unit-control` (TRIEES par instant : delta
 // d horodatage), puis les denominateurs. Le controleur vaut -1 sans joueur.
 func encodeControlesDeBipede(w *gwriter, cs []types.UnitControlRead, st types.UnitControlStats) {

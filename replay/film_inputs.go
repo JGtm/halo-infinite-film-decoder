@@ -214,6 +214,11 @@ type FilmInputs struct {
 	// (`unit-control`), lues par la marche des trames sur le meme crochet que les etats de mouvement.
 	UnitControls     []types.UnitControlRead
 	UnitControlStats types.UnitControlStats
+	// StatborgEntries / StatborgEntryStats sont les ENTREES des entites du tableau des scores aux images-cles : de
+	// qui est chaque ligne (identifiant moteur du joueur). Avec les plages de listage, elles nomment le joueur
+	// d'un enregistrement du tableau a son instant ([objectives.EntryResolver]).
+	StatborgEntries    []types.StatborgEntry
+	StatborgEntryStats types.StatborgEntryStats
 	// FilmClockOriginUS est l'horodatage moteur du PREMIER paquet du film. Zero = origine
 	// incalculable : le document sort sans origine.
 	FilmClockOriginUS uint64
@@ -283,5 +288,6 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.PlayerEntities = in.PlayerEntities
 	opt.Presences = LecturesDePresence{Listings: in.RosterListings, ListingStats: in.RosterListingStats,
 		Controls: in.UnitControls, ControlStats: in.UnitControlStats}
+	opt.StatborgEntries, opt.StatborgEntryStats = in.StatborgEntries, in.StatborgEntryStats
 	opt.FilmClockOriginUS = in.FilmClockOriginUS
 }

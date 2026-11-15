@@ -289,6 +289,11 @@ package objectives
 // (`profile-2026-11-14`) et de `grammar.Rev` (`grammar-2026-11-14.4`) montent ; aucune source de cette couche ne change. Les tests de la
 // couche et ses fixtures sont ceux d avant ; l empreinte du golden est recopiee au meme rang.
 
+// ENTREE `objectives-2026-11-15` (2026-11-15, le joueur d'une ligne du tableau des scores se lit) : LA SORTIE CHANGE. Un enregistrement
+// du tableau des scores se nomme par l'entree de son entite et les plages de listage des joueurs ([EntryResolver]) au lieu du pont
+// d'identite des slots, pour le tableau des scores des joueurs ; les compteurs nommes unitaires se lisent avec la borne par pas. Les
+// faits persistes de la couche et les calques dates `objectives-2026-11-14` deviennent `redecoder`. Aucun backlog killsource ne s'ouvre.
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
@@ -298,4 +303,4 @@ package objectives
 //
 // A REVISION CONSTANTE (messages de jeu et scripts lus par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` (`grammar-2026-11-14.3`)
 // monte ; aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-11-14"
+const Rev = "objectives-2026-11-15"

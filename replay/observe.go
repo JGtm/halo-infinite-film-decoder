@@ -83,7 +83,7 @@ var buildFromFilmSteps = []string{
 	// LES DETONATIONS/IMPACTS DE PROJECTILE (lot detonations, 2026-10-22) : apres les pistes
 	// qu elles rattachent, meme horloge.
 	"detonations",
-	"deaths", "filmTable", "playerTeams", "rosterListings", "rosterListings.stats", "playerIndices", "clockOrigin",
+	"deaths", "filmTable", "playerTeams", "rosterListings", "rosterListings.stats", "statborgEntries", "statborgEntries.stats", "playerIndices", "clockOrigin",
 }
 
 // BuildFromFilmSteps rend une COPIE de la liste fermee des etapes (J12.4 : la liste elle-meme n est

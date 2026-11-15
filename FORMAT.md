@@ -361,6 +361,22 @@ slot `2c` or `2c+1`. Named and measured: 0A mode score, 1B personal score, 2A ki
 betrayals, 5B longest kill spree, 6A headshot kills, 8A melee kills, 8B grenade kills, 9A power weapon kills, 10B spawns. A row
 is cleared to zero when its player leaves.
 
+**Whose row it is.** Each statborg entity carries its own entry, component 57 (`statborg-entry-index-and-type`): a 32-bit value and an
+8-bit kind, written at creation and read at the keyframes (`internal/grammar/statborg_entries.go`, one record per entity and keyframe).
+Kind 0 is a player's row, and the top 16 bits of the value are the player's engine id, the seat that the type-8 session listings give
+(`RosterListing.Slot`); kind 1 is a team's row, and the low 16 bits are its number; any other kind is a vacant entity. The player of a
+record is the one the listings show under that id at the record's time, taking the entry of the last keyframe that does not follow the
+record and does not precede its round (`internal/facts/objectives/entry_identity.go`). Nothing is paired by time or by counters, and a
+match of several rounds is named like any other.
+
+**Rounds played.** Component 56 of the same archetype (`statborg-round-outcomes`) is 64 bits, 32 two-bit round outcomes, zero until the
+round is played. The reader keeps the mask of rounds that ever show a non-zero outcome at a keyframe (`StatborgEntryStats.DecidedRounds`).
+A round is played when its number is at most the last decided round plus one (the round in progress). Records of a round beyond that
+are anchored noise (a single component, value 32, carrying a valid round designator) and do not make a scoreboard round; the rounds
+dropped are listed in `coverage.score.roundsUnplayed`. The round clock cannot tell them apart: 18 of 51 films of several rounds have
+a silent clock. A row that is cleared when its player leaves does not retract the player's last value: a zero after a positive value of
+a base counter (kills, deaths, assists, personal score) is dropped.
+
 **Entity table and guard.** The reader keeps a table slot -> (full id, archetype, provenance of the binding). The game's guard on an
 update requires the id to be in its datum table (slot in range, stored id equal to the record's) and otherwise reads no bit of the
 body; the decoder reproduces this, and an update not in the table ends view B as a *rejection*. A binding comes from a NEW the

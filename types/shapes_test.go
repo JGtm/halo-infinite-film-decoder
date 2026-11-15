@@ -134,6 +134,8 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.ProjectileTrack{}},
 	{"grammar", types.RosterListing{}},
 	{"grammar", types.RosterListingStats{}},
+	{"grammar", types.StatborgEntry{}},
+	{"grammar", types.StatborgEntryStats{}},
 	{"grammar", types.SlotAmmo{}},
 	{"grammar", types.TranslocatorTeleport{}},
 	{"grammar", types.UnitControlRead{}},

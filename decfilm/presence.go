@@ -25,6 +25,14 @@ type UnitControlRead = types.UnitControlRead
 // UnitControlStats : ce que la lecture d `unit-control` a rencontre ; `Scanned` faux, aucune lecture n est faite.
 type UnitControlStats = types.UnitControlStats
 
+// StatborgEntry : de qui est une ligne du tableau des scores, lue a une image-cle ; `ID` est l'identifiant moteur du
+// joueur (le siege des paquets de type 8) ou le numero de l'equipe, selon `Kind`.
+type StatborgEntry = types.StatborgEntry
+
+// StatborgEntryStats : ce que la lecture des entrees du tableau des scores a rencontre ; `Scanned` faux, aucune
+// entree n'est lue.
+type StatborgEntryStats = types.StatborgEntryStats
+
 // ScanRosterListings lit les paquets de type 8 d un film DEJA CHARGE et rend, par humain, ses plages de listage
 // dans l ordre des instants. Sans table des joueurs lisible, la liste est vide et `Scanned` faux.
 func ScanRosterListings(film *source.Film) ([]RosterListing, RosterListingStats) {
@@ -37,4 +45,10 @@ func ScanRosterListings(film *source.Film) ([]RosterListing, RosterListingStats)
 func ScanUnitControls(fc *grammar.FilmContext) ([]UnitControlRead, UnitControlStats, error) {
 	m, err := grammar.ScanMarcheDesTramesAvec(fc, grammar.LecturesDeLaMarche{})
 	return m.UnitControls, m.UnitControlStats, err
+}
+
+// ScanStatborgEntries lit, aux images-cles du film du contexte `fc`, l'entree de chaque entite du tableau des
+// scores : de qui est la ligne. Sans registre du film, la liste est vide et `Scanned` faux.
+func ScanStatborgEntries(fc *grammar.FilmContext) ([]StatborgEntry, StatborgEntryStats) {
+	return grammar.ScanStatborgEntries(fc)
 }

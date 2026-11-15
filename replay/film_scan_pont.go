@@ -63,6 +63,9 @@ type siegesEtOccupants struct {
 	// listages : les plages de listage des humains (paquets de type 8) et leurs denominateurs.
 	listages      []types.RosterListing
 	statsListages types.RosterListingStats
+	// entrees : de qui est chaque ligne du tableau des scores, et leurs denominateurs.
+	entrees      []types.StatborgEntry
+	statsEntrees types.StatborgEntryStats
 }
 
 // lireSiegesEtOccupants est LA lecture de ces deux entrees du registre d'identite, et la seule :
@@ -80,6 +83,7 @@ func lireSiegesEtOccupants(ctx context.Context, film *source.Film, fc *grammar.F
 	so := siegesEtOccupants{table: consignerLaTableDuFilm(ctx, table, err, matchID)}
 	so.equipes, so.rapport, so.entites = grammar.ScanPlayerTeams(fc)
 	so.listages, so.statsListages = grammar.ScanRosterListings(film)
+	so.entrees, so.statsEntrees = grammar.ScanStatborgEntries(fc)
 	return so
 }
 
@@ -128,9 +132,12 @@ func (s *filmScan) balayerPont() {
 	// est le controle, et son empreinte inchangee prouve que la passe unique ne l'a pas touchee.
 	s.in.PlayerTeams, s.in.TeamScan, s.in.PlayerEntities = so.equipes, so.rapport, so.entites
 	s.in.RosterListings, s.in.RosterListingStats = so.listages, so.statsListages
+	s.in.StatborgEntries, s.in.StatborgEntryStats = so.entrees, so.statsEntrees
 	s.opt.observe(s.ctx, "playerTeams", s.in.PlayerTeams)
 	s.opt.observe(s.ctx, "rosterListings", s.in.RosterListings)
 	s.opt.observe(s.ctx, "rosterListings.stats", s.in.RosterListingStats)
+	s.opt.observe(s.ctx, "statborgEntries", s.in.StatborgEntries)
+	s.opt.observe(s.ctx, "statborgEntries.stats", s.in.StatborgEntryStats)
 	// L'index de joueur SE LIT dans le film (cf. player_index.go) : le roster vient du fil des
 	// morts, et les 5 bits qui précèdent chaque xuid donnent son index. Sans cette table, un tir
 	// ou un lancer reste publie des que le registre d'identite nomme son slot par ses AUTRES
