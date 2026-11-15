@@ -392,8 +392,9 @@ x [-8.25, 43.79] · y [-25.14, 30.35] · z [-14.85, 7.06]
 premiere : t=1967 ms=77839 xuid=2713751699127665 id=135 · derniere : t=10271 ms=351864 xuid=2669605393856835 id=32
 
 ## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
-groupe "arenaflagevents.lua+flageventstubs.lua" (absent : false) · trames 21864 (lues 21864, arrêtées 0, vue A illisible : false)
-2998 message(s) · 0 copie(s) retirée(s) · 2918 sans points · 80 (message, destinataire) à points · 80 publié(s) · 0 sans xuid · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 1 sans cible nommée
+groupe "arenaflagevents.lua+flageventstubs.lua" (absent : false) · trames 21864 (lues 21864, arrêtées 0, vue A illisible : false) · complet : true
+2998 message(s) : 80 à points · 818 sans rapport avec le score · 0 nommé(s) sans points · 2100 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
+80 (message, destinataire) à points · 80 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 1 sans cible résolue
   assistPersonalScore (50) x11
   flagCaptureAssist (100) x2
   flagCaptureScore (300) x3

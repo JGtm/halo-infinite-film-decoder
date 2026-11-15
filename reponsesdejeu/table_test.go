@@ -6,39 +6,36 @@ import (
 	"testing"
 )
 
-// TestLaTableEstCelleDeLibfilmshell : le compte de la table reprise (423 lignes, 11 groupes) et quelques
-// réponses dont le rang et les points se lisent dans le fichier, pour que le chargement et le fichier ne
-// divergent pas en silence.
+// TestLaTableEstCelleDeLibfilmshell : le compte de la table reprise (4 804 rangs dont 423 donnent du score, 11
+// groupes) et quelques réponses dont le rang, les points et le genre se lisent dans le fichier, pour que le
+// chargement et le fichier ne divergent pas en silence.
 func TestLaTableEstCelleDeLibfilmshell(t *testing.T) {
-	if l, g := Taille(); l != 423 || g != 11 {
-		t.Fatalf("table de %d ligne(s) et %d groupe(s), attendu 423 et 11", l, g)
+	if r, s, g := Taille(); r != 4804 || s != 423 || g != 11 {
+		t.Fatalf("table de %d rang(s), %d à score et %d groupe(s), attendu 4804, 423 et 11", r, s, g)
 	}
 	cas := []struct {
 		scripts []string
 		rang    uint32
 		nom     string
+		genre   string
 		points  int
 	}{
-		{[]string{"slayerevents.lua"}, 78, "killPersonalScore", 100},
-		{[]string{"slayerevents.lua"}, 49, "assistPersonalScore", 50},
-		{[]string{"slayerevents.lua"}, 59, "markAssistPersonalScore", 10},
-		{[]string{"slayerevents.lua"}, 31, "playerSuicidePersonalScore", -100},
-		{[]string{"arenaflagevents.lua", "flageventstubs.lua"}, 0, "", 0},
+		{[]string{"slayerevents.lua"}, 78, "killPersonalScore", GenreScore, 100},
+		{[]string{"slayerevents.lua"}, 49, "assistPersonalScore", GenreScore, 50},
+		{[]string{"slayerevents.lua"}, 59, "markAssistPersonalScore", GenreScore, 10},
+		{[]string{"slayerevents.lua"}, 31, "playerSuicidePersonalScore", GenreScore, -100},
+		{[]string{"slayerevents.lua"}, 266, "phantomHijackResponse", GenreScore, 0},
+		{[]string{"slayerevents.lua"}, 16, "matchEndTiedResponse", genreAnnonce, 0},
+		{[]string{"slayerevents.lua"}, 17, "perfectionResponse", genreMedaille, 0},
 	}
 	for _, c := range cas {
 		g, ok := GroupeDesScripts(c.scripts)
 		if !ok {
 			t.Fatalf("groupe de %v introuvable", c.scripts)
 		}
-		r, ok := g.Reponse(c.rang, 0, false)
-		if c.nom == "" {
-			if ok {
-				t.Errorf("%s rang %d : réponse %+v, aucune attendue", g.Nom(), c.rang, r)
-			}
-			continue
-		}
-		if !ok || r.Nom != c.nom || r.Points != c.points {
-			t.Errorf("%s rang %d : %+v, attendu %s (%d)", g.Nom(), c.rang, r, c.nom, c.points)
+		r, n := g.Reponse(c.rang, 0, false)
+		if n < NatureSansScore || r.Nom != c.nom || r.Genre != c.genre || r.Points != c.points {
+			t.Errorf("%s rang %d : %+v (%v), attendu %s %s (%d)", g.Nom(), c.rang, r, n, c.nom, c.genre, c.points)
 		}
 	}
 }
@@ -80,10 +77,11 @@ func TestLeGroupeSeLitAuxFichiersDuFilm(t *testing.T) {
 }
 
 // TestUneReponseSAttribueAuTexteQuiLaConfirme : un rang à texte propre n'est attribué que si le message porte
-// ce texte (ou aucun) ; le texte d'une autre réponse la refuse ; un rang incertain exige le texte.
+// ce texte (ou aucun) ; le texte d'une autre réponse la refuse ; un rang incertain exige le texte ; un rang
+// hors de l'arbre est inconnu ; une réponse sans score que l'arbre nomme est « sans score », pas inconnue.
 //
 // MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : ignorer le texte ; attribuer un rang incertain sans texte ; refuser
-// un message sans texte pour un rang certain.
+// un message sans texte pour un rang certain ; confondre un rang hors de l'arbre et une réponse sans score.
 func TestUneReponseSAttribueAuTexteQuiLaConfirme(t *testing.T) {
 	slayer, _ := GroupeDesScripts([]string{"slayerevents.lua"})
 	colline, ok := GroupeDesScripts([]string{"areacaptureeventstubs.lua", "fbastionevents.lua", "firefightevents.lua"})
@@ -97,19 +95,22 @@ func TestUneReponseSAttribueAuTexteQuiLaConfirme(t *testing.T) {
 		rang    uint32
 		texte   uint32
 		aTexte  bool
-		attendu bool
+		attendu Nature
 	}{
-		{"rang certain, texte de la réponse", slayer, 78, motDuFrag, true, true},
-		{"rang certain, sans texte", slayer, 78, 0, false, true},
-		{"rang certain, texte d'une autre réponse", slayer, 78, 0x365be6b1, true, false},
-		{"rang sans texte propre, texte quelconque", slayer, 49, 0x1234, true, true},
-		{"rang incertain, sans texte", colline, 828, 0, false, false},
-		{"rang inconnu", slayer, 100000, 0, false, false},
+		{"rang certain, texte de la réponse", slayer, 78, motDuFrag, true, NatureScore},
+		{"rang certain, sans texte", slayer, 78, 0, false, NatureScore},
+		{"rang certain, texte d'une autre réponse", slayer, 78, 0x365be6b1, true, NatureNonConfirmee},
+		{"rang sans texte propre, texte quelconque", slayer, 49, 0x1234, true, NatureScore},
+		{"rang incertain, sans texte", colline, 828, 0, false, NatureNonConfirmee},
+		{"rang hors de l'arbre", slayer, 100000, 0, false, NatureHorsArbre},
+		{"rang d'avant le premier de l'arbre", slayer, 5, 0, false, NatureHorsArbre},
+		{"annonce que l'arbre nomme", slayer, 16, 0, false, NatureSansScore},
+		{"médaille que l'arbre nomme", slayer, 17, 0, false, NatureSansScore},
 	}
 	for _, c := range cas {
 		t.Run(c.nom, func(t *testing.T) {
-			if _, ok := c.g.Reponse(c.rang, c.texte, c.aTexte); ok != c.attendu {
-				t.Errorf("attribuée : %v, attendu %v", ok, c.attendu)
+			if _, n := c.g.Reponse(c.rang, c.texte, c.aTexte); n != c.attendu {
+				t.Errorf("nature %v, attendu %v", n, c.attendu)
 			}
 		})
 	}

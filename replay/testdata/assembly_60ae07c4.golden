@@ -433,6 +433,7 @@ x [-13.04, 27.58] · y [15.13, 47.81] · z [-5.78, 5.05]
 premiere : t=1234 ms=52575 xuid=2792409163379854 id=114 · derniere : t=24204 ms=810599 xuid=2639945145752479 id=109
 
 ## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
-groupe "oddballevents.lua" (absent : false) · trames 49696 (lues 43640, arrêtées 6056, vue A illisible : true)
-0 message(s) · 0 copie(s) retirée(s) · 0 sans points · 0 (message, destinataire) à points · 0 publié(s) · 0 sans xuid · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible nommée
+groupe "oddballevents.lua" (absent : false) · trames 49696 (lues 43640, arrêtées 6056, vue A illisible : true) · complet : false
+0 message(s) : 0 à points · 0 sans rapport avec le score · 0 nommé(s) sans points · 0 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
+0 (message, destinataire) à points · 0 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
 

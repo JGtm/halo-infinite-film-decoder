@@ -697,8 +697,9 @@ x [-7.02, 43.79] · y [-25.14, 30.35] · z [-4.20, 7.08]
 premiere : t=1473 ms=52240 xuid=2812089420052706 id=114 · derniere : t=14875 ms=494496 xuid=2603004317949713 id=110
 
 ## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
-groupe "slayerevents.lua" (absent : false) · trames 30418 (lues 30418, arrêtées 0, vue A illisible : false)
-3073 message(s) · 0 copie(s) retirée(s) · 2952 sans points · 121 (message, destinataire) à points · 121 publié(s) · 0 sans xuid · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible nommée
+groupe "slayerevents.lua" (absent : false) · trames 30418 (lues 30418, arrêtées 0, vue A illisible : false) · complet : true
+3073 message(s) : 121 à points · 976 sans rapport avec le score · 0 nommé(s) sans points · 1976 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
+121 (message, destinataire) à points · 121 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
   assistPersonalScore (50) x17
   killPersonalScore (100) x93
   markAssistPersonalScore (10) x2

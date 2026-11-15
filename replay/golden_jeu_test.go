@@ -121,11 +121,13 @@ func renderScoreActions(p func(string, ...any), doc ReplayDocument) {
 		p("couverture absente : messages de jeu non lus")
 		return
 	}
-	p("groupe %q (absent : %v) · trames %d (lues %d, arrêtées %d, vue A illisible : %v)", c.Group, c.GroupMissing, c.Frames,
-		c.ClosedFrames, c.StoppedFrames, c.ViewAUnreadable)
-	p("%d message(s) · %d copie(s) retirée(s) · %d sans points · %d (message, destinataire) à points · %d publié(s) · "+
-		"%d sans xuid · %d sans origine · %d avant la frame 0 · %d après la fin · %d sans cible nommée",
-		c.Messages, c.Copies, c.WithoutPoints, c.Scored, c.Published, c.NoRecipient, c.NoOrigin, c.BeforeOrigin, c.AfterEnd, c.NoTarget)
+	p("groupe %q (absent : %v) · trames %d (lues %d, arrêtées %d, vue A illisible : %v) · complet : %v", c.Group, c.GroupMissing, c.Frames,
+		c.ClosedFrames, c.StoppedFrames, c.ViewAUnreadable, c.Complete)
+	p("%d message(s) : %d à points · %d sans rapport avec le score · %d nommé(s) sans points · %d hors de l'arbre · %d non confirmé(s) · %d copie(s) retirée(s)",
+		c.Messages, c.ScoreMessages, c.Unrelated, c.NamedWithoutPoints, c.OutsideTree, c.UnconfirmedRank, c.Copies)
+	p("%d (message, destinataire) à points · %d publié(s) · %d sans humain au roster · %d absent(s) à l'instant · %d sans origine · "+
+		"%d avant la frame 0 · %d après la fin · %d sans cible résolue",
+		c.Scored, c.Published, c.NoRecipient, c.NotPresent, c.NoOrigin, c.BeforeOrigin, c.AfterEnd, c.NoTarget)
 	parNom := map[string]int{}
 	parJoueur := map[string]int{}
 	for _, a := range doc.ScoreActions {
