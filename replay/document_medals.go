@@ -24,8 +24,8 @@ package replay
 // # CE QUI N EST PAS PUBLIE
 //
 // Les points de score personnel d une medaille : l API ne compte aucun point pour une medaille (la somme de ses recompenses
-// est le score personnel du joueur), et la table du film ne porte que l indice et le nom. Le score par action vient des
-// recompenses de `objectives`, pas de ce calque.
+// est le score personnel du joueur), et la table du film ne porte que l indice et le nom. Le score par action est un autre
+// calque, lu dans les messages de jeu (document_score_actions.go), pas celui-ci.
 
 import (
 	"cmp"

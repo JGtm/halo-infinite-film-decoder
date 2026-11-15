@@ -92,6 +92,7 @@ func loadGoldenInputs(t *testing.T) *FilmFacts {
 	chargerEquipementDuBuild(t, goldenFilm, g)
 	chargerMedaillesDuBuild(t, goldenFilm, g)
 	chargerPresencesDuBuild(t, goldenFilm, g)
+	chargerJeuDuBuild(t, goldenFilm, g)
 	return g
 }
 
@@ -109,8 +110,9 @@ func TestGoldenInputsRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("second decodage : %v", err)
 	}
-	again.PlayerEntities = g.PlayerEntities                 // hors du blob, cf. golden_entites_test.go
-	again.MedalsRead, again.Medals = g.MedalsRead, g.Medals // hors du blob, cf. golden_medailles_test.go
+	again.PlayerEntities = g.PlayerEntities                                                                                                   // hors du blob, cf. golden_entites_test.go
+	again.MedalsRead, again.Medals = g.MedalsRead, g.Medals                                                                                   // hors du blob, cf. golden_medailles_test.go
+	again.GameEventsRead, again.GameEvents, again.GameEventStats, again.Scripts = g.GameEventsRead, g.GameEvents, g.GameEventStats, g.Scripts // idem, golden_jeu_test.go
 	if got := EncodeFilmFacts(again); !bytes.Equal(blob, got) {
 		t.Fatalf("le codec n est pas un point fixe : %d octets contre %d — un champ se perd "+
 			"ou se reconstruit differemment a chaque tour", len(got), len(blob))

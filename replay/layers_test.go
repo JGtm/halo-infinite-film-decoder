@@ -204,6 +204,7 @@ func optionsToutesGardesOuvertes() Options {
 		Horloges:            grammar.HorlogesLues{Stats: grammar.StatsDesHorloges{Trames: 1}},
 		FilmIdentity: &profile.FilmIdentity{InfosDeMatch: profile.InfosDeMatch{VarianteLue: true,
 			DelaiDeReapparitionSecondes: new(int64)}},
+		ScoreActions: ScoreActionInput{Read: true},
 	}
 }
 
@@ -260,7 +261,7 @@ func TestCalquesProduitsSuiventLesGardes(t *testing.T) {
 // quatrieme), et le remede — une constante par nom — rendrait les deux tables de `layers.go`
 // illisibles ligne a ligne, ce qui est exactement ce qu elles existent pour etre.
 const calquesGardesGeles = "abilityCharges abilityImpulses bombArmings bombCarries bombEvents " +
-	"bombStats flagCarries flagReturnZone grappleLines inventory medals respawnCountdowns roundClock rules " +
+	"bombStats flagCarries flagReturnZone grappleLines inventory medals respawnCountdowns roundClock rules scoreActions " +
 	"scoreTimeline skullCarries t0FilmMs vehicles vipCrown zoneStates"
 
 // TestCalquesGardesSontLaListeGelee : le jeu des calques gardes ne bouge pas en silence.

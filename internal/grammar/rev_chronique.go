@@ -250,7 +250,7 @@ package grammar
 // ne change : la vue A range desormais TOUT message `PlayerGameEventSmall` (genre 82), avec ou sans couple de participants
 // ([lecture.VueA.Jeu], [lecture.EvenementDeJeu] : rang R(32), sequence R(8), mot texte du sous-sac, deux premiers participants, masque des
 // destinataires) ; un canal de la marche des trames les rend sans les copies renvoyees (meme rang, sequence, mot texte et masque dans la
-// seconde, [StatsEvenementsDeJeu]) ; et [ScriptsDuFilm] lit les noms de fichier de script du chunk 0. Le rang ne se lit qu'avec le groupe de
+// seconde, [StatsEvenementsDeJeu]) ; et [ScanScriptsDuFilm] lit les noms de fichier de script du chunk 0. Le rang ne se lit qu'avec le groupe de
 // scripts du film : le message ne nomme aucune reponse. CE QUI NE CHANGE PAS : le fil des couples ([lecture.VueA.Fil]), les kills, les
 // charges lues ; la lecture de la vue A s'arrete aux memes messages. Les rejeux et les faits cuits avant se refusent sur cette revision :
 // la recuisson est une decision de l utilisateur.

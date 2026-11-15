@@ -63,6 +63,8 @@ var buildFromFilmSteps = []string{
 	"unitControls", "unitControls.stats",
 	// L HORLOGE DE MANCHE ET LES COMPTES A REBOURS : la MEME marche, le canal des horloges.
 	"horloges",
+	// LES MESSAGES DE JEU ET LES SCRIPTS (score par action) : la MEME marche, la vue A de chaque trame, et les noms de script du chunk 0.
+	"gameEvents", "gameEvents.stats", "filmScripts",
 	// LES MORTS DE VEHICULE ET L OCCUPATION : la MEME marche, le canal des morts ; vides quand le
 	// calque des vehicules n a pas ete balaye.
 	"vehicleDeaths", "vehicleDeaths.stats",

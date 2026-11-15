@@ -7,7 +7,7 @@ package grammar
 // séquence. Le canal rend, dans l'ordre du flux, chaque message de jeu lu par la marche des trames
 // ([lecture.VueA.Jeu]) une seule fois : une copie qui répète le rang, la séquence, le mot texte et le
 // masque d'un message vu dans la seconde qui précède n'est pas rendue. Il ne nomme aucune réponse : le
-// rang ne se lit qu'avec le groupe de scripts du film ([ScriptsDuFilm]).
+// rang ne se lit qu'avec le groupe de scripts du film ([ScanScriptsDuFilm]).
 
 import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar/lecture"
 

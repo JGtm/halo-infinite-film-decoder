@@ -163,6 +163,7 @@ var couchesDesCalques = map[string]string{
 	"weaponChanges":       grammar.Rev, // build_calques.go <- FilmInputs.WeaponChanges
 	"pickups":             grammar.Rev, // build_calques.go <- FilmInputs.Pickups
 	"medals":              grammar.Rev, // document_medals.go <- FilmInputs.Medals (morceau des temps forts, lu avec le fil des morts)
+	"scoreActions":        grammar.Rev, // document_score_actions.go <- FilmInputs.GameEvents + Scripts (messages de jeu, genre 82 de la vue A)
 	"weaponPads":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (ti=42 et ti=37)
 	"padPickups":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
@@ -292,6 +293,9 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// Morceau des temps forts illisible ou non designe : aucune medaille ne se lit, et le calque ne se
 	// produit pas plutot que d affirmer « aucune medaille » (document_medals.go, `poserLesMedailles`).
 	"medals": func(_ *ReplayDocument, opt Options) bool { return opt.Medals.Read },
+	// Messages de jeu non lus (marche des trames absente ou en erreur) : aucune action ne se lit, et le calque ne se
+	// produit pas plutot que d affirmer « aucun score » (document_score_actions.go, `poserLesScoresParAction`).
+	"scoreActions": func(_ *ReplayDocument, opt Options) bool { return opt.ScoreActions.Read },
 }
 
 // calquesProduits rend, pour CETTE cuisson, les calques produits et la revision de la couche qui

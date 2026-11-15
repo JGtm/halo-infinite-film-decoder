@@ -333,8 +333,9 @@ type ReplayDocument struct {
 	// il n'a qu'un repère générique à y poser. Absente = aucune mort de ce type établie sur
 	// ce film — le fil garde son repère neutre, jamais l'icône d'une autre mort.
 	NeutralDeaths []NeutralDeath `json:"neutralDeaths,omitempty"`
-	// Medals : les medailles gagnees, datees sur l axe (document_medals.go) ; absent si aucune n est posee.
-	Medals []Medal `json:"medals,omitempty"`
+	// Medals (document_medals.go) : les medailles gagnees ; ScoreActions (document_score_actions.go) : le score personnel par action. Datees sur l axe ; absents si rien n est pose.
+	Medals       []Medal       `json:"medals,omitempty"`
+	ScoreActions []ScoreAction `json:"scoreActions,omitempty"`
 	// Roster est la liste des joueurs du film : leur identité et leur index de film.
 	//
 	// CE QU'IL SERT : le client y trouve l'ensemble des joueurs du match, y compris ceux dont
@@ -473,9 +474,7 @@ type ReplayDocument struct {
 	// fermeture, une déduction par élimination — quatre forces de preuve que rien ne
 	// distinguait. La section les sépare, et son récapitulatif (`identity.coverage`) est ce que
 	// le gate corpus compare : une régression d'un lien `direct` vers un lien `deduit` y devient
-	// visible, alors qu'elle était jusqu'ici indétectable.
-	//
-	// Absente des artefacts construits avant le schéma 50.
+	// visible, alors qu'elle était jusqu'ici indétectable. Absente des artefacts construits avant le schéma 50.
 	Identity *IdentitySection `json:"identity,omitempty"`
 	// Layers dit, CALQUE PAR CALQUE, SOUS QUELLE REVISION DE COUCHE il a ete produit (schema 62,
 	// lot 4.2.1 du PLAN_DECODEUR_FILM ; ADR 0034, D-6 et D-7).

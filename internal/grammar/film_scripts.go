@@ -30,9 +30,9 @@ const (
 	separateurOblique   = 47
 )
 
-// ScriptsDuFilm rend les noms de fichier (sans dossier, en minuscules, triés, sans doublon) des scripts que
+// ScanScriptsDuFilm rend les noms de fichier (sans dossier, en minuscules, triés, sans doublon) des scripts que
 // le chunk 0 de `f` déclare, ou nil quand le film n'a pas de chunk 0.
-func ScriptsDuFilm(f *source.Film) []string {
+func ScanScriptsDuFilm(f *source.Film) []string {
 	chunk, ok := FilmRegistryChunk(f)
 	if !ok {
 		return nil

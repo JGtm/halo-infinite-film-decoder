@@ -176,6 +176,8 @@ type Coverage struct {
 	Pickups *PickupCoverage `json:"pickups,omitempty"`
 	// Medals dit ce que le calque des medailles a pose et ecarte ; absent quand le morceau des temps forts n a pas ete lu.
 	Medals *MedalCoverage `json:"medals,omitempty"`
+	// ScoreActions dit ce que le calque du score par action a lu, publie et ecarte ; absent quand la marche des trames n a pas lu les messages de jeu.
+	ScoreActions *ScoreActionCoverage `json:"scoreActions,omitempty"`
 	// PadDating dit ce que l'événement natif a pu dater parmi les occupations de socle : les
 	// datées, celles dont le ramasseur est nommé, les AMBIGUËS (plusieurs ramassages de la
 	// même arme dans la fenêtre — on s'abstient) et les non couvertes (qui gardent leur

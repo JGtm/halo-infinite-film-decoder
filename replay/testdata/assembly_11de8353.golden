@@ -919,3 +919,45 @@ x [-90.73, 33.15] · y [41.18, 130.23] · z [49.86, 98.63]
   90 Ninja x1
 premiere : t=986 ms=119375 xuid=2649451507849234 id=111 · derniere : t=15233 ms=589526 xuid=2728085484769223 id=127
 
+## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
+groupe "bigteambattle.lua+btbslayerevents.lua" (absent : false) · trames 17629 (lues 17395, arrêtées 234, vue A illisible : false)
+8163 message(s) · 34 copie(s) retirée(s) · 7979 sans points · 184 (message, destinataire) à points · 184 publié(s) · 0 sans xuid · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible nommée
+  assistPersonalScore (50) x26
+  bansheeDestroyResponse (50) x1
+  betrayalPersonalScore (-100) x1
+  empAssistPersonalScoreResponse (50) x2
+  falconDestroyResponse (75) x1
+  killPersonalScore (100) x117
+  markAssistPersonalScore (10) x3
+  onHackingTerminalPersonalScoreResponse (100) x29
+  phantomDestroyResponse (100) x1
+  razorbackDestroyResponse (50) x1
+  waspDestroyResponse (50) x1
+  wraithHijackResponse (25) x1
+  somme 2539909643060628 = 1100
+  somme 2555274482597606 = 1150
+  somme 2556228301812198 = 400
+  somme 2560293259909136 = 650
+  somme 2584494285201958 = 450
+  somme 2585144786572535 = 1020
+  somme 2620267450249348 = 700
+  somme 2623439693412443 = 150
+  somme 2640966191058275 = 350
+  somme 2649451507849234 = 1250
+  somme 2649558580197277 = 725
+  somme 2659582532226335 = 450
+  somme 2661816997026755 = 835
+  somme 2670885433928816 = 800
+  somme 2678316781767380 = 100
+  somme 2698413116170421 = 850
+  somme 2702423350400935 = 300
+  somme 2702481023568130 = 400
+  somme 2706469099639436 = 400
+  somme 2728085484769223 = 450
+  somme 2746409228518711 = 650
+  somme 2769745370848087 = 900
+  somme 2788613520028391 = 700
+  somme 2795415847885860 = 1200
+  somme 2812024117143317 = 300
+première : t=986 xuid=2649451507849234 killPersonalScore 100 cible="2678316781767380" · dernière : t=15358 xuid=2746409228518711 killPersonalScore 100 cible="2706469099639436"
+

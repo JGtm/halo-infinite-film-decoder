@@ -256,6 +256,16 @@ of an identical (rank, sequence, text word, mask) seen in the previous second. A
 index space as the recipient mask. On 11 films it reads exactly the messages libfilmshell reads (2,085 of them carry personal score);
 a view A that stops at an unread message loses the ones behind it, which the films of builds 38 and 39 measured do, for a cause that is still open.
 
+**Score responses.** A message names its response only through a table: for each group of event scripts, the response at each rank, with its
+script name (`killPersonalScore`) and its points, taken from libfilmshell (`reponsesdejeu/data/reponses.tsv`, see `NOTICE.md`). The group is
+the table group whose script files are exactly those of the table that the film's chunk 0 lists (libfilmshell's rule); a film that lists the
+files of no group names no response. A response that has a text of its own is attributed only if the message carries that text word (or none),
+and a rank the tree does not place for certain needs the text word. The recipient mask gives one action per recipient; a `%pe` (the enemy killed)
+or `%pa` (the player betrayed) in the response's label is the first participant of the text bag, so for `betrayalPersonalScore` the recipient is the
+betrayer and the first participant the betrayed player. The replay document publishes these as `scoreActions[]`, on the frame
+`(TS - origin) / step` of the positions, with `coverage.scoreActions` counting what was read, published and left out. A mode written
+without a point scale (Assault, a custom mode) has responses without points: nothing is invented, the coverage says so.
+
 **View B, the entity view** is a list of records ended by record type 0 (section 5). **View C, the control view** loops on
 `{ R(1); 0 ends; kind = R(2); handler(kind) }`; a source path in the game's code calls it `replication_control_view`, and its
 entries are per-player control messages, not entities.

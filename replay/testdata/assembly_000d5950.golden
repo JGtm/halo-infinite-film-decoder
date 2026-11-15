@@ -696,3 +696,20 @@ x [-7.02, 43.79] · y [-25.14, 30.35] · z [-4.20, 7.08]
   99 Tag & Bag x1
 premiere : t=1473 ms=52240 xuid=2812089420052706 id=114 · derniere : t=14875 ms=494496 xuid=2603004317949713 id=110
 
+## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
+groupe "slayerevents.lua" (absent : false) · trames 30418 (lues 30418, arrêtées 0, vue A illisible : false)
+3073 message(s) · 0 copie(s) retirée(s) · 2952 sans points · 121 (message, destinataire) à points · 121 publié(s) · 0 sans xuid · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible nommée
+  assistPersonalScore (50) x17
+  killPersonalScore (100) x93
+  markAssistPersonalScore (10) x2
+  threatSensorPersonalScoreResponse (10) x9
+  somme 2543372234349153 = 1570
+  somme 2603004317949713 = 1520
+  somme 2603225103667623 = 860
+  somme 2633090228607708 = 850
+  somme 2667725237021739 = 1350
+  somme 2709083604009238 = 1460
+  somme 2742063072864889 = 1520
+  somme 2812089420052706 = 1130
+première : t=960 xuid=2742063072864889 killPersonalScore 100 cible="2543372234349153" · dernière : t=14875 xuid=2812089420052706 threatSensorPersonalScoreResponse 10 cible=""
+
