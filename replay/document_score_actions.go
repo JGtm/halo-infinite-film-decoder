@@ -83,9 +83,11 @@ type ScoreActionInput struct {
 // (`scored`) ; chacun est publié ou écarté pour une seule raison : `scored` = `published` + `noRecipient` +
 // `notPresent` + `noOrigin` + `beforeOrigin` + `afterEnd`.
 type ScoreActionCoverage struct {
-	// Complete : la somme des points d'un joueur vaut son score personnel (cf. l'en-tête du fichier). Vrai
-	// seulement si aucune trame n'est arrêtée, la vue A se lit, le groupe de scripts est connu, aucun rang n'est non
-	// confirmé et chaque action à points est publiée ; nécessaire et non suffisant (cf. l'en-tête).
+	// Complete : la lecture des actions à points est entière. Vrai seulement si aucune trame n'est arrêtée, la
+	// vue A se lit, le groupe de scripts est connu, aucun rang n'est non confirmé et chaque action à points est
+	// publiée. Nécessaire et non suffisant pour que la somme des points d'un joueur vaille son score personnel :
+	// les points viennent de la table des réponses, qui peut différer du jeu (actions de véhicule des builds
+	// anciens) ou ne rien savoir d'un mode écrit hors de l'arbre (cf. l'en-tête du fichier).
 	Complete bool `json:"complete"`
 	// Group est le groupe de scripts du film dans la table des réponses ; vide quand GroupMissing.
 	Group string `json:"group,omitempty"`

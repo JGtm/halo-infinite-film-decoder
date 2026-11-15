@@ -269,10 +269,12 @@ A `%pe` (the enemy killed) or `%pa` (the player betrayed) in the response's labe
 `betrayalPersonalScore` the recipient is the betrayer and the first participant the betrayed player. The replay document publishes these as
 `scoreActions[]`, on the frame `(TS - origin) / step` of the positions, with `coverage.scoreActions` counting what was read, published and
 left out: messages that are not score (announcements, medals, kill-feed lines), score responses the game pays zero, ranks outside the tree,
-ranks the message does not confirm, and the actions not placed. `coverage.scoreActions.complete` is the verdict: a player's sum of points
-is the player's personal score only if it is true (no stopped frame, a readable view A, a known script group, no unconfirmed rank, every action with
-points placed); false, the consumer shows "insufficient data". A mode written without a point scale (Assault, a custom mode) has no
-response that gives points: nothing is invented.
+ranks the message does not confirm, and the actions not placed. `coverage.scoreActions.complete` says the reading is whole (no stopped
+frame, a readable view A, a known script group, no unconfirmed rank, every action with points placed). It is necessary, not sufficient, for
+a player's sum of points to equal the personal score: the points come from the response table, which can differ from the game (vehicle
+actions on older builds) or know nothing of a mode written outside the tree. False, the consumer shows "insufficient data"; a consumer
+that holds the official score compares the sum to it. A mode written without a point scale (Assault, a custom mode) has no response that
+gives points: nothing is invented.
 
 **View B, the entity view** is a list of records ended by record type 0 (section 5). **View C, the control view** loops on
 `{ R(1); 0 ends; kind = R(2); handler(kind) }`; a source path in the game's code calls it `replication_control_view`, and its
