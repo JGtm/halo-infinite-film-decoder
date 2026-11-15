@@ -3,7 +3,8 @@
 // Le corpus mesure (testdata/corpus_medailles_2026-09-02.tsv) est la PIECE : chaque
 // ligne est un couple reellement observe dans un film, avec le nom que l ancien
 // collecteur Python avait ecrit dans raw_json. Les tests rejouent ce corpus contre la
-// table. Une entree retiree, renommee ou inventee fait rougir.
+// table, qui doit rendre le meme nom : c est l accord de la source avec les films.
+// Une entree retiree ou renommee fait rougir.
 package medalname
 
 import (
@@ -97,28 +98,89 @@ func TestTableCouvreToutLeCorpusMesure(t *testing.T) {
 	}
 }
 
-// TestTableNInventeAucuneEntree — reciproque : aucune entree de la table qui ne soit
-// pas dans la mesure. Une entree devinee est un nom faux servi en production.
-func TestTableNInventeAucuneEntree(t *testing.T) {
-	corpus := lireCorpus(t)
-	mesures := make(map[medalKey]bool, len(corpus))
-	for _, l := range corpus {
-		mesures[medalKey{typeHint: l.typeHint, medalType: l.medalType}] = true
-	}
-	for k := range table {
-		if !mesures[k] {
-			t.Errorf("entree hors mesure: type_hint=%d medal_type=%d -> %q (absente du corpus)",
-				k.typeHint, k.medalType, table[k])
+// medaillesDuJeu est le nombre de medailles de la source (libfilmshell, medals_data.rs).
+const medaillesDuJeu = 157
+
+// TestSourceFigee — la table est exactement la source : 157 lignes de donnees, un
+// indice de medaille par ligne (l indice est le discriminant de l enum du jeu : deux
+// lignes ne peuvent pas le partager) et un couple par ligne. Une ligne ajoutee, perdue
+// ou dupliquee en editant le fichier fait rougir.
+func TestSourceFigee(t *testing.T) {
+	lignes := 0
+	indices := map[int]string{}
+	couples := map[medalKey]bool{}
+	for _, l := range strings.Split(brut, "\n") {
+		if l == "" || strings.HasPrefix(l, "#") {
+			continue
 		}
+		lignes++
+		c := strings.Split(l, "\t")
+		if len(c) != colonnes {
+			t.Fatalf("ligne mal formee (%d champs): %q", len(c), l)
+		}
+		th, err := strconv.Atoi(c[colTypeHint])
+		if err != nil {
+			t.Fatalf("type_hint illisible: %q", l)
+		}
+		mt, err := strconv.Atoi(c[colMedalType])
+		if err != nil {
+			t.Fatalf("medal_type illisible: %q", l)
+		}
+		if autre, deja := indices[mt]; deja {
+			t.Errorf("indice de medaille %d en double: %q et %q", mt, autre, c[colNom])
+		}
+		indices[mt] = c[colNom]
+		k := medalKey{typeHint: th, medalType: mt}
+		if couples[k] {
+			t.Errorf("couple (%d,%d) en double: %q", th, mt, l)
+		}
+		couples[k] = true
+	}
+	if lignes != medaillesDuJeu {
+		t.Fatalf("data/medals.tsv: %d lignes de donnees, source = %d medailles", lignes, medaillesDuJeu)
+	}
+	if Len() != medaillesDuJeu {
+		t.Fatalf("table: %d couples, source = %d medailles", Len(), medaillesDuJeu)
 	}
 }
 
-// TestCompletudeTable — la mesure du 2026-09-02 : 124 couples.
-func TestCompletudeTable(t *testing.T) {
-	const couplesMesures = 124
-	if Len() != couplesMesures {
-		t.Fatalf("table: %d couples, mesure du 2026-09-02 = %d", Len(), couplesMesures)
+// TestMedaillesDeModesNonMesures — des medailles que le corpus mesure ne contient pas
+// (Infection, Attrition...) sont nommees, avec les valeurs du fichier de la source.
+func TestMedaillesDeModesNonMesures(t *testing.T) {
+	mesures := map[medalKey]bool{}
+	for _, l := range lireCorpus(t) {
+		mesures[medalKey{typeHint: l.typeHint, medalType: l.medalType}] = true
 	}
+	attendus := []struct {
+		typeHint, medalType int
+		nom                 string
+	}{
+		{100, 47, "Blight"},
+		{150, 55, "Purge"},
+		{200, 60, "Hell's Janitor"},
+		{200, 176, "Immortal Chauffeur"},
+	}
+	for _, a := range attendus {
+		if mesures[medalKey{typeHint: a.typeHint, medalType: a.medalType}] {
+			t.Errorf("(%d,%d) est dans le corpus mesure: ce test vise des medailles non mesurees", a.typeHint, a.medalType)
+		}
+		nom, ok := Lookup(a.typeHint, a.medalType)
+		if !ok || nom != a.nom {
+			t.Errorf("Lookup(%d,%d) = %q, %v; attendu %q", a.typeHint, a.medalType, nom, ok, a.nom)
+		}
+	}
+	if nouveaux := Len() - len(mesures); nouveaux != 33 {
+		t.Errorf("%d couples hors corpus mesure; la source en a 33 de plus que les 124 mesures", nouveaux)
+	}
+}
+
+// TestCompletudeTable — la source compte 157 medailles ; le corpus mesure reste a
+// 124 couples et 44 568 events.
+func TestCompletudeTable(t *testing.T) {
+	if Len() != medaillesDuJeu {
+		t.Fatalf("table: %d couples, source = %d medailles", Len(), medaillesDuJeu)
+	}
+	const couplesMesures = 124
 	corpus := lireCorpus(t)
 	if len(corpus) != couplesMesures {
 		t.Fatalf("corpus TSV: %d lignes, mesure du 2026-09-02 = %d", len(corpus), couplesMesures)
@@ -133,9 +195,9 @@ func TestCompletudeTable(t *testing.T) {
 	}
 }
 
-// TestBijectionNoms — la mesure est une bijection : 124 couples, 124 noms distincts,
-// zero couple ambigu. Deux couples qui rendraient le meme nom signeraient une table
-// recopiee de travers.
+// TestBijectionNoms — la table est une bijection : un nom distinct par couple,
+// zero couple ambigu. Deux couples qui rendraient le meme nom signeraient une ligne
+// recopiee de travers (la source et le corpus mesure sont tous deux bijectifs).
 func TestBijectionNoms(t *testing.T) {
 	vus := make(map[string]medalKey, len(table))
 	for k, nom := range table {

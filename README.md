@@ -65,8 +65,8 @@ published with the replay document. `decfilm.ReadMatchInfo` reads, from the head
 
 [`FORMAT.md`](FORMAT.md) describes the format level by level and says, for each part, what is read, what is recovered and what
 is not read. [`GLOSSARY.md`](GLOSSARY.md) maps the French vocabulary of the sources to English and to the names used by
-libfilmshell (OpenSpartan, MIT), a Rust decoder of the same format. The table of score responses that names the game-event
-messages (`reponsesdejeu/data/reponses.tsv`) is taken from libfilmshell, with its credit header and its licence text; see
+libfilmshell (OpenSpartan, MIT), a Rust decoder of the same format. Two tables are taken from libfilmshell, each with its credit header and its licence text: the score responses that name
+the game-event messages (`reponsesdejeu/data/reponses.tsv`) and the medals of the game (`medalname/data/medals.tsv`); see
 [`NOTICE.md`](NOTICE.md).
 
 A delta packet is *closed* when the reading ends on its last terminator with at most seven zero bits left. The share of packets
