@@ -145,6 +145,10 @@ type MarcheDesTrames struct {
 	// compris sur un film qui n en transmet aucun.
 	UnitControls     []types.UnitControlRead
 	UnitControlStats types.UnitControlStats
+	// BipedDeletions sont les suppressions de bipede (records DEL des trames delta), et BipedDeletionStats
+	// leurs denominateurs : lues dans les records que la marche range, sur tout film.
+	BipedDeletions     []types.BipedDeletion
+	BipedDeletionStats types.BipedDeletionStats
 	// ObjectDeaths sont les morts ecrites (`object-dead-state`), tous archetypes confondus, triees
 	// par instant puis par slot ; Occupancy, les lectures d `object-parent-state` de la bande
 	// bipede ; ObjectDeathStats, leurs denominateurs.
@@ -246,6 +250,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()
 	m.UnitControlStats = types.UnitControlStats{Scanned: true}
+	m.BipedDeletions, m.BipedDeletionStats = sc.suppressions.publier(), sc.suppressions.stats
 	if !sc.transmet {
 		*st = types.MovementStateStats{MapWidths: st.MapWidths, Absent: true, Scanned: true}
 		return m, morts, nil
@@ -295,6 +300,8 @@ type movementStateScanner struct {
 	vues     map[movementStateKey]types.MovementStateRead
 	// controle : les lectures du joueur aux commandes (`i18`), lues sur le meme crochet.
 	controle controleDesUnites
+	// suppressions : les suppressions de bipede, lues dans les records de chaque trame.
+	suppressions suppressionsDeBipedes
 	// m : ce que le canal voit de la marche — le paquet en cours, son en-tete pose avant sa marche
 	// (le crochet le lit pendant), et la table d entites, en lecture seule.
 	m *MarcheDistribuee
@@ -338,6 +345,7 @@ func (sc *movementStateScanner) Brancher(obs *Observation, m *MarcheDistribuee) 
 // que sauter la liste bit-exactement demanderait la grammaire de charge de chaque type d evenement.
 func (sc *movementStateScanner) Trame(p *lecture.Paquet) {
 	sc.controle.solder(sc.slotEstBipede)
+	sc.suppressions.trame(p)
 	if p.Debut != lecture.DebutEnTete {
 		sc.st.EventPackets++
 		switch p.Debut {

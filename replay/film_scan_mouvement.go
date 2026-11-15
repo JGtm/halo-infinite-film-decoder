@@ -59,6 +59,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.MovementStates, s.in.MovementStateStats = m.MovementStates, st
 	s.in.ContinuousFire, s.in.ContinuousFireStats = m.ContinuousFire, tc
 	s.in.UnitControls, s.in.UnitControlStats = m.UnitControls, m.UnitControlStats
+	s.in.BipedDeletions, s.in.BipedDeletionStats = m.BipedDeletions, m.BipedDeletionStats
 	s.in.Horloges = m.Horloges
 	s.in.GameEvents, s.in.GameEventStats, s.in.GameEventsRead = m.EvenementsDeJeu, m.EvenementsDeJeuStats, err == nil
 	s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
@@ -73,6 +74,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "continuousFire.stats", tc)
 	s.opt.observe(s.ctx, "unitControls", s.in.UnitControls)
 	s.opt.observe(s.ctx, "unitControls.stats", s.in.UnitControlStats)
+	s.opt.observe(s.ctx, "bipedDeletions", s.in.BipedDeletions)
+	s.opt.observe(s.ctx, "bipedDeletions.stats", s.in.BipedDeletionStats)
 	s.opt.observe(s.ctx, "horloges", s.in.Horloges)
 	s.opt.observe(s.ctx, "gameEvents", s.in.GameEvents)
 	s.opt.observe(s.ctx, "gameEvents.stats", s.in.GameEventStats)

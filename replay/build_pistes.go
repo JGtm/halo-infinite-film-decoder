@@ -95,6 +95,9 @@ func (a *assemblage) poserLesPistes() {
 		a.unnamed.deduced[i] = true
 	}
 	logUnnamedLives(a.ctx, a.matchID, a.doc.Tracks, a.unnamed, a.opt.documentInterne)
+	// LA FIN LUE DE CHAQUE CORPS vient en dernier : la fin d une piste est alors definitive, et la piste suivante du slot
+	// est celle qui est publiee (tracks_fin_par_commande.go).
+	a.poserLesFinsParCommande()
 }
 
 // poserLesEquipesEtLeRoster pose l equipe du film sur les vies et sur le roster, puis les

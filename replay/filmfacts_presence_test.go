@@ -40,3 +40,29 @@ func TestListagesEtControlesFontLAllerRetour(t *testing.T) {
 		}
 	}
 }
+
+// TestSuppressionsDeBipedeFontLAllerRetour : les suppressions et leurs comptes se relisent a l identique, liste
+// vide comprise (nil), et le flux est entierement consomme.
+func TestSuppressionsDeBipedeFontLAllerRetour(t *testing.T) {
+	ds := []types.BipedDeletion{
+		{Slot: 513, TimestampUS: 10, Chunk: 1, PacketIndex: 2},
+		{Slot: 514, TimestampUS: 10, Chunk: 1, PacketIndex: 2},
+		{Slot: 513, TimestampUS: 90_000, Chunk: 3, PacketIndex: 40},
+	}
+	st := types.BipedDeletionStats{Deletions: 3, DeletionsUnproven: 2}
+	for _, tc := range []struct {
+		nom string
+		ds  []types.BipedDeletion
+	}{{"pleines", ds}, {"vides", nil}} {
+		w := &gwriter{}
+		encodeSuppressionsDeBipede(w, tc.ds, st)
+		r := &greader{b: w.b}
+		gd, gst := decodeSuppressionsDeBipede(r)
+		if r.err != nil || r.off != len(r.b) {
+			t.Fatalf("%s : relecture invalide (err %v, %d/%d octets)", tc.nom, r.err, r.off, len(r.b))
+		}
+		if !reflect.DeepEqual(gd, tc.ds) || gst != st {
+			t.Errorf("%s : aller-retour different : %+v / %+v", tc.nom, gd, tc.ds)
+		}
+	}
+}

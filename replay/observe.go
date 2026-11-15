@@ -61,6 +61,8 @@ var buildFromFilmSteps = []string{
 	"continuousFire", "continuousFire.stats",
 	// LE JOUEUR AUX COMMANDES DE CHAQUE BIPEDE (`unit-control`) : la MEME marche, le crochet des etats.
 	"unitControls", "unitControls.stats",
+	// LES SUPPRESSIONS DE BIPEDE : la MEME marche, les records DEL qu elle range.
+	"bipedDeletions", "bipedDeletions.stats",
 	// L HORLOGE DE MANCHE ET LES COMPTES A REBOURS : la MEME marche, le canal des horloges.
 	"horloges",
 	// LES MESSAGES DE JEU ET LES SCRIPTS (score par action) : la MEME marche, la vue A de chaque trame, et les noms de script du chunk 0.

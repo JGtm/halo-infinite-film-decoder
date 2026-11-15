@@ -4307,3 +4307,44 @@ package replay
 //
 // LE PARC         un artefact 121 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision
 //                 de l'utilisateur.
+
+// v123 (2026-11-15, la fin de chaque vie se lit dans le film). Une piste dont le joueur meurt sans qu un frag l emporte (mort de
+// chute, d autodestruction, de la fin du match) ne portait aucune fin lue : rien ne disait si son corps avait fini par une mort ou par
+// la fin d une manche. Le film ecrit les deux evenements : le joueur qui commande un corps (`unit-control`) lache la commande a sa mort,
+// et le jeu supprime un corps encore commande quand une manche se termine ou qu une remise en place le retire. Methode reprise de
+// libfilmshell (Dend, OpenSpartan, licence MIT, `src/owners.rs`, `src/motion.rs` et `src/lives.rs`). Le document publie la fin LUE ; il ne
+// la juge pas, et ne la compare ni a `endFrame` ni a une tolerance : c est au consommateur de dire quelle fin est une mort.
+//
+//	`tracks[].endReason`   "released" : le joueur de la vie lache la commande du corps ; "deleted" : le corps est supprime encore commande,
+//	                ou son slot est repris par un autre joueur sans que la suppression se lise ; absent : aucune lecture ne le dit (le corps n est
+//	                jamais lu aux commandes d un joueur, ou aucun evenement de fin ne se lit avant la vie suivante du slot).
+//	`tracks[].releaseFrame`   la frame du lacher de commande, sur l axe de `startFrame` et `endFrame`, pour "released" seulement ; pointeur : une
+//	                frame nulle ou negative est une lecture.
+//	`coverage.tracks.lifeEnds`   {released, deleted, retaken, unread, open, filmEnd, deletionsUnproven} : les six premiers sommes valent le nombre de
+//	                pistes publiees ; `retaken` compte, parmi les `deleted` du champ, ceux que la reprise du slot par un autre joueur ferme ;
+//	                `open` : un joueur commande le corps et aucun evenement de fin ne se lit avant la piste suivante du slot ;
+//                `filmEnd` : le corps finit a la frame de fin du film ou au-dela, hors de l axe : le film cesse d ecrire, ce n est pas une fin de vie, ni `endReason`
+//                ni `releaseFrame` ne sont publies pour la piste ;
+//	                `deletionsUnproven` : les suppressions lues sur un debut de liste que rien ne prouve, que le jeu ne prend pas. Absent quand la
+//	                lecture du joueur aux commandes n a pas eu lieu.
+//
+// SOURCES ET REGLE DE LECTURE. `FilmInputs.UnitControls` (les lectures de `unit-control`) et `FilmInputs.BipedDeletions` (les records DEL
+// des bipedes de la marche des trames, `grammar.Rev` -> `grammar-2026-11-15.3`). Les lectures et les suppressions d un slot, dans l ordre des
+// instants, se rangent en corps : un corps s ouvre a la premiere lecture qui met un joueur aux commandes et se ferme au premier lacher, a la
+// premiere suppression du slot ou a la premiere lecture d un autre joueur ; a un meme instant la suppression precede les lectures. Une piste
+// est rapportee au dernier corps ouvert a la frame de son premier point ; la fin du corps ne compte que si elle tombe avant la piste suivante
+// du slot. Aucune fenetre de temps : le premier enregistrement `unit-control` du corps borne sa naissance. Une fin a la frame meme ou s ouvre la piste suivante du slot est celle de la piste qui precede.
+//
+// LA MESURE (99 films, 18 006 pistes publiees ; la lecture rejouee par une sonde hors depot). `released` 15 905, `deleted` 546 dont 37 par reprise du slot,
+// `unread` 906 (bots et anciens builds pour l essentiel), `open` 120, `filmEnd` 529, `deletionsUnproven` 96. Des 15 290 vies closes qu un frag revendique, 15 113 finissent par un
+// lacher de 2 frames avant a 6 frames apres la fin de la piste, aucune au-dela (ecart de la frame du lacher a la fin : -2 : 11, -1 : 65, 0 : 4 077, 1 : 9 594, 2 : 728,
+// 3 : 198, 4 : 216, 5 : 200, 6 : 24). Des 653 vies closes sans frag ni compte a rebours dont le corps est commande jusqu a la fin des lectures : 495 `deleted` (16 par
+// reprise du slot), 158 sans fin publiee (fin du film, aucune fin lue avant la piste suivante du slot, ou corps non lu), aucune `released`.
+// La borne de naissance est la premiere lecture `unit-control` du corps : 396 vies que la lecture a fenetre de temps de 5 s ne rattachait a aucun corps se rattachent,
+// et toutes les vies revendiquees par un frag parmi elles finissent par un lacher dans l intervalle.
+//
+// CE QUI MONTE    `SchemaVersion` 122 -> 123. `grammar.Rev` -> `grammar-2026-11-15.3`,
+// AVEC ELLE       `SchemaDesFaits` -> 28 : le complement de la section 1 porte les suppressions de bipede et leurs comptes.
+//
+// LE PARC         un artefact 122 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une
+//                 decision de l utilisateur.

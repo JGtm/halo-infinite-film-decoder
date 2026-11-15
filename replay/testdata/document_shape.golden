@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 122
-empreinte-stockee e88c654d147414fa
-empreinte-servie e88c654d147414fa
-empreinte-cuite e217625e550ad077
+schema 123
+empreinte-stockee d0bd63f0ae037f76
+empreinte-servie d0bd63f0ae037f76
+empreinte-cuite 672ed8aa508915ef
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -714,6 +714,14 @@ LayerCoverage
   RefusedByRoster json:"refusedByRoster,omitempty" int
   UnitOtherIndex json:"unitOtherIndex,omitempty" int
   Unpublished json:"unpublished" int
+LifeEndCoverage
+  Deleted json:"deleted" int
+  DeletionsUnproven json:"deletionsUnproven" int
+  FilmEnd json:"filmEnd" int
+  Open json:"open" int
+  Released json:"released" int
+  Retaken json:"retaken" int
+  Unread json:"unread" int
 Link
   From json:"from" int
   Method json:"method,omitempty" string
@@ -1206,8 +1214,10 @@ TeamScore
 Track
   Bot json:"bot,omitempty" string
   EndFrame json:"endFrame,omitempty" int
+  EndReason json:"endReason,omitempty" string
   Name json:"name,omitempty" string
   Points json:"points" []Point
+  ReleaseFrame json:"releaseFrame,omitempty" *int
   Slot json:"slot" uint32
   StartFrame json:"startFrame,omitempty" int
   Team json:"team" int
@@ -1217,6 +1227,7 @@ TrackCoverage
   GapMS json:"gapMs" int
   Gaps json:"gaps" int
   HorsEmprise json:"horsEmprise" int
+  LifeEnds json:"lifeEnds,omitempty" *LifeEndCoverage
   MinPoints json:"minPoints" int
   Published json:"published" int
   PublishedPoints json:"publishedPoints" int

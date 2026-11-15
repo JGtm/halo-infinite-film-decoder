@@ -89,6 +89,8 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.AbilityRank{}},
 	{"grammar", types.AbilityRankStats{}},
 	{"grammar", types.BipedCreationStats{}},
+	{"grammar", types.BipedDeletion{}},
+	{"grammar", types.BipedDeletionStats{}},
 	{"grammar", types.BipedPickup{}},
 	{"grammar", types.BipedPickupStats{}},
 	{"grammar", types.BirthLoadout{}},

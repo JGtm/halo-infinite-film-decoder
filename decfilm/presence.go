@@ -1,8 +1,8 @@
 package decfilm
 
-// presence.go — QUI EST LISTE DANS LA SESSION, ET QUI COMMANDE QUEL CORPS, PAR LA FACADE.
+// presence.go — QUI EST LISTE DANS LA SESSION, ET QUI COMMANDE QUEL CORPS, ET QUAND IL EST SUPPRIME, PAR LA FACADE.
 //
-// Les deux faits sont lus par la grammaire ([grammar.ScanRosterListings], le canal des etats de mouvement de
+// Les trois faits sont lus par la grammaire ([grammar.ScanRosterListings], le canal des etats de mouvement et les records de
 // la marche des trames) et persistent dans les faits du film ([replay.FilmFactsFile]).
 
 import (
@@ -51,4 +51,18 @@ func ScanUnitControls(fc *grammar.FilmContext) ([]UnitControlRead, UnitControlSt
 // scores : de qui est la ligne. Sans registre du film, la liste est vide et `Scanned` faux.
 func ScanStatborgEntries(fc *grammar.FilmContext) ([]StatborgEntry, StatborgEntryStats) {
 	return grammar.ScanStatborgEntries(fc)
+}
+
+// BipedDeletion : la suppression d un bipede, le record DEL de son slot dans les trames delta.
+type BipedDeletion = types.BipedDeletion
+
+// BipedDeletionStats : ce que la lecture des suppressions de bipede a rencontre ; `DeletionsUnproven` compte les
+// suppressions d un debut de liste non prouve, que le jeu n applique pas et que la lecture ne publie pas.
+type BipedDeletionStats = types.BipedDeletionStats
+
+// ScanBipedDeletions marche les trames du film du contexte `fc` et rend les suppressions de ses bipedes, dans
+// l ordre des instants. Memes conditions que [ScanUnitControls].
+func ScanBipedDeletions(fc *grammar.FilmContext) ([]BipedDeletion, BipedDeletionStats, error) {
+	m, err := grammar.ScanMarcheDesTramesAvec(fc, grammar.LecturesDeLaMarche{})
+	return m.BipedDeletions, m.BipedDeletionStats, err
 }

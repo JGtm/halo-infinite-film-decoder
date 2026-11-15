@@ -9,8 +9,8 @@ import (
 )
 
 // LecturesDePresence regroupe la lecture des plages de listage des humains dans la population de la
-// session (paquets de type 8) et celle du joueur aux commandes de chaque bipede (`unit-control`), avec leurs
-// denominateurs. Les statistiques voyagent avec la liste : une liste
+// session (paquets de type 8), celle du joueur aux commandes de chaque bipede (`unit-control`) et celle de la
+// suppression de chaque bipede, avec leurs denominateurs. Les statistiques voyagent avec la liste : une liste
 // vide sans elles ne distingue pas un film sans arrivee ni depart d un film dont la lecture n a pas eu
 // lieu (`Scanned` faux).
 type LecturesDePresence struct {
@@ -18,6 +18,9 @@ type LecturesDePresence struct {
 	ListingStats types.RosterListingStats
 	Controls     []types.UnitControlRead
 	ControlStats types.UnitControlStats
+	// Deletions / DeletionStats : les suppressions de bipede (records DEL) et leurs denominateurs.
+	Deletions     []types.BipedDeletion
+	DeletionStats types.BipedDeletionStats
 }
 
 // listagesParXUID range les plages de listage par xuid en decimal, la forme de [RosterEntry.XUID], dans

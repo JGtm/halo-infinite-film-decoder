@@ -355,6 +355,9 @@ type TrackCoverage struct {
 	HorsEmprise               int `json:"horsEmprise"`
 	SlotsArmes                int `json:"slotsArmes"`
 	SlotsDesarmes             int `json:"slotsDesarmes"`
+	// LifeEnds dit comment les pistes publiees finissent, lu dans le film (schema 123, tracks_fin_par_commande.go). Absent
+	// quand la lecture du joueur aux commandes n a pas eu lieu.
+	LifeEnds *LifeEndCoverage `json:"lifeEnds,omitempty"`
 }
 
 // logTrackCoverage journalise ce que la publication des traces a refusé et ce que le film a tu.
