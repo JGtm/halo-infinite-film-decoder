@@ -254,3 +254,10 @@ package grammar
 // scripts du film : le message ne nomme aucune reponse. CE QUI NE CHANGE PAS : le fil des couples ([lecture.VueA.Fil]), les kills, les
 // charges lues ; la lecture de la vue A s'arrete aux memes messages. Les rejeux et les faits cuits avant se refusent sur cette revision :
 // la recuisson est une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-15.2` (2026-11-15, de qui est chaque ligne du tableau des scores). LE DECODAGE GAGNE UNE LECTURE, et aucune n'en
+// change. Les images-cles portent, pour chaque entite du tableau des scores, son entree (composant 57 de l'archetype 6 : l'identifiant
+// moteur du joueur ou le numero de l'equipe, genre sur huit bits) : [ScanStatborgEntries], un canal de la phase des images-cles qui
+// lit les quarante bits du composant que la marche a traverse. Un genre inconnu est une entite vacante, comptee. Sur 000d5950, huit
+// lignes de joueur (identifiants 0 a 7, ceux des plages de type 8) et deux d'equipe. Les rejeux et les faits cuits avant se refusent sur
+// cette revision : la recuisson est une decision de l'utilisateur.

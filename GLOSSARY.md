@@ -100,6 +100,7 @@ the term is visible. [`FORMAT.md`](FORMAT.md) explains the format these terms de
 | NEW de tête | leading NEW records | NEW records at the head of an event list, found by chaining to locate the start of view B. | no equivalent | `internal/grammar/debut_de_liste.go` |
 | bande de slots bipèdes | biped slot band | The range of slots that keyframes give to bipeds (players' bodies). | entity index ranges 512-767 (approx.) | `internal/grammar/offline_biped_band.go` |
 | statborg | statborg | The game entity (archetype 6) that holds a player's or team's score counters. This decoder has no parser for it and finds its records by anchoring, for every seat the datum table declares. | statborg component names | `internal/grammar/signaux/statborg_film.go` |
+| entrée du tableau des scores | statborg entry | The component 57 of a statborg entity: whose row it is (a player's engine id or a team number), read at the keyframes. | `Statborg ENTRY_ROW` (`gamestate.rs`) | `internal/grammar/statborg_entries.go` |
 | xuid | XUID | The 64-bit Xbox user id of a player. | xuid | `internal/grammar/player_table.go` |
 | vie (LifeKey) | life | One existence of a player's body, identified by (slot, generation). | life | `types/grammar_equipement.go` |
 | pont d'identité | identity bridge | The single stage of six readings (teleports, positions, biped creations, death feed, index table, clock) that links bodies and slots to players. | roster and holders (approx.) | `internal/grammar/pont_identite.go` |

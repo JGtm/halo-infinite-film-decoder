@@ -179,14 +179,14 @@ func TestSeuilGardeHorsModeAColline(t *testing.T) {
 	recs := modeRamp(6, 0, 2_000, 1_000, 1, 2, 3)
 	recs = append(recs, types.StatRecord{TimeMS: 2_500, Slot: 10, Comps: map[int]types.StatValue{23: {A: 1}}})
 	fb := fallback.NouveauCompteur()
-	tl, _, lu := assembleScoreTimeline(&ScoreInput{Records: recs, HoldTicksPerPointTable: 35}, nil, testClock(), fb)
+	tl, _, lu := assembleScoreTimeline(&ScoreInput{Records: recs, HoldTicksPerPointTable: 35}, nil, nil, testClock(), fb)
 	if tl == nil || tl.HoldTicks != nil || tl.HoldTicksPerPoint != nil || lu != nil {
 		t.Errorf("hors mode a colline : aucune garde attendue, obtenu %+v / %+v", tl, lu)
 	}
 	if fb.Compte(fallback.NomSeuilGardeTableDeVariante) != 0 {
 		t.Error("hors mode a colline : la table ne doit pas servir de repli")
 	}
-	if _, _, lu = assembleScoreTimeline(&ScoreInput{Records: recs, HillScoring: true}, nil, testClock(), nil); lu == nil {
+	if _, _, lu = assembleScoreTimeline(&ScoreInput{Records: recs, HillScoring: true}, nil, nil, testClock(), nil); lu == nil {
 		t.Error("mode a colline : la lecture du seuil doit etre rendue pour le journal")
 	}
 }

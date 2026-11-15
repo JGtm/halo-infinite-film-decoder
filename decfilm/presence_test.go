@@ -34,3 +34,17 @@ func TestScanUnitControlsSansRegistreRendUneErreur(t *testing.T) {
 		t.Fatalf("lecture sans registre : %v, %d lectures, %+v", err, len(reads), stats)
 	}
 }
+
+// TestScanStatborgEntriesSansRegistreNeLitRien : une bobine sans `chunk_00` n'a pas de registre, donc pas d'archetype du
+// tableau des scores : la facade ne rend aucune entree et le dit (`Scanned` faux).
+// MUTATIONS — une entree rendue sans registre, `Scanned` vrai : ROUGES.
+func TestScanStatborgEntriesSansRegistreNeLitRien(t *testing.T) {
+	film, err := decfilm.LoadDir("../replay/testdata/minifilm_000d5950", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entries, stats := decfilm.ScanStatborgEntries(decfilm.NewFilmContext(film))
+	if stats.Scanned || len(entries) != 0 {
+		t.Fatalf("lecture sans registre : %+v, %d entrees", stats, len(entries))
+	}
+}

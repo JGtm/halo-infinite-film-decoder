@@ -67,6 +67,11 @@ type StatComponent struct {
 	//
 	// Les borner effacerait des courbes vraies. D'ou l'opt-in explicite plutot qu'un filtre
 	// pose sur toutes les series : le domaine de validite de la borne est SA calibration.
+	//
+	// LES COMPTEURS NOMMES DU TABLEAU DES SCORES ([ScoreboardStats] : suicides, trahisons, tirs a la
+	// tete, corps a corps, grenades, armes lourdes, reapparitions) LA PRENNENT AUSSI : chacune de leurs
+	// unites est un evenement du joueur, et sans elle une manche fantome (valeur 32 des enregistrements
+	// fortuits) y publierait 32 evenements.
 	Unitary bool
 	// HoldOnClear dit que le compteur est lu avec les deux regles des compteurs nommes du tableau
 	// des scores ([ScoreboardStats]) : une emission qui porte une valeur negative, sur l'un de ses
@@ -76,6 +81,11 @@ type StatComponent struct {
 	// du vidage, la suite d'un point etant departagee en faveur de la derniere emission
 	// ([longestRun]).
 	HoldOnClear bool
+	// DropClears dit seulement la seconde regle de [StatComponent.HoldOnClear] : un retour a zero
+	// apres une valeur positive, dans une meme manche, est le vidage de la ligne d'un joueur qui
+	// part et il est ecarte. Pour un compteur de base, dont les emissions a valeur negative sont
+	// des valeurs (le composant 3 en porte).
+	DropClears bool
 	// Joint dit, en plus, que les DEUX valeurs du composant ne decroissent jamais : une emission
 	// dont l'une recule est mal alignee, et la suite retenue est la plus longue qui les tient
 	// toutes deux ([jointRun]). Faux quand la valeur A du composant n'est pas un compteur.

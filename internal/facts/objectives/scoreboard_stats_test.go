@@ -131,3 +131,74 @@ func TestScoreboardStatsNeSeChevauchentPas(t *testing.T) {
 		}
 	}
 }
+
+// TestDropClearsEcarteLeVidageDUnCompteurDeBase : un compteur de base dont la ligne est videe apres sa derniere valeur finit sur
+// cette valeur quand l'emplacement ecarte les vidages, et sur zero sinon ; le vidage ecarte est note comme repli.
+func TestDropClearsEcarteLeVidageDUnCompteurDeBase(t *testing.T) {
+	recs := []types.StatRecord{
+		{TimeMS: 1_000, Slot: 10, Comps: map[int]types.StatValue{2: {A: 0, B: 1}}},
+		{TimeMS: 2_000, Slot: 10, Comps: map[int]types.StatValue{2: {A: 0, B: 0}}},
+	}
+	cons := &ReplisALaConsultation{}
+	garde := SeriesTotal(recs, DeathsComponent().ClearsDropped(), false, cons)[10]
+	if len(garde) != 1 || garde[0].Value != 1 {
+		t.Errorf("morts avec la regle = %+v, attendu 1", garde)
+	}
+	if got := cons.ComptesDesReplis().EmissionsHorsDomaineJetees; got != 1 {
+		t.Errorf("%d emission(s) jetee(s) notee(s), attendu 1", got)
+	}
+	sans := SeriesTotal(recs, DeathsComponent(), false, nil)[10]
+	if len(sans) == 0 || sans[len(sans)-1].Value != 0 {
+		t.Errorf("morts sans la regle = %+v, attendu un vidage final a 0", sans)
+	}
+}
+
+// Des enregistrements fortuits dont le canal des frags est negatif portent un canal des morts valide en apparence (16 pour 7 reelles) :
+// l'emission entiere est mal alignee, et la serie des morts ne doit pas etre prolongee par elle. La regle ne vaut que pour les compteurs
+// lus avec [StatComponent.ClearsDropped] : la serie brute des evenements garde son domaine.
+func TestUnCanalNegatifEcarteLEmissionDesCompteursDeBase(t *testing.T) {
+	recs := []types.StatRecord{
+		{TimeMS: 100_000, Slot: 10, Comps: map[int]types.StatValue{2: {A: 3, B: 1}}},
+		{TimeMS: 516_178, Slot: 10, Comps: map[int]types.StatValue{2: {A: 5, B: 7}}},
+		{TimeMS: 526_885, Slot: 10, Comps: map[int]types.StatValue{2: {A: -31744, B: 16}}},
+		{TimeMS: 557_751, Slot: 10, Comps: map[int]types.StatValue{2: {A: -31744, B: 16}}},
+	}
+	cons := &ReplisALaConsultation{}
+	morts := SeriesTotal(recs, DeathsComponent().ClearsDropped(), false, cons)[10]
+	if len(morts) == 0 || morts[len(morts)-1].Value != 7 {
+		t.Errorf("morts = %+v, attendu une serie qui finit a 7", morts)
+	}
+	if got := cons.ComptesDesReplis().EmissionsHorsDomaineJetees; got != 2 {
+		t.Errorf("%d emission(s) jetee(s) notee(s), attendu 2", got)
+	}
+	frags := SeriesTotal(recs, KillsComponent().ClearsDropped(), false, nil)[10]
+	if len(frags) == 0 || frags[len(frags)-1].Value != 5 {
+		t.Errorf("frags = %+v, attendu une serie qui finit a 5", frags)
+	}
+}
+
+// Sans la regle du tableau des scores, la serie brute des morts garde son domaine : le pont d'identite, le drapeau et le crane lisent
+// les memes emplacements et leurs sorties ne bougent pas.
+func TestUnCanalNegatifNeChangePasLaSerieBrute(t *testing.T) {
+	recs := []types.StatRecord{
+		{TimeMS: 516_178, Slot: 10, Comps: map[int]types.StatValue{2: {A: 5, B: 7}}},
+		{TimeMS: 526_885, Slot: 10, Comps: map[int]types.StatValue{2: {A: -31744, B: 16}}},
+	}
+	morts := SeriesTotal(recs, DeathsComponent(), false, nil)[10]
+	if len(morts) == 0 || morts[len(morts)-1].Value != 16 {
+		t.Errorf("serie brute des morts = %+v, attendu 16 (domaine inchange)", morts)
+	}
+}
+
+// Le canal B du composant des assistances est un signe legitime (negatif avec chaque assistance) : l'ecarter perdrait les assistances.
+func TestLeCanalNegatifDesAssistancesNEstPasEcarte(t *testing.T) {
+	recs := []types.StatRecord{
+		{TimeMS: 83_153, Slot: 10, Comps: map[int]types.StatValue{3: {A: 1, B: 33}}},
+		{TimeMS: 233_006, Slot: 10, Comps: map[int]types.StatValue{3: {A: 3, B: -100}}},
+		{TimeMS: 440_685, Slot: 10, Comps: map[int]types.StatValue{3: {A: 5, B: -533}}},
+	}
+	assists := SeriesTotal(recs, AssistsComponent().ClearsDropped(), false, nil)[10]
+	if len(assists) == 0 || assists[len(assists)-1].Value != 5 {
+		t.Errorf("assistances = %+v, attendu une serie qui finit a 5", assists)
+	}
+}

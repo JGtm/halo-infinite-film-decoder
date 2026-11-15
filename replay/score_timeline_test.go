@@ -31,7 +31,7 @@ func testClock() scoreClock {
 // hill_hold_threshold_test.go).
 func buildScoreTimeline(in *ScoreInput, deaths []types.Death, c scoreClock,
 	fb *fallback.Compteur) (*ScoreTimeline, *ScoreCoverage) {
-	tl, cov, _ := assembleScoreTimeline(in, deaths, c, fb)
+	tl, cov, _ := assembleScoreTimeline(in, deaths, nil, c, fb)
 	return tl, cov
 }
 

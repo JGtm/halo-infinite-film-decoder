@@ -479,3 +479,7 @@ package killsource
 //
 // A REVISION CONSTANTE (messages de jeu et scripts lus par la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte
 // (`grammar-2026-11-15`) ; le fil des couples et les kills que ce paquet en tire ne changent pas. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (entrees du tableau des scores lues aux images-cles, 2026-11-15) : la VALEUR de `grammar.Rev` monte
+// (`grammar-2026-11-15.2`) ; la lecture neuve n'alimente que les objectifs et le fil des kills de ce paquet n'en depend pas. Golden
+// regenere a revision constante.

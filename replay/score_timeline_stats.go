@@ -7,7 +7,7 @@ import (
 
 // score_timeline_stats.go — LES COMPTEURS NOMMES DU TABLEAU DES SCORES, PAR JOUEUR : la table
 // `objectives.ScoreboardStats` posee sur la grille de frames, par slot, a la suite des quatre compteurs
-// de base de `PlayerScore`. Un film a plusieurs manches n'en publie aucun ([buildPlayerScores]).
+// de base de `PlayerScore`. Un film a plusieurs manches que le pont des slots nomme n'en publie aucun ([buildPlayerScores]).
 
 // namedStatSet porte les series d'un compteur nomme pour tous les slots de joueur.
 type namedStatSet struct {
@@ -49,14 +49,23 @@ func (n namedStatSets) at(slot int, c scoreClock) map[string]ScoreSeries {
 	return out
 }
 
-// xuidsWithNamedStats rend les joueurs dont l'identite par manche nomme au moins un segment d'un
-// compteur nomme : ceux que la regle des films a plusieurs manches prive de `stats`.
-func xuidsWithNamedStats(recs []types.StatRecord, round objectives.RoundIdentity,
-	cons *objectives.ReplisALaConsultation) map[string]bool {
-	out := map[string]bool{}
+// namedStatsByXUID rend, par xuid, les compteurs nommes que `owner` nomme manche par manche, par nom ; un maximum ne
+// porte que ses courbes par manche.
+func namedStatsByXUID(recs []types.StatRecord, owner slotOwner, c scoreClock) map[string]map[string]ScoreSeries {
+	out := map[string]map[string]ScoreSeries{}
 	for _, st := range objectives.ScoreboardStats() {
-		for xuid := range playerRoundsByXUID(recs, st.Component, round, cons) {
-			out[xuid] = true
+		for xuid, byRound := range playerRoundsByXUID(recs, st.Component, owner, c.cons, !st.Peak) {
+			series := ScoreSeries{Rounds: scoreRoundsOf(byRound, c)}
+			if !st.Peak {
+				series = seriesOfRounds(byRound, c)
+			}
+			if series.empty() {
+				continue
+			}
+			if out[xuid] == nil {
+				out[xuid] = map[string]ScoreSeries{}
+			}
+			out[xuid][st.Name] = series
 		}
 	}
 	return out

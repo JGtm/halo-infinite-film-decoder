@@ -4264,3 +4264,46 @@ package replay
 //
 // LE PARC         un artefact 120 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une
 //                 decision de l utilisateur.
+
+// v122 (2026-11-15, le joueur d'une ligne du tableau des scores se lit). Le tableau des scores d'un film se nommait par le pont
+// d'identite des slots (instants de mort, triplet des compteurs, completion par les lignes du match) ; un film a plusieurs manches,
+// ou le slot d'une ligne change de joueur d'une manche a l'autre, s'y nommait mal, et ses compteurs nommes n'y etaient pas publies.
+// Chaque entite du tableau porte desormais sa propre entree (composant 57 de l'archetype du tableau : l'identifiant moteur du joueur,
+// lu aux images-cles) et les paquets de type 8 listent, sous cet identifiant, le joueur qui le tient et pendant quelles plages : le
+// joueur d'un enregistrement est celui que les plages listent sous l'identifiant de son entite a son instant. Aucune proximite de temps,
+// aucun appariement de compteurs, aucune completion par les lignes du match, la meme association pour toutes les manches.
+//
+//	`scoreTimeline.players[]`   nomme par cette lecture des que les entrees et les plages sont lues ; `stats` se publie alors sur tous les
+//	                 films, a plusieurs manches comprises. Sans entrees lues (registre ou plages absents), le pont d'identite des slots reste
+//	                 la voie et les films a plusieurs manches y gardent `stats` absent (`coverage.score.statsWithheld`).
+//	`stats.headshots`, `meleeKills`, `grenadeKills`, `powerWeaponKills`   lus avec la borne par pas des compteurs unitaires : une
+//	                 emission qui porte un saut (valeur 32 des enregistrements fortuits d'une manche fantome) est ecartee.
+//	`Unitary` des compteurs nommes   les sept compteurs nommes du tableau (suicides, trahisons, tirs a la tete, corps a corps, grenades,
+//	                 armes lourdes, reapparitions) se lisent tous avec la borne par pas des compteurs unitaires, sans condition : CORRECTION
+//	                 VOULUE (la manche fantome a 32), pas un effet de bord ; le commentaire de `StatComponent.Unitary` le dit.
+//	canaux negatifs   sur le composant des frags et des morts du tableau des scores (pas celui des assistances, dont le canal B est legitimement negatif), un enregistrement dont un canal est negatif est jete (`withoutNegativeChannels` ; les series brutes gardent leur domaine) (b1b62f38 : frags
+//	                 -31744 et morts 16 apres la derniere vraie mort, 7, prolongeaient la serie : 16 morts publiees pour 7 a l'API).
+//	`stats` des compteurs de base   une ligne videe au depart d'un joueur ne retire pas sa derniere valeur : le zero qui suit une valeur
+//	                 positive d'un compteur de base (frags, morts, assistances, score personnel) est ecarte (`StatComponent.DropClears`) ;
+//	                 chaque emission ecartee est comptee. Sans cela, un joueur nomme pour la premiere fois par une ligne deja videe
+//	                 perdait sa derniere mort.
+//	`coverage.score.roundsUnplayed`   neuf ; les numeros de manche que les issues de manche (composant 56, lu aux images-cles) ne
+//	                 comptent pas parmi les manches jouees. Un enregistrement de ces manches (enregistrement a un seul composant, valeur 32
+//	                 fortuite, porteur d'un designateur de manche valide) ne fait plus un tour du tableau : une manche est jouee quand elle est
+//	                 au plus la derniere decidee, plus la manche en cours. L'horloge de manche ne tranche pas (18 films sur 51 a plusieurs
+//	                 manches ont une horloge muette, comme les films fantomes) ; le decompte des issues, oui.
+//
+// LA MESURE (films a plusieurs manches du parc qui ont des lignes API : 59 films ; 158 films de plus de huit sieges ; 279 films d'un
+// echantillon a une manche). Accord de la valeur finale avec `match_participants`, avant (pont d'identite) puis apres : plusieurs manches,
+// frags 85 % -> 99,6 %, morts 80 % -> 99,6 %, assistances 88 % -> 99,2 %, score personnel 82 % -> 99,2 % ; plus de huit sieges, frags
+// 99,2 % -> 100 %, morts 99,5 % -> 100 % (3 267 couples contre 2 783), assistances 96,5 % -> 99,9 %, score personnel 97,4 % -> 98,4 % ;
+// une manche, frags 99,7 % -> 100 %, morts 99,6 % -> 100 %, assistances 97,4 % -> 99,9 %, score personnel 99,2 % -> 99,8 %. Compteurs
+// nommes, plusieurs manches : tirs a la tete 99,2 %, corps a corps 99,6 %, grenades 99,6 %, armes lourdes 100 %. L'ecart de score
+// personnel des films a plus de huit sieges tient aux decrements (autodestruction, trahison) que le tableau ne publie pas.
+//
+// CE QUI MONTE    `SchemaVersion` 121 -> 122. `grammar.Rev` -> `grammar-2026-11-15.2` et `SchemaDesFaits` 26 -> 27 : les faits portent
+// AVEC ELLE       les entrees des entites du tableau des scores et le masque des manches decidees (`DecidedRounds`). `objectives.Rev` ->
+//                 `objectives-2026-11-15`.
+//
+// LE PARC         un artefact 121 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision
+//                 de l'utilisateur.

@@ -183,7 +183,7 @@ func scoreRoundsOf(byRound map[int][]types.ScorePoint, c scoreClock) []ScoreRoun
 // Rend (nil, nil, nil) quand l'appelant n'a rien fourni : un artefact construit sans acces aux
 // enregistrements du film ne porte AUCUNE couverture de score, ce qui le distingue d'un film
 // dont la lecture n'a rien donne (couverture presente, courbes vides).
-func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, c scoreClock,
+func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, entries *objectives.EntryResolver, c scoreClock,
 	fb *fallback.Compteur) (*ScoreTimeline, *ScoreCoverage, *holdThresholdReading) {
 	if in == nil {
 		return nil, nil, nil
@@ -201,7 +201,7 @@ func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, c scoreClock,
 	slots := teamSlotsOf(teamScore, teamFrags)
 	teamID, method := resolveTeamIdentity(in, slots, teamScore, teamFrags, playerFrags, identity)
 
-	players, withheld := buildPlayerScores(recs, identity, in.Lines, deaths, c)
+	players, withheld := buildPlayerScoresOf(recs, identity, in.Lines, deaths, entries, c)
 	tl := &ScoreTimeline{
 		Teams:   buildTeamScores(slots, teamScore, teamID, c),
 		Players: players,

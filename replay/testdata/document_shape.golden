@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 121
-empreinte-stockee ac814dfc9975c997
-empreinte-servie ac814dfc9975c997
-empreinte-cuite aabb8d1893823650
+schema 122
+empreinte-stockee e88c654d147414fa
+empreinte-servie e88c654d147414fa
+empreinte-cuite e217625e550ad077
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -1053,6 +1053,7 @@ ScoreCoverage
   RoundsContradicted json:"roundsContradicted,omitempty" []int
   RoundsContradictedRecords json:"roundsContradictedRecords,omitempty" int
   RoundsDecreed json:"roundsDecreed,omitempty" bool
+  RoundsUnplayed json:"roundsUnplayed,omitempty" []int
   RoundsWritten json:"roundsWritten,omitempty" []int
   StatsWithheld json:"statsWithheld,omitempty" int
   TeamIdentity json:"teamIdentity" string

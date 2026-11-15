@@ -258,7 +258,8 @@ const VersionCodecFaits = 2
 // L EN-TETE qui doit le dire. `grammar.Rev` (`grammar-2026-11-12.4`) et `profile.Rev` montent avec ce numero, comme aux schemas 11 et 15.
 // SCHEMAS 24 ET 25 : la section 1 porte les plages de listage (type 8), les lectures d `unit-control`, les horloges et les comptes a rebours ; la section 2 les regles de la variante ; `grammar.Rev` et `profile.Rev` montent.
 // SCHEMA 26 : le complement de la section 1 porte aussi les messages de jeu et les noms de script du chunk 0 (`FilmInputs.GameEvents`, `Scripts`) ; `grammar.Rev` monte.
-const SchemaDesFaits = 26
+// SCHEMA 27 : le complement de la section 1 porte aussi les entrees des entites du tableau des scores (de qui est chaque ligne) ; `grammar.Rev` monte.
+const SchemaDesFaits = 27
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.
@@ -468,7 +469,7 @@ func lireSectionJSON(charge []byte, cible any, libelle string) error {
 //	d inventaire      liste en tranche VIDE, or `Inventory == nil` est une garde de calque
 //	poussees          les poussees d equipement et leurs denominateurs (schema des faits 12)
 //	equipement porte  les lectures des objets portes et leurs denominateurs (schema des faits 13)
-//	medailles         le temoin de lecture et les medailles ; presence : plages de listage et `unit-control` (schema 24)
+//	medailles         le temoin de lecture et les medailles ; presence : plages de listage et `unit-control` (schema 24) ; entrees du tableau des scores et masque des manches decidees (schema 27)
 //	verdict           le verdict du fil des morts (lot M8), EN DERNIER
 func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodeGardesDeMode(w, g.FilmInputs)
@@ -477,8 +478,7 @@ func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodePoussees(w, g.Knockbacks, g.KnockbackStats)
 	encodeEquipementPorte(w, g.CarriedEquipment, g.CarriedEquipmentStats)
 	encodeMedailles(w, g.MedalsRead, g.Medals)
-	encodeListagesDeRoster(w, g.RosterListings, g.RosterListingStats)
-	encodeControlesDeBipede(w, g.UnitControls, g.UnitControlStats)
+	encodePresenceEtEntrees(w, g)
 	encodeJeu(w, g)
 	encodeVerdictDuFilDesMorts(w, g.DeathsFeed)
 }
@@ -492,8 +492,7 @@ func decodeComplementDesEntrees(r *greader, g *FilmFacts) {
 	g.Knockbacks, g.KnockbackStats = decodePoussees(r)
 	g.CarriedEquipment, g.CarriedEquipmentStats = decodeEquipementPorte(r)
 	g.MedalsRead, g.Medals = decodeMedailles(r)
-	g.RosterListings, g.RosterListingStats = decodeListagesDeRoster(r)
-	g.UnitControls, g.UnitControlStats = decodeControlesDeBipede(r)
+	decodePresenceEtEntrees(r, g)
 	decodeJeu(r, g)
 	g.DeathsFeed = decodeVerdictDuFilDesMorts(r)
 }

@@ -1535,8 +1535,13 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   de la vue A), posees sur le meme axe que le reste, et le verdict `complete`. Champs optionnels, mais la version monte pour la
 	//   raison des montees v3..v24 : un v120 ne porte aucune action, et ses faits se refusent (`SchemaDesFaits` 26, `grammar.Rev`) :
 	//   a redecoder. Detail : `document_chronicle.go`.
-	if SchemaVersion != 121 {
-		t.Fatalf("SchemaVersion = %d, attendu 121 : incrémenter exige une raison écrite ci-dessus "+
+	// - 122 (2026-11-15, le joueur d'une ligne du tableau des scores se lit) : chaque ligne du tableau se nomme par son entree
+	//   (composant 57) et les plages de listage ; `scoreTimeline.players[].stats` se publie sur tous les films, a plusieurs
+	//   manches comprises ; les issues de manche (composant 56) ecartent les manches non jouees (`coverage.score.roundsUnplayed`,
+	//   champ optionnel). Le contenu cuit change. `grammar.Rev` et `objectives.Rev` montent, `SchemaDesFaits`
+	//   26 -> 27 : un v121 se lit « à redécoder ». Detail : `document_chronicle.go`.
+	if SchemaVersion != 122 {
+		t.Fatalf("SchemaVersion = %d, attendu 122 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }
