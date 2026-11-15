@@ -219,6 +219,10 @@ type FilmInputs struct {
 	// d'un enregistrement du tableau a son instant ([objectives.EntryResolver]).
 	StatborgEntries    []types.StatborgEntry
 	StatborgEntryStats types.StatborgEntryStats
+	// BipedDeletions / BipedDeletionStats sont les suppressions de bipede (records DEL des trames delta), lues par la
+	// marche des trames dans les records qu elle range, avec leurs denominateurs.
+	BipedDeletions     []types.BipedDeletion
+	BipedDeletionStats types.BipedDeletionStats
 	// FilmClockOriginUS est l'horodatage moteur du PREMIER paquet du film. Zero = origine
 	// incalculable : le document sort sans origine.
 	FilmClockOriginUS uint64
@@ -287,7 +291,8 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.PlayerTeams, opt.TeamScan = in.PlayerTeams, in.TeamScan
 	opt.PlayerEntities = in.PlayerEntities
 	opt.Presences = LecturesDePresence{Listings: in.RosterListings, ListingStats: in.RosterListingStats,
-		Controls: in.UnitControls, ControlStats: in.UnitControlStats}
+		Controls: in.UnitControls, ControlStats: in.UnitControlStats,
+		Deletions: in.BipedDeletions, DeletionStats: in.BipedDeletionStats}
 	opt.StatborgEntries, opt.StatborgEntryStats = in.StatborgEntries, in.StatborgEntryStats
 	opt.FilmClockOriginUS = in.FilmClockOriginUS
 }

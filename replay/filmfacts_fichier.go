@@ -259,7 +259,8 @@ const VersionCodecFaits = 2
 // SCHEMAS 24 ET 25 : la section 1 porte les plages de listage (type 8), les lectures d `unit-control`, les horloges et les comptes a rebours ; la section 2 les regles de la variante ; `grammar.Rev` et `profile.Rev` montent.
 // SCHEMA 26 : le complement de la section 1 porte aussi les messages de jeu et les noms de script du chunk 0 (`FilmInputs.GameEvents`, `Scripts`) ; `grammar.Rev` monte.
 // SCHEMA 27 : le complement de la section 1 porte aussi les entrees des entites du tableau des scores (de qui est chaque ligne) ; `grammar.Rev` monte.
-const SchemaDesFaits = 27
+// SCHEMA 28 : le complement de la section 1 porte aussi les suppressions de bipede (`FilmInputs.BipedDeletions`, les records DEL des bipedes lus par la marche des trames) et leurs comptes ; `grammar.Rev` monte.
+const SchemaDesFaits = 28
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.
@@ -469,7 +470,7 @@ func lireSectionJSON(charge []byte, cible any, libelle string) error {
 //	d inventaire      liste en tranche VIDE, or `Inventory == nil` est une garde de calque
 //	poussees          les poussees d equipement et leurs denominateurs (schema des faits 12)
 //	equipement porte  les lectures des objets portes et leurs denominateurs (schema des faits 13)
-//	medailles         le temoin de lecture et les medailles ; presence : plages de listage et `unit-control` (schema 24) ; entrees du tableau des scores et masque des manches decidees (schema 27)
+//	medailles         le temoin de lecture et les medailles ; presence : plages de listage, `unit-control` (schema 24) et suppressions de bipede (schema 28) ; entrees du tableau des scores et masque des manches decidees (schema 27)
 //	verdict           le verdict du fil des morts (lot M8), EN DERNIER
 func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodeGardesDeMode(w, g.FilmInputs)

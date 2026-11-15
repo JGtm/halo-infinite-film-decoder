@@ -138,7 +138,7 @@ var couchesDesCalques = map[string]string{
 	"frameCount":          grammar.Rev, // build.go `ouvrir` <- `frameSpan` sur les positions
 	"durationMs":          grammar.Rev, // build.go `ouvrir` <- frameCount x pas de temps
 	"bounds":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- positions
-	"tracks":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- FilmInputs.Positions
+	"tracks":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- FilmInputs.Positions ; tracks_fin_par_commande.go <- FilmInputs.UnitControls + BipedDeletions (la fin du corps)
 	"originMs":            grammar.Rev, // build_pistes.go `resolveOriginMs` <- FilmInputs.FilmClockOriginUS + fil des morts
 	"t0FilmMs":            grammar.Rev, // build_pistes.go `DetectT0Film` <- pistes publiees
 	"shots":               grammar.Rev, // build_pistes.go + vehicle_shots.go <- FilmInputs.Fire

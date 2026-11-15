@@ -108,7 +108,7 @@ func declarationsDuBalayage(t *testing.T) map[string]*ast.FuncDecl {
 //
 // LE DECODEUR DES LECTURES DE ZONE (`decodeFilmZoneReads`) rend DEUX canaux observes — `zoneReads`
 // (trames delta) et `zoneKeyReads` (images-cles) — d un seul balayage de `ti=13`.
-var balayagesAPlusieursCanaux = map[string]int{"ScanMarcheDesTramesAvec": 6, "ScanPontDIdentite": 6,
+var balayagesAPlusieursCanaux = map[string]int{"ScanMarcheDesTramesAvec": 7, "ScanPontDIdentite": 6,
 	"decodeFilmZoneReads": 2, "ScanEtatsDesImagesCles": 2}
 
 // canauxDuBalayage rend le nombre d etapes observees qu un balayage alimente (1 par defaut).

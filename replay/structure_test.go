@@ -1540,8 +1540,11 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   manches comprises ; les issues de manche (composant 56) ecartent les manches non jouees (`coverage.score.roundsUnplayed`,
 	//   champ optionnel). Le contenu cuit change. `grammar.Rev` et `objectives.Rev` montent, `SchemaDesFaits`
 	//   26 -> 27 : un v121 se lit « à redécoder ». Detail : `document_chronicle.go`.
-	if SchemaVersion != 122 {
-		t.Fatalf("SchemaVersion = %d, attendu 122 : incrémenter exige une raison écrite ci-dessus "+
+	// - 123 (2026-11-15, fin de vie lue) : `tracks[].endReason` et `tracks[].releaseFrame` disent comment le corps de chaque vie finit, lu
+	//   dans le joueur aux commandes et la suppression du corps ; `coverage.tracks.lifeEnds` compte les cas. Champs optionnels, mais
+	//   la version monte pour la raison des montees v3..v24 : un v122 ne porte aucun des trois. `grammar.Rev` monte. Detail : `document_chronicle.go`.
+	if SchemaVersion != 123 {
+		t.Fatalf("SchemaVersion = %d, attendu 123 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

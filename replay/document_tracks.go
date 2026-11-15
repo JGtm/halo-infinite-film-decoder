@@ -165,4 +165,15 @@ type Track struct {
 	// n'existe : la vie est en cours et le client tient la dernière position.
 	StartFrame int `json:"startFrame,omitempty"`
 	EndFrame   int `json:"endFrame,omitempty"`
+	// EndReason (optionnel) dit comment le corps de cette vie a fini, tel que le film l ecrit (tracks_fin_par_commande.go) :
+	// "released", le joueur lache la commande du corps (`unit-control` sans joueur : une mort) ; "deleted", le corps est
+	// supprime encore commande (fin de manche, remise en place, depart) ou son slot est repris par un autre joueur.
+	// Absent quand aucune lecture ne le dit : le corps n a jamais ete lu aux commandes d un joueur, ou aucun evenement
+	// de fin ne se lit avant la vie suivante du slot (`coverage.tracks.lifeEnds` compte chaque cas). Le document ne
+	// juge pas cette fin : il ne la compare pas a `endFrame`.
+	EndReason string `json:"endReason,omitempty"`
+	// ReleaseFrame (optionnel) est la frame du lacher de commande, sur l axe de `startFrame` et `endFrame`, tel que le film
+	// l ecrit ; present pour "released" seulement. POINTEUR : une frame nulle ou negative est une lecture, et `omitempty`
+	// sur un entier la ferait passer pour une absence.
+	ReleaseFrame *int `json:"releaseFrame,omitempty"`
 }
