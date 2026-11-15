@@ -129,8 +129,8 @@ func renderFinsDeVie(doc ReplayDocument) string {
 		fmt.Fprintf(&sb, "%d\t%d\t%d\t%s\t%s\n", tr.Slot, tr.StartFrame, tr.EndFrame, raison, lacher)
 	}
 	if l := doc.Coverage.Tracks.LifeEnds; l != nil {
-		fmt.Fprintf(&sb, "# lifeEnds released=%d deleted=%d retaken=%d unread=%d open=%d deletionsUnproven=%d\n",
-			l.Released, l.Deleted, l.Retaken, l.Unread, l.Open, l.DeletionsUnproven)
+		fmt.Fprintf(&sb, "# lifeEnds released=%d deleted=%d retaken=%d unread=%d open=%d filmEnd=%d deletionsUnproven=%d\n",
+			l.Released, l.Deleted, l.Retaken, l.Unread, l.Open, l.FilmEnd, l.DeletionsUnproven)
 	}
 	return sb.String()
 }
@@ -169,14 +169,14 @@ func TestGoldenFinsDeVie(t *testing.T) {
 	}
 }
 
-// controlerLesComptesDeFinDeVie : les cinq comptes somment les pistes ; `deleted` et `released` portent la forme voulue.
+// controlerLesComptesDeFinDeVie : les six comptes somment les pistes ; `deleted` et `released` portent la forme voulue.
 func controlerLesComptesDeFinDeVie(t *testing.T, doc ReplayDocument) {
 	t.Helper()
 	l := doc.Coverage.Tracks.LifeEnds
 	if l == nil {
 		t.Fatal("coverage.tracks.lifeEnds absent alors que la commande est lue")
 	}
-	if somme := l.Released + l.Deleted + l.Retaken + l.Unread + l.Open; somme != len(doc.Tracks) {
+	if somme := l.Released + l.Deleted + l.Retaken + l.Unread + l.Open + l.FilmEnd; somme != len(doc.Tracks) {
 		t.Errorf("les comptes somment %d piste(s) pour %d publiee(s) : %+v", somme, len(doc.Tracks), *l)
 	}
 	var lachers, supprimes int

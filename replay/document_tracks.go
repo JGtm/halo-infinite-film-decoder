@@ -168,8 +168,9 @@ type Track struct {
 	// EndReason (optionnel) dit comment le corps de cette vie a fini, tel que le film l ecrit (tracks_fin_par_commande.go) :
 	// "released", le joueur lache la commande du corps (`unit-control` sans joueur : une mort) ; "deleted", le corps est
 	// supprime encore commande (fin de manche, remise en place, depart) ou son slot est repris par un autre joueur.
-	// Absent quand aucune lecture ne le dit : le corps n a jamais ete lu aux commandes d un joueur, ou aucun evenement
-	// de fin ne se lit avant la vie suivante du slot (`coverage.tracks.lifeEnds` compte chaque cas). Le document ne
+	// Absent quand aucune lecture ne le dit : le corps n a jamais ete lu aux commandes d un joueur, aucun evenement
+	// de fin ne se lit avant la vie suivante du slot, ou le corps finit a la frame de fin du film ou au-dela (le film cesse
+	// d ecrire : ce n est pas une fin de vie). `coverage.tracks.lifeEnds` compte chaque cas. Le document ne
 	// juge pas cette fin : il ne la compare pas a `endFrame`.
 	EndReason string `json:"endReason,omitempty"`
 	// ReleaseFrame (optionnel) est la frame du lacher de commande, sur l axe de `startFrame` et `endFrame`, tel que le film

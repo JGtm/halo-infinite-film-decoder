@@ -10,6 +10,7 @@ import (
 const (
 	pasDeLaGrille = 33_000
 	sansLacher    = -1000
+	framesDeTest  = 1000
 )
 
 func lectureDeCommande(slot uint32, frame, joueur int) types.UnitControlRead {
@@ -28,7 +29,7 @@ const origineDeLaGrille = 10 * pasDeLaGrille
 func finsDeTest(t *testing.T, tracks []Track, p LecturesDePresence) ([]finLue, LifeEndCoverage) {
 	t.Helper()
 	p.ControlStats.Scanned = true
-	return finsParCommande(tracks, p, origineDeLaGrille, pasDeLaGrille)
+	return finsParCommande(tracks, p, origineDeLaGrille, pasDeLaGrille, framesDeTest)
 }
 
 func TestFinsParCommande_Cas(t *testing.T) {
@@ -76,6 +77,22 @@ func TestFinsParCommande_Cas(t *testing.T) {
 		{"un corps ferme avant la piste n est pas celui de la piste", []Track{pisteDeTest(3, 300)},
 			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4), lectureDeCommande(3, 200, -1)}},
 			[]string{""}, []int{sansLacher}, LifeEndCoverage{Unread: 1}},
+		{"reprise a la frame meme ou s ouvre la piste suivante : elle ferme la premiere", []Track{pisteDeTest(3, 100), pisteDeTest(3, 300)},
+			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4), lectureDeCommande(3, 300, 7)}},
+			[]string{"deleted", ""}, []int{sansLacher, sansLacher}, LifeEndCoverage{Retaken: 1, Open: 1}},
+		{"lacher a la frame meme ou s ouvre la piste suivante", []Track{pisteDeTest(3, 100), pisteDeTest(3, 300)},
+			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4), lectureDeCommande(3, 300, -1)}},
+			[]string{"released", ""}, []int{300, sansLacher}, LifeEndCoverage{Released: 1, Unread: 1}},
+		{"lacher a la frame de fin du film : ni raison ni frame, compte a part", []Track{pisteDeTest(3, 100)},
+			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4), lectureDeCommande(3, framesDeTest, -1)}},
+			[]string{""}, []int{sansLacher}, LifeEndCoverage{FilmEnd: 1}},
+		{"suppression apres la fin du film : meme compte", []Track{pisteDeTest(3, 100)},
+			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4)},
+				Deletions: []types.BipedDeletion{suppressionDeTest(3, framesDeTest+5)}},
+			[]string{""}, []int{sansLacher}, LifeEndCoverage{FilmEnd: 1}},
+		{"lacher a la derniere frame de l axe : publie", []Track{pisteDeTest(3, 100)},
+			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4), lectureDeCommande(3, framesDeTest-1, -1)}},
+			[]string{"released"}, []int{framesDeTest - 1}, LifeEndCoverage{Released: 1}},
 		{"deux slots independants", []Track{pisteDeTest(3, 100), pisteDeTest(4, 100)},
 			LecturesDePresence{Controls: []types.UnitControlRead{lectureDeCommande(3, 100, 4), lectureDeCommande(3, 150, -1),
 				lectureDeCommande(4, 100, 5)}, DeletionStats: types.BipedDeletionStats{DeletionsUnproven: 2}},
@@ -101,6 +118,7 @@ func TestFinsParCommande_Cas(t *testing.T) {
 
 func TestPoserLesFinsParCommande_Pointeur(t *testing.T) {
 	a := &assemblage{origin: origineDeLaGrille, step: pasDeLaGrille}
+	a.doc.FrameCount = framesDeTest
 	a.doc.Tracks = []Track{pisteDeTest(3, -1)}
 	a.opt.Presences = LecturesDePresence{ControlStats: types.UnitControlStats{Scanned: true},
 		Controls: []types.UnitControlRead{lectureDeCommande(3, -1, 4), lectureDeCommande(3, 0, -1)}}
@@ -116,6 +134,7 @@ func TestPoserLesFinsParCommande_Pointeur(t *testing.T) {
 
 func TestPoserLesFinsParCommande_LectureAbsente(t *testing.T) {
 	a := &assemblage{origin: origineDeLaGrille, step: pasDeLaGrille}
+	a.doc.FrameCount = framesDeTest
 	a.doc.Tracks = []Track{pisteDeTest(3, 10)}
 	a.poserLesFinsParCommande()
 	if a.doc.Tracks[0].EndReason != "" || a.doc.Tracks[0].ReleaseFrame != nil || a.trackCov.LifeEnds != nil {

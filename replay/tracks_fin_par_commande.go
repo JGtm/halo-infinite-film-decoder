@@ -9,7 +9,7 @@ package replay
 // pas : il publie la fin lue ([Track.EndReason]) et la frame du lacher ([Track.ReleaseFrame]) telles que
 // le film les ecrit, sans les comparer a la fin de la piste.
 //
-// Methode reprise de libfilmshell (Dend, OpenSpartan, licence MIT, `src/owners.rs` et `src/motion.rs`) :
+// Methode reprise de libfilmshell (Dend, OpenSpartan, licence MIT, `src/owners.rs`, `src/motion.rs` et `src/lives.rs`) :
 // une vie finit par une mort quand son joueur lache la commande du corps, par la suppression du corps
 // quand une manche la termine.
 //
@@ -28,10 +28,14 @@ package replay
 // ouvre son corps neuf.
 //
 // UNE PISTE EST RAPPORTEE AU CORPS QUI LA PORTE : le dernier corps ouvert a la frame de son premier point,
-// s il n est pas deja ferme a cette frame. Son premier enregistrement `unit-control` borne ainsi la
-// naissance du corps, sans fenetre de temps. La fin du corps ne compte pour la piste que si elle tombe avant
-// l ouverture de la piste suivante du meme slot : un corps que deux pistes se partagent ne ferme que la
+// s il n est pas deja ferme a cette frame ou avant (une fin a la frame meme du premier point est celle de la piste qui precede). Son premier enregistrement `unit-control` borne ainsi la
+// naissance du corps, sans fenetre de temps. La fin du corps ne compte pour la piste que si elle tombe au plus tard
+// a l ouverture de la piste suivante du meme slot : un corps que deux pistes se partagent ne ferme que la
 // derniere.
+//
+// UNE FIN A L OUVERTURE DE LA PISTE SUIVANTE EST CELLE DE LA PISTE QUI LA PRECEDE : un corps repris, lache ou supprime a la frame meme ou le slot
+// ouvre sa piste suivante ferme la premiere. UNE FIN HORS DE L AXE N EST PAS UNE FIN DE VIE : un corps qui finit a la frame de fin du film ou
+// au-dela (le film cesse d ecrire, il lache ses vies) ne publie ni `endReason` ni `releaseFrame` ; il se compte ([LifeEndCoverage.FilmEnd]).
 
 import (
 	"cmp"
@@ -48,7 +52,7 @@ const (
 	EndReasonDeleted = "deleted"
 )
 
-// LifeEndCoverage dit comment les pistes publiees finissent, lu dans le film. Les cinq premiers comptes
+// LifeEndCoverage dit comment les pistes publiees finissent, lu dans le film. Les six premiers comptes
 // somment le nombre de pistes publiees.
 type LifeEndCoverage struct {
 	// Released : les pistes dont le joueur lache la commande du corps.
@@ -61,8 +65,11 @@ type LifeEndCoverage struct {
 	// Unread : les pistes dont aucune lecture ne met un joueur aux commandes du corps.
 	Unread int `json:"unread"`
 	// Open : les pistes dont un joueur commande le corps sans qu aucun evenement de fin ne se lise avant la
-	// piste suivante du slot (survivant, fin du film).
+	// piste suivante du slot (survivant).
 	Open int `json:"open"`
+	// FilmEnd : les pistes dont le corps finit a la frame de fin du film ou au-dela, hors de l axe du document : le film cesse
+	// d ecrire, ce n est pas une fin de vie, et aucun champ n est publie pour elles.
+	FilmEnd int `json:"filmEnd"`
 	// DeletionsUnproven : les suppressions d un bipede lues sur un debut de liste non prouve, que le jeu ne
 	// prend pas et que le document ne publie pas.
 	DeletionsUnproven int `json:"deletionsUnproven"`
@@ -105,7 +112,7 @@ type evenementDeCommande struct {
 
 // finsParCommande rapporte chaque piste de `tracks` au corps qui la porte et rend sa fin lue, dans l ordre des
 // pistes, avec les comptes de la couverture. `origin` et `step` sont ceux de la grille du document.
-func finsParCommande(tracks []Track, p LecturesDePresence, origin, step uint64) ([]finLue, LifeEndCoverage) {
+func finsParCommande(tracks []Track, p LecturesDePresence, origin, step uint64, frames int) ([]finLue, LifeEndCoverage) {
 	corps := corpsDeCommandeParSlot(p, origin, step)
 	cov := LifeEndCoverage{DeletionsUnproven: p.DeletionStats.DeletionsUnproven}
 	fins := make([]finLue, len(tracks))
@@ -120,7 +127,7 @@ func finsParCommande(tracks []Track, p LecturesDePresence, origin, step uint64) 
 			if k+1 < len(pistes) {
 				suivante = tracks[pistes[k+1]].StartFrame
 			}
-			fins[i] = finDeLaPiste(corps[slot], tracks[i].StartFrame, suivante, &cov)
+			fins[i] = finDeLaPiste(corps[slot], tracks[i].StartFrame, suivante, frames, &cov)
 		}
 	}
 	return fins, cov
@@ -128,7 +135,7 @@ func finsParCommande(tracks []Track, p LecturesDePresence, origin, step uint64) 
 
 // finDeLaPiste rend la fin de la piste qui s ouvre a la frame `debut` et que la piste suivante du slot
 // remplace a la frame `suivante`, et la compte.
-func finDeLaPiste(corps []corpsCommande, debut, suivante int, cov *LifeEndCoverage) finLue {
+func finDeLaPiste(corps []corpsCommande, debut, suivante, frames int, cov *LifeEndCoverage) finLue {
 	var c *corpsCommande
 	for i := range corps {
 		if corps[i].ouvert > debut {
@@ -136,12 +143,16 @@ func finDeLaPiste(corps []corpsCommande, debut, suivante int, cov *LifeEndCovera
 		}
 		c = &corps[i]
 	}
-	if c == nil || (c.nature != finAucune && c.fin < debut) {
+	if c == nil || (c.nature != finAucune && c.fin <= debut) {
 		cov.Unread++
 		return finLue{}
 	}
-	if c.nature == finAucune || c.fin >= suivante {
+	if c.nature == finAucune || c.fin > suivante {
 		cov.Open++
+		return finLue{}
+	}
+	if c.fin >= frames {
+		cov.FilmEnd++
 		return finLue{}
 	}
 	switch c.nature {
@@ -228,7 +239,7 @@ func (a *assemblage) poserLesFinsParCommande() {
 	if !p.ControlStats.Scanned {
 		return
 	}
-	fins, cov := finsParCommande(a.doc.Tracks, p, a.origin, a.step)
+	fins, cov := finsParCommande(a.doc.Tracks, p, a.origin, a.step, a.doc.FrameCount)
 	for i, f := range fins {
 		a.doc.Tracks[i].EndReason = f.raison
 		if f.raison == EndReasonReleased {

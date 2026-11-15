@@ -93,10 +93,10 @@
 602	14009	14349	released	14350
 603	14011	14420	released	14421
 604	14210	14808	released	14808
-605	14262	15066	released	15104
-606	14315	14987	released	15104
+605	14262	15066	-	-
+606	14315	14987	-	-
 608	14594	14947	released	14948
 607	14602	14930	released	14931
-609	14664	15103	released	15104
-610	14778	15103	released	15104
-# lifeEnds released=99 deleted=0 retaken=0 unread=0 open=0 deletionsUnproven=0
+609	14664	15103	-	-
+610	14778	15103	-	-
+# lifeEnds released=95 deleted=0 retaken=0 unread=0 open=0 filmEnd=4 deletionsUnproven=0

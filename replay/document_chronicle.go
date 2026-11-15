@@ -4320,9 +4320,11 @@ package replay
 //	                jamais lu aux commandes d un joueur, ou aucun evenement de fin ne se lit avant la vie suivante du slot).
 //	`tracks[].releaseFrame`   la frame du lacher de commande, sur l axe de `startFrame` et `endFrame`, pour "released" seulement ; pointeur : une
 //	                frame nulle ou negative est une lecture.
-//	`coverage.tracks.lifeEnds`   {released, deleted, retaken, unread, open, deletionsUnproven} : les cinq premiers sommes valent le nombre de
+//	`coverage.tracks.lifeEnds`   {released, deleted, retaken, unread, open, filmEnd, deletionsUnproven} : les six premiers sommes valent le nombre de
 //	                pistes publiees ; `retaken` compte, parmi les `deleted` du champ, ceux que la reprise du slot par un autre joueur ferme ;
 //	                `open` : un joueur commande le corps et aucun evenement de fin ne se lit avant la piste suivante du slot ;
+//                `filmEnd` : le corps finit a la frame de fin du film ou au-dela, hors de l axe : le film cesse d ecrire, ce n est pas une fin de vie, ni `endReason`
+//                ni `releaseFrame` ne sont publies pour la piste ;
 //	                `deletionsUnproven` : les suppressions lues sur un debut de liste que rien ne prouve, que le jeu ne prend pas. Absent quand la
 //	                lecture du joueur aux commandes n a pas eu lieu.
 //
@@ -4331,7 +4333,7 @@ package replay
 // instants, se rangent en corps : un corps s ouvre a la premiere lecture qui met un joueur aux commandes et se ferme au premier lacher, a la
 // premiere suppression du slot ou a la premiere lecture d un autre joueur ; a un meme instant la suppression precede les lectures. Une piste
 // est rapportee au dernier corps ouvert a la frame de son premier point ; la fin du corps ne compte que si elle tombe avant la piste suivante
-// du slot. Aucune fenetre de temps : le premier enregistrement `unit-control` du corps borne sa naissance.
+// du slot. Aucune fenetre de temps : le premier enregistrement `unit-control` du corps borne sa naissance. Une fin a la frame meme ou s ouvre la piste suivante du slot est celle de la piste qui precede.
 //
 // LA MESURE (99 films, 18 006 pistes publiees ; la lecture rejouee par une sonde hors depot). `released` 16 429, `deleted` 521 dont 7 par reprise du slot,
 // `unread` 906 (bots et anciens builds pour l essentiel), `open` 150, `deletionsUnproven` 96. Des 15 290 vies closes qu un frag revendique, 15 113 finissent par un

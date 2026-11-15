@@ -84,11 +84,11 @@ All five are identifiers, labels and points, not content of the game: no mesh, t
   this decoder does not read. The file keeps the credit header, the licence text sits next to it
   (`medalname/data/LICENSE-libfilmshell`) and the README names libfilmshell in its credits. The reading of the highlight
   events is this module's own code; no line of libfilmshell code is copied or translated.
-- **libfilmshell, a fifth time, for the end of a life** (same author and licence). The method of `src/owners.rs` and
-  `src/motion.rs` is taken: a life's biped is created with the player who controls it, the player gives it up when he
+- **libfilmshell, a fifth time, for the end of a life** (same author and licence). The method of `src/owners.rs`,
+  `src/motion.rs` and `src/lives.rs` is taken: a life's biped is created with the player who controls it, the player gives it up when he
   dies (a death) and the game deletes it still controlled when a round ends, so the two ends are read apart. The
   replay document publishes them as `tracks[].endReason` and `releaseFrame`, and does not judge which end is a death
-  (libfilmshell counts a release as a death only where its scoreboard counts one). The reading of the `unit-control`
+  (libfilmshell counts a release as a death only where its scoreboard counts one, `died_at` of `src/lives.rs`). The reading of the `unit-control`
   component and of the DEL records, and the body-by-body bookkeeping of the assembly (`replay/tracks_fin_par_commande.go`),
   are this module's own code; no line of libfilmshell code is copied or translated.
 
