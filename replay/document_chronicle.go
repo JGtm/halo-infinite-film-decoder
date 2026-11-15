@@ -4211,3 +4211,55 @@ package replay
 // AVEC ELLE       `profile-2026-11-14`, `SchemaDesFaits` 24 -> 25, `filmFactsMagic` 29 -> 30.
 //
 // LE PARC         un artefact 119 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision de l utilisateur.
+// v121 (2026-11-15, score par action). Le jeu envoie a chaque joueur une reponse de score personnel quand il agit (kill, assistance,
+// capture...) : un message de jeu (genre 82 de la vue A) que le film porte avec l instant de sa trame ; le document n en publiait rien.
+// Il publie desormais chaque reponse qui donne du score, au joueur qui la recoit, sur l axe de frames, sans aucun calcul de bareme : les
+// points sont ceux de la table des reponses de libfilmshell (`reponsesdejeu`, MIT, credit et licence livres avec elle ; l arbre entier de
+// chaque groupe : 4 804 rangs, dont 423 donnent du score).
+//
+//	`scoreActions[]`           {t, xuid, name, points, target} : la frame, le joueur qui recoit la reponse (xuid decimal), le nom de la reponse dans
+//	                le script du mode (`killPersonalScore`), ses points (negatifs pour une penalite) et, quand son libelle nomme un joueur (`%pe`
+//	                l ennemi tue, `%pa` le joueur trahi), le xuid de celui-ci. Triees par frame, xuid, nom, points, cible. Absent : messages non lus,
+//	                mode inconnu de la table, ou aucune reponse a points. Une reponse de score que le jeu paie zero n est pas publiee.
+//	`coverage.scoreActions`    {complete, group, groupMissing, frames, closedFrames, stoppedFrames, viewAUnreadable, messages, copies, scoreMessages,
+//	                unrelated, namedWithoutPoints, outsideTree, unconfirmedRank, scored, published, noRecipient, notPresent, noOrigin, beforeOrigin,
+//	                afterEnd, noTarget} : ce que le calque a lu, publie et ecarte ; absent quand la marche des trames n a pas lu les messages. Entree
+//	                `scoreActions` de `layers`, sous `grammar-...`, gardee sur cette lecture.
+//
+// LE MESSAGE NE NOMME RIEN. Il porte un rang (la position de sa reponse dans l arbre des evenements des scripts du mode) : le meme rang designe
+// une autre reponse dans un autre mode. Le groupe de scripts du film (les noms `*.lua` de son chunk 0, `grammar.ScanScriptsDuFilm`) fixe l arbre ;
+// la table dit, par groupe et par rang, le nom, le genre et les points. Une reponse a texte propre n est attribuee que si le mot texte du message
+// la confirme ou n existe pas ; un rang incertain exige la confirmation. Un film dont aucun groupe de la table n a les fichiers du film ne publie
+// rien (`groupMissing`). Un mode ecrit sans bareme (Assaut, mode personnalise) n a aucune reponse a points : ce n est pas un defaut.
+//
+// LES MESSAGES SANS POINTS, SEPARES (revue du 2026-11-15 : un seul compteur melangeait tout). `unrelated` : l arbre nomme la reponse et elle ne donne
+// pas de score (annonce, medaille, ligne du fil). `namedWithoutPoints` : reponse de score payee zero. `outsideTree` : rang hors de l arbre ; l arbre
+// ne liste que les evenements qui sont des reponses, donc la grande majorite des messages d un film (la moitie ou plus) y est hors, sans score. `unconfirmedRank` :
+// rang de l arbre que le message ne confirme pas.
+//
+// LE VERDICT `complete` : vrai seulement si aucune trame n est arretee, la vue A se lit, le groupe est connu, aucun rang n est non confirme et chaque action a
+// points est posee. La somme des points d un joueur ne vaut son score personnel que s il est vrai ; faux, le consommateur affiche « donnees insuffisantes »
+// (decision de l utilisateur). Il est necessaire et pas suffisant. MESURE SUR 193 FILMS (20 de l equivalence et 173 du parc, trois au plus par build et mode) :
+// 80 films complets, 831 joueurs, 765 sommes exactes (92 %) ; 72 films complets sur 80 sont exacts pour tous leurs joueurs. Les 8 autres : quatre Assaut
+// (Neutral Bomb, One Bomb : mode ecrit par ses auteurs sur les scripts du Slayer, dont la bombe paie hors de l arbre) et quatre BTB de HI_1_11_0, dont les
+// points de vehicules ne sont pas ceux de la table (e5adf7b2 : les detournements de Wraith, 25 points dans la table, 0 dans l API ; d autres ecarts de 25 a 100
+// points sur des vehicules detruits). Aucun film complet de HI_1_12_0 ni de HI_1_13_0, hors Assaut, n est inexact. Les 113 films non complets : 47 sans
+// groupe de la table, 11 a vue A illisible, 32 avec une trame arretee (dont 12 exacts pour tous leurs joueurs), 20 avec une action perdue (16 exacts),
+// 3 avec un rang non confirme. Une trame arretee ou une action perdue ne fait pas une somme fausse : le verdict est prudent, pas exact.
+//
+// LE DESTINATAIRE A L INSTANT. Le masque et le premier participant du texte sont des index de joueur du film. Un index se resout en xuid a la frame du
+// message : parmi les humains du roster qui le portent, celui dont la presence (`presence`) la couvre. Un humain parti garde son index dans `idx.ByXUID`
+// alors qu un bot declare au meme index est ecarte de `buildRoster` : un message d apres son depart ne lui revient pas, il est compte (`notPresent`).
+// Un index sans humain du roster (un bot, un siege non nomme) n a pas de xuid : `noRecipient`. La cible suit la meme regle (`noTarget`).
+//
+// LA MESURE DES SOMMES (193 films, par joueur, contre `match_participants.personal_score`). HI_1_12_0 et HI_1_13_0, groupe lu (120 films, 964 joueurs) :
+// 963 egaux. HI_1_9_0 a HI_1_11_0, groupe lu (23 films, 587 joueurs) : 228 egaux (BTB : messages perdus apres un tir sans bloc de visee, builds 38 et 39,
+// et points de vehicules). Assaut et PvE (11 films, 98 joueurs) : 20 egaux. Groupe absent ou vue A illisible (56 films, 1 307 joueurs) : 76 egaux. Les cles
+// de recompense (`personal_score_awards_latest`, joueurs suivis) : 550 sur 550 egales sur HI_1_12_0 et HI_1_13_0 (`carrierKilledPlayerResponse` est
+// `runner_stopped` en Oddball), 16 sur 16 sur HI_1_11_0, 2 sur 35 sur HI_1_9_0 et HI_1_10_0.
+//
+// CE QUI MONTE    `SchemaVersion` 120 -> 121. `grammar.Rev` -> `grammar-2026-11-15` (le canal des messages de jeu et la lecture des scripts), `SchemaDesFaits`
+// AVEC ELLE       25 -> 26 (le complement de la section 1 porte les messages, les comptes du canal et les scripts).
+//
+// LE PARC         un artefact 120 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une
+//                 decision de l utilisateur.

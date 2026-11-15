@@ -242,6 +242,42 @@ func classerLeMessage(groupe *reponsesdejeu.Groupe, e grammar.EvenementDeJeuLu, 
 	return reponsesdejeu.Reponse{}, false
 }
 
+// destinatairesDuMessage pose le message à points `e` chez chacun de ses destinataires et rend les actions posées.
+func destinatairesDuMessage(e grammar.EvenementDeJeuLu, r reponsesdejeu.Reponse, humains map[int][]RosterEntry, axe axeDeFrames,
+	cov *ScoreActionCoverage) []ScoreAction {
+	t, refus := frameDeLAction(e.TS, axe)
+	cible := ""
+	if refus == refusAucun && ciblePossible(r) {
+		cible = cibleDeLAction(e, humains, t, cov)
+	}
+	var out []ScoreAction
+	for i := 0; i < grammar.ParticipantsDuFil; i++ {
+		if e.Destinataires&(1<<uint(grammar.ParticipantsDuFil-1-i)) == 0 {
+			continue
+		}
+		cov.Scored++
+		xuid, res := "", destinataireResolu
+		if refus == refusAucun {
+			xuid, res = xuidALaFrame(humains, i, t)
+		}
+		switch {
+		case refus == refusSansOrigine:
+			cov.NoOrigin++
+		case refus == refusAvantOrigine:
+			cov.BeforeOrigin++
+		case refus == refusApresFin:
+			cov.AfterEnd++
+		case res == destinataireSansHumain || res == destinataireAmbigu:
+			cov.NoRecipient++
+		case res == destinataireAbsent:
+			cov.NotPresent++
+		default:
+			out = append(out, ScoreAction{T: t, XUID: xuid, Name: r.Nom, Points: r.Points, Target: cible})
+		}
+	}
+	return out
+}
+
 // buildScoreActions pose les réponses de score du film sur l'axe de frames. Les actions rendues sont triées
 // par frame, joueur, nom, points et cible.
 func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrames) ([]ScoreAction, ScoreActionCoverage) {
@@ -260,38 +296,8 @@ func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrame
 	humains := humainsParIndex(roster)
 	var out []ScoreAction
 	for _, e := range in.Events {
-		r, aPoints := classerLeMessage(groupe, e, &cov)
-		if !aPoints {
-			continue
-		}
-		t, refus := frameDeLAction(e.TS, axe)
-		cible := ""
-		if refus == refusAucun && ciblePossible(r) {
-			cible = cibleDeLAction(e, humains, t, &cov)
-		}
-		for i := 0; i < grammar.ParticipantsDuFil; i++ {
-			if e.Destinataires&(1<<uint(grammar.ParticipantsDuFil-1-i)) == 0 {
-				continue
-			}
-			cov.Scored++
-			xuid, res := "", destinataireResolu
-			if refus == refusAucun {
-				xuid, res = xuidALaFrame(humains, i, t)
-			}
-			switch {
-			case refus == refusSansOrigine:
-				cov.NoOrigin++
-			case refus == refusAvantOrigine:
-				cov.BeforeOrigin++
-			case refus == refusApresFin:
-				cov.AfterEnd++
-			case res == destinataireSansHumain || res == destinataireAmbigu:
-				cov.NoRecipient++
-			case res == destinataireAbsent:
-				cov.NotPresent++
-			default:
-				out = append(out, ScoreAction{T: t, XUID: xuid, Name: r.Nom, Points: r.Points, Target: cible})
-			}
+		if r, aPoints := classerLeMessage(groupe, e, &cov); aPoints {
+			out = append(out, destinatairesDuMessage(e, r, humains, axe, &cov)...)
 		}
 	}
 	cov.Published = len(out)

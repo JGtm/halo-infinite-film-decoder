@@ -1530,8 +1530,13 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   manche, les comptes a rebours de reapparition et les regles de la variante, avec `coverage.clocks`. Champs
 	//   optionnels, mais la version monte pour la raison des montees v3..v24 : un v119 ne porte aucun des trois.
 	//   `grammar.Rev` et `profile.Rev` montent : un v119 se lit « à redécoder ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 120 {
-		t.Fatalf("SchemaVersion = %d, attendu 120 : incrémenter exige une raison écrite ci-dessus "+
+	// - 121 (2026-11-15, score par action) : `scoreActions[]` (frame, joueur, nom de la reponse, points, cible) et
+	//   `coverage.scoreActions` portent les reponses de score personnel que le jeu envoie dans le film (messages de jeu, genre 82
+	//   de la vue A), posees sur le meme axe que le reste, et le verdict `complete`. Champs optionnels, mais la version monte pour la
+	//   raison des montees v3..v24 : un v120 ne porte aucune action, et ses faits se refusent (`SchemaDesFaits` 26, `grammar.Rev`) :
+	//   a redecoder. Detail : `document_chronicle.go`.
+	if SchemaVersion != 121 {
+		t.Fatalf("SchemaVersion = %d, attendu 121 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }
