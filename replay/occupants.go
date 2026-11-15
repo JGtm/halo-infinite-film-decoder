@@ -52,6 +52,7 @@ import (
 	"slices"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
 // intervalleDePresence est une presence en FRAMES, bornes incluses : `[de, a]` est certain,
@@ -80,6 +81,8 @@ type occupantDuRoster struct {
 	// a la frame pres (cf. [presencesDeclarees]) ; c'est ce qui fait d'une frame partagee un relais et
 	// de l'humain qui le remplace un successeur (sieges_places.go).
 	declaree bool
+	// listee : la presence d un humain vient des plages de listage des paquets de type 8, arrivee et depart exacts.
+	listee bool
 }
 
 // occupants est le resultat de la liaison : une entree par entree de roster, dans le meme ordre.
@@ -129,6 +132,11 @@ type entreesDesOccupants struct {
 	// xuid d'un humain, `bid(N.0)` d'un bot). Elle n'arbitre que la contradiction d'un bot entre son
 	// entite et sa declaration (cf. [occupants.arbitrerParLaBase]). Nil : aucun arbitrage.
 	base map[string]int
+	// listages : les plages de listage des humains (paquets de type 8), par xuid en decimal. Nil : aucune
+	// lecture, la presence d un humain vient de ses entites et de ses vies.
+	listages map[string][]types.RosterListing
+	// multiples : les xuids que le roster porte sous plusieurs index (renseigne par [lierLesOccupants]).
+	multiples map[string]bool
 }
 
 // lierLesOccupants lie chaque entree du roster a ses entites, et en tire son equipe et sa
@@ -136,6 +144,7 @@ type entreesDesOccupants struct {
 func lierLesOccupants(roster []RosterEntry, tracks []Track, in entreesDesOccupants) occupants {
 	out := occupants{parEntree: make([]occupantDuRoster, len(roster)), balaye: in.scan.Scanned,
 		horloge: in.horloge}
+	in.multiples = xuidsSousPlusieursIndex(roster)
 	vies := viesParIdentite(tracks)
 	portees := make(map[string]bool, len(roster))
 	for i := range roster {
@@ -158,6 +167,7 @@ func lierLesOccupants(roster []RosterEntry, tracks []Track, in entreesDesOccupan
 		out.parEntree[i].equipe = out.equipeDe(roster[i], i, in)
 		out.parEntree[i].presence, out.parEntree[i].lue = presenceDe(roster[i], out.parEntree[i], in)
 		out.parEntree[i].declaree = len(presencesDeclarees(roster[i], in)) > 0
+		out.parEntree[i].listee = len(presencesListees(roster[i], in)) > 0
 	}
 	return out
 }
@@ -231,7 +241,7 @@ func (o *occupants) lierLesEntites(roster []RosterEntry, in entreesDesOccupants)
 		if e.Bot {
 			continue
 		}
-		for _, k := range o.entitesDeLHumain(roster, i, in.scan, prisParUnBot) {
+		for _, k := range o.entitesDeLHumain(roster, i, in.scan, in.listages[e.XUID], prisParUnBot) {
 			revendications[k] = append(revendications[k], i)
 		}
 	}
@@ -251,6 +261,25 @@ func (o *occupants) lierLesEntites(roster []RosterEntry, in entreesDesOccupants)
 // LARGE contenant le debut d'une vie). Sans vie : l'unique entite encore libre de son index,
 // s'il est le seul humain a le porter.
 func (o *occupants) entitesDeLHumain(roster []RosterEntry, i int, scan grammar.PlayerEntityScan,
+	plages []types.RosterListing, prisParUnBot []bool) []int {
+	liees := o.entitesDeLHumainParLesVies(roster, i, scan, prisParUnBot)
+	if len(plages) == 0 || plages[0].Slot < 0 { // une lecture sans siege (format ancien) ne dit rien des index
+		return liees
+	}
+	// LE LISTAGE REFUSE L ENTITE QUE LE JOUEUR NE TENAIT PAS : une entite lue a la premiere image-cle d une plage ou
+	// l humain tient l index est la sienne ; celle d un occupant suivant du siege (un bot declare au siege qu il a
+	// quitte) ne lui est pas attribuee, meme quand l une de ses vies tombe dans la fenetre de l entite.
+	var out []int
+	for _, k := range liees {
+		if de, _ := fenetreStricteUS(scan, scan.Entities[k]); tenuPar(plages, roster[i].FilmIndex, de) {
+			out = append(out, k)
+		}
+	}
+	return out
+}
+
+// entitesDeLHumainParLesVies est la liaison par les vies, avant le filtre du listage (cf. [occupants.entitesDeLHumain]).
+func (o *occupants) entitesDeLHumainParLesVies(roster []RosterEntry, i int, scan grammar.PlayerEntityScan,
 	prisParUnBot []bool) []int {
 	idx := roster[i].FilmIndex
 	libres := []int{}

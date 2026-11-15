@@ -26,7 +26,10 @@ package replay
 // dans la couverture comme avant. Aucune table par film, aucun ordre d arrivee : la regle ne lit que
 // la table du film et les records de creation du meme film.
 
-import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+import (
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+	"github.com/JGtm/halo-infinite-film-decoder/types"
+)
 
 // rangAbsoluConfirmeParLesCreations dit si les records de creation confirment que le rang absolu des
 // sieges d une table LUE a vacant intercale est l index de participant (cf. l en-tete). Faux pour
@@ -61,5 +64,33 @@ func rangAbsoluConfirmeParLesCreations(t grammar.FilmPlayerTable, creations []gr
 // predicat de la composition ; les lecteurs du registre qui demandent « la table est-elle employee »
 // lisent `couverture.Read`, qu il pose.
 func tableDuFilmEmployee(in IdentityInput) bool {
-	return in.FilmTable.Lue() || rangAbsoluConfirmeParLesCreations(in.FilmTable, in.BipedCreations)
+	return in.FilmTable.Lue() || rangAbsoluConfirmeParLesCreations(in.FilmTable, in.BipedCreations) ||
+		rangAbsoluConfirmeParLesListages(in.FilmTable, in.Presences)
+}
+
+// TableDuFilmEmployee dit si le registre a employe la table du film : les sieges du debut que la pose des places
+// lit sont ceux de la table que les liens directs ont eux-memes employee.
+func (r IdentityRegistry) TableDuFilmEmployee() bool { return r.filmTable.couverture.Read }
+
+// rangAbsoluConfirmeParLesListages dit si les plages de listage confirment que le rang absolu des sieges d une
+// table LUE a vacant intercale est l index de participant : chaque occupe de la table est liste, des sa premiere
+// plage, sous le siege que son rang absolu lui donne. Les paquets de type 8 ecrivent le siege de chaque joueur :
+// c est la lecture directe de ce que les records de creation ne font que confirmer. Faux sans lecture valide.
+func rangAbsoluConfirmeParLesListages(t grammar.FilmPlayerTable, p LecturesDePresence) bool {
+	if t.Refusal != grammar.FilmTableRead || !t.InterleavedVacant || len(t.Seats) == 0 ||
+		!nouveauxSiegesListes(p).valide {
+		return false
+	}
+	premier := map[uint64]types.RosterListing{}
+	for _, l := range p.Listings {
+		if v, vu := premier[l.XUID]; !vu || l.FromUS < v.FromUS {
+			premier[l.XUID] = l
+		}
+	}
+	for _, s := range t.Seats {
+		if l, vu := premier[s.XUID]; !vu || l.Slot != s.FilmIndex {
+			return false
+		}
+	}
+	return true
 }

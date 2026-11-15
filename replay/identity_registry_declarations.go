@@ -64,16 +64,18 @@ type lectureParDeclaration struct {
 	bots    map[int][]BotIdentity
 	humains map[int]bool
 	scan    grammar.PlayerEntityScan
+	// sieges : les plages de listage ; valides, elles disent exactement si un humain tient l index (aucune entite a lire).
+	sieges siegesListes
 }
 
 // lireLesDeclarations construit la lecture : les index qu'au moins deux bots distincts declarent
 // ([bidsParIndex]), et ceux qu'un humain de la table tient et qu'au moins un bot declare. Un index
 // d'un seul bot sans humain n'y entre pas : l'index le nomme deja (tableau de l'API, siege).
 func lireLesDeclarations(bots []BotIdentity, idx types.PlayerIndexTable,
-	scan grammar.PlayerEntityScan) lectureParDeclaration {
+	scan grammar.PlayerEntityScan, sieges siegesListes) lectureParDeclaration {
 	_, partages := bidsParIndex(bots)
 	humains := indexToXUIDOf(idx.ByXUID)
-	m := lectureParDeclaration{bots: map[int][]BotIdentity{}, humains: map[int]bool{}, scan: scan}
+	m := lectureParDeclaration{bots: map[int][]BotIdentity{}, humains: map[int]bool{}, scan: scan, sieges: sieges}
 	for _, b := range bots {
 		_, tenu := humains[b.FilmIndex]
 		if b.Bid() == "" || (!tenu && !partages[b.FilmIndex]) {
@@ -198,6 +200,9 @@ func (m lectureParDeclaration) imageCleEntre(de, a uint64) bool {
 // cet index — une entite qu'aucune declaration d'un bot de l'index ne revendique —, aucune n'est
 // instable, et la fenetre large d'aucune ne touche [de, a]. Faux sans balayage.
 func (m lectureParDeclaration) humainAbsent(pi int, de, a uint64) bool {
+	if m.sieges.valide {
+		return m.sieges.aucunHumain(pi, de, a)
+	}
 	if !m.scan.Scanned {
 		return false
 	}

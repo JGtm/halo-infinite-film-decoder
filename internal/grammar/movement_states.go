@@ -140,6 +140,11 @@ type MarcheDesTrames struct {
 	MovementStateStats  types.MovementStateStats
 	ContinuousFire      []types.ContinuousFireBurst
 	ContinuousFireStats types.ContinuousFireStats
+	// UnitControls sont les lectures du joueur aux commandes de chaque bipede (`unit-control`), et
+	// UnitControlStats leurs denominateurs : lues sur le meme crochet que les etats de mouvement, y
+	// compris sur un film qui n en transmet aucun.
+	UnitControls     []types.UnitControlRead
+	UnitControlStats types.UnitControlStats
 	// ObjectDeaths sont les morts ecrites (`object-dead-state`), tous archetypes confondus, triees
 	// par instant puis par slot ; Occupancy, les lectures d `object-parent-state` de la bande
 	// bipede ; ObjectDeathStats, leurs denominateurs.
@@ -228,6 +233,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.DebutsDeListeParRepliFermeAuBit = sc.obs.DebutsDeListeParRepliFermeAuBit
 	m.ContinuousFire = tir.out
 	m.ContinuousFireStats.Scanned = true
+	m.UnitControls = sc.controle.publier()
+	m.UnitControlStats = types.UnitControlStats{Scanned: true}
 	if !sc.transmet {
 		*st = types.MovementStateStats{MapWidths: st.MapWidths, Absent: true, Scanned: true}
 		return m, morts, nil
@@ -275,6 +282,8 @@ type movementStateScanner struct {
 	// `sprintAbilitySlotRaw`). Faux : ni crochet ni interet, `Absent` publie.
 	transmet bool
 	vues     map[movementStateKey]types.MovementStateRead
+	// controle : les lectures du joueur aux commandes (`i18`), lues sur le meme crochet.
+	controle controleDesUnites
 	// m : ce que le canal voit de la marche — le paquet en cours, son en-tete pose avant sa marche
 	// (le crochet le lit pendant), et la table d entites, en lecture seule.
 	m *MarcheDistribuee
@@ -309,9 +318,7 @@ func (sc *movementStateScanner) Interets() []Interet {
 // Brancher pose la porte des etats de mouvement, pour un film qui les transmet.
 func (sc *movementStateScanner) Brancher(obs *Observation, m *MarcheDistribuee) {
 	sc.m = m
-	if sc.transmet {
-		obs.EtatMouvementHook = sc.recevoir
-	}
+	obs.EtatMouvementHook = sc.crochet
 }
 
 // Trame compte UNE trame delta de la marche, dans la structure. Le debut de la liste d un paquet a
@@ -319,6 +326,7 @@ func (sc *movementStateScanner) Brancher(obs *Observation, m *MarcheDistribuee) 
 // marche ([localiserLaListe]) ; les paquets qu elle ne localise pas sont comptes et sautes, parce
 // que sauter la liste bit-exactement demanderait la grammaire de charge de chaque type d evenement.
 func (sc *movementStateScanner) Trame(p *lecture.Paquet) {
+	sc.controle.solder(sc.slotEstBipede)
 	if p.Debut != lecture.DebutEnTete {
 		sc.st.EventPackets++
 		switch p.Debut {
@@ -357,38 +365,6 @@ func (sc *movementStateScanner) Clore(b BilanDeMarche) {
 	sc.st.NeufsRefusesLecturesFausses = b.Obs.NeufsRefusesLecturesFausses
 	sc.st.NeufsRefusesCreationsPerdues = b.Obs.NeufsRefusesCreationsPerdues
 	sc.st.NeufsRefusesIndecis = b.Obs.NeufsRefusesIndecis
-}
-
-// occurrencesDuComposant : par archetype du registre (son rang), le masque des index d iteration ou
-// il declare un composant.
-type occurrencesDuComposant map[int16]uint64
-
-// occurrencesDe releve, dans le registre, les index ou chaque archetype declare le composant `nom`.
-func occurrencesDe(reg *Registry, nom string) occurrencesDuComposant {
-	out := occurrencesDuComposant{}
-	for ti, a := range reg.Archetypes {
-		for _, i := range a.indicesOf(nom) {
-			if i < 64 {
-				out[int16(ti)] |= 1 << uint(i) //nolint:gosec // rang d un archetype, sur 6 bits
-			}
-		}
-	}
-	return out
-}
-
-// lu rend 1 quand le record `r` du paquet `p` porte une occurrence du composant — traversee ou
-// infranchissable : une lecture du composant au sens de la trace de la marche —, 0 sinon.
-func (o occurrencesDuComposant) lu(p *lecture.Paquet, r lecture.Record) int {
-	masque, ok := o[r.TI]
-	if !ok {
-		return 0
-	}
-	for _, c := range p.Comps[r.Comps[0]:r.Comps[1]] {
-		if masque>>c.Index&1 == 1 {
-			return 1
-		}
-	}
-	return 0
 }
 
 // archetypeDuSlot rend l archetype que la table d entites de la marche donne a un slot.

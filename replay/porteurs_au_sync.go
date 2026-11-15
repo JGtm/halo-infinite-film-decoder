@@ -173,6 +173,8 @@ func (e EntreePorteursAuSync) optionsDuRegistre(fb *fallback.Compteur, so sieges
 		Bots: e.Identite.Bots, Deaths: e.Identite.Deaths, PlayerIndices: e.Identite.PlayerIndices,
 		BipedCreations: e.Identite.BipedCreations, ScoreboardTeams: e.Equipes,
 		FilmTable: so.table, PlayerTeams: so.equipes, TeamScan: so.rapport, PlayerEntities: so.entites,
+		Presences: LecturesDePresence{Listings: so.listages, ListingStats: so.statsListages,
+			Controls: e.Identite.Presences.Controls, ControlStats: e.Identite.Presences.ControlStats},
 	}
 }
 

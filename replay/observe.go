@@ -59,6 +59,8 @@ var buildFromFilmSteps = []string{
 	"movementStates", "movementStates.stats",
 	// LE TIR CONTINU (lot M4b) : la MEME marche, la vue C de chaque trame.
 	"continuousFire", "continuousFire.stats",
+	// LE JOUEUR AUX COMMANDES DE CHAQUE BIPEDE (`unit-control`) : la MEME marche, le crochet des etats.
+	"unitControls", "unitControls.stats",
 	// LES MORTS DE VEHICULE ET L OCCUPATION : la MEME marche, le canal des morts ; vides quand le
 	// calque des vehicules n a pas ete balaye.
 	"vehicleDeaths", "vehicleDeaths.stats",
@@ -77,7 +79,7 @@ var buildFromFilmSteps = []string{
 	// LES DETONATIONS/IMPACTS DE PROJECTILE (lot detonations, 2026-10-22) : apres les pistes
 	// qu elles rattachent, meme horloge.
 	"detonations",
-	"deaths", "filmTable", "playerTeams", "playerIndices", "clockOrigin",
+	"deaths", "filmTable", "playerTeams", "rosterListings", "rosterListings.stats", "playerIndices", "clockOrigin",
 }
 
 // BuildFromFilmSteps rend une COPIE de la liste fermee des etapes (J12.4 : la liste elle-meme n est

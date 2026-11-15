@@ -1523,8 +1523,11 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   optionnels, mais la version monte pour la raison des montees v3..v24 : un v117 ne porte ni les compteurs ni les
 	//   joueurs des slots 26 et au-dela. `objectives.Rev` monte : un v117 se lit « à redécoder ». Detail :
 	//   `document_chronicle.go`.
-	if SchemaVersion != 118 {
-		t.Fatalf("SchemaVersion = %d, attendu 118 : incrémenter exige une raison écrite ci-dessus "+
+	// - 119 (2026-11-14, presence listee) : `roster[].presence[]` d un humain est datee par les plages de listage des paquets de
+	//   type 8 (arrivee et depart exacts) et `coverage.seats.presencesListees` compte les entrees concernees. `grammar.Rev`
+	//   monte et `SchemaDesFaits` 23 -> 24 : un v118 se lit « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 119 {
+		t.Fatalf("SchemaVersion = %d, attendu 119 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

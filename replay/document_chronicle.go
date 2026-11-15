@@ -4141,3 +4141,39 @@ package replay
 //
 // LE PARC         un artefact 117 : verdict `a redecoder` (les faits des objectifs se refusent sur la revision). La recuisson est une
 //                 decision de l'utilisateur.
+// v119 (2026-11-14, la presence d un humain est celle que le film liste). `roster[].presence[]` d un humain etait lue aux
+// images-cles des entites `ti=9` (pas de ~20 s) et etendue par ses vies ; les paquets de type 8, qui listent la population de
+// la session a chaque changement, datent son arrivee et son depart au paquet pres.
+//
+//	`roster[].presence[]`   pour un humain qu au moins une plage de type 8 nomme : une plage de listage = un intervalle
+//	                 `[from, to]` EXACT (`toMax` absent), prolonge par ses vies (un corps qui bouge prouve la presence) ; les plages
+//	                 qui se touchent (changement de siege) se fondent. Un bot garde ses declarations BOT_METADATA ; un humain sans
+//	                 plage (film sans table des joueurs lisible) garde la lecture par les entites et les vies.
+//	`coverage.seats.presencesListees`   les entrees humaines dont la presence est datee par un listage.
+//	`tracks[].xuid`, `tracks[].bot`   un corps est nomme par le joueur qui tient le siege de son index A L INSTANT de sa
+//	                 creation (plages de listage), et non par l occupant que la table d index garde pour cet index : un siege
+//	                 quitte par son humain puis tenu par un bot ne publie plus le corps du bot sous l humain parti (le bot declare
+//	                 au siege le nomme quand BOT_METADATA le declare). Un corps sans record de creation est nomme par la tete d
+//	                 `unit-control` de son slot, depuis la fin de la vie precedente. Les deux voies se comptent dans le journal du
+//	                 lien direct (`parListage`, `humainRetire`, `parControle`) ; la table d index reste la voie des films sans
+//	                 listage valide.
+//	`roster[].seat`   la table du chunk 0 d un film a siege vacant intercale est employee quand les plages de listage donnent a
+//	                 chaque occupe le siege de son rang absolu, et les sieges du debut que la pose des places lit suivent la table
+//	                 que le registre emploie.
+//
+// LA MESURE (parc, 1 455 documents du schema 116 contre les paquets de type 8 ; 14 345 humains du roster, tous listes).
+// Arrivees en cours de match selon le listage (951) : le document les date 10,4 s plus tard en mediane (p90 18,6 s) ; contre
+// `match_participants.first_joined_time` le listage est exact (ecart nul a l offset d horloge du film pres, p90 compris) et le
+// document s en ecarte de 10,4 s (p90 18,6 s) ; departs (1 612) : 1 459 tiennent dans la fenetre `[to, toMax]` du document, 52
+// sont avant `to` (une vie dure 2 a 10 s apres le retrait du listage : la presence reste etendue par elle), 7 apres `toMax`
+// (le document faisait partir le joueur trop tot) ; contre `last_leave_time` le listage est exact et le document s en ecarte de
+// 4,3 s en mediane (p90 13,7 s). Contre `joined_in_progress` : 950 arrivees de listage en cours de match toutes confirmees (0
+// arrivee de listage que l API ne confirme pas), 388 arrivees que l API compte et que le film place avant le coup d envoi ;
+// contre `left_in_progress` : 1 511 departs confirmes, 18 departs API sans listage fermant, 132 listages fermes que l API ne compte
+// pas parmi les departs en cours de match (departs en toute fin de partie).
+//
+// CE QUI MONTE    `SchemaVersion` 118 -> 119, et avec lui `publication-119`. `grammar.Rev` -> `grammar-2026-11-14.3` et
+// AVEC ELLE       `SchemaDesFaits` 23 -> 24 : les faits portent les plages de listage et les lectures d `unit-control`.
+//
+// LE PARC         un artefact 118 : verdict `a redecoder` (les faits cuits se refusent sur la revision). La recuisson est une decision
+//                 de l utilisateur.

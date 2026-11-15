@@ -282,6 +282,9 @@ package objectives
 // enregistrements des slots 26 et au-dela de chaque film, les identites qu'ils nomment et `scoreTimeline.players` changent ;
 // les faits persistes de la couche et les calques dates `objectives-2026-10-17` deviennent `redecoder`. Aucun backlog
 // killsource ne s'ouvre.
+// A REVISION CONSTANTE (presence et joueur aux commandes, 2026-11-14) : la VALEUR de `grammar.Rev` monte a `grammar-2026-11-14.3` ;
+// aucune source de cette couche ne change. Les tests de la couche et ses fixtures sont ceux d avant ; les mesures du banc de verite du
+// `replay-corpus-gate` ne se lancent pas depuis le depot dedie du decodeur ; l empreinte du golden est recopiee au meme rang.
 
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune

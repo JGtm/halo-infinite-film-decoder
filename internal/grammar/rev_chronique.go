@@ -220,3 +220,17 @@ package grammar
 // changer de lecture. Sur 1 612 films du parc, la derniere ligne lue egale la bande des datums sur 1 608 (les quatre autres ont moins de
 // huit joueurs) ; 158 films vont au-dela du slot 24, jusqu'au slot 62. Les rejeux et les faits cuits avant se refusent sur cette
 // revision : la recuisson est une decision de l utilisateur.
+// ENTREE `grammar-2026-11-14.3` (2026-11-14, qui est present et qui commande quel corps : deux lectures neuves). AUCUN BIT DEJA LU NE
+// CHANGE D INTERPRETATION ; deux lectures qui existaient sans appelant de production entrent dans les faits. (1) LES PAQUETS DE TYPE
+// 8 ([DecodeRoster]) : [ScanRosterListings] lit les paquets de population de la session que la source a deja decoupes, saute un
+// paquet identique au precedent, et range par humain des plages (un xuid sous un siege moteur, du premier paquet qui le nomme au
+// premier paquet qui ne le nomme plus) : arrivee et depart dates au paquet pres. Aucun balayage de bit hors de la grammaire du
+// paquet ; une lecture qui deborde ou n atteint pas le nombre d entrees annonce est ecartee et comptee. Mesure sur les 1 455 films
+// des documents du parc : 1 450 lus (cinq sans table des joueurs lisible), 49 625 paquets de type 8, 7 641 distincts, 0 refuse ;
+// aucune des 14 345 entrees humaines du roster publie n est sans plage. (2) LE JOUEUR AUX COMMANDES : la tete d `i18 unit-control`
+// ([consumeUnitControl]), que le deserialiseur publiait sur [EtatControleUnite] sans observateur de production, est recue par le
+// canal des etats de mouvement sur le meme crochet, y compris sur un film qui ne transmet aucun etat. Le record NEW d un bipede
+// porte la tete ; son slot n est lie qu apres la traversee : la lecture attend la fin de la trame ([controleDesUnites]), puis est
+// gardee si la table d entites de la marche lie le slot au bipede, comptee sinon. Le canal des etats de mouvement perd le filtre
+// « sur un film qui les transmet » pour ce seul composant. Les rejeux et les faits cuits avant se refusent sur cette revision :
+// la recuisson est une decision de l utilisateur.

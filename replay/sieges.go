@@ -176,6 +176,9 @@ type SeatCoverage struct {
 	// declaration ne porte — leur presence vient de leurs seules vies (REPLI par entree,
 	// `repli_presence_d_une_entree_par_ses_vies`).
 	PresencesParLesVies int `json:"presencesParLesVies"`
+	// PresencesListees : les entrees humaines dont la presence est datee par les plages de listage des paquets de
+	// type 8 (arrivee et depart exacts), quel que soit l etat des entites ; 0 sur un film sans listage lu.
+	PresencesListees int `json:"presencesListees"`
 	// RelaisBornes : les presences dont l'affichage a ete borne par l'arrivee du successeur sur
 	// la meme place.
 	RelaisBornes int `json:"relaisBornes"`
@@ -241,7 +244,10 @@ type SeatCoverage struct {
 // entreesDesPlaces porte ce que la pose consomme hors du roster et des occupants.
 type entreesDesPlaces struct {
 	table grammar.FilmPlayerTable
-	fire  []FireEventRef
+	// tableEmployee : le registre emploie la table du film (lue sans vacant intercale, ou son rang absolu confirme
+	// par les records de creation ou les plages de listage : [tableDuFilmEmployee]).
+	tableEmployee bool
+	fire          []FireEventRef
 	// tireurs : ALIGNE sur `fire`, l identite (`cleDePiste`) de la VIE qui a tire — la piste publiee
 	// que l unite du tir (reference 0) designe a son instant ([tireursDesTirs]) ; vide quand l unite ne
 	// designe aucune piste. Nil : aucune lecture de l unite (lot R2).
@@ -301,6 +307,7 @@ func poserLesSieges(ctx context.Context, roster []RosterEntry, occ occupants, in
 		in.horloge.fb.DeclencheN(fallback.NomPresenceParEnveloppeDesVies, pp.tenirLesDerniersJusquALaFin())
 	} else {
 		cov.PresencesParLesVies = occ.presencesParLesVies()
+		cov.PresencesListees = occ.presencesListees()
 		in.horloge.fb.DeclencheN(fallback.NomPresenceDUneEntreeParSesVies, cov.PresencesParLesVies)
 	}
 	pp.publierLesPresences()
@@ -382,11 +389,11 @@ func (c *SeatCoverage) compterLesEntrees(roster []RosterEntry, pp *poseDesPlaces
 	c.PlacesEnTrop, c.SansEquipe = m.placesEnTrop, m.sansEquipe
 }
 
-// siegesDuDebut rend les index que la table de `chunk_00` occupe, ou NIL quand le film ne porte
-// pas sa table — nil et une table vide ne disent pas la meme chose, et tout ce fichier en
-// depend.
-func siegesDuDebut(table grammar.FilmPlayerTable) map[int]bool {
-	if !table.Lue() {
+// siegesDuDebut rend les index que la table de `chunk_00` occupe, ou NIL quand le film ne porte pas sa table et que
+// le registre ne l'emploie pas non plus (`employee` : le rang absolu d'un vacant intercale est confirme) — nil et
+// une table vide ne disent pas la meme chose, et tout ce fichier en depend.
+func siegesDuDebut(table grammar.FilmPlayerTable, employee bool) map[int]bool {
+	if !table.Lue() && !employee {
 		return nil
 	}
 	out := make(map[int]bool, len(table.Seats))
