@@ -169,6 +169,13 @@ type FilmInputs struct {
 	// qu il a ete lu : sans lui une liste vide ne se distingue pas d un morceau qui ne s est pas lu.
 	Medals     []highlightevent.MedalAward
 	MedalsRead bool
+	// GameEvents sont les messages de jeu des trames delta, sans les copies renvoyees ; GameEventsRead dit que la
+	// marche des trames les a lus, GameEventStats ce que son canal a vu, Scripts les noms de fichier de script du
+	// chunk 0 (cf. `grammar.ScanScriptsDuFilm`) qui fixent le sens du rang d un message.
+	GameEvents     []grammar.EvenementDeJeuLu
+	GameEventStats grammar.StatsEvenementsDeJeu
+	GameEventsRead bool
+	Scripts        []string
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -269,6 +276,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Deaths = in.Deaths
 	opt.DeathsFeed = in.DeathsFeed.Verdict
 	opt.Medals = MedalInput{Read: in.MedalsRead, Awards: in.Medals}
+	opt.ScoreActions = ScoreActionInput{Read: in.GameEventsRead, Events: in.GameEvents, Stats: in.GameEventStats, Scripts: in.Scripts}
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable
 	opt.PlayerTeams, opt.TeamScan = in.PlayerTeams, in.TeamScan

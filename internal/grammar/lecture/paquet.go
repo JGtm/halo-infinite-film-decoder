@@ -212,6 +212,9 @@ type VueA struct {
 	// Fil sont les messages `PlayerGameEventSmall` (genre 82) lus dont le sac texte nomme un couple
 	// de participants ([EvenementDeFil]), dans l'ordre.
 	Fil []EvenementDeFil
+	// Jeu sont TOUS les messages `PlayerGameEventSmall` (genre 82) lus, avec ou sans couple de participants
+	// ([EvenementDeJeu]), dans l'ordre.
+	Jeu []EvenementDeJeu
 	// Poussees sont les messages de poussée d'équipement lus (genres 104 et 105,
 	// [MessageDePoussee]), dans l'ordre.
 	Poussees []MessageDePoussee
@@ -338,6 +341,36 @@ type EvenementDeFil struct {
 	Destinataires uint32
 	// Tueur et Victime sont les deux participants du sac texte, dans l'ordre de la lecture.
 	Tueur, Victime int8
+}
+
+// EvenementDeJeu est un message `PlayerGameEventSmall` (genre 82) de la vue A, quel que soit son sac texte :
+// la réponse que le script du mode envoie à ses destinataires (un kill, une assistance, une capture, un score
+// personnel...). Le jeu écrit une copie du message pour chaque destinataire ; le masque dit lesquels.
+//
+// Le message ne porte ni le nom de la réponse ni ses points : son rang ([EvenementDeJeu.Rang]) n'a de sens
+// qu'avec le groupe de scripts du film, qui fixe l'arbre des événements du mode.
+//
+// Vingt octets : sa taille est gelée par `tailles_test.go`.
+type EvenementDeJeu struct {
+	// Debut est le premier bit du message : le bit de continuation qui l'annonce.
+	Debut uint32
+	// Rang est le `R(32)` de tête (`FUN_14080ae70`, `out[0]`) : la position de la réponse dans l'arbre des
+	// événements des scripts du mode. Le même rang désigne une autre réponse dans un autre mode.
+	Rang uint32
+	// Texte est le mot « text » du sous-sac (`FUN_14080b034`) : l'identifiant de chaîne du libellé propre de
+	// la réponse. Il n'a de sens que si ATexte.
+	Texte uint32
+	// Destinataires est le masque `32 x R(1)` qui clôt la charge, tel que lu ([EvenementDeFil.Destinataires]).
+	Destinataires uint32
+	// Participants sont les deux premières références de participant du sac texte, dans l'ordre de l'écriture
+	// (le `%pa` ou le `%pe` du libellé : le joueur que la réponse nomme) ; [RefAbsente] pour une référence que
+	// le message ne porte pas.
+	Participants [2]int8
+	// Sequence est le `R(8)` qui suit le rang : le numéro d'ordre de l'événement, un de plus que celui de
+	// l'événement écrit avant lui. Une copie que le jeu renvoie le répète.
+	Sequence uint8
+	// ATexte dit que le sous-sac porte un mot « text » : la porte `R(1)` de tête était à 1.
+	ATexte bool
 }
 
 // VueB est la vue des entités (rang 1) d'une trame delta : son étendue et sa sortie. Ses records

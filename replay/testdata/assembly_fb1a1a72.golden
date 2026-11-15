@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 22932 frames · intervalle 33 ms · duree 756756 ms
-schema 120 · titre halo_infinite
+schema 121 · titre halo_infinite
 version majeure du film : 41
 origine de la frame 0 sur l horloge du fil : 51707 ms
 coup d envoi date par le film : 52070 ms · 144/144 piste(s) en mouvement · rafale 6 · marge depuis la frame 0 : 363 ms
@@ -640,4 +640,28 @@ x [-29.44, 27.70] · y [-10.12, 9.08] · z [53.28, 64.35]
   9 Killing Spree x2
   98 Stick x2
 premiere : t=885 ms=80924 xuid=2603225103667623 id=0 · derniere : t=22702 ms=800875 xuid=2758522581629202 id=38
+
+## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
+groupe "arenaflagevents.lua+flageventstubs.lua" (absent : false) · trames 48771 (lues 48771, arrêtées 0, vue A illisible : false) · complet : true
+6588 message(s) : 234 à points · 1693 sans rapport avec le score · 0 nommé(s) sans points · 4661 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
+234 (message, destinataire) à points · 234 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
+  assistPersonalScore (50) x47
+  flagCaptureAssist (100) x1
+  flagCaptureScore (300) x1
+  flagPickupScore (10) x11
+  flagReturnScore (25) x12
+  flagRunnerKillScore (25) x6
+  flagStealScore (25) x14
+  killPersonalScore (100) x140
+  markAssistPersonalScore (10) x1
+  playerSuicidePersonalScore (-100) x1
+  somme 2547408409520575 = 3050
+  somme 2568263014615267 = 2155
+  somme 2603225103667623 = 2275
+  somme 2677589764811504 = 1820
+  somme 2705335195804900 = 3060
+  somme 2758522581629202 = 2185
+  somme 2759150029385955 = 1725
+  somme 2808996413735222 = 1300
+première : t=353 xuid=2758522581629202 killPersonalScore 100 cible="2759150029385955" · dernière : t=22701 xuid=2758522581629202 flagReturnScore 25 cible=""
 

@@ -405,7 +405,7 @@ func renderAssembly(doc ReplayDocument) string {
 	renderReplis(p, doc)
 	renderLabels(p, doc)
 	renderBounds(p, doc)
-	renderMedailles(p, doc)
+	renderMedaillesEtScores(p, doc)
 	return b.String()
 }
 

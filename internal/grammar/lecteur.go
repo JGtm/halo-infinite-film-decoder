@@ -71,6 +71,9 @@ type Lecteur struct {
 	// de la vue A les recueille avec la position du message.
 	filLu      lecture.EvenementDeFil
 	filACouple bool
+	// evenementLu : le dernier message `PlayerGameEventSmall` que la charge du genre 82 a lu, couple ou non
+	// ([chargeEvenementJoueurCourt]), que la lecture de la vue A recueille avec sa position.
+	evenementLu lecture.EvenementDeJeu
 	// refsDuMessage : les references du message de vue A en cours de lecture, telles que
 	// [lireUnMessage] les lit ; pousseeLue : la charge du dernier message de poussee
 	// ([chargePousseeDuJoueur], [chargeObjetRepousse]) ; detonationLue : la charge et la position

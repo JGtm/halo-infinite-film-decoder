@@ -81,6 +81,8 @@ type FluxVueA struct {
 	// Fil : les messages `PlayerGameEventSmall` (genre 82) a couple lus, dans l ordre
 	// ([chargeEvenementJoueurCourt]).
 	Fil []lecture.EvenementDeFil
+	// Jeu : tous les messages `PlayerGameEventSmall` (genre 82) lus, couple ou non, dans l ordre.
+	Jeu []lecture.EvenementDeJeu
 	// Poussees : les messages de poussee d equipement (genres 104 et 105) lus, dans l ordre
 	// ([messageDePoussee]).
 	Poussees []lecture.MessageDePoussee
@@ -149,6 +151,11 @@ func lireLaVueA(pay []byte, debut int, bal ProfilDeBalayage, g grammaireDeLaVueA
 // [lireLaVueA] (lot detonations, 2026-10-22) pour tenir sa complexite sous le seuil du depot — un
 // cas par genre collecte, jamais une decision.
 func recueillirLeMessage(br *Lecteur, out *FluxVueA, genre, debut int) {
+	if genre == GenreEvenementJoueurCourt {
+		e := br.evenementLu
+		e.Debut = uint32(debut) //nolint:gosec // position dans un payload
+		out.Jeu = append(out.Jeu, e)
+	}
 	switch {
 	case genre == GenreJoueurTue:
 		k := br.killLu

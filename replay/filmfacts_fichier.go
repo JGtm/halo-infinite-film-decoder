@@ -247,13 +247,9 @@ const VersionCodecFaits = 2
 // Relue par `json.Unmarshal`, une section 2 du schema 19 rendrait ces champs absents sans erreur, et un
 // fait « absent » ne se distingue pas d un fait que le film ne porte pas : c est le refus SUR L EN-TETE qui
 // doit le dire. Aucun consommateur : le document de rejeu ne publie rien de neuf, `SchemaVersion` ne bouge pas.
-// SCHEMA 21 (2026-11-12, occupants tues lus) : la section 1 porte les dead-states des BIPEDES (`VehicleScan.BipedDeaths`,
-// `ti=35`, le meme composant que celui des vehicules : victime, tueur, effet de degat), a la suite de ceux des vehicules
-// dans la charge des morts d objet. Avec les lectures d occupation que les faits portaient deja, elles disent QUI est mort
-// avec un vehicule detruit (`replay/vehicle_destruction_killed.go`). Relue par `json.Unmarshal`, une charge du schema 20
-// rendrait cette liste vide sans erreur, et une liste vide se lirait comme « personne n est mort avec son vehicule » : c est
-// le refus SUR L EN-TETE qui doit le dire. Aucune revision de couche ne bouge (la marche rendait deja ces morts, la cuisson
-// les filtrait) : c est ce numero qui refuse les faits d avant.
+// SCHEMA 21 (2026-11-12, occupants tues lus) : la section 1 porte les dead-states des BIPEDES (`VehicleScan.BipedDeaths`, `ti=35` : victime,
+// tueur, effet de degat), a la suite de ceux des vehicules ; ils disent QUI est mort avec un vehicule detruit. Une charge du schema 20 les
+// rendrait vides sans erreur (« personne n est mort avec son vehicule ») : le refus SUR L EN-TETE le dit. Aucune revision de couche ne bouge.
 // SCHEMA 22 (2026-11-12, creation des records NEW et charges de la vue A selon le build) : la section 5, le resultat de
 // killsource, change de contenu. Le profil calibre qu elle porte (`killsource.Result.ProfilCalibre`,
 // `grammar.GrammaireBalayage`) gagne `CreationParPorte` et `ProprieteGereeComplete` : ce que l ecrivain du build du film ecrit d un
@@ -261,7 +257,8 @@ const VersionCodecFaits = 2
 // bascules fausses sans erreur, et un profil qui les croit fausses lit un film HI_1_11_0 a HI_1_13_0 comme avant : c est le refus SUR
 // L EN-TETE qui doit le dire. `grammar.Rev` (`grammar-2026-11-12.4`) et `profile.Rev` montent avec ce numero, comme aux schemas 11 et 15.
 // SCHEMAS 24 ET 25 : la section 1 porte les plages de listage (type 8), les lectures d `unit-control`, les horloges et les comptes a rebours ; la section 2 les regles de la variante ; `grammar.Rev` et `profile.Rev` montent.
-const SchemaDesFaits = 25
+// SCHEMA 26 : le complement de la section 1 porte aussi les messages de jeu et les noms de script du chunk 0 (`FilmInputs.GameEvents`, `Scripts`) ; `grammar.Rev` monte.
+const SchemaDesFaits = 26
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.
@@ -482,6 +479,7 @@ func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodeMedailles(w, g.MedalsRead, g.Medals)
 	encodeListagesDeRoster(w, g.RosterListings, g.RosterListingStats)
 	encodeControlesDeBipede(w, g.UnitControls, g.UnitControlStats)
+	encodeJeu(w, g)
 	encodeVerdictDuFilDesMorts(w, g.DeathsFeed)
 }
 
@@ -496,5 +494,6 @@ func decodeComplementDesEntrees(r *greader, g *FilmFacts) {
 	g.MedalsRead, g.Medals = decodeMedailles(r)
 	g.RosterListings, g.RosterListingStats = decodeListagesDeRoster(r)
 	g.UnitControls, g.UnitControlStats = decodeControlesDeBipede(r)
+	decodeJeu(r, g)
 	g.DeathsFeed = decodeVerdictDuFilDesMorts(r)
 }

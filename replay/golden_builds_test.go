@@ -290,6 +290,7 @@ func TestGoldenBuildsInputsRoundTrip(t *testing.T) {
 			again.MedalsRead, again.Medals = g.MedalsRead, g.Medals // hors du blob, cf. golden_medailles_test.go
 			// LES PLAGES DE LISTAGE aussi (golden_presences_test.go).
 			again.RosterListings, again.RosterListingStats = g.RosterListings, g.RosterListingStats
+			again.GameEventsRead, again.GameEvents, again.GameEventStats, again.Scripts = g.GameEventsRead, g.GameEvents, g.GameEventStats, g.Scripts // idem, golden_jeu_test.go
 			a := renderAssembly(assemblerGoldenBuild(t, b, g, entry))
 			c := renderAssembly(assemblerGoldenBuild(t, b, again, entry))
 			if a != c {
@@ -332,5 +333,7 @@ func chargerGoldenBuild(t *testing.T, b goldenBuild) (*FilmFacts, profile.MapQua
 	// LES MEDAILLES AUSSI : golden_medailles_test.go.
 	chargerMedaillesDuBuild(t, b.Short8, g)
 	chargerPresencesDuBuild(t, b.Short8, g)
+	// LES MESSAGES DE JEU AUSSI : golden_jeu_test.go.
+	chargerJeuDuBuild(t, b.Short8, g)
 	return g, entry
 }

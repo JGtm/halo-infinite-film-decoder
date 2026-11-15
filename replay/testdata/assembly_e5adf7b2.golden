@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 16360 frames · intervalle 33 ms · duree 539880 ms
-schema 120 · titre halo_infinite
+schema 121 · titre halo_infinite
 version majeure du film : 40
 origine de la frame 0 sur l horloge du fil : 15914 ms
 coup d envoi date par le film : 38453 ms · 212/216 piste(s) en mouvement · rafale 16 · marge depuis la frame 0 : 22539 ms
@@ -1120,4 +1120,48 @@ x [-6.12, 100.58] · y [-76.21, 62.47] · z [-17.08, 21.35]
   91 Odin's Raven x1
   97 Skyjack x1
 premiere : t=1678 ms=71304 xuid=2612674383716602 id=127 · derniere : t=16126 ms=548074 xuid=2765652959641097 id=141
+
+## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
+groupe "bigteambattle.lua+btbslayerevents.lua" (absent : false) · trames 16824 (lues 16824, arrêtées 0, vue A illisible : false) · complet : true
+12043 message(s) : 268 à points · 5585 sans rapport avec le score · 0 nommé(s) sans points · 6190 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
+268 (message, destinataire) à points · 268 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
+  assistPersonalScore (50) x45
+  bansheeHijackResponse (25) x1
+  betrayalPersonalScore (-100) x2
+  empAssistPersonalScoreResponse (50) x3
+  ghostDestroyResponse (50) x1
+  killPersonalScore (100) x197
+  markAssistPersonalScore (10) x3
+  phantomDestroyResponse (100) x1
+  razorbackDestroyResponse (50) x1
+  scorpionDestroyResponse (100) x1
+  threatSensorPersonalScoreResponse (10) x4
+  warthogDestroyResponse (50) x1
+  wraithHijackResponse (25) x8
+  somme 2540772937228890 = 900
+  somme 2561148439453257 = 1825
+  somme 2571799355927177 = 620
+  somme 2572310721014643 = 875
+  somme 2589126457614003 = 1935
+  somme 2589831039073001 = 750
+  somme 2612674383716602 = 300
+  somme 2618168391483623 = 400
+  somme 2623439693412443 = 850
+  somme 2630528554874783 = 300
+  somme 2635448883786089 = 450
+  somme 2662488457019503 = 350
+  somme 2671823358891472 = 900
+  somme 2672083226526653 = 325
+  somme 2680412018996563 = 450
+  somme 2683967007359382 = 1150
+  somme 2714686345999235 = 600
+  somme 2715039164743703 = 1310
+  somme 2723146048008498 = 1670
+  somme 2731375663477898 = 1625
+  somme 2748989142252344 = 1475
+  somme 2749052410484660 = 1510
+  somme 2753789657611042 = 1225
+  somme 2765652959641097 = 400
+  somme 2813424593400726 = 350
+première : t=1470 xuid=2589126457614003 killPersonalScore 100 cible="2672083226526653" · dernière : t=16131 xuid=2723146048008498 killPersonalScore 100 cible="2765652959641097"
 

@@ -224,6 +224,8 @@ type Options struct {
 	DeathsFeed string
 	// Medals : les medailles du morceau des temps forts, que le fil des morts partage (cf. [MedalInput]).
 	Medals MedalInput
+	// ScoreActions : les messages de jeu des trames delta et les scripts qui en fixent le sens (cf. [ScoreActionInput]).
+	ScoreActions ScoreActionInput
 	// PlayerIndices est la table identité -> index de joueur, LUE dans le film (cf.
 	// player_index.go). Second maillon du pont, et lui aussi une lecture. Absente, un tir ou un
 	// lancer reste publie si le registre nomme son slot par la table des sieges (`FilmTable`).

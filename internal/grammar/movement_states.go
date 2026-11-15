@@ -151,6 +151,9 @@ type MarcheDesTrames struct {
 	ObjectDeaths     []types.ObjectDeath
 	Occupancy        []types.VehicleOccupancy
 	ObjectDeathStats ObjectDeathStats
+	// EvenementsDeJeu : les messages de jeu des trames delta, sans les copies, et ce que le canal a vu.
+	EvenementsDeJeu      []EvenementDeJeuLu
+	EvenementsDeJeuStats StatsEvenementsDeJeu
 	// LiaisonsParRepliDAnticipation : les liaisons que le repli `repli_liaison_par_anticipation`
 	// ([World.LierParRepliDAnticipation]) a posees pendant la marche, tous archetypes confondus.
 	// `replay` les verse au compteur de replis de la cuisson (lot J8.1, constat GA1-2). Ce compte
@@ -213,7 +216,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	}
 	sc := nouveauCanalDesEtats(st, reg, arch)
 	tir := nouveauCollecteurTirContinu(&m.ContinuousFireStats)
-	canaux := []Canal{sc, tir}
+	jeu := nouveauCanalDesEvenementsDeJeu()
+	canaux := []Canal{sc, tir, jeu}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -237,6 +241,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.LiaisonsParRepliDAnticipation = sc.liaisonsDuRepliDAnticipation()
 	m.DebutsDeListeParRepliFermeAuBit = sc.obs.DebutsDeListeParRepliFermeAuBit
 	m.ContinuousFire = tir.out
+	m.EvenementsDeJeu = jeu.lus
+	m.EvenementsDeJeuStats = jeu.stats
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()
 	m.UnitControlStats = types.UnitControlStats{Scanned: true}

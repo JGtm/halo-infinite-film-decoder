@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 120
-empreinte-stockee 887e5794e81f75ab
-empreinte-servie 887e5794e81f75ab
-empreinte-cuite 436bce9b31d77588
+schema 121
+empreinte-stockee ac814dfc9975c997
+empreinte-servie ac814dfc9975c997
+empreinte-cuite aabb8d1893823650
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -330,6 +330,7 @@ Coverage
   Placements json:"placements,omitempty" *EquipmentPlacementCoverage
   Projectiles json:"projectiles,omitempty" *ProjectileCoverage
   Score json:"score,omitempty" *ScoreCoverage
+  ScoreActions json:"scoreActions,omitempty" *ScoreActionCoverage
   Seats json:"seats,omitempty" *SeatCoverage
   Shots json:"shots" LayerCoverage
   SkullCarries json:"skullCarries,omitempty" *SkullCarriesCoverage
@@ -967,6 +968,7 @@ ReplayDocument
   RoundClock json:"roundClock,omitempty" []ClockSample
   Rules json:"rules,omitempty" *MatchRules
   SchemaVersion json:"schemaVersion" int
+  ScoreActions json:"scoreActions,omitempty" []ScoreAction
   ScoreTimeline json:"scoreTimeline,omitempty" *ScoreTimeline
   Shots json:"shots,omitempty" []Shot
   SkullCarries json:"skullCarries,omitempty" []SkullCarry
@@ -1014,6 +1016,35 @@ RosterEntry
   SeatSource json:"seatSource,omitempty" string
   Team json:"team,omitempty" *int
   XUID json:"xuid" string
+ScoreAction
+  Name json:"name" string
+  Points json:"points" int
+  T json:"t" int
+  Target json:"target,omitempty" string
+  XUID json:"xuid" string
+ScoreActionCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  ClosedFrames json:"closedFrames" int
+  Complete json:"complete" bool
+  Copies json:"copies" int
+  Frames json:"frames" int
+  Group json:"group,omitempty" string
+  GroupMissing json:"groupMissing" bool
+  Messages json:"messages" int
+  NamedWithoutPoints json:"namedWithoutPoints" int
+  NoOrigin json:"noOrigin" int
+  NoRecipient json:"noRecipient" int
+  NoTarget json:"noTarget" int
+  NotPresent json:"notPresent" int
+  OutsideTree json:"outsideTree" int
+  Published json:"published" int
+  ScoreMessages json:"scoreMessages" int
+  Scored json:"scored" int
+  StoppedFrames json:"stoppedFrames" int
+  UnconfirmedRank json:"unconfirmedRank" int
+  Unrelated json:"unrelated" int
+  ViewAUnreadable json:"viewAUnreadable" bool
 ScoreCoverage
   ModeSupported json:"modeSupported" bool
   Oracle json:"oracle" string

@@ -60,6 +60,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.ContinuousFire, s.in.ContinuousFireStats = m.ContinuousFire, tc
 	s.in.UnitControls, s.in.UnitControlStats = m.UnitControls, m.UnitControlStats
 	s.in.Horloges = m.Horloges
+	s.in.GameEvents, s.in.GameEventStats, s.in.GameEventsRead = m.EvenementsDeJeu, m.EvenementsDeJeuStats, err == nil
+	s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
 	if s.in.Vehicles.Scanned {
 		morts := mortsDeVehicule(s.ctx, s.matchID, m)
 		s.in.Vehicles.Deaths, s.in.Vehicles.BipedDeaths = morts.Vehicles, morts.Bipeds
@@ -72,6 +74,9 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "unitControls", s.in.UnitControls)
 	s.opt.observe(s.ctx, "unitControls.stats", s.in.UnitControlStats)
 	s.opt.observe(s.ctx, "horloges", s.in.Horloges)
+	s.opt.observe(s.ctx, "gameEvents", s.in.GameEvents)
+	s.opt.observe(s.ctx, "gameEvents.stats", s.in.GameEventStats)
+	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)
 }

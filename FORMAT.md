@@ -244,6 +244,38 @@ executable's native versions, with no build name and no major version:
 
 The game writes the event list, a `0` bit, then view B, with no length prefix (`FUN_142f2c3b0`).
 
+**Game events (genre 82, `PlayerGameEventSmall`).** The mode script's reply to a player: a kill, an assist, a flag capture, a personal
+score. The payload is `R(32)` **rank**, `R(8)` sequence number, a property bag (`R(3)` entries, each a name `R(32)` and a typed value),
+a text bag (`R(1)`; if set a `R(32)` text word, `R(3)` slots, each a 3-bit type then its value: type 1 is a participant, `R(1)` absent or
+`R(5)` index), and a 32-bit mask of the recipients (the first bit is participant 0). The message names no response and carries no
+points: the rank is a position in the event tree of the film's mode scripts, so the same rank is another response in another mode. The
+scripts are named in chunk 0: strings ending in `.lua`, written byte by byte 3 bits after a byte boundary
+(`internal/grammar/film_scripts.go`); `slayerevents.lua`, or `arenaflagevents.lua` with `flageventstubs.lua`, fix the tree. The game sends
+one copy per recipient, and may send a copy again 10 to 25 ticks later with the same sequence number: the decoder keeps the first copy
+of an identical (rank, sequence, text word, mask) seen in the previous second. A participant slot is the film's player index, the same
+index space as the recipient mask. On 11 films it reads exactly the messages libfilmshell reads (2,085 of them carry personal score);
+a view A that stops at an unread message loses the ones behind it, which the films of builds 38 and 39 measured do, for a cause that is still open.
+
+**Score responses.** A message names its response only through a table: for each group of event scripts, every rank of its event tree, with
+the response's script name (`killPersonalScore`), its kind and, for a personal-score response, its points, taken from libfilmshell
+(`reponsesdejeu/data/reponses.tsv`, see `NOTICE.md`). The group is the table group whose script files are exactly those of the table that the
+film's chunk 0 lists (libfilmshell's rule); a film that lists the files of no group names no response. The tree lists the events that are
+responses: a rank outside it is an event that is not one (most of a film's messages), or a response the table does not hold. A response that
+has a text of its own is attributed only if the message carries that text word (or none), and a rank the tree does not place for certain
+needs the text word; a rank the message does not confirm is counted apart. The recipient mask gives one action per recipient, and an index
+is resolved to the xuid of the roster human who holds it and is present (`presence`) at the frame of the message: a human who left keeps
+the index while a bot declared on it is not in the roster, so a message after the departure is counted, not given to the departed.
+A `%pe` (the enemy killed) or `%pa` (the player betrayed) in the response's label is the first participant of the text bag, so for
+`betrayalPersonalScore` the recipient is the betrayer and the first participant the betrayed player. The replay document publishes these as
+`scoreActions[]`, on the frame `(TS - origin) / step` of the positions, with `coverage.scoreActions` counting what was read, published and
+left out: messages that are not score (announcements, medals, kill-feed lines), score responses the game pays zero, ranks outside the tree,
+ranks the message does not confirm, and the actions not placed. `coverage.scoreActions.complete` says the reading is whole (no stopped
+frame, a readable view A, a known script group, no unconfirmed rank, every action with points placed). It is necessary, not sufficient, for
+a player's sum of points to equal the personal score: the points come from the response table, which can differ from the game (vehicle
+actions on older builds) or know nothing of a mode written outside the tree. False, the consumer shows "insufficient data"; a consumer
+that holds the official score compares the sum to it. A mode written without a point scale (Assault, a custom mode) has no response that
+gives points: nothing is invented.
+
 **View B, the entity view** is a list of records ended by record type 0 (section 5). **View C, the control view** loops on
 `{ R(1); 0 ends; kind = R(2); handler(kind) }`; a source path in the game's code calls it `replication_control_view`, and its
 entries are per-player control messages, not entities.

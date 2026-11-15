@@ -95,6 +95,7 @@ func BuildFromPositions(ctx context.Context, matchID, titleSlug string, pos []gr
 	a.poserArmesAuSolEtVehicules()
 	a.poserObjectifsVivants()
 	a.poserLesMedailles()
+	a.poserLesScoresParAction()
 	a.poserLibellesEtInventaire()
 	a.poserCapacitesEtTranslocations()
 	a.poserImpulsionsEtCharges()

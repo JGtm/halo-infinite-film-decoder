@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 15954 frames · intervalle 33 ms · duree 526482 ms
-schema 120 · titre halo_infinite
+schema 121 · titre halo_infinite
 version majeure du film : 39
 origine de la frame 0 sur l horloge du fil : 47630 ms
 coup d envoi date par le film : 70235 ms · 212/212 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 22605 ms
@@ -1115,4 +1115,45 @@ x [-130.99, -41.51] · y [-68.14, -1.67] · z [59.54, 69.82]
   98 Stick x1
   99 Tag & Bag x2
 premiere : t=1317 ms=91110 xuid=2744427975808882 id=84 · derniere : t=15544 ms=560609 xuid=2638361987159048 id=71
+
+## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
+groupe "bigteambattle.lua+btbslayerevents.lua" (absent : false) · trames 17362 (lues 17179, arrêtées 183, vue A illisible : false) · complet : false
+9448 message(s) : 207 à points · 4311 sans rapport avec le score · 0 nommé(s) sans points · 4930 hors de l'arbre · 0 non confirmé(s) · 4 copie(s) retirée(s)
+207 (message, destinataire) à points · 207 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
+  assistPersonalScore (50) x42
+  betrayalPersonalScore (-100) x1
+  ghostDestroyResponse (50) x1
+  killPersonalScore (100) x145
+  markAssistPersonalScore (10) x3
+  playerSuicidePersonalScore (-100) x1
+  razorbackDestroyResponse (50) x1
+  threatSensorPersonalScoreResponse (10) x6
+  warthogDestroyResponse (50) x1
+  wheelmanAssistPersonalScoreResponse (50) x1
+  wraithHijackResponse (25) x5
+  somme 2543614552740316 = 450
+  somme 2602956977960643 = 1725
+  somme 2622820642692942 = 610
+  somme 2622914491964387 = 850
+  somme 2623439693412443 = 1000
+  somme 2633507608265908 = 200
+  somme 2638361987159048 = 1060
+  somme 2650413550713845 = 1925
+  somme 2659442864008108 = 300
+  somme 2661033160009544 = 350
+  somme 2668839413788202 = 1550
+  somme 2684473603096081 = 260
+  somme 2689721669992408 = 350
+  somme 2705856997339206 = 1130
+  somme 2708565297653894 = 350
+  somme 2713822861981385 = 550
+  somme 2717865405078776 = 380
+  somme 2730241760052058 = 650
+  somme 2732115286681803 = 425
+  somme 2744427975808882 = 500
+  somme 2790400886833703 = 400
+  somme 2790774467870121 = 750
+  somme 2798998857433625 = 750
+  somme 2805892453496669 = 300
+première : t=1266 xuid=2623439693412443 assistPersonalScore 50 cible="" · dernière : t=15724 xuid=2708565297653894 killPersonalScore 100 cible="2622820642692942"
 
