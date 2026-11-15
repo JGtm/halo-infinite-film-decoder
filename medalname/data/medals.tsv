@@ -1,0 +1,179 @@
+# Medals of the game, by the pair of bytes a film's highlight event carries: sorting weight and medal index, with
+# the medal's English name.
+#
+# CREDIT. This table is taken from libfilmshell (OpenSpartan, https://github.com/OpenSpartan/libfilmshell,
+# MIT licence, copyright (c) 2026 OpenSpartan; licence text in LICENSE-libfilmshell next to this file), file
+# `src/game/medals_data.rs`, last commit on that file 291f85e ("Generated from the game's files" in that file's
+# own header). The maintainers of libfilmshell derived the medal list from the game's files; this module did not
+# read them again.
+#
+# WHAT IS TAKEN. For each of the 157 medals of that file: the game's medal index (the discriminant of its
+# `Medal` enum, the byte 59 of a highlight event), the sorting weight (the fourth element of its `row()`, "the
+# value `HighlightEvents` records carry", the byte 47 of a highlight event) and its English name (`name()`). The
+# medal's kind, its difficulty and its personal score are not kept.
+#
+# WHAT IS TRANSFORMED. One tab-separated line per medal, in the order of the sorting weight then of the index.
+# The table is regenerated from libfilmshell, not edited by hand.
+#
+# HOW IT IS CHECKED. All 124 pairs measured on the maintainer's own films (44,568 medal events, see
+# `testdata/corpus_medailles_2026-09-02.tsv`) are in this table with the same weight, the same index and the same
+# name. The weights equal the `sortingWeight` of the 151 medals that the official Waypoint medal catalogue lists.
+#
+# COLUMNS (tab-separated): sorting weight (decimal), medal index (decimal), English name.
+50	26	Killjoy
+50	36	Stopped Short
+50	37	Flag Joust
+50	42	Duelist
+50	45	Sole Survivor
+50	62	Spotter
+50	63	Treasure Hunter
+50	64	Saboteur
+50	65	Wingman
+50	66	Wheelman
+50	67	Gunner
+50	68	Driver
+50	69	Pilot
+50	70	Tanker
+50	71	Rifleman
+50	72	Bomber
+50	73	Grenadier
+50	74	Boxer
+50	75	Warrior
+50	76	Gunslinger
+50	77	Scattergunner
+50	78	Sharpshooter
+50	79	Marksman
+50	80	Heavy
+50	81	Bodyguard
+50	82	Back Smack
+50	87	Dogfight
+50	88	Harpoon
+50	91	Odin's Raven
+50	97	Skyjack
+50	98	Stick
+50	101	Kong
+50	105	Reversal
+50	108	Snipe
+50	117	Guardian Angel
+50	120	Chain Reaction
+50	126	Flyin' High
+50	127	From the Grave
+50	131	Last Shot
+50	133	Mount Up
+50	135	Quick Draw
+50	139	Reclaimer
+50	142	Special Delivery
+50	151	Always Rotating
+50	156	Splatter
+50	157	Clash of Kings
+50	160	Watch the Throne
+50	165	Breacher
+50	172	Remember This
+51	178	Hang Up
+52	179	Call Blocked
+100	0	Double Kill
+100	9	Killing Spree
+100	38	Goal Line Stand
+100	41	Lone Wolf
+100	47	Blight
+100	53	Culling
+100	58	Zombie Slayer
+100	85	Bulltrue
+100	86	Cluster Luck
+100	89	Mind the Gap
+100	92	Pancake
+100	96	Rideshare
+100	99	Tag & Bag
+100	100	Whiplash
+100	104	Windshield Wiper
+100	106	Hail Mary
+100	107	Nade Shot
+100	109	Perfect
+100	110	Bank Shot
+100	111	Fire & Forget
+100	112	Ballista
+100	113	Pull
+100	114	No Scope
+100	119	Death Race
+100	128	From the Void
+100	129	Grapple-jack
+100	130	Hold This
+100	132	Lawnmower
+100	134	Off the Rack
+100	136	Party's Over
+100	137	Pineapple Express
+100	138	Ramming Speed
+100	140	Shot Caller
+100	141	Yard Sale
+100	146	Fumble
+100	150	Big Deal
+100	152	Hill Guardian
+100	153	Clock Stop
+100	163	Great Journey
+100	166	Mounted & Loaded
+100	167	Monopoly
+100	168	Counter-snipe
+100	174	Driving Spree
+101	154	Secure Line
+101	155	Signal Block
+101	180	Clear Reception
+150	1	Triple Kill
+150	10	Killing Frenzy
+150	31	Flawless Victory
+150	32	Steaktacular
+150	39	Necromancer
+150	40	Immortal
+150	43	Ace
+150	46	Untainted
+150	48	Disease
+150	55	Purge
+150	59	Undead Hunter
+150	83	Nuclear Football
+150	84	Boom Block
+150	95	Return to Sender
+150	102	Autopilot Engaged
+150	103	Sneak King
+150	115	Achilles Spine
+150	116	Grand Slam
+150	118	Interlinked
+150	121	360
+150	122	Combat Evolved
+150	123	Deadly Catch
+150	124	Driveby
+150	143	Street Sweeper
+150	148	Straight Balling
+150	158	Contract Killer
+150	162	All That Juice
+150	164	Power Outage
+150	173	Hang Time
+150	175	Death Cabbie
+150	177	Blind Fire
+200	13	Perfection
+200	44	Extermination
+200	60	Hell's Janitor
+200	61	The Sickness
+200	90	Ninja
+200	93	Quigley
+200	94	Remote Detonation
+200	125	Fastball
+200	176	Immortal Chauffeur
+205	11	Running Riot
+205	49	Plague
+205	54	Cleansing
+210	12	Rampage
+210	51	Pestilence
+220	2	Overkill
+220	27	Nightmare
+220	50	Scourge
+220	56	Purification
+225	3	Killtacular
+230	4	Killtrocity
+230	28	Boogeyman
+230	52	Apocalypse
+230	57	Divine Intervention
+235	5	Killamanjaro
+240	6	Killtastrophe
+240	29	Grim Reaper
+245	7	Killpocalypse
+250	8	Killionaire
+250	30	Demon

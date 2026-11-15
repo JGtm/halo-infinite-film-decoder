@@ -1,13 +1,13 @@
 # NOTICE — origin of the data files of `libs/film`
 
 This module is licensed AGPL-3.0 (see `README.md`). It contains two kinds of data files that are not source
-code: four small tables embedded in the binary, and test fixtures made of film bytes. This page says where
+code: five small tables embedded in the binary, and test fixtures made of film bytes. This page says where
 each comes from. Nothing here is Microsoft, 343 Industries or Halo Studios software; the module is not
 affiliated with them.
 
 ## Embedded tables (`go:embed`)
 
-All four are identifiers, labels and points, not content of the game: no mesh, texture, sound or script.
+All five are identifiers, labels and points, not content of the game: no mesh, texture, sound or script.
 
 | File | What it is | Origin |
 |---|---|---|
@@ -15,6 +15,7 @@ All four are identifiers, labels and points, not content of the game: no mesh, t
 | `damagetag/data/labels.tsv` | 468 lines, one per identifier: class (`ARME`, `MELEE`, `VEHICULE`, `GRENADE`, `OBJET_EXPLOSIF`, `DEGAT_GLOBAL`, `INCONNU`), status (`VALIDE`, `SOUS_RESERVE`, `AMBIGU`, `INCONNU`), name, detail | Precomputed by the maintainer from the same listing and from measurements on his own films. The names are the display names the game gives its weapons and vehicles; the classes and statuses are the maintainer's, each with the reason in the `detail` column. A line marked `AMBIGU` is never published by the decoder |
 | `killicon/data/rules.tsv` | 58 rules that bridge a damage source to the name of a kill-feed icon sprite | Written by the maintainer; each rule carries its justification. The file names sprites, it does not contain them |
 | `reponsesdejeu/data/reponses.tsv` | 4,804 lines: for each of the 11 groups of mode-script event files, every rank of its event tree (the response's name in the script, its kind, and for the 423 personal-score responses the points and English label; text ids; whether the rank is unsure) that a game-event message of a film can name | **Taken from libfilmshell** (Dend, OpenSpartan, MIT licence, `src/game/events_data.rs`, commit `ad17521`), with its credit header kept in the file and its licence text in `reponsesdejeu/data/LICENSE-libfilmshell`. Kept: every rank of the trees, with the name and the kind of each response and the points of those that give score (the medal and vehicle enumerations and the announcer text of the source are not kept). Transformed: one tab-separated line per rank, text ids as hexadecimal, the group named by its script files. The ranks were checked against the maintainer's own films and against the API's personal score (see the replay chronicle, v119) |
+| `medalname/data/medals.tsv` | 157 lines, one per medal of the game: the sorting weight and the medal index that a highlight event of a film carries (bytes 47 and 59), and the medal's English name | **Taken from libfilmshell** (Dend, OpenSpartan, MIT licence, `src/game/medals_data.rs`, last commit on that file `291f85e`), with its credit header kept in the file and its licence text in `medalname/data/LICENSE-libfilmshell`. Kept: for each medal, the game's index (the discriminant of the source's `Medal` enum), the sorting weight and the English name (the kind, the difficulty and the personal score of the source are not kept). Transformed: one tab-separated line per medal, ordered by weight then index. Checked against the 124 pairs measured on the maintainer's own films (all 124 found, same weight, index and name) and against the `sortingWeight` of the official Waypoint medal catalogue (151 medals, all equal) |
 
 ## Test fixtures
 
@@ -77,6 +78,12 @@ All four are identifiers, labels and points, not content of the game: no mesh, t
   the licence text sits next to it (`reponsesdejeu/data/LICENSE-libfilmshell`) and the README names libfilmshell
   in its credits. The reading of the messages themselves (the bit layout, the script group, the recipients) is this
   module's own code; no line of libfilmshell code is copied or translated.
+- **libfilmshell, a fourth time, for the medals of the game** (same author and licence, last commit on the file
+  `291f85e`). `medalname/data/medals.tsv` reproduces, in this module's own format, the medal list of
+  `src/game/medals_data.rs` (index, sorting weight, English name), because that list comes from the game's files, which
+  this decoder does not read. The file keeps the credit header, the licence text sits next to it
+  (`medalname/data/LICENSE-libfilmshell`) and the README names libfilmshell in its credits. The reading of the highlight
+  events is this module's own code; no line of libfilmshell code is copied or translated.
 
 ## Third-party code
 
