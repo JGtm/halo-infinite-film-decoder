@@ -55,10 +55,12 @@ func TestScoreTimelineNommeParLesEntreesUnFilmAPlusieursManches(t *testing.T) {
 	}
 }
 
-// TestEntryResolverOfExigeLesEntreesEtLesPlages : sans entree lue ou sans plage lue, le tableau se nomme par le pont
-// d'identite des slots.
+// TestEntryResolverOfExigeLesEntreesEtLesPlages : sans entree lue, sans plage lue ou sans ligne d'equipe qui prouve la disposition
+// du tableau, il se nomme par le pont d'identite des slots.
 func TestEntryResolverOfExigeLesEntreesEtLesPlages(t *testing.T) {
-	es := []types.StatborgEntry{{Slot: 5, Kind: types.StatborgEntryPlayer, ID: 1}}
+	equipes := []types.StatborgEntry{{Slot: 3, Kind: types.StatborgEntryTeam, ID: 0}, {Slot: 4, Kind: types.StatborgEntryTeam, ID: 1}}
+	joueur := types.StatborgEntry{Slot: 5, Kind: types.StatborgEntryPlayer, ID: 1}
+	es := append([]types.StatborgEntry{joueur}, equipes...)
 	lu := types.StatborgEntryStats{Scanned: true}
 	cas := []struct {
 		nom string
@@ -68,6 +70,8 @@ func TestEntryResolverOfExigeLesEntreesEtLesPlages(t *testing.T) {
 		{"tout lu", Options{StatborgEntries: es, StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, true},
 		{"entrees non lues", Options{StatborgEntries: es, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
 		{"plages non lues", Options{StatborgEntries: es, StatborgEntryStats: lu}, false},
+		{"une seule ligne d'equipe", Options{StatborgEntries: []types.StatborgEntry{joueur, equipes[1]}, StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
+		{"disposition non prouvee", Options{StatborgEntries: []types.StatborgEntry{joueur}, StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
 		{"aucune ligne de joueur", Options{StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
 	}
 	for _, c := range cas {
@@ -138,5 +142,65 @@ func TestJoinSegmentsDecaleLeSecondSegmentDUnCompteurCumulatif(t *testing.T) {
 	brut := joinSegments([][]types.ScorePoint{premier, second}, false)
 	if brut[2].Value != 1 || brut[3].Value != 2 {
 		t.Errorf("segments non cumulatifs decales : %+v", brut)
+	}
+}
+
+// optionsDesEntrees pose, sur le film croise de [reassignFixture], les entrees `entrees` et les plages que [entreesCroisees] lit.
+func optionsDesEntrees(entrees []types.StatborgEntry) Options {
+	return Options{
+		StatborgEntries:    entrees,
+		StatborgEntryStats: types.StatborgEntryStats{Scanned: true},
+		Presences: LecturesDePresence{
+			ListingStats: types.RosterListingStats{Scanned: true},
+			Listings:     []types.RosterListing{{XUID: 1001, Slot: 1}, {XUID: 1002, Slot: 2}},
+		},
+	}
+}
+
+// TestScoreTimelineBasculeSurLePontSansDispositionProuvee : de bout en bout, des entrees qui prouvent la disposition nomment les
+// joueurs et leurs compteurs nommes ; sans cette preuve, le tableau se nomme par le pont d'identite des slots, qui prive d'abord de
+// `stats` un film a plusieurs manches et le dit dans `statsWithheld`.
+func TestScoreTimelineBasculeSurLePontSansDispositionProuvee(t *testing.T) {
+	recs, deaths := reassignFixture()
+	for _, slot := range []int{20, 22} {
+		for round, t0 := range []int{1_000, 11_000} {
+			for i := range 3 {
+				recs = append(recs, statRec(t0+i*1_000, slot, round, map[int]types.StatValue{6: {A: int64(i + 1)}}))
+			}
+		}
+	}
+	entree := func(slot, tsMS, id int) types.StatborgEntry {
+		return types.StatborgEntry{Slot: slot, TS: uint64(tsMS) * 1000, Kind: types.StatborgEntryPlayer, ID: id}
+	}
+	equipe := func(id int) types.StatborgEntry {
+		return types.StatborgEntry{Slot: 3 + id, TS: 1_000_000, Kind: types.StatborgEntryTeam, ID: id}
+	}
+	joueurs := []types.StatborgEntry{entree(11, 1_000, 1), entree(10, 1_000, 2), entree(11, 11_500, 2), entree(10, 11_500, 1)}
+	cas := []struct {
+		nom         string
+		entrees     []types.StatborgEntry
+		stats       bool
+		statsWithld int
+	}{
+		{"deux lignes d'equipe", append([]types.StatborgEntry{equipe(0), equipe(1)}, joueurs...), true, 0},
+		{"une seule ligne d'equipe", append([]types.StatborgEntry{equipe(1)}, joueurs...), false, 2},
+		{"aucune ligne d'equipe", joueurs, false, 2},
+	}
+	for _, c := range cas {
+		tl, cov, _ := assembleScoreTimeline(&ScoreInput{Records: recs}, deaths, entryResolverOf(optionsDesEntrees(c.entrees)), multiRoundClock(), nil)
+		if tl == nil || len(tl.Players) != 2 {
+			t.Fatalf("%s : joueurs publies : %+v", c.nom, tl)
+		}
+		for _, p := range tl.Players {
+			if got := p.Stats != nil; got != c.stats {
+				t.Errorf("%s : %s publie ses compteurs nommes : %v, attendu %v", c.nom, p.XUID, got, c.stats)
+			}
+			if lastValue(p.Kills) != 6 {
+				t.Errorf("%s : %s frags %d, attendu 6", c.nom, p.XUID, lastValue(p.Kills))
+			}
+		}
+		if cov.StatsWithheld != c.statsWithld {
+			t.Errorf("%s : statsWithheld = %d, attendu %d", c.nom, cov.StatsWithheld, c.statsWithld)
+		}
 	}
 }

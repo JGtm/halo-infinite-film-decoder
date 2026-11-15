@@ -97,3 +97,30 @@ func TestEntryResolverSansEntreeNeNommePersonne(t *testing.T) {
 		t.Errorf("%v %v", out, identite)
 	}
 }
+
+// TestEntriesProveLayout : le tableau s'ouvre sur ses deux lignes d'equipe ; des entrees qui n'en portent pas deux de numeros
+// distincts, ou qui sont toutes nulles, ne prouvent pas la disposition.
+func TestEntriesProveLayout(t *testing.T) {
+	equipe := func(id int) types.StatborgEntry {
+		return types.StatborgEntry{Slot: 3 + id, TS: 1_000_000, Kind: types.StatborgEntryTeam, ID: id}
+	}
+	cas := []struct {
+		nom     string
+		entries []types.StatborgEntry
+		want    bool
+	}{
+		{"deux lignes d'equipe et des joueurs", []types.StatborgEntry{equipe(0), equipe(1), entree(5, 1_000, 3)}, true},
+		{"deux lignes d'equipe lues a plusieurs images-cles", []types.StatborgEntry{equipe(1), equipe(0), equipe(1), equipe(0)}, true},
+		{"numeros d'equipe distincts quelconques", []types.StatborgEntry{equipe(2), equipe(5)}, true},
+		{"une seule ligne d'equipe", []types.StatborgEntry{equipe(0), entree(5, 1_000, 3)}, false},
+		{"une seule ligne d'equipe lue plusieurs fois", []types.StatborgEntry{equipe(1), equipe(1), equipe(1)}, false},
+		{"joueurs distincts sans ligne d'equipe", []types.StatborgEntry{entree(5, 1_000, 3), entree(6, 1_000, 4)}, false},
+		{"entrees toutes nulles", []types.StatborgEntry{entree(5, 1_000, 0), entree(6, 1_000, 0), entree(7, 1_000, 0)}, false},
+		{"aucune entree", nil, false},
+	}
+	for _, c := range cas {
+		if got := EntriesProveLayout(c.entries); got != c.want {
+			t.Errorf("%s : %v, attendu %v", c.nom, got, c.want)
+		}
+	}
+}

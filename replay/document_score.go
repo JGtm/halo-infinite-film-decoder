@@ -159,8 +159,9 @@ type ScoreTimeline struct {
 	// Teams porte les deux camps quand le film les replique. Vide en solo, ou quand aucun
 	// slot d'equipe n'emet le score de mode.
 	Teams []TeamScore `json:"teams,omitempty"`
-	// Players porte les joueurs dont le slot d'entite a ete apparie a une ligne de match.
-	// Vide quand l'appelant n'a pas fourni les lignes (le pont d'identite passe par elles).
+	// Players porte les joueurs dont la ligne du tableau des scores est nommee : par les entrees du tableau quand elles
+	// prouvent sa disposition, sinon par le pont d'identite, qui apparie le slot d'entite a une ligne de match. Vide
+	// quand le pont est la voie et que l'appelant n'a pas fourni les lignes.
 	Players []PlayerScore `json:"players,omitempty"`
 	// TargetScore est la CIBLE DE VICTOIRE du mode (50 frags, 3 drapeaux...) : le score qui
 	// termine le match quand il est atteint. Le film la porte (le score de victoire de sa
@@ -228,9 +229,10 @@ type ScoreCoverage struct {
 	// frags) ou `unresolved`.
 	TeamIdentity string `json:"teamIdentity"`
 	// StatsWithheld est le nombre de joueurs privés de `players[].stats` parce que le film a plusieurs
-	// manches et que ses entrees ne se lisent pas : l'association (slot, manche) -> xuid du pont d'identite
-	// des slots n'y atteint pas le niveau d'une manche. Absent (zero) sur un film d'une manche, et sur tout film
-	// dont les entrees du tableau et les plages de listage se lisent.
+	// manches et que ses entrees ne se lisent pas ou ne prouvent pas la disposition du tableau (aucune ligne
+	// d'equipe) : l'association (slot, manche) -> xuid du pont d'identite des slots n'y atteint pas le niveau
+	// d'une manche. Absent (zero) sur un film d'une manche, et sur tout film dont les entrees du tableau prouvent
+	// leur disposition et dont les plages de listage se lisent.
 	StatsWithheld int `json:"statsWithheld,omitempty"`
 	// Rounds est le nombre de manches RETENUES par le decodeur (les manches fantomes,
 	// ancrages fortuits, sont ecartees). 1 sur un match sans manches multiples.

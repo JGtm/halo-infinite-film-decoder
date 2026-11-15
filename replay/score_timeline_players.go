@@ -46,7 +46,7 @@ import (
 // deux lecteurs du meme pont doivent dire la meme chose du meme match. `lines` vide rend
 // l'identite inchangee.
 //
-// CE PONT NE SERT PLUS QUE LORSQUE LES ENTREES DU TABLEAU NE SE LISENT PAS ([buildPlayerScoresOf]). Ses compteurs
+// CE PONT NE SERT PLUS QUE LORSQUE LES ENTREES DU TABLEAU NE SE LISENT PAS OU NE PROUVENT PAS LA DISPOSITION DU TABLEAU ([buildPlayerScoresOf]). Ses compteurs
 // nommes (`PlayerScore.Stats`) ne se publient alors qu'en mono-manche : l'association (slot,
 // manche) -> xuid d'un film a plusieurs manches ne tient pas le niveau d'une manche (somme des fins de
 // manche contre l'API, sur 30 films : 63 a 88 % pour les frags, morts et assistances, 92 a 96 % pour les

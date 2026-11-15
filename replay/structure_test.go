@@ -1543,8 +1543,11 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	// - 123 (2026-11-15, fin de vie lue) : `tracks[].endReason` et `tracks[].releaseFrame` disent comment le corps de chaque vie finit, lu
 	//   dans le joueur aux commandes et la suppression du corps ; `coverage.tracks.lifeEnds` compte les cas. Champs optionnels, mais
 	//   la version monte pour la raison des montees v3..v24 : un v122 ne porte aucun des trois. `grammar.Rev` monte. Detail : `document_chronicle.go`.
-	if SchemaVersion != 123 {
-		t.Fatalf("SchemaVersion = %d, attendu 123 : incrémenter exige une raison écrite ci-dessus "+
+	// - 124 (2026-11-15, disposition du tableau des scores prouvee) : les entrees du tableau ne nomment ses lignes que si elles portent une
+	//   ligne d equipe (sinon le pont d identite reste la voie), et une emission des assistances dont un canal compteur est negatif est
+	//   ecartee. Le contenu cuit change, aucun champ. `objectives.Rev` monte : un v123 se lit « à redécoder ». Detail : `document_chronicle.go`.
+	if SchemaVersion != 124 {
+		t.Fatalf("SchemaVersion = %d, attendu 124 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

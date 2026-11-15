@@ -66,7 +66,7 @@ func ScoreboardStats() []ScoreboardStat {
 func rawSeries(recs []types.StatRecord, c StatComponent, teams bool,
 	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
 	if !c.HoldOnClear {
-		if c.DropClears && c.Comp == coreKillsComp {
+		if c.DropClears && hasCounterChannels(c.Comp) {
 			recs = withoutNegativeChannels(recs, c, cons)
 		}
 		raw := rawSeriesByRound(recs, c.key(), teams, cons)
@@ -113,23 +113,38 @@ func valuePairsByRound(recs []types.StatRecord, c StatComponent, teams bool,
 	return pairs
 }
 
-// withoutNegativeChannels ecarte les enregistrements dont l'un des deux canaux du composant de `c` est negatif, et note chacun dans
-// `cons`. Les deux valeurs du composant des frags et des morts sortent de la MEME emission : un canal aberrant prouve l'emission mal
-// alignee, et la valeur de l'autre canal ne vaut rien non plus. Mesure : sur b1b62f38, des enregistrements fortuits (frags A = -31744,
-// morts B = 16) apres la derniere vraie mort (7) la prolongeaient par [longestRun] et publiaient 16 morts pour 7 a l'API.
-// LA REGLE NE VAUT QUE POUR CE COMPOSANT : le canal B des assistances est un signe legitime (-100, -66, -533 avec chaque assistance
-// d'un joueur de 00ba2e1c), l'ecarter perdait les assistances de 700 joueurs. Elle ne vaut que pour les compteurs du tableau des
+// withoutNegativeChannels ecarte les enregistrements dont l'un des canaux compteurs du composant de `c` est negatif ([negativeCounter]), et
+// note chacun dans `cons`. Les valeurs d'un composant sortent de la MEME emission : un canal aberrant prouve l'emission mal alignee, et
+// la valeur de l'autre canal ne vaut rien non plus. Mesure : sur b1b62f38, des enregistrements fortuits (frags A = -31744, morts B = 16)
+// apres la derniere vraie mort (7) la prolongeaient par [longestRun] et publiaient 16 morts pour 7 a l'API.
+// LES CANAUX B ET D DES ASSISTANCES SONT DES POINTS, PAS DES COMPTES : leur signe est legitime (-100, -66, -533 avec chaque assistance d'un
+// joueur de 00ba2e1c), les ecarter perdait les assistances de 700 joueurs. Elle ne vaut que pour les compteurs du tableau des
 // scores : les series qui nomment les evenements (pont d'identite, drapeau, crane) gardent leur domaine.
 func withoutNegativeChannels(recs []types.StatRecord, c StatComponent, cons *ReplisALaConsultation) []types.StatRecord {
 	out := make([]types.StatRecord, 0, len(recs))
 	for _, r := range recs {
-		if v, ok := r.Comps[c.Comp]; ok && (v.A < 0 || v.B < 0) {
+		if v, ok := r.Comps[c.Comp]; ok && negativeCounter(c.Comp, v) {
 			cons.noterEmissionJetee(c.key(), r)
 			continue
 		}
 		out = append(out, r)
 	}
 	return out
+}
+
+// hasCounterChannels dit que le composant `comp` est un compteur de base dont [negativeCounter] juge les canaux.
+func hasCounterChannels(comp int) bool { return comp == coreKillsComp || comp == coreAssistsComp }
+
+// negativeCounter dit qu'une emission du composant `comp` porte un canal compteur negatif. Les frags et les morts (composant 2) sont
+// les canaux A et B ; les assistances (composant 3) sont le canal A, et son canal C n'est jamais un score signe.
+func negativeCounter(comp int, v types.StatValue) bool {
+	switch comp {
+	case coreKillsComp:
+		return v.A < 0 || v.B < 0
+	case coreAssistsComp:
+		return v.A < 0 || v.C < 0
+	}
+	return false
 }
 
 // ClearsDropped rend le meme emplacement lu avec la regle du vidage d'une ligne ([StatComponent.DropClears]).
