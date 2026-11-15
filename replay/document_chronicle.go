@@ -4335,11 +4335,11 @@ package replay
 // est rapportee au dernier corps ouvert a la frame de son premier point ; la fin du corps ne compte que si elle tombe avant la piste suivante
 // du slot. Aucune fenetre de temps : le premier enregistrement `unit-control` du corps borne sa naissance. Une fin a la frame meme ou s ouvre la piste suivante du slot est celle de la piste qui precede.
 //
-// LA MESURE (99 films, 18 006 pistes publiees ; la lecture rejouee par une sonde hors depot). `released` 16 429, `deleted` 521 dont 7 par reprise du slot,
-// `unread` 906 (bots et anciens builds pour l essentiel), `open` 150, `deletionsUnproven` 96. Des 15 290 vies closes qu un frag revendique, 15 113 finissent par un
+// LA MESURE (99 films, 18 006 pistes publiees ; la lecture rejouee par une sonde hors depot). `released` 15 905, `deleted` 546 dont 37 par reprise du slot,
+// `unread` 906 (bots et anciens builds pour l essentiel), `open` 120, `filmEnd` 529, `deletionsUnproven` 96. Des 15 290 vies closes qu un frag revendique, 15 113 finissent par un
 // lacher de 2 frames avant a 6 frames apres la fin de la piste, aucune au-dela (ecart de la frame du lacher a la fin : -2 : 11, -1 : 65, 0 : 4 077, 1 : 9 594, 2 : 728,
-// 3 : 198, 4 : 216, 5 : 200, 6 : 24). Des 653 vies closes sans frag ni compte a rebours dont le corps est commande jusqu a la fin des lectures : 468 `deleted` (16 par
-// reprise du slot), 101 sans fin lue avant la piste suivante du slot, 84 `released` a plus de 6 frames de la fin de la piste, aucune `released` dans l intervalle de 2 a 6 frames.
+// 3 : 198, 4 : 216, 5 : 200, 6 : 24). Des 653 vies closes sans frag ni compte a rebours dont le corps est commande jusqu a la fin des lectures : 495 `deleted` (16 par
+// reprise du slot), 158 sans fin publiee (fin du film, aucune fin lue avant la piste suivante du slot, ou corps non lu), aucune `released`.
 // La borne de naissance est la premiere lecture `unit-control` du corps : 396 vies que la lecture a fenetre de temps de 5 s ne rattachait a aucun corps se rattachent,
 // et toutes les vies revendiquees par un frag parmi elles finissent par un lacher dans l intervalle.
 //
