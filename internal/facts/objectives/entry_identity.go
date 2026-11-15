@@ -54,12 +54,18 @@ func NewEntryResolver(entries []types.StatborgEntry, listings []types.RosterList
 	return r
 }
 
-// EntriesProveLayout dit que les entrees lues sont celles du tableau des scores du film : au moins une entite porte le genre
-// d'une ligne d'equipe, et le tableau s'ouvre sur ses deux lignes d'equipe. Quand la lecture ne tombe pas sur le composant d'entree
+// EntriesProveLayout dit que les entrees lues sont celles du tableau des scores du film : le tableau s'ouvre sur ses deux lignes
+// d'equipe, donc deux numeros d'equipe distincts se lisent en genre equipe. Quand la lecture ne tombe pas sur le composant d'entree
 // (disposition du tableau que le film ne prouve pas), toutes les entites rendent la valeur nulle : un seul identifiant pour toutes les
-// lignes de joueur, qui nommerait un seul joueur sur chacune.
+// lignes de joueur, qui nommerait un seul joueur sur chacune ; une lecture fortuite de genre equipe ne prouve pas deux lignes.
 func EntriesProveLayout(entries []types.StatborgEntry) bool {
-	return slices.ContainsFunc(entries, func(e types.StatborgEntry) bool { return e.Kind == types.StatborgEntryTeam })
+	teams := map[int]bool{}
+	for _, e := range entries {
+		if e.Kind == types.StatborgEntryTeam {
+			teams[e.ID] = true
+		}
+	}
+	return len(teams) >= 2
 }
 
 func compareUS(a, b uint64) int {

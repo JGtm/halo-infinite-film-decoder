@@ -4354,12 +4354,12 @@ package replay
 // aucune table de datums ne porte la bande des slots, `repli_bande_statborg_par_defaut`), les entrees de toutes les entites se lisent zero : un
 // seul identifiant moteur pour toutes les lignes de joueur. Les plages de listage nommaient alors un seul joueur sur toutes les lignes, et ses
 // compteurs se publiaient sommes (a521164d : un joueur a 0 frag, 0 mort, 6 assistances, serie maximale 54, quand l API dit 6, 4 et 3). Une
-// entree est desormais crue seulement si le film prouve la disposition : le tableau s ouvre sur ses deux lignes d equipe, donc au moins une
-// entree de genre equipe se lit. Sinon le pont d identite des slots reste la voie (le triplet frags, morts, assistances confronte aux lignes
+// entree est desormais crue seulement si le film prouve la disposition : le tableau s ouvre sur ses deux lignes d equipe, donc deux
+// numeros d equipe distincts se lisent en genre equipe. Sinon le pont d identite des slots reste la voie (le triplet frags, morts, assistances confronte aux lignes
 // du match) et les lignes qu il n apparie pas ne publient rien.
 //
 // Le meme lot corrige une emission des assistances mal alignee. Une emission du composant 3 dont le canal A est negatif, ou dont le canal C
-// l est, est ecartee comme l etait celle du composant des frags et des morts ; les canaux B et D des assistances (des points signes) restent
+// l est, est ecartee comme l etait celle du composant des frags et des morts, sur la voie des entrees seulement (le pont d identite lit ces series telles quelles) ; les canaux B et D des assistances (des points signes) restent
 // des valeurs. 084a804d : quatre assistances vraies (A = 1, 2, 3, 4) puis une emission a un seul composant (A = 8, B = 8, C = -9695) que la
 // borne par pas laissait passer, huit assistances publiees pour quatre a l API.
 //

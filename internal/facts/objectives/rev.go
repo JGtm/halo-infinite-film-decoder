@@ -299,7 +299,9 @@ package objectives
 // l'etait ; les canaux B et D des assistances (des points signes) restent des valeurs. `scoreTimeline.players[].assists` d'un film dont une
 // telle emission prolongeait la serie (8 assistances pour 4 a l'API sur 084a804d) change ; sur les 27 films mesures, aucune autre valeur
 // publiee ne bouge. Les enregistrements, les entrees et les plages ne changent pas. Les faits persistes de la couche et les calques dates
-// `objectives-2026-11-15` deviennent `redecoder`. Aucun backlog killsource ne s'ouvre.
+// `objectives-2026-11-15` deviennent `redecoder`. Aucun backlog killsource ne s'ouvre. Le meme rang porte [EntriesProveLayout] : les
+// entrees du tableau ne nomment ses lignes que si deux numeros d'equipe distincts se lisent (la lecture, qui ne change pas, rend zero partout
+// quand elle ne tombe pas sur le composant d'entree).
 
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune

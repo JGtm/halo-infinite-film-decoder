@@ -368,12 +368,13 @@ Kind 0 is a player's row, and the top 16 bits of the value are the player's engi
 record is the one the listings show under that id at the record's time, taking the entry of the last keyframe that does not follow the
 record and does not precede its round (`internal/facts/objectives/entry_identity.go`). Nothing is paired by time or by counters, and a
 match of several rounds is named like any other. The entries are trusted only when they prove the layout of the scoreboard: the table
-opens on its two team rows, so at least one entry of kind 1 must be read. A film whose reading does not land on component 57 (builds
+opens on its two team rows, so two distinct team numbers must be read in kind 1. A film whose reading does not land on component 57 (builds
 whose scoreboard layout the film does not carry) reads every entry as zero, which would give one engine id to every player row and name
 a single player on all of them; such a film is named by the identity bridge instead, and its rows that the bridge does not pair publish
-nothing. The kills, deaths and assists components are read with their counter channels in domain: a record whose kills or deaths (2A, 2B)
-or assists (3A) channel is negative, or whose assists record carries a negative channel C, is misaligned and dropped; the signed
-points of the assists component (3B, 3D) are legitimate negatives.
+nothing. When the rows are named by the entries, the kills, deaths and assists components are read with their counter channels in
+domain: a record whose kills or deaths (2A, 2B) or assists (3A) channel is negative, or whose assists record carries a negative
+channel C, is misaligned and dropped; the signed points of the assists component (3B, 3D) are legitimate negatives. The identity
+bridge does not apply this rule: a film named by the bridge reads those components as they are.
 
 **Rounds played.** Component 56 of the same archetype (`statborg-round-outcomes`) is 64 bits, 32 two-bit round outcomes, zero until the
 round is played. The reader keeps the mask of rounds that ever show a non-zero outcome at a keyframe (`StatborgEntryStats.DecidedRounds`).
