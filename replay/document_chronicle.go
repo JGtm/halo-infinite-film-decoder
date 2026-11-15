@@ -4348,3 +4348,36 @@ package replay
 //
 // LE PARC         un artefact 122 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une
 //                 decision de l utilisateur.
+
+// v124 (2026-11-15, le tableau des scores ne se nomme par ses entrees que quand le film en prouve la disposition). Sur un film dont la lecture
+// ne tombe pas sur le composant d entree (builds dont la disposition du tableau n est pas celle que le film porte pour les builds recents :
+// aucune table de datums ne porte la bande des slots, `repli_bande_statborg_par_defaut`), les entrees de toutes les entites se lisent zero : un
+// seul identifiant moteur pour toutes les lignes de joueur. Les plages de listage nommaient alors un seul joueur sur toutes les lignes, et ses
+// compteurs se publiaient sommes (a521164d : un joueur a 0 frag, 0 mort, 6 assistances, serie maximale 54, quand l API dit 6, 4 et 3). Une
+// entree est desormais crue seulement si le film prouve la disposition : le tableau s ouvre sur ses deux lignes d equipe, donc au moins une
+// entree de genre equipe se lit. Sinon le pont d identite des slots reste la voie (le triplet frags, morts, assistances confronte aux lignes
+// du match) et les lignes qu il n apparie pas ne publient rien.
+//
+// Le meme lot corrige une emission des assistances mal alignee. Une emission du composant 3 dont le canal A est negatif, ou dont le canal C
+// l est, est ecartee comme l etait celle du composant des frags et des morts ; les canaux B et D des assistances (des points signes) restent
+// des valeurs. 084a804d : quatre assistances vraies (A = 1, 2, 3, 4) puis une emission a un seul composant (A = 8, B = 8, C = -9695) que la
+// borne par pas laissait passer, huit assistances publiees pour quatre a l API.
+//
+//	`scoreTimeline.players[]`   un film dont les entrees ne prouvent pas la disposition n a plus de joueur nomme par elles ; le pont d identite
+//	                 le nomme, ou personne. `coverage.score.statsWithheld` compte, sur un film a plusieurs manches, les joueurs que cette voie
+//	                 prive de `stats` ; la bande par defaut reste declaree dans `coverage.fallbacks[]`.
+//	`scoreTimeline.players[].assists`   l emission des assistances dont un canal compteur est negatif est ecartee et comptee comme emission
+//	                 hors domaine jetee (`repli_emission_hors_domaine_jetee`).
+//
+// LA MESURE (27 films : les 18 temoins des deux portes de la recuisson et les 9 films d equivalence que ces portes ne couvrent pas ; faits
+// persistes rejoues sans decoder aucun film, valeurs finales contre `match_participants`). 304 joueurs publies avant, 303 apres ; frags, morts,
+// assistances tous trois exacts : 301 avant, 302 apres. Les trois films sans disposition prouvee (a521164d, 50247b26, a349fea8, tous a bande
+// par defaut ; 895 entrees sur 906, 1 412 sur 1 435 et 2 304 sur 2 339 se lisent zero, aucune ligne d equipe) publiaient un joueur, aucun et aucun :
+// le joueur de a521164d est retire (0 exact sur 1). Les 24 autres films portent entre 22 et 133 lignes d equipe et leurs joueurs publies sont
+// identiques a la valeur pres, hors 084a804d dont l assistance passe de 8 a 4 : aucune valeur exacte n est retiree.
+//
+// CE QUI MONTE    `SchemaVersion` 123 -> 124. `objectives.Rev` -> `objectives-2026-11-15.2` (la lecture des assistances ; les enregistrements, les
+// AVEC ELLE       entrees et les plages ne changent pas).
+//
+// LE PARC         un artefact 123 : verdict `a redecoder` (les faits cuits se refusent sur la revision des objectifs). La recuisson est une decision
+//                 de l utilisateur.

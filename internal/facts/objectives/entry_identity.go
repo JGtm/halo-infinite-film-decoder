@@ -35,7 +35,7 @@ type EntryResolver struct {
 }
 
 // NewEntryResolver range les entrees et les plages. Les lignes d'equipe et les plages sans siege ne
-// nomment personne.
+// nomment personne. L'appelant s'assure d'abord que les entrees prouvent la disposition du tableau ([EntriesProveLayout]).
 func NewEntryResolver(entries []types.StatborgEntry, listings []types.RosterListing, originUS uint64) *EntryResolver {
 	r := &EntryResolver{entrees: map[int][]types.StatborgEntry{}, plages: map[int][]types.RosterListing{}, originUS: originUS}
 	for _, e := range entries {
@@ -52,6 +52,14 @@ func NewEntryResolver(entries []types.StatborgEntry, listings []types.RosterList
 		}
 	}
 	return r
+}
+
+// EntriesProveLayout dit que les entrees lues sont celles du tableau des scores du film : au moins une entite porte le genre
+// d'une ligne d'equipe, et le tableau s'ouvre sur ses deux lignes d'equipe. Quand la lecture ne tombe pas sur le composant d'entree
+// (disposition du tableau que le film ne prouve pas), toutes les entites rendent la valeur nulle : un seul identifiant pour toutes les
+// lignes de joueur, qui nommerait un seul joueur sur chacune.
+func EntriesProveLayout(entries []types.StatborgEntry) bool {
+	return slices.ContainsFunc(entries, func(e types.StatborgEntry) bool { return e.Kind == types.StatborgEntryTeam })
 }
 
 func compareUS(a, b uint64) int {

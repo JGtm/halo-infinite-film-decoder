@@ -6,7 +6,7 @@ package replay
 // listent, sous cet identifiant, le joueur qui le tient et pendant quelles plages ([objectives.EntryResolver]).
 // Le joueur d'un enregistrement se lit donc ; il n'y a plus ni appariement des compteurs aux lignes du match, ni
 // instants de mort, ni identite par manche, et un film a plusieurs manches se nomme comme un autre. Sans entrees
-// lues (film dont les images-cles ne portent pas le composant, plages non lues), le tableau se nomme par le pont
+// lues (film dont les images-cles ne portent pas le composant, plages non lues, disposition du tableau non prouvee), le tableau se nomme par le pont
 // d'identite des slots ([buildPlayerScores]).
 
 import (
@@ -15,16 +15,17 @@ import (
 )
 
 // entryResolverOf rend le resolveur des entrees du film, ou nil quand elles ne se lisent pas : entrees ou plages non
-// lues, ou aucune ligne de joueur.
+// lues, aucune ligne de joueur, ou entrees qui ne prouvent pas la disposition du tableau ([objectives.EntriesProveLayout]).
 func entryResolverOf(opt Options) *objectives.EntryResolver {
-	if !opt.StatborgEntryStats.Scanned || !opt.Presences.ListingStats.Scanned || len(opt.StatborgEntries) == 0 {
+	if !opt.StatborgEntryStats.Scanned || !opt.Presences.ListingStats.Scanned ||
+		!objectives.EntriesProveLayout(opt.StatborgEntries) {
 		return nil
 	}
 	return objectives.NewEntryResolver(opt.StatborgEntries, opt.Presences.Listings, opt.FilmClockOriginUS)
 }
 
-// buildPlayerScoresOf rend les compteurs vivants des joueurs : nommes par les entrees quand elles se lisent, par le
-// pont d'identite des slots sinon. Le second retour compte les joueurs que ce pont prive de compteurs nommes (film a
+// buildPlayerScoresOf rend les compteurs vivants des joueurs : nommes par les entrees quand elles se lisent et prouvent la
+// disposition du tableau, par le pont d'identite des slots sinon. Le second retour compte les joueurs que ce pont prive de compteurs nommes (film a
 // plusieurs manches) ; il est nul quand les entrees nomment, et chaque joueur y est une seule entree, ses lignes successives
 // mises bout a bout.
 func buildPlayerScoresOf(recs []types.StatRecord, flat map[int]string, lines []types.PlayerLine,

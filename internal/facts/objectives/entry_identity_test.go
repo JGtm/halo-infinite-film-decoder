@@ -97,3 +97,25 @@ func TestEntryResolverSansEntreeNeNommePersonne(t *testing.T) {
 		t.Errorf("%v %v", out, identite)
 	}
 }
+
+// TestEntriesProveLayout : le tableau s'ouvre sur ses lignes d'equipe ; des entrees qui n'en portent aucune, ou qui sont toutes
+// nulles, ne prouvent pas la disposition.
+func TestEntriesProveLayout(t *testing.T) {
+	equipe := types.StatborgEntry{Slot: 3, TS: 1_000_000, Kind: types.StatborgEntryTeam, ID: 0}
+	cas := []struct {
+		nom     string
+		entries []types.StatborgEntry
+		want    bool
+	}{
+		{"lignes d'equipe et de joueur", []types.StatborgEntry{equipe, entree(5, 1_000, 3)}, true},
+		{"ligne d'equipe seule", []types.StatborgEntry{equipe}, true},
+		{"joueurs distincts sans ligne d'equipe", []types.StatborgEntry{entree(5, 1_000, 3), entree(6, 1_000, 4)}, false},
+		{"entrees toutes nulles", []types.StatborgEntry{entree(5, 1_000, 0), entree(6, 1_000, 0), entree(7, 1_000, 0)}, false},
+		{"aucune entree", nil, false},
+	}
+	for _, c := range cas {
+		if got := EntriesProveLayout(c.entries); got != c.want {
+			t.Errorf("%s : %v, attendu %v", c.nom, got, c.want)
+		}
+	}
+}

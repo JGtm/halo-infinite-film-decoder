@@ -55,10 +55,12 @@ func TestScoreTimelineNommeParLesEntreesUnFilmAPlusieursManches(t *testing.T) {
 	}
 }
 
-// TestEntryResolverOfExigeLesEntreesEtLesPlages : sans entree lue ou sans plage lue, le tableau se nomme par le pont
-// d'identite des slots.
+// TestEntryResolverOfExigeLesEntreesEtLesPlages : sans entree lue, sans plage lue ou sans ligne d'equipe qui prouve la disposition
+// du tableau, il se nomme par le pont d'identite des slots.
 func TestEntryResolverOfExigeLesEntreesEtLesPlages(t *testing.T) {
-	es := []types.StatborgEntry{{Slot: 5, Kind: types.StatborgEntryPlayer, ID: 1}}
+	equipe := types.StatborgEntry{Slot: 3, Kind: types.StatborgEntryTeam}
+	joueur := types.StatborgEntry{Slot: 5, Kind: types.StatborgEntryPlayer, ID: 1}
+	es := []types.StatborgEntry{equipe, joueur}
 	lu := types.StatborgEntryStats{Scanned: true}
 	cas := []struct {
 		nom string
@@ -68,6 +70,7 @@ func TestEntryResolverOfExigeLesEntreesEtLesPlages(t *testing.T) {
 		{"tout lu", Options{StatborgEntries: es, StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, true},
 		{"entrees non lues", Options{StatborgEntries: es, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
 		{"plages non lues", Options{StatborgEntries: es, StatborgEntryStats: lu}, false},
+		{"disposition non prouvee", Options{StatborgEntries: []types.StatborgEntry{joueur}, StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
 		{"aucune ligne de joueur", Options{StatborgEntryStats: lu, Presences: LecturesDePresence{ListingStats: types.RosterListingStats{Scanned: true}}}, false},
 	}
 	for _, c := range cas {

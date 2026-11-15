@@ -202,3 +202,49 @@ func TestLeCanalNegatifDesAssistancesNEstPasEcarte(t *testing.T) {
 		t.Errorf("assistances = %+v, attendu une serie qui finit a 5", assists)
 	}
 }
+
+// Une emission des assistances dont le canal C est negatif est mal alignee : elle ne prolonge pas la serie des assistances (8 pour 4),
+// alors que les canaux B et D negatifs des emissions vraies restent des valeurs.
+func TestUnCanalCNegatifEcarteLEmissionDesAssistances(t *testing.T) {
+	recs := []types.StatRecord{
+		{TimeMS: 282_228, Slot: 10, Comps: map[int]types.StatValue{3: {A: 1, B: 133, D: 133, HasD: true}}},
+		{TimeMS: 414_828, Slot: 10, Comps: map[int]types.StatValue{3: {A: 3, B: -100, D: -100, HasD: true}}},
+		{TimeMS: 469_882, Slot: 10, Comps: map[int]types.StatValue{3: {A: 4, B: -266, D: -266, HasD: true}}},
+		{TimeMS: 552_222, Slot: 10, Comps: map[int]types.StatValue{3: {A: 8, B: 8, C: -9695, HasC: true}}},
+	}
+	cons := &ReplisALaConsultation{}
+	assists := SeriesTotal(recs, AssistsComponent().ClearsDropped(), false, cons)[10]
+	if len(assists) == 0 || assists[len(assists)-1].Value != 4 {
+		t.Errorf("assistances = %+v, attendu une serie qui finit a 4", assists)
+	}
+	if got := cons.ComptesDesReplis().EmissionsHorsDomaineJetees; got != 1 {
+		t.Errorf("%d emission(s) jetee(s) notee(s), attendu 1", got)
+	}
+	brut := SeriesTotal(recs, AssistsComponent(), false, nil)[10]
+	if len(brut) == 0 || brut[len(brut)-1].Value != 8 {
+		t.Errorf("serie brute des assistances = %+v, attendu 8 (domaine inchange)", brut)
+	}
+}
+
+func TestNegativeCounter(t *testing.T) {
+	cas := []struct {
+		nom  string
+		comp int
+		v    types.StatValue
+		want bool
+	}{
+		{"frags et morts valides", coreKillsComp, types.StatValue{A: 5, B: 7}, false},
+		{"frags negatifs", coreKillsComp, types.StatValue{A: -1, B: 7}, true},
+		{"morts negatives", coreKillsComp, types.StatValue{A: 5, B: -1}, true},
+		{"assistances et points signes", coreAssistsComp, types.StatValue{A: 1, B: -66, D: -300, HasD: true}, false},
+		{"assistances negatives", coreAssistsComp, types.StatValue{A: -1}, true},
+		{"canal C des assistances negatif", coreAssistsComp, types.StatValue{A: 8, B: 8, C: -9695, HasC: true}, true},
+		{"canal C des assistances positif", coreAssistsComp, types.StatValue{A: 2, C: 28, HasC: true}, false},
+		{"autre composant", 4, types.StatValue{A: -1, B: -1, C: -1}, false},
+	}
+	for _, c := range cas {
+		if got := negativeCounter(c.comp, c.v); got != c.want {
+			t.Errorf("%s : %v, attendu %v", c.nom, got, c.want)
+		}
+	}
+}
