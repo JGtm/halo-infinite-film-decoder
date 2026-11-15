@@ -62,6 +62,9 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.BipedDeletions, s.in.BipedDeletionStats = m.BipedDeletions, m.BipedDeletionStats
 	s.in.Horloges = m.Horloges
 	s.in.GameEvents, s.in.GameEventStats, s.in.GameEventsRead = m.EvenementsDeJeu, m.EvenementsDeJeuStats, err == nil
+	s.in.Damages, s.in.DamageStats, s.in.DamagesRead = m.Degats, m.DegatsStats, err == nil
+	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
+	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
 	s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
 	if s.in.Vehicles.Scanned {
 		morts := mortsDeVehicule(s.ctx, s.matchID, m)
@@ -79,6 +82,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "horloges", s.in.Horloges)
 	s.opt.observe(s.ctx, "gameEvents", s.in.GameEvents)
 	s.opt.observe(s.ctx, "gameEvents.stats", s.in.GameEventStats)
+	s.opt.observe(s.ctx, "damages", s.in.Damages)
+	s.opt.observe(s.ctx, "damages.stats", s.in.DamageStats)
 	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)

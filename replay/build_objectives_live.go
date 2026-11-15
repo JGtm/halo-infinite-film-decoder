@@ -64,6 +64,9 @@ type FlagInput struct {
 	// une autre grammaire du film, et le signal sans lequel le discriminant de mode ne tient
 	// pas (un film Oddball rend 1 470 « prises » a la table du drapeau).
 	Bursts []int
+	// SeatsBeyondBand compte les sieges du statborg au-dela de la bande que le calque lit ([objectives.RecordsDeLaBandeSure]) :
+	// ils ne sont pas lus, et `coverage.flagCarries.seatsBeyondBand` le dit.
+	SeatsBeyondBand int
 	// Spawns sont TOUS les socles `flag_spawn` de la carte, en coordonnees monde, lus dans le
 	// catalogue versionne d'objectifs : les deux socles d'equipe ET le socle NEUTRE du centre.
 	// C'est le calque qui retient les uns ou l'autre, selon la variante qu'il reconnait
@@ -83,6 +86,9 @@ type FlagInput struct {
 	// la meme chose (meme lecon que `ZoneInput.Scanned`).
 	Gauge        []grammar.ManagedPropertyRead
 	GaugeScanned bool
+	// GaugeWalk est la MEME jauge lue par la marche des trames. Pour chaque lacher, la serie de la marche est publiee
+	// quand elle existe, sinon celle de `Gauge` : aucune serie lue ne disparait, et aucune regle de choix n'est ajoutee.
+	GaugeWalk []grammar.ManagedPropertyRead
 	// Identity est le pont slot statborg -> xuid PAR MANCHE, DEJA RESOLU par l'appelant.
 	// FACULTATIF : laisse a zero, ce paquet le resout lui-meme par les seuls INSTANTS DE MORT
 	// (cf. [flagIdentityOf]), et le calque reste publiable hors ligne, sans base.
@@ -175,6 +181,9 @@ func attachFlagCarries(ctx context.Context, doc *ReplayDocument, opt Options, re
 	// pas du CTF — ce pont ne sert a RIEN, puisque le calque ne publie rien. On ne le paye plus.
 	if !in.Scanned || !signals.IsFlagFilm() {
 		vide, cov := buildFlagCarries(scan, flagCarryCtx{fb: clock.fb, journal: ctx})
+		if cov != nil {
+			cov.SeatsBeyondBand = in.SeatsBeyondBand
+		}
 		attachFlagLayer(ctx, doc, vide, cov)
 		return
 	}
@@ -194,6 +203,7 @@ func attachFlagCarries(ctx context.Context, doc *ReplayDocument, opt Options, re
 	})
 	if cov != nil {
 		cov.ObjectLives = len(scan.Free)
+		cov.SeatsBeyondBand = in.SeatsBeyondBand
 	}
 	// LA JAUGE DE RETOUR SE POSE APRES L ASSEMBLAGE, ET C EST L ORDRE DE LA PREUVE : le slot de
 	// `ti=13` qui la porte ne se NOMME pas, il se reconnait a la part de ses echantillons qui
@@ -233,10 +243,15 @@ func flagIdentityOf(in FlagInput, opt Options) objectives.RoundIdentity {
 // chargeur du manifeste la refuse deja, mais le calque ne suppose pas que l'appelant l'a
 // chargee). Un cercle dessine sur un mode qui n'en a pas serait pire qu'aucun cercle.
 func attachFlagReturnZone(doc *ReplayDocument, z FlagReturnZone, carries []FlagCarry) {
-	if len(carries) == 0 || z.RadiusM <= 0 || z.ResetSeconds <= 0 || z.SoloSeconds <= 0 {
+	if len(carries) == 0 || z.RadiusM <= 0 || z.SoloSeconds <= 0 {
 		return
 	}
-	zone := z
+	// LE DELAI NE VIENT QUE DE LA VARIANTE DU FILM : celui du manifeste est un delai par defaut que la variante ecrase,
+	// et il n est jamais publie a sa place. Sans delai ecrit par la variante, `resetSeconds` est absent.
+	zone := FlagReturnZone{RadiusM: z.RadiusM, SoloSeconds: z.SoloSeconds}
+	if doc.Rules != nil && doc.Rules.FlagReturnS != nil && *doc.Rules.FlagReturnS > 0 {
+		zone.ResetSeconds = float32(*doc.Rules.FlagReturnS)
+	}
 	doc.FlagReturnZone = &zone
 }
 

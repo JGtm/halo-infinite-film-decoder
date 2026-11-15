@@ -124,7 +124,7 @@ func (g GardesDeCuisson) couvre(d GardesDeCuisson) error {
 func (in *FilmInputs) restreindreAuxGardes(d GardesDeCuisson) {
 	if !d.Drapeau {
 		in.FlagMarks = grammar.CarrierMarkScan{}
-		in.FlagGauge, in.FlagGaugeScanned = nil, false
+		in.FlagGauge, in.FlagGaugeScanned, in.FlagGaugeWalk = nil, false, nil
 	}
 	if !d.Zones {
 		in.ZoneReads, in.ZoneKeyReads, in.ZoneScanned = nil, nil, false

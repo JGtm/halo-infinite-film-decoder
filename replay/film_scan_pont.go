@@ -79,11 +79,15 @@ type siegesEtOccupants struct {
 // Aucun refus n'est fatal : la table refusee est consignee et publiee
 // ([consignerLaTableDuFilm]), une lecture d'equipes refusee porte sa cause dans son rapport.
 func lireSiegesEtOccupants(ctx context.Context, film *source.Film, fc *grammar.FilmContext, matchID string) siegesEtOccupants {
-	table, err := grammar.ScanFilmPlayerTable(film)
-	so := siegesEtOccupants{table: consignerLaTableDuFilm(ctx, table, err, matchID)}
+	lu, err := grammar.ScanFilmPlayerTableAuxListages(film)
+	so := siegesEtOccupants{table: consignerLaTableDuFilm(ctx, lu.Table, err, matchID)}
 	so.equipes, so.rapport, so.entites = grammar.ScanPlayerTeams(fc)
-	so.listages, so.statsListages = grammar.ScanRosterListings(film)
+	so.listages, so.statsListages = lu.Listages, lu.StatsListages
 	so.entrees, so.statsEntrees = grammar.ScanStatborgEntries(fc)
+	if lu.Corriges > 0 {
+		slog.InfoContext(ctx, "rejeu : sieges de la table du film lus aux listes de la session", "match_id", matchID,
+			"sieges", lu.Corriges, "occupants", len(lu.Table.Seats))
+	}
 	return so
 }
 

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/JGtm/halo-infinite-film-decoder/internal/filmtest"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 )
 
@@ -358,4 +359,23 @@ func chargerBobine(t *testing.T, dir string) *film {
 		t.Fatalf("loadFilm(%s) : %v", dir, err)
 	}
 	return f
+}
+
+// TestLaTableDuKillFeedLitLesSiegesDeLaListe : sur une bobine dont deux lignes de la table sont permutees, la table que
+// killsource epingle aux index est celle des sieges de la liste, pas celle des rangs : le gamertag de chaque occupant
+// reste au siege que les paquets de type 8 lui donnent.
+// MUTATIONS — `readFilmTable` qui lit la table brute : ROUGE.
+func TestLaTableDuKillFeedLitLesSiegesDeLaListe(t *testing.T) {
+	f := chargerBobine(t, miniBobineDir)
+	avant := readFilmTable(f)
+	xa, xb := filmtest.PermuterDeuxLignesDeLaTable(t, f.src)
+	apres := readFilmTable(f)
+	if apres.Refusal != FilmTableRead || len(apres.Seats) != len(avant.Seats) {
+		t.Fatalf("table apres permutation : %q, %d sieges (avant %d)", apres.Refusal, len(apres.Seats), len(avant.Seats))
+	}
+	for siege, nom := range avant.Seats {
+		if apres.Seats[siege] != nom {
+			t.Fatalf("siege %d : %q, attendu %q (permutation des xuids %d et %d)", siege, apres.Seats[siege], nom, xa, xb)
+		}
+	}
 }

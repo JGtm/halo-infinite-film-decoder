@@ -226,6 +226,8 @@ type Options struct {
 	Medals MedalInput
 	// ScoreActions : les messages de jeu des trames delta et les scripts qui en fixent le sens (cf. [ScoreActionInput]).
 	ScoreActions ScoreActionInput
+	// Damages : les messages `damage_aftermath` lus dans le film (cf. [HitInput]).
+	Damages HitInput
 	// PlayerIndices est la table identité -> index de joueur, LUE dans le film (cf.
 	// player_index.go). Second maillon du pont, et lui aussi une lecture. Absente, un tir ou un
 	// lancer reste publie si le registre nomme son slot par la table des sieges (`FilmTable`).

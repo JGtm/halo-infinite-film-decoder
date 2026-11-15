@@ -303,6 +303,11 @@ package objectives
 // entrees du tableau ne nomment ses lignes que si deux numeros d'equipe distincts se lisent (la lecture, qui ne change pas, rend zero partout
 // quand elle ne tombe pas sur le composant d'entree).
 
+// ENTREE `objectives-2026-11-15.3` (2026-11-15, les sieges au-dela de la bande sure se comptent) : LA SORTIE CHANGE PAR UN COMPTE. [SiegesAuDelaDeLaBandeSure] rend le nombre de slots de
+// joueur que le statborg porte au-dela de [RecordsDeLaBandeSure] : les sieges que le calque du drapeau ne lit pas, et que le document publie dans `coverage.flagCarries.seatsBeyondBand`.
+// Les enregistrements, les entrees et les plages ne changent pas ; les faits persistes de la couche et les calques dates `objectives-2026-11-15.2` deviennent `redecoder`. Aucun backlog
+// killsource ne s'ouvre.
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
@@ -313,6 +318,7 @@ package objectives
 // A REVISION CONSTANTE (messages de jeu et scripts lus par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` (`grammar-2026-11-14.3`)
 // monte ; aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
 //
-// A REVISION CONSTANTE (suppression d un bipede lue par la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-15.3`) ;
-// aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-11-15.2"
+// A REVISION CONSTANTE (quatre lectures de la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte quatre fois, jusqu a `grammar-2026-11-15.4` (la
+// suppression d un bipede, les valeurs des proprietes reseau lues par la marche, les messages de degat, la vie des bipedes) ; sa seule source neuve est [SiegesAuDelaDeLaBandeSure] ; les enregistrements qu elle rend ne changent pas. [SiegesAuDelaDeLaBandeSure] compte les sieges que le calque du drapeau ne lit pas.
+// L empreinte du golden est recopiee au meme rang.
+const Rev = "objectives-2026-11-15.3"

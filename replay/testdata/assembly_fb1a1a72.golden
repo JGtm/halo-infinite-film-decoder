@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 22932 frames · intervalle 33 ms · duree 756756 ms
-schema 124 · titre halo_infinite
+schema 125 · titre halo_infinite
 version majeure du film : 41
 origine de la frame 0 sur l horloge du fil : 51707 ms
 coup d envoi date par le film : 52070 ms · 144/144 piste(s) en mouvement · rafale 6 · marge depuis la frame 0 : 363 ms
@@ -664,4 +664,18 @@ groupe "arenaflagevents.lua+flageventstubs.lua" (absent : false) · trames 48771
   somme 2759150029385955 = 1725
   somme 2808996413735222 = 1300
 première : t=353 xuid=2758522581629202 killPersonalScore 100 cible="2759150029385955" · dernière : t=22701 xuid=2758522581629202 flagReturnScore 25 cible=""
+
+## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
+2712 message(s) · 1804 d'arme · 1800 touche(s) · 1774 posée(s) · 0 sans auteur · 26 sans victime · 0 avant la frame 0 · 0 après la fin · 8 joueur(s) dont 8 suffisant(s) (couverture >= 0.7, doublons < 1.2)
+1892 ligne(s) de dégât dont 73 mesurée(s) · 42 message(s) sans piste · 2 touche(s) et 11 dégât(s) sur soi · 0 trame(s) arrêtée(s) et 0 de vitalités non lues sur 48771
+  2547408409520575 : 415 tir(s) dont 348 écrit(s) · 235 message(s) · 235 touche(s) · couverture 0.84 · doublons 1.00 · infligé 5509.6 · subi 4592.8 · suffisant true
+  2568263014615267 : 506 tir(s) dont 429 écrit(s) · 202 message(s) · 200 touche(s) · couverture 0.85 · doublons 1.01 · infligé 5552.0 · subi 5554.3 · suffisant true
+  2603225103667623 : 329 tir(s) dont 273 écrit(s) · 151 message(s) · 151 touche(s) · couverture 0.83 · doublons 1.00 · infligé 5669.5 · subi 4604.0 · suffisant true
+  2677589764811504 : 625 tir(s) dont 546 écrit(s) · 245 message(s) · 245 touche(s) · couverture 0.87 · doublons 1.00 · infligé 4562.4 · subi 5076.9 · suffisant true
+  2705335195804900 : 488 tir(s) dont 394 écrit(s) · 230 message(s) · 230 touche(s) · couverture 0.81 · doublons 1.00 · infligé 6928.7 · subi 5435.3 · suffisant true
+  2758522581629202 : 589 tir(s) dont 481 écrit(s) · 295 message(s) · 295 touche(s) · couverture 0.82 · doublons 1.00 · infligé 6044.5 · subi 5827.8 · suffisant true
+  2759150029385955 : 458 tir(s) dont 383 écrit(s) · 171 message(s) · 171 touche(s) · couverture 0.84 · doublons 1.00 · infligé 3272.6 · subi 5097.8 · suffisant true
+  2808996413735222 : 522 tir(s) dont 435 écrit(s) · 273 message(s) · 273 touche(s) · couverture 0.83 · doublons 1.00 · infligé 3516.4 · subi 5546.5 · suffisant true
+première : t=233 2808996413735222 -> 2705335195804900 0000b238 w=0x48C19D2D42C9679F · dernière : t=22547 2758522581629202 -> 2705335195804900 bb1a095b w=0xF408190F42C9679F
+dégât, première : t=233 2808996413735222 -> 2705335195804900 0000b238 bouclier 11.8 corps 0.0 · dernière : t=22547 2758522581629202 -> 2705335195804900 bb1a095b bouclier 0.0 corps 6.4
 

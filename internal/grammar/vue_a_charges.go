@@ -1,5 +1,7 @@
 package grammar
 
+import "github.com/JGtm/halo-infinite-film-decoder/internal/grammar/lecture"
+
 // vue_a_charges.go — LES CHARGES DES MESSAGES DE LA VUE A, PORTEES DEPUIS LEUR LECTEUR DU JEU (lots
 // LN et VA de la campagne de grammaire).
 //
@@ -93,14 +95,21 @@ const degatsF58AvecOctet = 1
 // D-LN-2 de `LOT_LN.md`), et les reunir changerait la sortie de `weapon_hits` et toucherait le
 // rattrapage des kills. Retrait : le lot dedie qui centralise `FUN_1407f15a4` et corrige D-LN-2.
 func chargeDegatsApres(br *Lecteur) bool {
-	consumeGateR(br, 32)      // FUN_14080d69c
-	consumeGate0R(br, 5)      // FUN_1407f2058
+	d := lecture.DegatDeJoueur{Joueur: lecture.RefAbsente}
+	if br.ReadBit() { // FUN_14080d69c : l'effet de degat
+		d.Tag, d.Drapeaux = uint32(br.ReadBits(32)), d.Drapeaux|lecture.DegatTag //nolint:gosec // R(32)
+	}
+	if !br.ReadBit() { // FUN_1407f2058 : l'index de joueur de l'auteur
+		d.Joueur = int8(br.ReadBits(5)) //nolint:gosec // R(5)
+	}
 	br.Skip(largeurDirection) // FUN_14076dc04, R9D = EBP + 0x14 = 0x13 (1407f15e8)
 	if br.ReadBit() {         // [+0x20]
 		br.Skip(largeurDirection) // FUN_14076dc04, R9D = 0x13 (1407f1a66)
 		br.Skip(12)               // FUN_1406d84b4, cinquieme argument 0xc (1407f1a89)
 	}
-	br.Skip(5 + 5 + 6)  // FUN_1406d84b4 x 3, cinquiemes arguments 5, 5, 6 (1407f1631..1407f166a)
+	d.Echelle = uint8(br.ReadBits(5)) //nolint:gosec // R(5), le premier des trois champs
+	br.Skip(5 + 6)                    // FUN_1406d84b4 x 2, cinquiemes arguments 5, 6 (1407f1631..1407f166a)
+	br.degatLu = d
 	consumeGateR(br, 5) // R(1) puis FUN_1406d84b4 (5) au bloc froid 1423260c0
 	var dernier bool
 	for range drapeauxDeDegats { // les quinze R(1) de [+0x44]

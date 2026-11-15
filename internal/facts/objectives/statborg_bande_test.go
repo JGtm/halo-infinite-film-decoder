@@ -37,3 +37,13 @@ func TestRecordsDeLaBandeSure(t *testing.T) {
 		t.Error("aucun enregistrement : aucun rendu")
 	}
 }
+
+func TestSiegesAuDelaDeLaBandeSure(t *testing.T) {
+	recs := []types.StatRecord{{Slot: 8}, {Slot: 24}, {Slot: 26}, {Slot: 26}, {Slot: 58}}
+	if got := SiegesAuDelaDeLaBandeSure(recs); got != 2 {
+		t.Errorf("sieges au-dela de la bande = %d, attendu 2 (les slots 26 et 58, comptes une fois)", got)
+	}
+	if SiegesAuDelaDeLaBandeSure(nil) != 0 {
+		t.Error("aucun enregistrement : aucun siege")
+	}
+}

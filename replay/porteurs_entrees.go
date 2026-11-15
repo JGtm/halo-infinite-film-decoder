@@ -86,11 +86,14 @@ func GardesDeLaVariante(variante string) GardesDesPorteurs {
 // SOCLES s'y ajoutent chez l'appelant (ils viennent du catalogue de carte, pas du film).
 //
 // LE CALQUE NE LIT QUE LES EQUIPES ET LES HUIT PREMIERS JOUEURS ([objectives.RecordsDeLaBandeSure]) : le
-// statborg se lit jusqu'au dernier siege pour le tableau des scores, mais les portages et la jauge de retour
-// du drapeau n'ont ete mesures que sur cette bande, et sur un CTF de plus de huit sieges leur lecture
-// elargie change sans oracle.
+// statborg se lit jusqu'au dernier siege pour le tableau des scores, mais le calque du drapeau lu sur tous les
+// sieges attribue a un joueur le portage d'un autre quand un siege change d'occupant (le total du film s'ameliore,
+// le portage de certains joueurs devient faux).
+//
+// LES SIEGES AU-DELA SE COMPTENT ([FlagInput.SeatsBeyondBand]) : le calque ne les lit pas, et la couverture le dit.
 func EntreeDuDrapeau(recs []types.StatRecord, bursts []int, pont *PontParManche) FlagInput {
-	return withFlagIdentity(FlagInput{Scanned: true, Records: objectives.RecordsDeLaBandeSure(recs), Bursts: bursts}, pont)
+	return withFlagIdentity(FlagInput{Scanned: true, Records: objectives.RecordsDeLaBandeSure(recs), Bursts: bursts,
+		SeatsBeyondBand: objectives.SiegesAuDelaDeLaBandeSure(recs)}, pont)
 }
 
 // withFlagIdentity pose le pont COMPLETE sur l'entree du calque — et SEULEMENT sur un film que les

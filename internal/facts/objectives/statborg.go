@@ -33,8 +33,9 @@ const statMaxRound = signaux.StatborgMancheMax
 
 // RecordsDeLaBandeSure rend les enregistrements des equipes et des huit premiers joueurs : la bande
 // que les calques d'objectif ont ete mesures sur. Au-dela, un slot de joueur n'est lu que pour le
-// tableau des scores ; les calques d'objectif (drapeau) attendent leur mesure sur les films de plus de
-// huit sieges.
+// tableau des scores. Ouvrir cette bande au drapeau donne un total de portage par film plus juste, mais
+// attribue a un joueur le portage d'un autre quand un siege change d'occupant : le calque du drapeau ne
+// lit les sieges au-dela qu'une fois chaque ligne associee a son joueur.
 func RecordsDeLaBandeSure(recs []types.StatRecord) []types.StatRecord {
 	out := make([]types.StatRecord, 0, len(recs))
 	for _, r := range recs {
@@ -43,6 +44,18 @@ func RecordsDeLaBandeSure(recs []types.StatRecord) []types.StatRecord {
 		}
 	}
 	return out
+}
+
+// SiegesAuDelaDeLaBandeSure compte les slots de joueur que le statborg porte au-dela de la bande
+// ([RecordsDeLaBandeSure]) : les sieges que les calques d'objectif ne lisent pas.
+func SiegesAuDelaDeLaBandeSure(recs []types.StatRecord) int {
+	vus := map[int]bool{}
+	for _, r := range recs {
+		if r.Slot > signaux.StatborgSlotBandeSure {
+			vus[r.Slot] = true
+		}
+	}
+	return len(vus)
 }
 
 // IsTeamSlot dit si un slot designe une entite d'equipe (par opposition a un joueur).

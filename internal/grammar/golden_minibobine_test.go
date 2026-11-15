@@ -335,12 +335,7 @@ func famillesObjetsDuMonde(r *recueil, fc *FilmContext, film *source.Film) {
 	kf := ScanWorldObjectKeyframes(NewFilmContext(film), BipedTypeIndex)
 	r.ajouter("worldObjectKeyframes_ti35", len(kf.Band), kf, kf.TimesUS, nil)
 
-	props, err := ScanManagedProperties(fc)
-	premier := any(nil)
-	if len(props.Reads) > 0 {
-		premier = props.Reads[0]
-	}
-	r.ajouter("managedProperties", len(props.Reads), props, premier, err)
+	famillesProprietesGerees(r, fc)
 
 	obj, err := ScanObjectives(fc)
 	r.ajouter("objectives_ti11", len(obj.Reads), obj, nil, err)

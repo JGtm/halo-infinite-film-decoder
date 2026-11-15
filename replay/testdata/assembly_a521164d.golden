@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10293 frames · intervalle 33 ms · duree 339669 ms
-schema 124 · titre halo_infinite
+schema 125 · titre halo_infinite
 version majeure du film : 33
 origine de la frame 0 sur l horloge du fil : 27811 ms
 coup d envoi date par le film : 45235 ms · 125/128 piste(s) en mouvement · rafale 17 · marge depuis la frame 0 : 17424 ms
@@ -701,4 +701,8 @@ premiere : t=1950 ms=92193 xuid=2731649127743970 id=0 · derniere : t=9867 ms=35
 groupe "" (absent : true) · trames 11130 (lues 6174, arrêtées 4956, vue A illisible : true) · complet : false
 0 message(s) : 0 à points · 0 sans rapport avec le score · 0 nommé(s) sans points · 0 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
 0 (message, destinataire) à points · 0 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
+
+## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
+0 message(s) · 0 d'arme · 0 touche(s) · 0 posée(s) · 0 sans auteur · 0 sans victime · 0 avant la frame 0 · 0 après la fin · 0 joueur(s) dont 0 suffisant(s) (couverture >= 0.7, doublons < 1.2)
+0 ligne(s) de dégât dont 0 mesurée(s) · 0 message(s) sans piste · 0 touche(s) et 0 dégât(s) sur soi · 4956 trame(s) arrêtée(s) et 0 de vitalités non lues sur 11130
 

@@ -487,3 +487,8 @@ package killsource
 // A REVISION CONSTANTE (suppression d un bipede lue par la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte
 // (`grammar-2026-11-15.3`) ; aucune source de cette couche ne change, et les kills que ce paquet en tire non plus. Golden regenere a revision
 // constante.
+//
+// A REVISION CONSTANTE (quatre lectures de la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte jusqu a `grammar-2026-11-15.4` (les valeurs des
+// proprietes reseau lues par la marche, les messages de degat, la vie des bipedes, les vitalites relues sur les listes non localisees) ; le fil des
+// couples et les kills que ce paquet en tire ne changent pas. Le siege d un occupant de la table du film se lit aux listes de la session (`grammar.ScanFilmPlayerTableAuxListages`,
+// aussi pour `readFilmTable`) : les gamertags epingles aux index suivent les sieges de la liste. Golden regenere a revision constante.

@@ -92,6 +92,10 @@ type flagGaugeSlot struct {
 // L ORDRE EST CELUI DE LA PREUVE : on ne peut apparier un slot a un drapeau qu une fois les
 // intervalles `dropped` CONNUS, puisque c est la correlation a ces intervalles qui identifie le
 // slot. La jauge se pose donc APRES l assemblage des vies, jamais pendant.
+//
+// DEUX LECTURES DES MEMES RECORDS, ET UN CHOIX PAR LACHER : la marche des trames ([FlagInput.GaugeWalk]) et la passe
+// qui ancre les records ([FlagInput.Gauge]) sont appariees chacune a part, et la serie de chaque lacher est celle de la
+// marche quand elle en porte une, sinon celle de la passe. Aucune des deux ne supprime une serie que l autre lit.
 func attachFlagReturnGauges(
 	carries []FlagCarry, in FlagInput, c matchClock, cov *FlagCarriesCoverage,
 ) {
@@ -102,23 +106,29 @@ func attachFlagReturnGauges(
 		return
 	}
 	slots := flagGaugeSlotsOf(in.Gauge, c)
+	walk := flagGaugeSlotsOf(in.GaugeWalk, c)
 	if cov != nil {
 		cov.GaugeSlots = len(slots)
 		for _, s := range slots {
 			cov.GaugeReads += len(s.samples)
 		}
+		for _, s := range walk {
+			cov.GaugeWalkReads += len(s.samples)
+		}
 	}
-	bound := bindFlagGauges(slots, carries)
+	boundPass := bindFlagGauges(slots, carries)
+	boundWalk := bindFlagGauges(walk, carries)
 	gap := zoneGaugeGapFrames(int(c.step / 1000))
 	for f := range carries {
-		s, ok := bound[f]
-		if !ok {
+		sp, okPass := boundPass[f]
+		sw, okWalk := boundWalk[f]
+		if !okPass && !okWalk {
 			continue
 		}
 		if cov != nil {
 			cov.GaugePaired++
 		}
-		fillFlagReturnProgress(carries[f].Spans, s.samples, gap, cov)
+		fillFlagReturnProgress(carries[f].Spans, sw.samples, sp.samples, gap, cov)
 	}
 }
 
@@ -207,17 +217,21 @@ func flagSamplesInsideDrops(ss []zoneSample, spans []FlagSpan) int {
 }
 
 // fillFlagReturnProgress pose la serie sur chaque intervalle `dropped`, ALLEGEE comme celle des
-// zones et bornee a l intervalle.
+// zones et bornee a l intervalle : celle de `walk` quand elle y porte un point, sinon celle de `pass`.
 //
 // LA CLE EST ABSENTE QUAND LE FILM NE PORTE RIEN SUR CET INTERVALLE, et c est la meme regle que
 // partout dans ce document : un tableau vide se lirait « la jauge est restee a zero », alors que
 // l absence dit « le film n a rien emis ici ».
-func fillFlagReturnProgress(spans []FlagSpan, ss []zoneSample, gap int, cov *FlagCarriesCoverage) {
+func fillFlagReturnProgress(spans []FlagSpan, walk, pass []zoneSample, gap int, cov *FlagCarriesCoverage) {
 	for i := range spans {
 		if spans[i].State != FlagStateDropped {
 			continue
 		}
-		pts, _ := appendGaugeThinned(nil, ss, spans[i].T0, spans[i].T1, gap)
+		pts, _ := appendGaugeThinned(nil, walk, spans[i].T0, spans[i].T1, gap)
+		fromWalk := len(pts) > 0
+		if !fromWalk {
+			pts, _ = appendGaugeThinned(nil, pass, spans[i].T0, spans[i].T1, gap)
+		}
 		if len(pts) == 0 {
 			continue
 		}
@@ -225,6 +239,9 @@ func fillFlagReturnProgress(spans []FlagSpan, ss []zoneSample, gap int, cov *Fla
 		if cov != nil {
 			cov.GaugeSpans++
 			cov.GaugePoints += len(pts)
+			if fromWalk {
+				cov.GaugeWalkSpans++
+			}
 		}
 	}
 }

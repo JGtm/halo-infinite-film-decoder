@@ -39,6 +39,7 @@ func rangerLaVueA(p *lecture.Paquet, a *FluxVueA) {
 	p.VueA.Kills = append(p.VueA.Kills[:0], a.Kills...)
 	p.VueA.Fil = append(p.VueA.Fil[:0], a.Fil...)
 	p.VueA.Jeu = append(p.VueA.Jeu[:0], a.Jeu...)
+	p.VueA.Degats = append(p.VueA.Degats[:0], a.Degats...)
 	p.VueA.Poussees = append(p.VueA.Poussees[:0], a.Poussees...)
 	p.VueA.Detonations = append(p.VueA.Detonations[:0], a.Detonations...)
 	p.VueA.PremierPresume = uint16(a.PremierPresume) //nolint:gosec // rang dans la vue A d un payload

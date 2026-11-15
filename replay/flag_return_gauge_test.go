@@ -160,3 +160,71 @@ func TestAttachFlagReturnGaugesNeLitRienSansBalayage(t *testing.T) {
 		t.Errorf("un balayage absent a publie quelque chose : %+v", cov)
 	}
 }
+
+// frgDeuxLachers fabrique un drapeau qui tombe deux fois, sur [20, 40] puis sur [60, 80].
+func frgDeuxLachers() FlagCarry {
+	return FlagCarry{Team: 0, Spans: []FlagSpan{
+		{State: FlagStateHome, T0: 0, T1: 19},
+		{State: FlagStateDropped, T0: 20, T1: 40},
+		{State: FlagStateHome, T0: 41, T1: 59},
+		{State: FlagStateDropped, T0: 60, T1: 80},
+		{State: FlagStateHome, T0: 81, T1: 99},
+	}}
+}
+
+// frgSerie fabrique les lectures d un slot sur [de, a], une toutes les deux frames, de la fraction `depart` a `depart + 0,5`.
+func frgSerie(slot uint32, de, a int, depart float64) []grammarManagedRead {
+	var rs []grammarManagedRead
+	n := (a - de) / 2
+	for i := 0; i <= n; i++ {
+		rs = append(rs, frgLecture(slot, de+2*i, depart+0.5*float64(i)/float64(n)))
+	}
+	return rs
+}
+
+// La serie de chaque lacher est celle de la marche quand elle en porte une, sinon celle de la passe : une serie que
+// la passe lit ne disparait pas parce que la marche apparie un autre slot, et la marche l emporte ou elle lit.
+func TestAttachFlagReturnGaugesChoisitLaSerieParLacher(t *testing.T) {
+	carries := []FlagCarry{frgDeuxLachers()}
+	passe := append(frgSerie(1490, 20, 40, 0), frgSerie(1490, 60, 80, 0)...)
+	in := frgInput(passe)
+	// La marche n apparie qu un autre slot, et ne lit que le premier lacher, a une autre echelle.
+	in.GaugeWalk = frgInput(frgSerie(1600, 20, 40, 0.25)).Gauge
+	var cov FlagCarriesCoverage
+	attachFlagReturnGauges(carries, in, frgClock(), &cov)
+	premier, second := carries[0].Spans[1].ReturnProgress, carries[0].Spans[3].ReturnProgress
+	if len(premier) == 0 || len(second) == 0 {
+		t.Fatalf("un lacher n a pas de serie : %v / %v (couverture %+v)", len(premier), len(second), cov)
+	}
+	if got := premier[0].V; got < 0.24 || got > 0.26 {
+		t.Errorf("le premier lacher part de %v, attendu 0,25 (la marche)", got)
+	}
+	if got := second[0].V; got != 0 {
+		t.Errorf("le second lacher part de %v, attendu 0 (la passe : la marche n y lit rien)", got)
+	}
+	if cov.GaugeSpans != 2 || cov.GaugeWalkSpans != 1 || cov.GaugePaired != 1 {
+		t.Errorf("couverture = lachers %d, dont marche %d, apparies %d — attendu 2/1/1", cov.GaugeSpans, cov.GaugeWalkSpans, cov.GaugePaired)
+	}
+}
+
+// Sans lecture de la marche, la jauge est celle de la passe, a l identique ; sans lecture de la passe, celle de la marche.
+func TestAttachFlagReturnGaugesUneSeuleLecture(t *testing.T) {
+	passe := append(frgSerie(1490, 20, 40, 0), frgSerie(1490, 60, 80, 0)...)
+	seule := []FlagCarry{frgDeuxLachers()}
+	var covPasse FlagCarriesCoverage
+	attachFlagReturnGauges(seule, frgInput(passe), frgClock(), &covPasse)
+	if covPasse.GaugeSpans != 2 || covPasse.GaugeWalkSpans != 0 {
+		t.Errorf("passe seule : lachers %d, dont marche %d, attendu 2/0", covPasse.GaugeSpans, covPasse.GaugeWalkSpans)
+	}
+	marche := []FlagCarry{frgDeuxLachers()}
+	in := FlagInput{GaugeScanned: true, GaugeWalk: frgInput(passe).Gauge}
+	var covMarche FlagCarriesCoverage
+	attachFlagReturnGauges(marche, in, frgClock(), &covMarche)
+	if covMarche.GaugeSpans != 2 || covMarche.GaugeWalkSpans != 2 || covMarche.GaugeSlots != 0 {
+		t.Errorf("marche seule : lachers %d, dont marche %d, slots de la passe %d, attendu 2/2/0",
+			covMarche.GaugeSpans, covMarche.GaugeWalkSpans, covMarche.GaugeSlots)
+	}
+	if len(marche[0].Spans[1].ReturnProgress) != len(seule[0].Spans[1].ReturnProgress) {
+		t.Error("la meme serie lue par la marche ou par la passe doit se publier a l identique")
+	}
+}

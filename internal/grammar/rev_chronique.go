@@ -270,3 +270,58 @@ package grammar
 // ([types.BipedDeletionStats.DeletionsUnproven]). Aucun balayage de bit hors de la marche. Methode de libfilmshell (Dend, MIT, `src/motion.rs`,
 // `src/lives.rs`) : le corps que le jeu supprime encore commande n est pas celui d une mort. Les rejeux et les faits cuits avant se refusent sur
 // cette revision et sur `replay.SchemaDesFaits` 28 : la recuisson est une decision de l utilisateur.
+// ENTREE `grammar-2026-11-15.4` (2026-11-15, trois apports en une revision : le siege d un occupant de la table du film lu aux listes, les valeurs des proprietes
+// reseau de ti=13 lues par la marche, les messages de degat et la vie des bipedes). Les trois lots ont ete integres sur une seule branche ; leurs entrees sont
+// gardees ci-dessous avec leurs mesures, prises avant l integration. Les faits cuits avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
+//
+// PREMIER APPORT : LE SIEGE D UN OCCUPANT DE LA TABLE DU FILM LU AUX LISTES DE LA SESSION :
+// LA TABLE DE `chunk_00` DIT QUI EST
+// ASSIS AU COUP D ENVOI ; SON RANG NE DIT L INDEX DE PARTICIPANT QUE DANS LA PLUPART DES FILMS. Sur 31 des 1 606 films dont la table se lit, un a six
+// rangs sont listes par les paquets de type 8 sous un autre siege ; sur les 28 de ces films que le decodage complet a juges, la lecture des chunks
+// de replication nomme le siege liste sur 46 des 48 lignes (les deux autres n ont aucune lecture), jamais le rang, et le tableau des equipes n a aucun
+// joueur au rang sur 33 des 46. Employee telle quelle, la table donnait a l occupant un index que personne ne porte : il perdait son equipe. [SiegesParLesListages]
+// remplace le rang par le siege liste quand le premier paquet de type 8 liste tous les occupants de la table sous des sieges deux a deux distincts, et
+// la table n a plus de vacant intercale a departager ; tout lecteur du film la lit par [ScanFilmPlayerTableAuxListages] (la cuisson, les bots non epingles, le kill-feed), garde par `TestAucunLecteurNeLitLaTableSansLesListages`. Sans listes lues, ou sans cette unanimite, la table est rendue telle quelle. MESURE AVANT / APRES
+// sur les 28 films concernes dont les chunks et les faits sont au parc (document cuit par le decodeur seul, 486 entrees de roster) : 44 entrees changent
+// de siege, 25 entrees de roster et 38 pistes passent de "sans equipe" a l equipe de leur index, aucune autre equipe ni aucun autre nom ne change ;
+// un seul film (`23ffd885`, vacant intercale refuse jusque la) gagne en plus une vie nommee, l humain parti qu une piste sans nom portait, et une entree
+// de roster. Les rejeux et les faits cuits avant se refusent sur cette revision : la recuisson est une decision de l utilisateur.
+
+//
+// DEUXIEME APPORT : LES VALEURS DES PROPRIETES RESEAU DE ti=13 LUES PAR LA MARCHE :
+// LA MARCHE DES
+// TRAMES RENDUE DE NOUVELLES LECTURES ; AUCUN BIT DEJA LU NE CHANGE D INTERPRETATION. La couche de capture rend le variant de chacun des deux
+// composants de valeur de ti=13 (`managed-object-property-component` i1, `managed-object-player-masked-property-component` i2..i33 :
+// [ManagedPropertyValue]), et un canal de la marche ([canalDesProprietesGereesTrames]) les range, dans l ordre du flux, avec le slot de
+// l objet, l horloge du paquet, le champ et l index de joueur du film ([ProprietesGereesLues]). La passe qui ancre les records de ti=13 sur la
+// bande de slots ([ScanManagedProperties]) reste, pour les zones : elle retrouve des changements d etat de zone que la liste des entites de
+// la trame ne porte pas. Les rejeux et les faits cuits avant se refusent sur cette revision : la jauge de retour du drapeau d un film
+// se lit aussi dans la marche (`replay.SchemaDesFaits` 29), et la recuisson est une decision de l utilisateur.
+//
+// TROISIEME APPORT, PREMIER TEMPS : LES MESSAGES damage_aftermath DE LA VUE A :
+// LA LECTURE GAGNE UN FAIT, aucune ne change : la vue A
+// range desormais chaque message `damage_aftermath` (genre 0, [chargeDegatsApres]) avec l effet de degat (tag `jpt!`, R(32)), l index de joueur
+// de l auteur (R(5), porte a polarite inverse de celle de l effet), l echelle (le premier des trois petits champs) et les deux references de
+// l en-tete, l unite blessee et celle qui a cause le degat ([lecture.VueA.Degats], [lecture.DegatDeJoueur]) ; un canal de la marche des trames
+// les rend avec l horodatage de la trame ([DegatLu], [StatsDegats]). CE QUI NE CHANGE PAS : les bits consommes par la charge (ils sont les memes),
+// le fil des couples, les kills, les charges lues. Les rejeux et les faits cuits avant se refusent sur cette revision et sur
+// `replay.SchemaDesFaits` 27 : la recuisson est une decision de l utilisateur.
+//
+// TROISIEME APPORT, SECOND TEMPS : LA VIE DES BIPEDES LUE POUR LES DEGATS EN POINTS :
+// LA LECTURE GAGNE UN CANAL, aucun bit n est lu autrement :
+// la marche des trames retient desormais les deux composants de vitalite du bipede (`object-body-vitality`, la sante de -1 a +1, et
+// `object-shield-vitality`, le bouclier de 0 a 4, 1 etant plein), que le jeu n ecrit que quand l un d eux change, et la creation de chaque
+// bipede ([canalDesVitalites], [VitalitesLues]) ; le message de degat porte en plus la generation de l unite blessee ([DegatLu.GenVictime]). Ces
+// lectures servent a relire ce que chaque coup retire a l unite blessee ; aucune regeneration par delai n est supposee. CE QUI NE CHANGE PAS : les
+// bits consommes, le fil des couples, les kills, les charges lues. Les rejeux et les faits cuits avant se refusent sur cette revision et sur
+// `replay.SchemaDesFaits` 28 : la recuisson est une decision de l utilisateur.
+//
+// TROISIEME APPORT, REVUE : LA VIE DES BIPEDES RELUE SUR LES LISTES QUE LA MARCHE NE LOCALISE PAS :
+// LA LECTURE GAGNE DES TRAMES, aucun bit
+// n est lu autrement : le canal des vitalites relit la liste d une trame annoncee que la marche n a pas localisee comme le fait le canal des morts
+// ([MarcheDistribuee.recupererLaListe], sans observation, monde intact), et compte les trames qui restent illisibles sans que la vue A s y arrete
+// ([StatsVitalites.TramesNonLues], publie par [StatsDegats.VitalesNonLues]). CE QUI NE CHANGE PAS : les bits consommes, le fil des couples, les kills, les
+// charges lues, les trames deja localisees. Les rejeux et les faits cuits avant se refusent sur cette revision et sur `replay.SchemaDesFaits` 29.
+// REVUE, SECONDE RONDE : le canal de la vie des bipedes compte les listes qu il recupere a largeur libre (`StatsVitalites.LocalisationsALargeurLibre`), comme le canal des
+// morts, et les verse au meme repli `repli_localisation_largeur_libre` du rapport du contexte ([MarcheDesTrames.verserLesReplisDesVitalites]). Aucun bit n est lu
+// autrement : seul le compte du repli change.

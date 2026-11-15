@@ -164,6 +164,9 @@ var couchesDesCalques = map[string]string{
 	"pickups":             grammar.Rev, // build_calques.go <- FilmInputs.Pickups
 	"medals":              grammar.Rev, // document_medals.go <- FilmInputs.Medals (morceau des temps forts, lu avec le fil des morts)
 	"scoreActions":        grammar.Rev, // document_score_actions.go <- FilmInputs.GameEvents + Scripts (messages de jeu, genre 82 de la vue A)
+	"hits":                grammar.Rev, // document_hits.go <- FilmInputs.Damages + Fire (messages damage_aftermath, genre 0 de la vue A)
+	"shotStats":           grammar.Rev, // document_hits.go <- FilmInputs.Damages + Fire
+	"damage":              grammar.Rev, // document_damage.go <- FilmInputs.Damages + DamagePoints + Fire
 	"weaponPads":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (ti=42 et ti=37)
 	"padPickups":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
@@ -191,7 +194,7 @@ var couchesDesCalques = map[string]string{
 	"equipmentEpisodes": killsource.Rev, // build_pistes.go : les episodes sortent de la grammaire, mais `attachAllEquipmentKills` y ECRIT `k`/`a` depuis opt.Kills (killsource)
 	"objectives":        objectives.Rev, // objectives.go <- opt.Objectives (`objectives.IdentifiedEvent`)
 	"scoreTimeline":     objectives.Rev, // build_score.go <- opt.Score.Records (enregistrements d entite du statborg)
-	"flagCarries":       objectives.Rev, // build_objectives_live.go <- opt.Flag.Records (statborg) ; la jauge de retour vient de la grammaire (`FilmInputs.FlagGauge`), mais les LACHERS auxquels elle s apparie sortent du statborg — la revision la plus tardive gagne
+	"flagCarries":       objectives.Rev, // build_objectives_live.go <- opt.Flag.Records (statborg) ; la jauge de retour vient de la grammaire (`FilmInputs.FlagGauge` et `FlagGaugeWalk`), mais les LACHERS auxquels elle s apparie sortent du statborg — la revision la plus tardive gagne
 	"flagReturnZone":    objectives.Rev, // build_objectives_live.go, meme entree que `flagCarries`
 	"vipCrown":          objectives.Rev, // vip_crown.go <- opt.Vip.Records (statborg)
 	"skullCarries":      objectives.Rev, // skull_carries.go <- opt.Skull.Records (statborg)
@@ -296,6 +299,10 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// Messages de jeu non lus (marche des trames absente ou en erreur) : aucune action ne se lit, et le calque ne se
 	// produit pas plutot que d affirmer « aucun score » (document_score_actions.go, `poserLesScoresParAction`).
 	"scoreActions": func(_ *ReplayDocument, opt Options) bool { return opt.ScoreActions.Read },
+	// Messages de degat non lus : aucune touche ne se lit, et les calques ne se produisent pas plutot que d affirmer « aucune touche ».
+	"hits":      func(_ *ReplayDocument, opt Options) bool { return opt.Damages.Read },
+	"shotStats": func(_ *ReplayDocument, opt Options) bool { return opt.Damages.Read },
+	"damage":    func(_ *ReplayDocument, opt Options) bool { return opt.Damages.Read },
 }
 
 // calquesProduits rend, pour CETTE cuisson, les calques produits et la revision de la couche qui

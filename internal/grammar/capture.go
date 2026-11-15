@@ -33,6 +33,8 @@ var captureNames = []string{
 	compObjectDissolver,
 	compPlayerRespawnTimer,
 	compGameEngineRoundTimer,
+	compManagedObjectProperty,
+	compManagedObjectPlayerMaskedProperty,
 	compEquipmentEnergy,
 	compEquipmentActivated,
 	compEquipmentControlSignal,
@@ -65,6 +67,10 @@ func consumeByNameCapturing(br *Lecteur, name string, typeIndex, level uint32) (
 		return noVariant, nil, decodeEquipmentTrackedStack(br), true
 	case compGameEngineRoundTimer: // ti=0 i5
 		return noVariant, nil, decodeGameEngineRoundTimer(br), true
+	case compManagedObjectProperty: // ti=13 i1 — variant mode A
+		return noVariant, nil, decodeManagedProperty(br, true), true
+	case compManagedObjectPlayerMaskedProperty: // ti=13 i2..i33 — variant mode B
+		return noVariant, nil, decodeManagedProperty(br, false), true
 	}
 	variant, dead, ported = consumeByName(br, name, typeIndex, level)
 	return variant, dead, nil, ported
@@ -103,5 +109,11 @@ func (c CompResult) RespawnOf() (RespawnTimer, bool) {
 // RoundTimerOf rend l'horloge de manche capturée, si c'en est une.
 func (c CompResult) RoundTimerOf() (RoundTimer, bool) {
 	v, ok := c.Payload.(RoundTimer)
+	return v, ok
+}
+
+// ManagedPropertyOf rend la valeur de propriete reseau capturee (ti=13), si c'en est une.
+func (c CompResult) ManagedPropertyOf() (ManagedPropertyValue, bool) {
+	v, ok := c.Payload.(ManagedPropertyValue)
 	return v, ok
 }
