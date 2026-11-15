@@ -261,3 +261,12 @@ package grammar
 // lit les quarante bits du composant que la marche a traverse. Un genre inconnu est une entite vacante, comptee. Sur 000d5950, huit
 // lignes de joueur (identifiants 0 a 7, ceux des plages de type 8) et deux d'equipe. Les rejeux et les faits cuits avant se refusent sur
 // cette revision : la recuisson est une decision de l'utilisateur.
+
+// ENTREE `grammar-2026-11-15.3` (2026-11-15, la suppression d un bipede se lit). LA MARCHE DES TRAMES RENDUE UNE LECTURE DE PLUS ; AUCUN BIT
+// DEJA LU NE CHANGE D INTERPRETATION. Un record DEL retire un slot de la table d entites sans dire l archetype qu il retirait : le canal des
+// etats de mouvement tient, depuis les records que la marche range, les slots qu elle a vus porter un bipede avec leur generation (les deux
+// bits de tete de l identifiant) et publie le DEL d un tel slot de la meme generation ([suppressionsDeBipedes], [types.BipedDeletion]). Un
+// DEL d une marche partie d un debut non prouve ne delie pas le monde : il ne se publie pas, il se compte
+// ([types.BipedDeletionStats.DeletionsUnproven]). Aucun balayage de bit hors de la marche. Methode de libfilmshell (Dend, MIT, `src/motion.rs`,
+// `src/lives.rs`) : le corps que le jeu supprime encore commande n est pas celui d une mort. Les rejeux et les faits cuits avant se refusent sur
+// cette revision et sur `replay.SchemaDesFaits` 28 : la recuisson est une decision de l utilisateur.

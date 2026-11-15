@@ -1,6 +1,7 @@
 package types
 
-// grammar_controle.go — LE JOUEUR AUX COMMANDES D UN BIPEDE, TEL QUE `unit-control` L ECRIT.
+// grammar_controle.go — LE JOUEUR AUX COMMANDES D UN BIPEDE, TEL QUE `unit-control` L ECRIT, ET LA
+// SUPPRESSION DU CORPS.
 
 // UnitControlRead est UNE lecture de la tete du composant `unit-control` d un bipede : l index du
 // joueur qui le commande, ou son absence. Un delta ne porte le composant que quand il CHANGE, et
@@ -26,4 +27,25 @@ type UnitControlStats struct {
 	// Scanned dit que la marche a eu lieu ; faux = les lectures n ont pas ete tentees, et une liste
 	// vide ne dit rien.
 	Scanned bool
+}
+
+// BipedDeletion est la SUPPRESSION d un bipede : le record DEL de son slot dans les trames delta.
+// Le jeu supprime le corps d un joueur mort quelques secondes apres sa mort, et supprime encore
+// commande celui qu une fin de manche ou une remise en place retire.
+type BipedDeletion struct {
+	// Slot est l identifiant bas du bipede supprime, celui de [UnitControlRead] et des trajectoires.
+	Slot uint32
+	// TimestampUS est l horodatage du paquet porteur, sur l horloge de `BipedPosition`.
+	TimestampUS uint64
+	// Chunk / PacketIndex localisent le record dans le film.
+	Chunk, PacketIndex int
+}
+
+// BipedDeletionStats dit ce que la lecture des suppressions de bipede a rencontre.
+type BipedDeletionStats struct {
+	// Deletions est le nombre de suppressions publiees.
+	Deletions int
+	// DeletionsUnproven est le nombre de records DEL d un bipede suivi que la marche a lus sur un
+	// debut de liste non prouve : le jeu ne les applique pas au monde, ils ne sont pas publies.
+	DeletionsUnproven int
 }

@@ -303,4 +303,7 @@ package objectives
 //
 // A REVISION CONSTANTE (messages de jeu et scripts lus par la grammaire, 2026-11-14) : la VALEUR de `grammar.Rev` (`grammar-2026-11-14.3`)
 // monte ; aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
+//
+// A REVISION CONSTANTE (suppression d un bipede lue par la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-15.3`) ;
+// aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
 const Rev = "objectives-2026-11-15"
