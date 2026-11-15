@@ -40,6 +40,7 @@ func DecodeFilmFacts(blob []byte, entry profile.MapQuantEntry) (*FilmFacts, erro
 	decodeMonde(r, g)
 	g.Vehicles = decodeVehicleScan(r, lay, world)
 	decodeQueue(r, g)
+	g.Horloges = decodeHorloges(r)
 	if r.err != nil {
 		return nil, r.err
 	}

@@ -12,8 +12,9 @@ import (
 )
 
 // InfosDeMatch : ce que `chunk_00` dit du match enregistre — la variante de partie (nom, description, score
-// de victoire, duree, delai de reapparition, prolongation, dotation, options), les identifiants (asset et
-// version) de la variante de carte et l heure de debut. `VarianteLue` dit si la variante a ete lue.
+// de victoire, duree, delai de reapparition, penalites de reapparition apres un suicide et une trahison, drapeau
+// des tirs allies, prolongation, dotation, options), les identifiants (asset et version) de la variante de carte
+// et l heure de debut. `VarianteLue` dit si la variante a ete lue ; un champ que le film n ecrit pas est nil.
 type InfosDeMatch = profile.InfosDeMatch
 
 // ErrNoFilmIdentity : le `chunk_00` ne porte aucune section d identification (les films de formats anciens

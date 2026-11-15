@@ -135,8 +135,9 @@ from the variant, by field path:
 
 - the engine type and the playback flags `killcamEnabled` and `playOfTheGameEnabled`, which steer a few readers of view A;
 - the match information that `decfilm.ReadMatchInfo` returns: name and description (first language of the variant's string
-  table), score to win, time limit, minimum respawn delay, overtime and last-chance durations, starting weapons and equipment,
-  and the option hashes with their values; with the start time and the two map-variant GUIDs of the table above.
+  table), score to win, time limit, minimum respawn delay, the seconds the variant adds to a respawn after a suicide and after a
+  betrayal, the friendly-fire flag (the flag numbered 3 of the set of rule flags), overtime and last-chance durations, starting
+  weapons and equipment, and the option hashes with their values; with the start time and the two map-variant GUIDs of the table above.
 
 A field the film does not write is absent from the result, never zero (the writer omits an optional field equal to its
 default). If the walk cannot cross the variant (a type it cannot skip, a length that does not land on its end byte, a depth over
@@ -349,6 +350,20 @@ film `4f77afc1` shows lives of a bot (seat 1 from 1,101 s) published under the h
 
 **Death and parenting.** An entity that dies writes its own dead-state component (`object-dead-state`, `i11` on archetypes 35 and 40) in the packet where it dies: a vehicle's carries the killer's player index and the damage effect, a biped's also the victim's player index. A biped inside a vehicle is not linked to it from the vehicle side; the biped's own parent-state component (`object-parent-state`, `i10`) is a transition, attached to a parent entity or free, and the last one before the biped's death says what it was in. A player killed with a destroyed vehicle is therefore read from two facts, with no time window: the biped's dead-state is written in the vehicle's death packet (or in a later packet that also writes the biped's free read), and the biped's last parent state before it was attached to the vehicle or to a part mounted on it. A death whose damage effect is the end-of-round cleanup (4208020) is not counted.
 
+**Match clock and respawn countdown.** Two components of the engine entities are kept, in the order of the stream.
+The game engine entity (`ti=0`, `game-engine-round-timer-component`, `i5`) writes the round's limit and the timer's time as two 16-bit
+quanta over 0 to 36,000 s, then a 5-bit state; it writes them every second while the clock runs. The state is the index of a
+table of timer rates: on the 1,345 films measured, 1 (stopped), 6 (counting down one second per second) and 19 (counting up one
+second per second) make 99.9 % of the reads, and each other value under 0.02 %. The limit is the variant's time limit to the nearest
+quantum (300 s is written as 300.21 s, 240 s as 239.78 s); the timer is reset to the limit when a round starts. A player entity of the engine (`ti=5`,
+`player-respawn-timer-component`, `i1`) writes a flag, the seconds left and the seconds in all of its player's countdown, one write
+per second while it runs; the flag is 0 in 99.3 % of the reads and its meaning is not established (the decoder does not use it); the seconds in all equal the
+variant's minimum respawn delay on 3,729 of 3,931 countdowns of 25 measured films, and exceed it by one second on 202.
+The index of the player that an engine player entity belongs to is the `R(6)` of its creation state, after the version prefix: it is
+read from a NEW record in a delta packet, or, for an entity that is there when the film starts, from the keyframe record. That index
+names the seat the entity was created for, not the occupant at a given instant: a player who arrives and takes over a seat reads the
+index of the one who left, so a countdown is only attributed when the index has had a single occupant.
+
 **Status.** Read: record type, id, mask, and the components with a ported reader, in NEW and DELTA records. Recovered: the
 archetype of a slot with no NEW in view, from the bindings above; records anchored by header patterns where a body cannot be
 read: biped records, world-object tracks and creations (bit passes after the walk), scoreboard records, and kills of a view A that
@@ -358,7 +373,7 @@ instead). An entity present at the start of a chunk but absent from its keyframe
 NEW, is a measured gap.
 
 *Sources: `internal/grammar/frame_records.go`, `unit_control.go`, `unit_control_scan.go`, `entete.go`, `traverse.go`, `ecrivain_invariants.go`, `world.go`, `frame_infer.go`,
-`doc.go`, `testdata/ecs_table.tsv`, `testdata/ecs_table.README.md`; libfilmshell `payload.rs`, `events.rs`.*
+`canal_des_horloges.go`, `capture.go`, `default_state_arch.go`, `doc.go`, `testdata/ecs_table.tsv`, `testdata/ecs_table.README.md`; libfilmshell `payload.rs`, `events.rs`.*
 
 ## 6. Positions
 
@@ -533,4 +548,5 @@ that fired is counted in the replay document.
 | Region index with no row | zero bits per axis, counted | the played region's widths |
 | Highlights | unknown hint ignored; end marker searched | unknown hint counted as a kill; end marker at a fixed distance |
 | Registry first `u32` | the film major version | a header count (41), not the number of blocks |
-| Game variant | engine type, playback flags, match information by path | the same message; the two agree on every compared field of the films both read (`NOTICE.md`) |
+| Game variant | engine type, playback flags, match information by path | the same message; the two agree on every compared field of the films both read (`NOTICE.md`); the respawn delay, the two penalties, the friendly-fire flag and the time limit agree on 1,345 films of 1,345 |
+| Match clock | every read of the clock component, 1 per second | a change of limit or state only |

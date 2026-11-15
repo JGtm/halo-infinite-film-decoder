@@ -260,8 +260,8 @@ const VersionCodecFaits = 2
 // record NEW (`profile.EcritureDuBuild`, `profile-2026-11-12.2`). Relu par `json.Unmarshal`, un profil du schema 21 rendrait ces deux
 // bascules fausses sans erreur, et un profil qui les croit fausses lit un film HI_1_11_0 a HI_1_13_0 comme avant : c est le refus SUR
 // L EN-TETE qui doit le dire. `grammar.Rev` (`grammar-2026-11-12.4`) et `profile.Rev` montent avec ce numero, comme aux schemas 11 et 15.
-// SCHEMA 24 : le complement de la section 1 porte les plages de listage (type 8) et les lectures d `unit-control` ; `grammar.Rev` monte.
-const SchemaDesFaits = 24
+// SCHEMAS 24 ET 25 : la section 1 porte les plages de listage (type 8), les lectures d `unit-control`, les horloges et les comptes a rebours ; la section 2 les regles de la variante ; `grammar.Rev` et `profile.Rev` montent.
+const SchemaDesFaits = 25
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.

@@ -102,15 +102,6 @@ func gameEntityWantedPlayer() []string {
 	}
 }
 
-// Etiquettes de registre des deux composants qui restent sur la couche de CAPTURE. Elles
-// existent en litteral dans `capture.go` (`captureNames`) ; les nommer ici est la deuxieme
-// copie, pas la troisieme, et le test `TestGameEntityCaptureNamesExist` echoue si l'une des
-// deux cesse d'etre capturee.
-const (
-	compGameEngineRoundTimer = "game-engine-round-timer-component"
-	compPlayerRespawnTimer   = "player-respawn-timer-component"
-)
-
 // GameEntityRecord est UN record delta de ti=0 ou ti=5 dont la marche des composants a
 // abouti jusqu'au dernier composant vise du masque.
 type GameEntityRecord struct {

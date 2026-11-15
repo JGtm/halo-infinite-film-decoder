@@ -248,7 +248,11 @@ import (
 // faits perdrait l explosion lue et retomberait systematiquement sur le repli nomme
 // (`fallback.NomDetonationDernierePositionConnue`), la ou le decodage direct publierait la
 // detonation. Garde : [TestCodecCouvreFilmInputs].
-const filmFactsMagic = "REPLAYINPUTS29\n"
+//
+// v30 : le blob porte L HORLOGE DE MANCHE et les COMPTES A REBOURS de reapparition (`FilmInputs.Horloges`, cf.
+// `filmfacts_horloges.go`), en derniere section, apres la queue. Le document les publie (`roundClock`,
+// `respawnCountdowns`) ; sans eux un rejeu depuis les faits perdrait ces deux calques.
+const filmFactsMagic = "REPLAYINPUTS30\n"
 
 // ---------------------------------------------------------------------------
 // LES CHAMPS SERIALISES, PAR TYPE — ce sont ceux que l assemblage consomme :

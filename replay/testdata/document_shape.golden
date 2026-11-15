@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 119
-empreinte-stockee 531b6df5e717ccf7
-empreinte-servie 531b6df5e717ccf7
-empreinte-cuite aa570899c92ca754
+schema 120
+empreinte-stockee 887e5794e81f75ab
+empreinte-servie 887e5794e81f75ab
+empreinte-cuite 436bce9b31d77588
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -239,6 +239,28 @@ CarriedTracked
   X json:"x,omitempty" *float32
   Y json:"y,omitempty" *float32
   Z json:"z,omitempty" *float32
+ClockSample
+  Left json:"left" float64
+  Limit json:"limit" float64
+  State json:"state" int
+  T json:"t" int
+ClocksCoverage
+  ClockImpossible json:"clockImpossible" int
+  ClockPublished json:"clockPublished" int
+  ClockReads json:"clockReads" int
+  ClockUnmeasuredState json:"clockUnmeasuredState" int
+  CountdownImpossible json:"countdownImpossible" int
+  CountdownIsolated json:"countdownIsolated" int
+  CountdownNoPlayer json:"countdownNoPlayer" int
+  CountdownReads json:"countdownReads" int
+  Countdowns json:"countdowns" int
+  EndDeduced json:"endDeduced" int
+  Frames json:"frames" int
+  FramesUnread json:"framesUnread" int
+  StartDeduced json:"startDeduced" int
+  WithheldOutsidePresence json:"withheldOutsidePresence" int
+  WithheldReusedIndex json:"withheldReusedIndex" int
+  WithheldUnknownIndex json:"withheldUnknownIndex" int
 ContinuousFireCoverage
   Ambiguous json:"ambiguous" int
   BurstsRead json:"burstsRead" int
@@ -282,6 +304,7 @@ Coverage
   BombCarries json:"bombCarries,omitempty" *BombCarriesCoverage
   Bridge json:"bridge" BridgeHealth
   CarriedEquipment json:"carriedEquipment,omitempty" *CarriedEquipmentCoverage
+  Clocks json:"clocks,omitempty" *ClocksCoverage
   ContinuousFire json:"continuousFire,omitempty" *ContinuousFireCoverage
   DeathsPaths json:"deathsPaths,omitempty" *DeathsPathsCoverage
   Decoder json:"decoder,omitempty" *DecoderCoverage
@@ -729,6 +752,11 @@ MapWeaponPadDTO
 MapWeaponPads
   CatalogN json:"catalogN" int
   Pads json:"pads" []MapWeaponPadDTO
+MatchRules
+  BetrayalPenaltyS json:"betrayalPenaltyS,omitempty" *int64
+  FriendlyFire json:"friendlyFire,omitempty" *bool
+  MinRespawnS json:"minRespawnS,omitempty" *int64
+  SuicidePenaltyS json:"suicidePenaltyS,omitempty" *int64
 Medal
   ID json:"id" int
   MS json:"ms" int64
@@ -933,8 +961,11 @@ ReplayDocument
   PadPickups json:"padPickups,omitempty" []PadPickup
   Pickups json:"pickups,omitempty" []Pickup
   Projectiles json:"projectiles,omitempty" []Projectile
+  RespawnCountdowns json:"respawnCountdowns,omitempty" []RespawnCountdown
   RiftPoses json:"riftPoses,omitempty" []RiftPose
   Roster json:"roster,omitempty" []RosterEntry
+  RoundClock json:"roundClock,omitempty" []ClockSample
+  Rules json:"rules,omitempty" *MatchRules
   SchemaVersion json:"schemaVersion" int
   ScoreTimeline json:"scoreTimeline,omitempty" *ScoreTimeline
   Shots json:"shots,omitempty" []Shot
@@ -957,6 +988,13 @@ ReplayDocument
   WeaponPads json:"weaponPads,omitempty" []WeaponPad
   WeaponTiers json:"weaponTiers,omitempty" *WeaponTiersInfo
   ZoneStates json:"zoneStates,omitempty" []ZoneState
+RespawnCountdown
+  EndRead json:"endRead" bool
+  FilmIndex json:"filmIndex" int
+  From json:"from" int
+  Seconds json:"seconds" int
+  StartRead json:"startRead" bool
+  To json:"to" int
 RiftPose
   A json:"a,omitempty" *int
   Slot json:"slot" uint32

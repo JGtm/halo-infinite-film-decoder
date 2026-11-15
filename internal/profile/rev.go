@@ -205,8 +205,15 @@ package profile
 // le retrouve : la vue A s y arrete sur le message, comme avant la revision `grammar-2026-11-12`.
 //
 // `grammar.Rev` et `killsource.Rev` montent mecaniquement derriere cette ligne, chacune avec son entree.
+//
+// ENTREE `profile-2026-11-14` (2026-11-14, regles de reapparition et tirs allies de la variante) : LA VALEUR DES INFOS DE MATCH GAGNE
+// TROIS CHAMPS ; AUCUNE LIGNE DE LA TABLE NE CHANGE.
+//
+// `infos_de_match.go` : [InfosDeMatch] porte la penalite de reapparition apres un suicide, apres une trahison, et le drapeau des
+// tirs allies de la variante. Aucune largeur, aucune borne, aucune provenance de la table ne change : la revision monte parce que la
+// forme de l identite change, et que l identite est persistee avec les faits du film (section 2 du fichier de faits).
 
-const Rev = "profile-2026-11-12.2"
+const Rev = "profile-2026-11-14"
 
 // L EMPREINTE DES SOURCES DE LA COUCHE VIT DANS UN GOLDEN, A COTE DE CETTE REVISION :
 // `testdata/profile_rev.golden` porte le couple (revision, empreinte) avec son historique, et

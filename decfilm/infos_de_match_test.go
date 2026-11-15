@@ -28,6 +28,9 @@ func TestReadMatchInfoRendLesInfosDuFilm(t *testing.T) {
 	if !infos.VarianteLue || infos.Nom == nil || *infos.Nom != "Capture the Flag" ||
 		infos.ScoreDeVictoire == nil || *infos.ScoreDeVictoire != 3 ||
 		infos.DureeSecondes == nil || *infos.DureeSecondes != 720 ||
+		infos.PenaliteDeSuicideSecondes == nil || *infos.PenaliteDeSuicideSecondes != 0 ||
+		infos.PenaliteDeTrahisonSecondes == nil || *infos.PenaliteDeTrahisonSecondes != 0 ||
+		infos.TirsAllies == nil || *infos.TirsAllies ||
 		infos.DebutUnix == nil || *infos.DebutUnix != 1784839686 || infos.CarteAssetID == nil {
 		t.Errorf("infos de match : %+v", infos)
 	}

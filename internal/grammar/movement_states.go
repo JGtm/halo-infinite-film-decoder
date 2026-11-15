@@ -161,6 +161,8 @@ type MarcheDesTrames struct {
 	// [debutParFermetureRangee] (repli `repli_debut_de_liste_ferme_au_bit`). Comme le compte precedent,
 	// il voyage dans le rapport des replis, pas dans [types.MovementStateStats].
 	DebutsDeListeParRepliFermeAuBit int
+	// Horloges sont l horloge de manche et les comptes a rebours de reapparition ([canalDesHorloges]).
+	Horloges HorlogesLues
 }
 
 // ScanMarcheDesTrames est [ScanMarcheDesTramesAvec] avec toutes les lectures.
@@ -221,6 +223,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	if fc.recup.equipementPorte == nil {
 		canaux = append(canaux, nouveauCanalDeLEquipementPorte(fc))
 	}
+	horloges := nouveauCanalDesHorloges(reg, fc.ContexteDeLecture())
+	canaux = append(canaux, horloges)
 	var morts *canalDesMorts
 	if l.veutLesMorts(fc) {
 		morts = nouveauCanalDesMorts(reg)
@@ -229,6 +233,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	if err := Distribuer(fc, append(canaux, invites...)...); err != nil {
 		return m, nil, err
 	}
+	m.Horloges = horloges.resultat()
 	m.LiaisonsParRepliDAnticipation = sc.liaisonsDuRepliDAnticipation()
 	m.DebutsDeListeParRepliFermeAuBit = sc.obs.DebutsDeListeParRepliFermeAuBit
 	m.ContinuousFire = tir.out

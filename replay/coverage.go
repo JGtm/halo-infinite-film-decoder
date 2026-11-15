@@ -241,6 +241,10 @@ type Coverage struct {
 	// de controle (paquets lus, trous par cause) et le sort de chaque rafale lue. Absente quand la
 	// marche des trames n a pas tourne (artefact reconstruit sans elle).
 	ContinuousFire *ContinuousFireCoverage `json:"continuousFire,omitempty"`
+	// Clocks est la couverture de l'HORLOGE DE MANCHE et des COMPTES À REBOURS de réapparition (cf.
+	// document_horloges.go) : trames lues, lectures publiées et écartées, périodes dont le début ou la fin se déduit.
+	// Absente quand la marche des trames n'a pas tourné.
+	Clocks *ClocksCoverage `json:"clocks,omitempty"`
 	// ObjectiveObjects est la couverture du calque des objets d'objectif LIBRES : combien le
 	// manifeste en déclare de publiables, combien de vies et de points sortent, et ce qui a été
 	// écarté hors axe (cf. document_objective_objects.go).

@@ -17,6 +17,13 @@ import "github.com/JGtm/halo-infinite-film-decoder/types"
 // consommer un nombre de bits différent de l'autre. C'est le garde-rail exigé par la règle
 // « ≤ 2 copies, et une factorisation sans garde-rail re-diverge ».
 
+// Les etiquettes de registre des deux composants de minuterie que la capture rend : une seule ecriture
+// pour la capture, le dispatch et les canaux qui les lisent.
+const (
+	compGameEngineRoundTimer = "game-engine-round-timer-component" // ti=0 i5
+	compPlayerRespawnTimer   = "player-respawn-timer-component"    // ti=5 i1
+)
+
 // captureNames liste les composants dont consumeByNameCapturing rend la valeur. Sert au
 // garde-rail : le test balaie cette liste, il ne peut donc pas oublier un nom ajouté ici.
 var captureNames = []string{
@@ -24,8 +31,8 @@ var captureNames = []string{
 	compObjectShieldVitality,
 	compObjectParentState,
 	compObjectDissolver,
-	"player-respawn-timer-component",
-	"game-engine-round-timer-component",
+	compPlayerRespawnTimer,
+	compGameEngineRoundTimer,
 	compEquipmentEnergy,
 	compEquipmentActivated,
 	compEquipmentControlSignal,
@@ -46,7 +53,7 @@ func consumeByNameCapturing(br *Lecteur, name string, typeIndex, level uint32) (
 		return noVariant, nil, decodeObjectParentState(br, level, typeIndex), true
 	case compObjectDissolver: // i14 — LA DISSOLUTION (lot 5.10)
 		return noVariant, nil, decodeObjectDissolver(br), true
-	case "player-respawn-timer-component": // ti=5 i1
+	case compPlayerRespawnTimer: // ti=5 i1
 		return noVariant, nil, decodePlayerRespawnTimer(br), true
 	case compEquipmentEnergy: // ti=37 i24 — L ETAT DE L EQUIPEMENT PORTE (lot « equipement porte »)
 		return noVariant, nil, decodeEquipmentEnergy(br), true
@@ -56,7 +63,7 @@ func consumeByNameCapturing(br *Lecteur, name string, typeIndex, level uint32) (
 		return noVariant, nil, decodeEquipmentControlSignal(br), true
 	case compEquipmentTrackedStack: // ti=37 i28
 		return noVariant, nil, decodeEquipmentTrackedStack(br), true
-	case "game-engine-round-timer-component": // ti=0 i5
+	case compGameEngineRoundTimer: // ti=0 i5
 		return noVariant, nil, decodeGameEngineRoundTimer(br), true
 	}
 	variant, dead, ported = consumeByName(br, name, typeIndex, level)

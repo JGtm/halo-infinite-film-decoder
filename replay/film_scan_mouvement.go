@@ -59,6 +59,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.MovementStates, s.in.MovementStateStats = m.MovementStates, st
 	s.in.ContinuousFire, s.in.ContinuousFireStats = m.ContinuousFire, tc
 	s.in.UnitControls, s.in.UnitControlStats = m.UnitControls, m.UnitControlStats
+	s.in.Horloges = m.Horloges
 	if s.in.Vehicles.Scanned {
 		morts := mortsDeVehicule(s.ctx, s.matchID, m)
 		s.in.Vehicles.Deaths, s.in.Vehicles.BipedDeaths = morts.Vehicles, morts.Bipeds
@@ -70,6 +71,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "continuousFire.stats", tc)
 	s.opt.observe(s.ctx, "unitControls", s.in.UnitControls)
 	s.opt.observe(s.ctx, "unitControls.stats", s.in.UnitControlStats)
+	s.opt.observe(s.ctx, "horloges", s.in.Horloges)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)
 }

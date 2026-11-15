@@ -1526,8 +1526,12 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	// - 119 (2026-11-14, presence listee) : `roster[].presence[]` d un humain est datee par les plages de listage des paquets de
 	//   type 8 (arrivee et depart exacts) et `coverage.seats.presencesListees` compte les entrees concernees. `grammar.Rev`
 	//   monte et `SchemaDesFaits` 23 -> 24 : un v118 se lit « à redécoder ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 119 {
-		t.Fatalf("SchemaVersion = %d, attendu 119 : incrémenter exige une raison écrite ci-dessus "+
+	// - 120 (2026-11-15, horloges et regles) : `roundClock`, `respawnCountdowns` et `rules` portent l horloge de
+	//   manche, les comptes a rebours de reapparition et les regles de la variante, avec `coverage.clocks`. Champs
+	//   optionnels, mais la version monte pour la raison des montees v3..v24 : un v119 ne porte aucun des trois.
+	//   `grammar.Rev` et `profile.Rev` montent : un v119 se lit « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 120 {
+		t.Fatalf("SchemaVersion = %d, attendu 120 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

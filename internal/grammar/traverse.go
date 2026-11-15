@@ -53,6 +53,10 @@ type EntityTrace struct {
 	// EtatIllisible : le lecteur d etat de creation du jeu echoue sur ce record NEW
 	// (`etat_de_creation.go`) ; le record s arrete a la fin de son etat, DesyncAt a 0.
 	EtatIllisible bool
+	// JoueurDuMoteur est l'index de joueur que l'etat de creation d'un record NEW de l'entite joueur du
+	// moteur ([archetypeJoueurDuMoteur]) porte ; JoueurDuMoteurLu dit que le record l'a donne.
+	JoueurDuMoteur   uint8
+	JoueurDuMoteurLu bool
 }
 
 // bipedDefaultStateTypeIndex is the keyframe typeIndex of the biped archetype
@@ -139,6 +143,8 @@ func TraverseEntity(br *Lecteur, reg *Registry, defaultStateBits int) EntityTrac
 		consumeDefaultStateTI41(br)
 	} else if t.TypeIndex == archetypeProprieteGeree && br.p.Grammaire.DeserEtatParArchetype {
 		consumeDefaultStateTI13Creation(br) // default_state_ti13_neuf.go : par build
+	} else if t.TypeIndex == archetypeJoueurDuMoteur && br.p.Grammaire.DeserEtatParArchetype {
+		t.JoueurDuMoteur, t.JoueurDuMoteurLu = uint8(readPlayerWaypointDefaultState(br)), true //nolint:gosec // R(6)
 	} else if fn, ok := defaultStateDeserByTI[t.TypeIndex]; ok && br.p.Grammaire.DeserEtatParArchetype {
 		fn(br) // deser vtable[0x60] porté bit-exact (cf. default_state_arch.go)
 	} else {
