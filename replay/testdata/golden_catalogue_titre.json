@@ -419,7 +419,6 @@
   "ObjectiveFamilies": null,
   "FlagReturnZone": {
     "radiusM": 0,
-    "resetSeconds": 0,
     "soloSeconds": 0
   },
   "VehicleFamilies": null
