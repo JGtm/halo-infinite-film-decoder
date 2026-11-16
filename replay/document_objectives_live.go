@@ -151,8 +151,11 @@ const (
 type FlagReturnZone struct {
 	// RadiusM est le rayon de la zone de RETOUR, dans les MEMES coordonnees que `FlagSpan.X/Y`.
 	RadiusM float32 `json:"radiusM"`
-	// ResetSeconds est la duree qu'un drapeau au sol met a rentrer TOUT SEUL.
-	ResetSeconds float32 `json:"resetSeconds"`
+	// ResetSeconds est la duree qu'un drapeau au sol met a rentrer TOUT SEUL : le delai que la variante du
+	// film ecrit (`rules.flagReturnS`). ABSENT quand la variante ne l'ecrit pas ou n'a pas ete lue : le
+	// manifeste ne le donne plus, son delai par defaut etant ecrase par la variante. En entree (le manifeste du
+	// titre), ce champ n'est pas lu.
+	ResetSeconds float32 `json:"resetSeconds,omitempty"`
 	// SoloSeconds est la duree qu'il met avec UN defenseur dans la zone.
 	SoloSeconds float32 `json:"soloSeconds"`
 }
@@ -388,6 +391,9 @@ type FlagCarriesCoverage struct {
 	// publies sur aucun drapeau, plutot que sur un drapeau INVENTE. Ils restent comptes dans
 	// `carries` : le joueur a bel et bien porte quelque chose, c'est LEQUEL qui n'est pas su.
 	Unresolved int `json:"unresolved"`
+	// SeatsBeyondBand : les sieges du statborg que le calque ne lit pas (au-dela des huit premiers joueurs). Sur un CTF de
+	// plus de huit sieges, leurs portages ne sont pas publies.
+	SeatsBeyondBand int `json:"seatsBeyondBand"`
 	// LES CINQ DENOMINATEURS DE LA JAUGE DE RETOUR (schema 63, cf. flag_return_gauge.go). Ils
 	// separent les QUATRE silences que `returnProgress` absent ne distingue pas : le canal n'a
 	// pas ete lu, il a ete lu et ne porte aucun slot de jauge, il en porte mais aucun ne
@@ -408,6 +414,10 @@ type FlagCarriesCoverage struct {
 	// de points publies apres allegement.
 	GaugeSpans  int `json:"gaugeSpans"`
 	GaugePoints int `json:"gaugePoints"`
+	// GaugeWalkReads / GaugeWalkSpans : les echantillons des slots candidats que la marche des trames a lus, et les
+	// intervalles dont la serie est celle de la marche (les autres portent celle de la passe).
+	GaugeWalkReads int `json:"gaugeWalkReads"`
+	GaugeWalkSpans int `json:"gaugeWalkSpans"`
 }
 
 // Balanced verifie les TROIS invariants du calque : toute prise de l'oracle est soit publiee, soit

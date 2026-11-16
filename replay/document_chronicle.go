@@ -4381,3 +4381,146 @@ package replay
 //
 // LE PARC         un artefact 123 : verdict `a redecoder` (les faits cuits se refusent sur la revision des objectifs). La recuisson est une decision
 //                 de l utilisateur.
+// v125 (2026-11-15, trois apports en une version : les sieges de la table du film lus aux listes de la session, le delai de retour du drapeau et la jauge lue
+// par la marche, les touches et les degats en points estimes). Les trois lots ont ete integres sur une seule branche : une version, une revision de grammaire,
+// un schema des faits. Les mesures de chaque lot sont gardees telles qu elles ont ete prises, avant l integration ; les numeros v122, v123 et v124 que
+// cite le troisieme apport sont ceux de ses lots avant l integration.
+//
+// PREMIER APPORT : LES SIEGES DE LA TABLE DU FILM LUS AUX LISTES DE LA SESSION :
+// AUCUN CHAMP NE CHANGE DE FORME ; DES VALEURS CHANGENT. La table de
+// `chunk_00` dit qui est assis au coup d envoi, et son rang n est pas toujours l index de participant de l occupant : sur 31 des 1 606 films dont la
+// table se lit, un a six rangs sont listes par les paquets de type 8 sous un autre siege, que la lecture des chunks nomme aussi. Employee telle quelle,
+// la table donnait a l occupant un index que personne ne porte (`roster[].team` absent, `roster[].seat` faux, vie sans nom). Le siege liste remplace
+// le rang quand le premier paquet liste tous les occupants de la table sous des sieges deux a deux distincts (`grammar.SiegesParLesListages`, lu par
+// `grammar.ScanFilmPlayerTableAuxListages` pour la cuisson, les bots non epingles et le kill-feed).
+//
+// MESURE AVANT / APRES sur les 28 films concernes dont les chunks et les faits sont au parc (document cuit par le decodeur seul, 486 entrees de
+// roster) : 44 entrees changent de siege, 25 entrees de roster et 38 pistes passent de « sans equipe » a l equipe de leur index, aucune autre equipe ni
+// aucun autre nom ne change ; `23ffd885` (vacant intercale refuse jusque la) gagne en plus une vie nommee, l humain parti qu une piste sans nom portait,
+// et une entree de roster. Equivalence sur 20 films : seule l etape `artifact` change (les 20 films ne sont pas concernes).
+//
+//
+//
+//
+// DEUXIEME APPORT : LE DELAI DE RETOUR DU DRAPEAU ET LA JAUGE DE RETOUR LUE PAR LA MARCHE :
+// Deux champs neufs,
+// une lecture qui s ajoute a l autre, un compte.
+//
+//	`rules.flagReturnS`           le delai, en secondes, que la variante ecrit pour qu un drapeau tombe rentre tout seul (`CTFOptions_FlagReturnTime`,
+//	                              hachage 0x2b16b76f). `flagReturnZone.resetSeconds` ne publie que ce delai : le manifeste du titre disait 30 s, mesure faux
+//	                              sur les 46 films de CTF, et il n est plus publie a la place d un delai que la variante n ecrit pas (la cle est alors absente).
+//	`flagCarries[].spans[].returnProgress`   la jauge de retour se lit dans les valeurs de `ti=13` que la marche des trames range ([canalDesProprietesGereesTrames]) ET dans
+//	                              celles de la passe qui ancre les records ; la serie de chaque lacher est celle de la marche quand elle y porte un point, sinon celle de la
+//	                              passe. `coverage.flagCarries.gaugeWalkReads` et `gaugeWalkSpans` disent ce que la marche a lu et combien de lachers portent sa serie.
+//	`coverage.flagCarries.seatsBeyondBand`   les sieges du statborg au-dela des huit premiers joueurs, que le calque du drapeau ne lit pas.
+//
+// LA MESURE (le parc : 46 films de CTF ; 73 films de la comparaison des deux lectures de `ti=13`, dont 30 a jauge ; 33 films BTB a drapeau pour la bande).
+//
+//	delai           les 46 films de CTF portent l option (15 s sur 2, 24 s sur 29, 40 s sur 10, 60 s sur 5) et les 33 films des autres modes ne la portent pas.
+//	                La jauge se remplit au rythme de 1 / delai : sur 41 films, l increment median de la jauge vaut 0,9985 a 1,0010 fois l inverse du delai sur 37,
+//	                et sur les quatre BTB a 60 s (defenseurs dans la zone, des increments plus rapides) c est le quartile bas qui le vaut ; 266 increments sur
+//	                280 d un film a 24 s tombent a 0,041 par seconde. Le manifeste dit 30 s : il etait faux sur tous ces films.
+//	jauge           PAR LACHER (1 039 lachers, 30 films de CTF a jauge) : 458 portent une serie lue par la passe, 456 par la marche ; la marche seule en perd 37
+//	                que la passe lit (dont 11 retours a la base a 0,95 ou plus : 7 sur eba1e63f, 4 sur 7fce3219, ou elle n apparie pas le meme slot) et en gagne 35 (23 sur
+//	                64e8adfa, 7 sur eba1e63f, 3 sur 7fce3219, 2 sur 1c4c63c2). Le choix par lacher en publie 493 et n en perd aucun. La passe ne s ecarte pas : un CTF la paie encore.
+//	                Un lacher repris par un joueur n atteint jamais la jauge pleine (230 lachers lus), sauf un cas a 0,983 repris une demi-seconde avant le retour.
+//	zones           NON CHANGEES. Sur 9 films de Bastions, les 335 captures nommees du statborg (et les 517 captures et 123 securisations de l API : 517 et 124)
+//	                tombent chacune a trois frames d un debut d intervalle de la passe ; la marche en perd deux (333 sur 335) : elle ne lit que la liste des
+//	                entites de la trame, et la passe retrouve des changements d etat que cette liste ne porte pas.
+//	sieges          NON OUVERTS au drapeau. Sur 33 films BTB a drapeau, 9 ont un calque ; lu sur tous les sieges, leur erreur de temps de portage contre
+//	                `time_as_flag_carrier_seconds` passe de 1 161 s a 282 s sur 1 384 s (084a804d 166,9 -> 7,0 ; 1c4c63c2 42,1 -> 2,7 ; 43880965 194,5 -> 4,4,
+//	                sans calque avant), et aucun film ne regresse : mais PAR JOUEUR, trois joueurs ont un portage faux de plus de 5 s en trop (378659b1 : 5,3 s a
+//	                l API, 41,6 s publiees ; b1bcbe24 : 25,4 s, 33,7 s ; 390b1de5 : 0 s, 94,3 s, deja ainsi sur huit sieges) et la cause n est pas etablie (le pont ligne -> joueur est le
+//	                suspect). Ouvrir la bande fait aussi perdre a 084a804d son appariement de jauge (1 -> 0 : ses lachers passent d un seul de 452 s a plusieurs, et la
+//	                meilleure part tombe a 0,793, sous 0,80). Les 24 autres films BTB n ont aucun calque, bande ouverte ou non (aucune rafale de capture
+//	                reconnue). libfilmshell, sur 41 films, est a 1,8 % de l API (310 joueurs sur 317 a 1,5 s pres).
+//
+//
+//
+// TROISIEME APPORT, PREMIER TEMPS : LES TOUCHES ESTIMEES :
+// Le film ecrit un message `damage_aftermath` (genre 0 de la vue A) pour chaque effet de degat qui touche une
+// unite ; le document n'en publiait rien. Il publie desormais les TOUCHES, ESTIMEES, et le bilan de tirs de chaque joueur avec un verdict de suffisance.
+//
+//	`hits[]`           {t, shooter, victim, effect, w} : la frame, le tireur et la victime (xuid decimal), l'effet de degat (tag `jpt!`, huit chiffres hexa) et
+//	                l'arme du dernier tir du tireur dans les deux secondes qui precedent (meme forme que `shots[].w` ; absente sans tir). Une touche est un
+//	                message dont l'effet est un effet d'arme (`damageeffects`) compte une fois par (auteur, unite blessee, trame) ; les projectiles sont compris.
+//	                Absent : messages non lus, ou aucune touche posee.
+//	`shotStats[]`      {xuid, shots, shotEvents, messages, hits, coverage, duplicates, sufficient} par joueur : les tirs (somme des sauts de la numerotation des
+//	                tirs du jeu, modulo 256), les evenements de tir ecrits, les messages d'arme, les touches, `shotEvents / shots`, `messages / hits`, et le verdict.
+//	`coverage.hits`    {estimated, minCoverage, maxDuplicates, frames, stoppedFrames, maxStoppedShare, messages, weaponMessages, hits, published, noShooter,
+//	                noVictim, beforeOrigin, afterEnd, sufficient, players} : `estimated` vaut toujours vrai ; les trois seuils sont publies avec leurs valeurs.
+//	                Entrees `hits` et `shotStats` de `layers`, sous `grammar-...`, gardees sur la lecture des messages de degat.
+//
+// `sufficient` : couverture des tirs >= 0,7, doublons < 1,2, et au plus 0,5 % des trames dont la vue A s'arrete sur un message non lu. Faux, le
+// consommateur affiche « donnees insuffisantes » et aucun chiffre. MESURE SUR 193 FILMS, 2 560 joueurs contre `match_participants` (annexe du seuil, hors depot,
+// `seuil.md`) : `sufficient` vrai = 591 joueurs (23 %), dont 80 % a 10 % de `shots_hit` et 86 % a 10 % de `shots_fired` ; `sufficient` faux = 1 969 joueurs, 27 %
+// et 54 %. PORTE (>= 7 sur 10 a 10 % parmi les suffisants) ATTEINTE. Builds 12 et 13 : 574 joueurs suffisants, 81 % ; HI_1_11_0 : 16 joueurs, 50 % (trop peu) ;
+// HI_1_10_0 et plus anciens : aucun suffisant (la vue A s'arrete ou ne se lit pas). L'appariement tir -> degat sur 1 s (`PairWeaponHits`) ne donnait que 11 % ; il
+// n'est plus employe par la publication, mais il reste dans la facade `decfilm`, que le killcollector et l'ingestion de la precision de LevelUp appellent encore.
+//
+// L'IDENTITE. Le tireur est l'index de joueur du message, resolu a la frame parmi les humains du roster presents (comme le score par action) ; la victime est
+// l'unite blessee, dont la piste (slot = index d'unite + 512) porte le xuid a cette frame. Une touche sans l'un des deux est comptee au bilan du tireur, pas posee.
+//
+//
+//
+// TROISIEME APPORT, SECOND TEMPS : LES DEGATS EN POINTS :
+// Les messages `damage_aftermath` nomment l'effet qui touche une unite ; le document publiait les touches (v122) mais
+// aucun point. Il publie desormais ce que chaque coup retire, ESTIME, par joueur, dans le temps et par arme.
+//
+//	`damage[]`         {t, attacker, victim, effect, w, shield, body, measured} : la frame, l'auteur et la victime (xuid decimal ; absents pour le decor ou un
+//	                bot), l'effet et l'arme du dernier tir de l'auteur (meme forme que `hits[]`), les points retires au bouclier et au corps (au dixieme), et
+//	                `measured` quand les points viennent de la vie lue autour du coup et non de la table. Un message dont l'unite blessee n'a pas de piste (un
+//	                vehicule, un objet) n'est pas publie. Absent : messages non lus, ou rien retire.
+//	`shotStats[]`      gagne `damageDealt` et `damageTaken` (points, au dixieme) : l'inflige exclut ce qu'un joueur se fait a lui-meme, le subi ne compte que les
+//	                joueurs. Memes verdict `sufficient` que les touches : faux, le consommateur n'affiche aucun chiffre de degat.
+//	`coverage.hits`    gagne `damages`, `damagesMeasured`, `damagesOffUnit` (lignes publiees, dont mesurees, et messages sans piste ecartes).
+//
+// LE CALCUL (methode reprise de libfilmshell, `hit_damage.rs`, MIT, credit livre avec la table ; le code est celui de ce depot). Les messages d'une meme unite a un meme instant se traitent ensemble depuis
+// la vie lue juste avant l'instant ; un coup direct d'un effet a montant fixe et d'echelle pleine retire son montant au bouclier puis au corps (multiplicateurs
+// et drapeaux de la table : tir a la tete, bouclier ignore, pas de debordement) ; un effet connu qui ne retire rien retire zero ; tout autre coup (zone, plage,
+// echelle reduite, effet inconnu) est MESURE : la vie perd ce que les coups calcules n'expliquent pas, partage entre les coups mesures. La vie est relue dans
+// les composants du bipede (`object-body-vitality`, `object-shield-vitality`, creation comprise) ; un bouclier ne remonte que quand le film l'ecrit, jamais par
+// un delai suppose. Spartan : 90 de corps, 140 de bouclier.
+//
+// MESURE sur 193 films, 2 560 joueurs, contre `damage_dealt` / `damage_taken` (annexe hors depot, `seuil_degats.md`). Verdict unique : le `sufficient` des touches,
+// aucun critere neuf. `sufficient` vrai (591 joueurs) : mediane des rapports 1,011 en inflige et 1,020 en subi, 76 % et 75 % a 10 % de l'API, 59 % et 56 % a 5 % ;
+// PORTE (>= 7 sur 10 a 10 % parmi les suffisants) ATTEINTE. Builds 12 et 13 : 73 a 82 % a 10 % (inflige), 75 a 76 % (subi) ; HI_1_11_0 : 48 joueurs, 31 % et 50 %
+// (trop peu) ; HI_1_10_0 et plus anciens : aucun suffisant. `sufficient` faux : inflige 21 % a 10 %, subi 40 % (builds 12 et 13 : 34 a 48 % et 62 a 67 %) : le subi
+// vient des messages de l'unite blessee et ne depend pas de la couverture des tirs, mais le consommateur ne s'appuie que sur le verdict unique.
+//
+//
+//
+// TROISIEME APPORT, REVUE : LES DEGATS EN POINTS CORRIGES :
+// La v123 n'etant pas publiee, ce numero ne porte que ce que la revue a corrige ; la renumerotation au rebase les reunit.
+//
+//	`coverage.hits`    gagne `selfHits` et `selfDamages` : une touche d'une arme sur son propre tireur (une arme a zone) n'est plus une touche (la v122 la comptait et la
+//	                publiait) ni du degat inflige ; elle se compte a part, comme le degat qu'un joueur se fait a lui-meme. Le calque `hits` et le bilan de tirs changent donc
+//	                a ce numero. `vitalsUnread` : les trames dont les records de vie des bipedes restent illisibles sans que la vue A s'y arrete ; elles comptent avec
+//	                `stoppedFrames` dans la part de lecture de `sufficient`. LIMITE : cette part est PAR FILM ; des messages perdus peuvent ne concerner qu'un seul joueur.
+//	`shotStats[]`      LES TOTAUX COUVRENT TOUT LE FILM, LES LIGNES DE `damage[]` SEULEMENT L'AXE : un message avant la frame 0 ou apres la derniere compte dans les totaux
+//	                sans avoir de ligne.
+//
+// LA LECTURE. Le canal des vitalites relit la liste d'une trame annoncee que la marche ne localise pas, comme le canal des morts ; un message sans unite blessee ne se
+// regroupe plus avec un message de l'unite 0, generation 0, au meme instant ; le calcul des points est reecrit dans les termes de ce depot (methode reprise de
+// libfilmshell, pas son code ; credit dans `NOTICE.md`) avec les memes resultats : les huit fixtures de degats se re-rendent octet pour octet avant la relecture des listes.
+// Sur le corpus de reference, les points des builds 11, 12 et 13 sont inchanges, ceux des builds 9 et 10 bougent de quelques points (13 lignes de plus sur 1 739).
+// LA MESURE de la v123 (193 films) est anterieure a ces changements : la mesure de controle est a refaire, aucun decodage n'ayant ete possible pendant la revue.
+//
+//
+//
+// TROISIEME APPORT, SECONDE REVUE : DEUX CORRECTIONS DE LECTURE DES TIRS. (1) Les touches et le bilan de tirs lisaient les tirs bruts du film, quand tout le
+// reste de l assemblage lit `assemblage.tirsDuCombat` : sur un film dont l index de tireur n est pas la place (`coverage.seats.tirsIndexNonPlace`, par exemple
+// `a521164d`), aucun tir ne s attribue par l index, donc `shotStats[].shots` et `shotEvents` valent zero, `hits[].w` est vide et aucun joueur n est
+// `sufficient` ; sur un film dont l index est la place, le tir se rend a l occupant de sa place, comme pour les tirs publies. La raison se lit dans
+// `coverage.seats.tirsIndexNonPlace`, sans champ neuf. (2) La numerotation des tirs se suit par joueur resolu, plus par index : deux humains successifs sur le
+// meme index (un remplacant) n ajoutent plus jusqu a 255 tirs fantomes au remplacant. Les valeurs de `shotStats[]` et de `hits[].w` changent sur ces films ;
+// aucun champ ne change de forme.
+//
+// POURQUOI LA VERSION MONTE. Le premier apport change le contenu a forme egale (la pratique du depot, v21, v51 et v108, monte la version, parce que la reprise
+// des rejeux de l hote se decide sur `SchemaVersion`) ; les deux autres ajoutent des champs optionnels, et la version monte pour la raison des montees v3..v24.
+//
+// CE QUI MONTE    `SchemaVersion` 124 -> 125. `grammar.Rev` -> `grammar-2026-11-15.4`. `SchemaDesFaits` 28 -> 29 (le complement de la section 1 porte la jauge de retour lue
+// AVEC ELLE       par la marche, les messages `damage_aftermath`, leurs points et le compte des trames de vitalites non lues). `objectives.Rev` -> `objectives-2026-11-15.3`.
+//
+// LE PARC         un artefact 124 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une decision de
+//                 l utilisateur.

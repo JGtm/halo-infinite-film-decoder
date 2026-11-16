@@ -73,6 +73,13 @@ var registreKillsource = []Repli{
 			// COMPTE du site de `grammar` au rapport du contexte de film.
 			Fichier: pkgFilmdec + "marche_commune.go",
 			Ancre:   "fc.NoterReplis(ComptesDesReplis{LocalisationsALargeurLibre: morts.largeurLibre})",
+		}, {
+			// Le canal de la vie des bipedes recupere ses listes comme le canal des morts, et verse son compte au meme repli.
+			Fichier: pkgFilmdec + "canal_des_vitalites.go",
+			Ancre:   "c.lu.Stats.LocalisationsALargeurLibre += unSi(libre)",
+		}, {
+			Fichier: pkgFilmdec + "marche_commune.go",
+			Ancre:   "fc.NoterReplis(ComptesDesReplis{LocalisationsALargeurLibre: m.Vitalites.Stats.LocalisationsALargeurLibre})",
 		}, siteDeVersement("NomLocalisationLargeurLibre")},
 		DatePose:     dateAudit0E,
 		CibleRetrait: "les largeurs calibrees par la carte et le build ; a defaut, " + retraitRegle4,

@@ -65,9 +65,9 @@ published with the replay document. `decfilm.ReadMatchInfo` reads, from the head
 
 [`FORMAT.md`](FORMAT.md) describes the format level by level and says, for each part, what is read, what is recovered and what
 is not read. [`GLOSSARY.md`](GLOSSARY.md) maps the French vocabulary of the sources to English and to the names used by
-libfilmshell (OpenSpartan, MIT), a Rust decoder of the same format. Two tables are taken from libfilmshell, each with its credit header and its licence text: the score responses that name
-the game-event messages (`reponsesdejeu/data/reponses.tsv`) and the medals of the game (`medalname/data/medals.tsv`); see
-[`NOTICE.md`](NOTICE.md). The method that reads how a life ends (the controller gives the body up at a death; the game deletes it still controlled when a round ends) is also libfilmshell's; no code is copied.
+libfilmshell (OpenSpartan, MIT), a Rust decoder of the same format. Three tables are taken from libfilmshell, each with its credit header and its licence text: the score responses that name
+the game-event messages (`reponsesdejeu/data/reponses.tsv`), the medals of the game (`medalname/data/medals.tsv`) and the damage effects (`damageeffects/data/effects.tsv`); see
+[`NOTICE.md`](NOTICE.md). Two methods are also libfilmshell's, and no code is copied: how a life ends (the controller gives the body up at a death; the game deletes it still controlled when a round ends) and how a hit is applied to a unit's real life.
 
 A delta packet is *closed* when the reading ends on its last terminator with at most seven zero bits left. The share of packets
 read to the end, measured on 2026-11-12 on 38 films:

@@ -137,7 +137,7 @@ from the variant, by field path:
 - the match information that `decfilm.ReadMatchInfo` returns: name and description (first language of the variant's string
   table), score to win, time limit, minimum respawn delay, the seconds the variant adds to a respawn after a suicide and after a
   betrayal, the friendly-fire flag (the flag numbered 3 of the set of rule flags), overtime and last-chance durations, starting
-  weapons and equipment, and the option hashes with their values; with the start time and the two map-variant GUIDs of the table above.
+  weapons and equipment, and the option hashes with their values (the flag return delay is the option `0x2b16b76f`); with the start time and the two map-variant GUIDs of the table above.
 
 A field the film does not write is absent from the result, never zero (the writer omits an optional field equal to its
 default). If the walk cannot cross the variant (a type it cannot skip, a length that does not land on its end byte, a depth over
@@ -162,6 +162,13 @@ occupied or vacant:
 A vacant record (header `0/0/0`, null XUID) has a length computed from the same grammar. The personalisation width is read from
 the executable on `HI_1_13_0` and measured elsewhere; the cause of the +200 bytes on `HI_1_4_1` is not established. The 32-slot
 bound holds on all 1,351 measured films. Players who join later appear in type 8 packets.
+
+**Seat of a table row.** The rank of a row is the participant index of its occupant on most films, not on all: on 31 of 1,606
+films with a readable table, one to six rows are listed by the type-8 packets under another seat. On the 28 of them that were
+fully decoded, the chunk replication reading names the listed seat on 46 of the 48 rows (the other two have no reading), never
+the rank, and the team table has no player at the rank on 33 of the 46. When the first type-8 packet lists every occupant of the
+table under a seat nobody else holds, that seat replaces the rank (`SiegesParLesListages`); the table then lists who is there at the start, and has no interleaved
+vacant row left to settle.
 
 **Status.** Read: both versions, the registry, the version table, the three strings, the corruption flag, the start time, the
 body up to the player table, the variant fields listed above, the two GUIDs, the player records. Recovered: the build string, by
@@ -275,6 +282,39 @@ a player's sum of points to equal the personal score: the points come from the r
 actions on older builds) or know nothing of a mode written outside the tree. False, the consumer shows "insufficient data"; a consumer
 that holds the official score compares the sum to it. A mode written without a point scale (Assault, a custom mode) has no response that
 gives points: nothing is invented.
+
+**Damage messages (genre 0, `damage_aftermath`).** One effect of damage that lands on a unit. The header names the unit hit (reference 0)
+and the unit that caused the damage (reference 1, the same domain as reference 0 of a weapon-fire message); the payload names the damage
+effect by its tag id (`R(1)` gate, then `R(32)`), the attacker's player index (`R(1)` gate that reads `R(5)` when it is *clear*, the inverse of
+the effect's gate: a fall or the map writes no index), a 19-bit direction and, after three small fields (5, 5 and 6 bits), the scale: 15 on a
+full direct hit. The effect belongs to a weapon, a melee strike, a grenade, the world...: the table `damageeffects/data/effects.tsv`, taken from
+libfilmshell (see `NOTICE.md`), says which. The replay document publishes an **estimate** of the hits from them: a hit is a weapon effect
+counted once per (attacker, unit hit, packet), projectiles included, on the frame of the packet; the weapon is the one of the attacker's last
+shot in the two seconds before. The victim is the player whose track holds the unit (slot = unit index + 512) at that frame. Per player,
+`shotStats[]` gives the shots (the sum of the jumps of the game's per-player shot numbering, modulo 256, which counts the shots the film does
+not write), the weapon-fire events written, the damage messages and the hits, and two ratios: the *coverage* (events written over shots) and the
+*duplicates* (messages over hits). A player's data are `sufficient` when the coverage is at least 0.7 and the duplicates below 1.2: measured
+against the API's `shots_hit`, the hits of those players are within 10 % for about four players in five, and the shots within 10 % for more than
+four in five (chronicle v125). When they are not sufficient the consumer shows "insufficient data", never a count. A film whose messages the view
+A cannot read to the end has no hit: all its players are insufficient.
+
+**Damage in points.** Each damage message that removes points from a unit with a track becomes a `damage[]` row (frame, attacker, victim, effect,
+weapon, points taken from the shield and from the body, tenths of a point). The points come from the amounts table of libfilmshell
+(`damageeffects`, MIT, credited in `NOTICE.md`) applied to the unit's real life, which the film writes in the biped's two vitality components
+(`object-body-vitality`, health from -1 to 1; `object-shield-vitality`, shield from 0 to 4, 1 being full): the messages of one unit at one instant are
+computed together from the life read just before that instant; a direct hit of a fixed-amount effect at full scale (15) removes its amount from the
+shield, then the body (multipliers and flags of the table); a known effect that removes nothing removes zero; any other hit (area, reduced scale,
+unknown effect) is *measured* from what the life loses, shared between the measured hits and never beyond what remains. A shield rises only when
+the film writes it, never by an assumed delay. A Spartan has 90 body points and 140 shield points. `shotStats[]` adds `damageDealt` and `damageTaken`
+(a player's damage to himself is not counted as dealt; taken counts players only), under the same `sufficient` verdict as the hits. A message whose
+unit has no track (a vehicle, an object) is neither published nor counted. Estimates: against the API's `damage_dealt` and `damage_taken`, for the `sufficient` players the median
+ratio is 1.01 and 1.02 and about three players in four are within 10 % (chronicle v125).
+The totals of `shotStats[]` cover the whole film, while `damage[]` holds only the messages whose instant falls inside the frame axis (before frame 0
+or after the last frame a message counts in the totals and has no row). A weapon hit on the shooter himself (an area weapon) is neither a hit nor
+damage dealt: it is counted apart (`coverage.hits.selfHits`, `selfDamages`). The biped's vitality records are re-read on the lists the walk does not
+locate, as the death channel does; the frames that stay unreadable without the view A stopping there are counted (`coverage.hits.vitalsUnread`) and enter,
+with the stopped frames, the share of frames above which no player is `sufficient`. LIMIT: that share is per film; lost messages may concern a
+single player.
 
 **View B, the entity view** is a list of records ended by record type 0 (section 5). **View C, the control view** loops on
 `{ R(1); 0 ends; kind = R(2); handler(kind) }`; a source path in the game's code calls it `replication_control_view`, and its
@@ -421,6 +461,20 @@ read from a NEW record in a delta packet, or, for an entity that is there when t
 names the seat the entity was created for, not the occupant at a given instant: a player who arrives and takes over a seat reads the
 index of the one who left, so a countdown is only attributed when the index has had a single occupant.
 
+**Return gauge of a dropped flag.** The managed objects of a mode (`ti=13`, "managed-object property") carry named network
+properties; a delta packet writes one only when it changes. A dropped flag's return gauge is the scalar value (`i1`, a variant of tag 3,
+24 bits quantised over -100..+100, read as a fraction of 0 to 1) of the property of one such object. The decoder reads it from the
+records of view B that the walk already reads (`internal/grammar/canal_des_proprietes_gerees_trames.go`): each component of the
+archetype's two value kinds, `i1` (one value) and `i2..i33` (one value per player, indexed by the component's rank), is kept with its slot,
+its packet's clock and its tag. The gauge fills at one unit over the variant's flag return delay, `CTFOptions_FlagReturnTime` (option hash
+`0x2b16b76f`, in seconds, a number): on 41 films the median increment of a gauge is 0.9985 to 1.0010 times the reciprocal of the delay on 37,
+the lower quartile on the four others, which are 60 s games with many defenders. All 46 measured films of the flag modes write the option (15 s
+on 2, 24 s on 29, 40 s on 10, 60 s on 5) and none of the 33 of other modes. The anchoring pass (`ScanManagedProperties`, which finds the records of the same archetype bit by bit in the delta packets) reads the same
+property too: on 1,039 dropped flags of 30 films, the walk alone lacks the series of 37 that the pass reads (11 of them returns to base
+at 0.95 or more) and has 35 that the pass lacks, so the publication takes, for each dropped interval, the walk's series when it has
+one and the pass's otherwise. The values of a zone's state (owner, capture gauge) are read by the pass and not by the walk: on 9
+Strongholds films the pass finds all of the 335 captures that the statborg names, within three frames, the walk 333.
+
 **Status.** Read: record type, id, mask, and the components with a ported reader, in NEW and DELTA records. Recovered: the
 archetype of a slot with no NEW in view, from the bindings above; records anchored by header patterns where a body cannot be
 read: biped records, world-object tracks and creations (bit passes after the walk), scoreboard records, and kills of a view A that
@@ -429,7 +483,7 @@ view is an opaque tail); the 32 bits of a DEL; the creation records of entities 
 instead). An entity present at the start of a chunk but absent from its keyframe table, and designated by an update before any
 NEW, is a measured gap.
 
-*Sources: `internal/grammar/frame_records.go`, `unit_control.go`, `unit_control_scan.go`, `entete.go`, `traverse.go`, `ecrivain_invariants.go`, `world.go`, `frame_infer.go`,
+*Sources: `internal/grammar/frame_records.go`, `canal_des_proprietes_gerees_trames.go`, `unit_control.go`, `unit_control_scan.go`, `entete.go`, `traverse.go`, `ecrivain_invariants.go`, `world.go`, `frame_infer.go`,
 `canal_des_horloges.go`, `capture.go`, `default_state_arch.go`, `doc.go`, `testdata/ecs_table.tsv`, `testdata/ecs_table.README.md`; libfilmshell `payload.rs`, `events.rs`.*
 
 ## 6. Positions

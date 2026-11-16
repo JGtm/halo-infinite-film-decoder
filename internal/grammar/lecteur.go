@@ -74,6 +74,8 @@ type Lecteur struct {
 	// evenementLu : le dernier message `PlayerGameEventSmall` que la charge du genre 82 a lu, couple ou non
 	// ([chargeEvenementJoueurCourt]), que la lecture de la vue A recueille avec sa position.
 	evenementLu lecture.EvenementDeJeu
+	// degatLu : le dernier message `damage_aftermath` (genre 0) que sa charge a lu ([chargeDegatsApres]).
+	degatLu lecture.DegatDeJoueur
 	// refsDuMessage : les references du message de vue A en cours de lecture, telles que
 	// [lireUnMessage] les lit ; pousseeLue : la charge du dernier message de poussee
 	// ([chargePousseeDuJoueur], [chargeObjetRepousse]) ; detonationLue : la charge et la position

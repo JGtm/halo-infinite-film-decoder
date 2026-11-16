@@ -31,4 +31,6 @@ func (s *filmScan) balayerProprietesTi13() {
 	s.in.FlagGauge = decodeFilmFlagReturnGauge(s.ctx, &partage, jauge)
 	s.in.FlagGaugeScanned = jauge
 	s.opt.observe(s.ctx, "flagGauge", s.in.FlagGauge)
+	s.in.FlagGaugeWalk = decodeFilmFlagGaugeWalk(s.ctx, s.matchID, s.marche.ProprietesGerees, s.errMarche, jauge)
+	s.opt.observe(s.ctx, "flagGaugeWalk", s.in.FlagGaugeWalk)
 }

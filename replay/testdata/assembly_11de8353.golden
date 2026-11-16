@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 15588 frames · intervalle 33 ms · duree 514404 ms
-schema 124 · titre halo_infinite
+schema 125 · titre halo_infinite
 version majeure du film : 38
 origine de la frame 0 sur l horloge du fil : 86805 ms
 coup d envoi date par le film : 108387 ms · 177/182 piste(s) en mouvement · rafale 15 · marge depuis la frame 0 : 21582 ms
@@ -961,4 +961,36 @@ groupe "bigteambattle.lua+btbslayerevents.lua" (absent : false) · trames 17629 
   somme 2795415847885860 = 1200
   somme 2812024117143317 = 300
 première : t=986 xuid=2649451507849234 killPersonalScore 100 cible="2678316781767380" · dernière : t=15358 xuid=2746409228518711 killPersonalScore 100 cible="2706469099639436"
+
+## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
+3362 message(s) · 1890 d'arme · 1343 touche(s) · 734 posée(s) · 251 sans auteur · 358 sans victime · 0 avant la frame 0 · 0 après la fin · 0 joueur(s) dont 26 suffisant(s) (couverture >= 0.7, doublons < 1.2)
+1503 ligne(s) de dégât dont 878 mesurée(s) · 272 message(s) sans piste · 3 touche(s) et 15 dégât(s) sur soi · 234 trame(s) arrêtée(s) et 18 de vitalités non lues sur 17629
+  2539909643060628 : 530 tir(s) dont 107 écrit(s) · 62 message(s) · 45 touche(s) · couverture 0.20 · doublons 1.38 · infligé 2033.1 · subi 1853.4 · suffisant false
+  2555274482597606 : 647 tir(s) dont 101 écrit(s) · 204 message(s) · 132 touche(s) · couverture 0.16 · doublons 1.55 · infligé 1737.4 · subi 2105.9 · suffisant false
+  2556228301812198 : 46 tir(s) dont 22 écrit(s) · 62 message(s) · 45 touche(s) · couverture 0.48 · doublons 1.38 · infligé 1303.4 · subi 1327.4 · suffisant false
+  2560293259909136 : 34 tir(s) dont 14 écrit(s) · 25 message(s) · 11 touche(s) · couverture 0.41 · doublons 2.27 · infligé 1101.7 · subi 1391.6 · suffisant false
+  2584494285201958 : 329 tir(s) dont 151 écrit(s) · 47 message(s) · 44 touche(s) · couverture 0.46 · doublons 1.07 · infligé 1558.1 · subi 1330.0 · suffisant false
+  2585144786572535 : 407 tir(s) dont 104 écrit(s) · 88 message(s) · 58 touche(s) · couverture 0.26 · doublons 1.52 · infligé 2312.9 · subi 1355.8 · suffisant false
+  2620267450249348 : 312 tir(s) dont 149 écrit(s) · 56 message(s) · 54 touche(s) · couverture 0.48 · doublons 1.04 · infligé 1032.9 · subi 746.1 · suffisant false
+  2623439693412443 : 110 tir(s) dont 68 écrit(s) · 11 message(s) · 11 touche(s) · couverture 0.62 · doublons 1.00 · infligé 72.0 · subi 1104.9 · suffisant false
+  2640966191058275 : 199 tir(s) dont 38 écrit(s) · 103 message(s) · 83 touche(s) · couverture 0.19 · doublons 1.24 · infligé 974.7 · subi 1207.7 · suffisant false
+  2649451507849234 : 724 tir(s) dont 195 écrit(s) · 191 message(s) · 101 touche(s) · couverture 0.27 · doublons 1.89 · infligé 2551.0 · subi 989.5 · suffisant false
+  2649558580197277 : 1483 tir(s) dont 90 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.06 · doublons 0.00 · infligé 0.0 · subi 876.4 · suffisant false
+  2659582532226335 : 169 tir(s) dont 77 écrit(s) · 30 message(s) · 25 touche(s) · couverture 0.46 · doublons 1.20 · infligé 752.7 · subi 1715.6 · suffisant false
+  2661816997026755 : 128 tir(s) dont 68 écrit(s) · 119 message(s) · 59 touche(s) · couverture 0.53 · doublons 2.02 · infligé 1872.9 · subi 1391.7 · suffisant false
+  2670885433928816 : 99 tir(s) dont 58 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.59 · doublons 0.00 · infligé 0.0 · subi 1211.3 · suffisant false
+  2678316781767380 : 337 tir(s) dont 57 écrit(s) · 1 message(s) · 1 touche(s) · couverture 0.17 · doublons 1.00 · infligé 88.4 · subi 1786.8 · suffisant false
+  2698413116170421 : 157 tir(s) dont 77 écrit(s) · 171 message(s) · 168 touche(s) · couverture 0.49 · doublons 1.02 · infligé 1489.6 · subi 1210.0 · suffisant false
+  2702423350400935 : 152 tir(s) dont 63 écrit(s) · 15 message(s) · 11 touche(s) · couverture 0.41 · doublons 1.36 · infligé 357.3 · subi 1213.4 · suffisant false
+  2702481023568130 : 246 tir(s) dont 116 écrit(s) · 40 message(s) · 33 touche(s) · couverture 0.47 · doublons 1.21 · infligé 687.2 · subi 1514.4 · suffisant false
+  2706469099639436 : 95 tir(s) dont 60 écrit(s) · 78 message(s) · 41 touche(s) · couverture 0.63 · doublons 1.90 · infligé 1264.0 · subi 1711.2 · suffisant false
+  2728085484769223 : 469 tir(s) dont 29 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.06 · doublons 0.00 · infligé 0.0 · subi 1167.9 · suffisant false
+  2746409228518711 : 160 tir(s) dont 74 écrit(s) · 31 message(s) · 19 touche(s) · couverture 0.46 · doublons 1.63 · infligé 1061.3 · subi 924.2 · suffisant false
+  2765430746281581 : 50 tir(s) dont 23 écrit(s) · 10 message(s) · 10 touche(s) · couverture 0.46 · doublons 1.00 · infligé 315.5 · subi 544.6 · suffisant false
+  2769745370848087 : 55 tir(s) dont 38 écrit(s) · 62 message(s) · 30 touche(s) · couverture 0.69 · doublons 2.07 · infligé 1469.2 · subi 928.4 · suffisant false
+  2788613520028391 : 85 tir(s) dont 51 écrit(s) · 57 message(s) · 51 touche(s) · couverture 0.60 · doublons 1.12 · infligé 1644.7 · subi 1352.3 · suffisant false
+  2795415847885860 : 141 tir(s) dont 94 écrit(s) · 66 message(s) · 42 touche(s) · couverture 0.67 · doublons 1.57 · infligé 2118.7 · subi 742.9 · suffisant false
+  2812024117143317 : 313 tir(s) dont 44 écrit(s) · 19 message(s) · 18 touche(s) · couverture 0.14 · doublons 1.06 · infligé 226.0 · subi 1140.7 · suffisant false
+première : t=986 2649451507849234 -> 2678316781767380 d468178e w= · dernière : t=15358 2746409228518711 -> 2706469099639436 003ce739 w=0x767DB96D42C9679F
+dégât, première : t=986 2649451507849234 -> 2678316781767380 d468178e bouclier 140.0 corps 90.0 · dernière : t=15358 2746409228518711 -> 2706469099639436 e9941862 bouclier 0.0 corps 65.9
 

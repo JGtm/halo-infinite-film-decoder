@@ -96,6 +96,7 @@ func BuildFromPositions(ctx context.Context, matchID, titleSlug string, pos []gr
 	a.poserObjectifsVivants()
 	a.poserLesMedailles()
 	a.poserLesScoresParAction()
+	a.poserLesTouches()
 	a.poserLibellesEtInventaire()
 	a.poserCapacitesEtTranslocations()
 	a.poserImpulsionsEtCharges()
@@ -145,14 +146,17 @@ type assemblage struct {
 	// Le registre d'identité et ce que la pose des pistes en a tiré.
 	reg IdentityRegistry
 	// indexTireur : l index de tireur des tirs est-il la place sur ce film (lot M4b.4) ?
-	indexTireur    accordIndexUnite
-	trackCov       TrackCoverage
-	unnamed        unnamedLivesReport
-	equipes        teamPublication
-	viesTotal      int
-	viesNommees    int
-	viesSlotAmbigu int
-	siegeCov       SeatCoverage
+	indexTireur accordIndexUnite
+	// tirsAttribues : les tirs que lisent les calques du combat ([assemblage.tirsDuCombat]), poses au premier appel.
+	tirsAttribues      []grammar.FireEvent
+	tirsAttribuesPoses bool
+	trackCov           TrackCoverage
+	unnamed            unnamedLivesReport
+	equipes            teamPublication
+	viesTotal          int
+	viesNommees        int
+	viesSlotAmbigu     int
+	siegeCov           SeatCoverage
 
 	// Les mesures faites AVANT `composerLaCouverture` et posées par elle.
 	shotCov     LayerCoverage

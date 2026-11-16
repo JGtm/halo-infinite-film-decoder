@@ -1546,8 +1546,16 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	// - 124 (2026-11-15, disposition du tableau des scores prouvee) : les entrees du tableau ne nomment ses lignes que si elles portent une
 	//   ligne d equipe (sinon le pont d identite reste la voie), et une emission des assistances dont un canal compteur est negatif est
 	//   ecartee. Le contenu cuit change, aucun champ. `objectives.Rev` monte : un v123 se lit « à redécoder ». Detail : `document_chronicle.go`.
-	if SchemaVersion != 124 {
-		t.Fatalf("SchemaVersion = %d, attendu 124 : incrémenter exige une raison écrite ci-dessus "+
+	// - 125 (2026-11-15, sieges de la table, retour du drapeau, touches et degats) : trois apports en une version. (1) La table de chunk_00
+	//   prend ses sieges aux listes de type 8 : l equipe de roster, le siege et le nom de pistes de 31 films changent de valeur, a forme egale.
+	//   (2) `rules.flagReturnS` porte le delai de retour du drapeau et `flagReturnZone.resetSeconds` ne publie que lui ; la jauge de retour
+	//   se lit aussi par la marche, lacher par lacher (`coverage.flagCarries` : `gaugeWalkReads`, `gaugeWalkSpans`, `seatsBeyondBand`).
+	//   (3) `hits[]`, `shotStats[]`, `damage[]` et `damageDealt` / `damageTaken` portent les touches et les degats en points estimes, avec
+	//   `coverage.hits` (dont `selfHits`, `selfDamages`, `vitalsUnread`). Champs optionnels pour (2) et (3), mais la version monte pour la raison des
+	//   montees v3..v24 et pour le contenu de (1) : un v124 ne porte rien de cela. `SchemaDesFaits` 28 -> 29 et `grammar.Rev` montent : un v124 se
+	//   lit « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 125 {
+		t.Fatalf("SchemaVersion = %d, attendu 125 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

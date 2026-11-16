@@ -215,6 +215,8 @@ type VueA struct {
 	// Jeu sont TOUS les messages `PlayerGameEventSmall` (genre 82) lus, avec ou sans couple de participants
 	// ([EvenementDeJeu]), dans l'ordre.
 	Jeu []EvenementDeJeu
+	// Degats sont les messages `damage_aftermath` (genre 0) lus ([DegatDeJoueur]), dans l'ordre.
+	Degats []DegatDeJoueur
 	// Poussees sont les messages de poussée d'équipement lus (genres 104 et 105,
 	// [MessageDePoussee]), dans l'ordre.
 	Poussees []MessageDePoussee
@@ -449,4 +451,39 @@ type Paquet struct {
 	// Entites est la table d'entités de la marche, telle que la lecture de ce paquet l'a laissée
 	// (ADR 0037 IR-5) : en lecture seule, valide le temps du tour.
 	Entites Entites
+}
+
+// Les drapeaux d'un [DegatDeJoueur].
+const (
+	// DegatVictime : la garde de la référence 0 (l'unité blessée) est ouverte.
+	DegatVictime uint8 = 1 << iota
+	// DegatResponsable : la garde de la référence 1 (l'unité qui a causé le dégât) est ouverte.
+	DegatResponsable
+	// DegatTag : l'effet de dégât est nommé.
+	DegatTag
+)
+
+// DegatDeJoueur est un message `damage_aftermath` (genre 0) de la vue A : un effet de dégât qui touche une
+// unité (`FUN_1407f15a4`). Il nomme l'unité blessée et celle qui a causé le dégât (références d'entité du
+// même domaine que la référence 0 d'un tir), l'effet de dégât par son identifiant de tag, l'index de
+// joueur de l'auteur et le premier des trois petits champs qui suivent la direction (l'échelle, 15 sur un
+// coup direct plein).
+//
+// Vingt octets : sa taille est gelée par `tailles_test.go`.
+type DegatDeJoueur struct {
+	// Debut est le premier bit du message : le bit de continuation qui l'annonce.
+	Debut uint32
+	// Tag est l'identifiant de l'effet de dégât (`jpt!`), valable quand [DegatTag] est posé.
+	Tag uint32
+	// Victime et Responsable sont les index d'unité des deux références, valables quand leur drapeau est
+	// posé ; leurs générations suivent.
+	Victime, Responsable       uint16
+	GenVictime, GenResponsable uint8
+	// Joueur est l'index de joueur de l'auteur (`FUN_1407f2058`, cinq bits) ; [RefAbsente] quand le message
+	// n'en porte pas (une chute, la carte).
+	Joueur int8
+	// Echelle est le premier des trois petits champs de cinq, cinq et six bits qui suivent la direction.
+	Echelle uint8
+	// Drapeaux dit quelles gardes sont ouvertes (`Degat*`).
+	Drapeaux uint8
 }

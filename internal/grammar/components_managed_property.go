@@ -166,6 +166,21 @@ func consumeManagedPropertyVariant(br *Lecteur, f ManagedPropertyField, modeA bo
 	br.obs.publishManagedProperty(f, tag, charge)
 }
 
+// ManagedPropertyValue est le variant d une propriete reseau tel que la couche de capture le rend : le tag, et
+// la charge quand la branche du tag en lit une dans le mode demande.
+type ManagedPropertyValue struct {
+	Tag      int
+	Value    uint64
+	HasValue bool
+}
+
+// decodeManagedProperty lit un variant de propriete dans le mode demande et le rend, sans le publier : la
+// couche de capture et [consumeManagedPropertyVariant] consomment les memes bits.
+func decodeManagedProperty(br *Lecteur, modeA bool) ManagedPropertyValue {
+	tag, charge, n := lireVariantDePropriete(br, modeA)
+	return ManagedPropertyValue{Tag: int(tag), Value: charge, HasValue: n > 0}
+}
+
 // consumeManagedObjectProperty (ti=13 i1) — lecteur `FUN_140ce5554` puis `FUN_140ce59bc`.
 //
 // MODE A. Le lecteur pose `index = 0xFFFFFFFF` avant de descendre dans le variant, donc les

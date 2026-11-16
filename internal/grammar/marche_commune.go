@@ -41,6 +41,12 @@ func (m *MarcheDesTrames) prendreLesMorts(fc *FilmContext, morts *canalDesMorts)
 	fc.NoterReplis(ComptesDesReplis{LocalisationsALargeurLibre: morts.largeurLibre})
 }
 
+// verserLesReplisDesVitalites verse au rapport du contexte les listes que le canal des vitalites a recuperees a largeur libre : le MEME repli que
+// celui du canal des morts, compte sur le meme site, une fois par marche prise.
+func (m *MarcheDesTrames) verserLesReplisDesVitalites(fc *FilmContext) {
+	fc.NoterReplis(ComptesDesReplis{LocalisationsALargeurLibre: m.Vitalites.Stats.LocalisationsALargeurLibre})
+}
+
 // marcheGardee rend la marche que le contexte garde pour la cuisson, une fois, quand le profil de
 // balayage du contexte est celui sous lequel elle a tourne ; faux sinon, et la cuisson marche.
 func (c *FilmContext) marcheGardee(l LecturesDeLaMarche) (MarcheDesTrames, bool) {
@@ -53,6 +59,7 @@ func (c *FilmContext) marcheGardee(l LecturesDeLaMarche) (MarcheDesTrames, bool)
 	if l.veutLesMorts(c) {
 		m.prendreLesMorts(c, g.morts)
 	}
+	m.verserLesReplisDesVitalites(c)
 	return m, true
 }
 

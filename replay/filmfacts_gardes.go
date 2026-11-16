@@ -50,6 +50,9 @@ func encodeGardesDeMode(w *gwriter, in FilmInputs) {
 	// par deux calques. Les fondre ferait publier a un CTF la couverture de zones d un KOTH.
 	encodeManagedPropertyReads(w, in.FlagGauge)
 	w.bool8(in.FlagGaugeScanned)
+	// LA MEME JAUGE, LUE PAR LA MARCHE DES TRAMES : une seconde lecture des memes records, que la publication prefere
+	// lacher par lacher quand elle en porte une serie (cf. flag_return_gauge.go).
+	encodeManagedPropertyReads(w, in.FlagGaugeWalk)
 	w.u(uint64(len(in.BombReads)))
 	for _, b := range in.BombReads {
 		w.u(uint64(b.Slot))
@@ -66,6 +69,7 @@ func decodeGardesDeMode(r *greader, in *FilmInputs) {
 	in.ZoneKeyReads = decodeManagedPropertyReads(r)
 	in.FlagGauge = decodeManagedPropertyReads(r)
 	in.FlagGaugeScanned = r.bool8()
+	in.FlagGaugeWalk = decodeManagedPropertyReads(r)
 	n := r.compte(4)
 	in.BombReads = make([]types.NavpointRadialRead, 0, n)
 	for k := 0; k < n && r.err == nil; k++ {

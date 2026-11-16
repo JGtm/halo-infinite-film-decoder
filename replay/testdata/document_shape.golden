@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 124
-empreinte-stockee d0bd63f0ae037f76
-empreinte-servie d0bd63f0ae037f76
-empreinte-cuite 672ed8aa508915ef
+schema 125
+empreinte-stockee 8d17e625ce2e53c8
+empreinte-servie 8d17e625ce2e53c8
+empreinte-cuite 9254aadd381c8b1f
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -318,6 +318,7 @@ Coverage
   Grenades json:"grenades" LayerCoverage
   GroundWeaponItems json:"groundWeaponItems,omitempty" *GroundWeaponItemsCoverage
   GroundWeapons json:"groundWeapons,omitempty" *GroundWeaponCoverage
+  Hits json:"hits,omitempty" *HitCoverage
   Inventory json:"inventory,omitempty" *InventoryCoverage
   Keyframes json:"keyframes,omitempty" *KeyframeCoverage
   Knockbacks json:"knockbacks,omitempty" *KnockbackCoverage
@@ -344,6 +345,15 @@ Coverage
   VipCrown json:"vipCrown,omitempty" *VipCrownCoverage
   WeaponChanges json:"weaponChanges,omitempty" *WeaponChangeCoverage
   Zones json:"zones,omitempty" *ZonesCoverage
+Damage
+  Attacker json:"attacker,omitempty" string
+  Body json:"body" float64
+  Effect json:"effect" string
+  Measured json:"measured,omitempty" bool
+  Shield json:"shield" float64
+  T json:"t" int
+  Victim json:"victim,omitempty" string
+  Weapon json:"w,omitempty" string
 DeadState
   EnumA json:"" int32
   EnumB json:"" int32
@@ -504,6 +514,8 @@ FlagCarriesCoverage
   GaugeScanned json:"gaugeScanned" bool
   GaugeSlots json:"gaugeSlots" int
   GaugeSpans json:"gaugeSpans" int
+  GaugeWalkReads json:"gaugeWalkReads" int
+  GaugeWalkSpans json:"gaugeWalkSpans" int
   HomeByObject json:"homeByObject" int
   MarkerConfirmed json:"markerConfirmed" int
   MarkerObserved json:"markerObserved" int
@@ -519,6 +531,7 @@ FlagCarriesCoverage
   OutOfWindow json:"outOfWindow" int
   Overlaps json:"overlaps" int
   OwnFlagRefused json:"ownFlagRefused" int
+  SeatsBeyondBand json:"seatsBeyondBand" int
   Spawns json:"spawns" int
   SpawnsFromFilm json:"spawnsFromFilm,omitempty" int
   Steals json:"steals" int
@@ -530,7 +543,7 @@ FlagCarry
   Team json:"team" int
 FlagReturnZone
   RadiusM json:"radiusM" float32
-  ResetSeconds json:"resetSeconds" float32
+  ResetSeconds json:"resetSeconds,omitempty" float32
   SoloSeconds json:"soloSeconds" float32
 FlagSpan
   ReturnProgress json:"returnProgress,omitempty" []GaugePoint
@@ -629,6 +642,35 @@ GroundWeaponItemsCoverage
   PickupLinked json:"pickupLinked" int
   Published json:"published" int
   TakesTotal json:"takesTotal" int
+Hit
+  Effect json:"effect" string
+  Shooter json:"shooter" string
+  T json:"t" int
+  Victim json:"victim" string
+  Weapon json:"w,omitempty" string
+HitCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  Damages json:"damages" int
+  DamagesMeasured json:"damagesMeasured" int
+  DamagesOffUnit json:"damagesOffUnit" int
+  Estimated json:"estimated" bool
+  Frames json:"frames" int
+  Hits json:"hits" int
+  MaxDuplicates json:"maxDuplicates" float64
+  MaxStoppedShare json:"maxStoppedShare" float64
+  Messages json:"messages" int
+  MinCoverage json:"minCoverage" float64
+  NoShooter json:"noShooter" int
+  NoVictim json:"noVictim" int
+  Players json:"players" int
+  Published json:"published" int
+  SelfDamages json:"selfDamages" int
+  SelfHits json:"selfHits" int
+  StoppedFrames json:"stoppedFrames" int
+  Sufficient json:"sufficient" int
+  VitalsUnread json:"vitalsUnread" int
+  WeaponMessages json:"weaponMessages" int
 IdentityBipedSlot
   Bid json:"bid,omitempty" string
   Link json:"link" Link
@@ -763,6 +805,7 @@ MapWeaponPads
   Pads json:"pads" []MapWeaponPadDTO
 MatchRules
   BetrayalPenaltyS json:"betrayalPenaltyS,omitempty" *int64
+  FlagReturnS json:"flagReturnS,omitempty" *float64
   FriendlyFire json:"friendlyFire,omitempty" *bool
   MinRespawnS json:"minRespawnS,omitempty" *int64
   SuicidePenaltyS json:"suicidePenaltyS,omitempty" *int64
@@ -938,6 +981,7 @@ ReplayDocument
   Bursts json:"bursts,omitempty" []FireBurst
   CarriedEquipment json:"carriedEquipment,omitempty" []CarriedEquipment
   Coverage json:"coverage,omitempty" *Coverage
+  Damage json:"damage,omitempty" []Damage
   DurationMS json:"durationMs,omitempty" int
   EquipmentChanges json:"equipmentChanges,omitempty" []EquipmentChange
   EquipmentEpisodes json:"equipmentEpisodes,omitempty" []EquipmentEpisode
@@ -953,6 +997,7 @@ ReplayDocument
   GrenadeReads json:"grenadeReads,omitempty" []GrenadeRead
   Grenades json:"grenades,omitempty" []Grenade
   GroundWeapons json:"groundWeapons,omitempty" []GroundWeapon
+  Hits json:"hits,omitempty" []Hit
   Identity json:"identity,omitempty" *IdentitySection
   Inventory json:"inventory,omitempty" []Inventory
   KillEffects json:"killEffects,omitempty" map[string]string
@@ -978,6 +1023,7 @@ ReplayDocument
   SchemaVersion json:"schemaVersion" int
   ScoreActions json:"scoreActions,omitempty" []ScoreAction
   ScoreTimeline json:"scoreTimeline,omitempty" *ScoreTimeline
+  ShotStats json:"shotStats,omitempty" []ShotStat
   Shots json:"shots,omitempty" []Shot
   SkullCarries json:"skullCarries,omitempty" []SkullCarry
   Stances json:"stances,omitempty" []Stance
@@ -1134,6 +1180,17 @@ ShotAimCoverage
   Record json:"record" int
   SameTick json:"sameTick" int
   Track json:"track" int
+ShotStat
+  Coverage json:"coverage" float64
+  DamageDealt json:"damageDealt" float64
+  DamageTaken json:"damageTaken" float64
+  Duplicates json:"duplicates" float64
+  Hits json:"hits" int
+  Messages json:"messages" int
+  ShotEvents json:"shotEvents" int
+  Shots json:"shots" int
+  Sufficient json:"sufficient" bool
+  XUID json:"xuid" string
 SkullCarriesCoverage
   CarrierAbsent json:"carrierAbsent" int
   Carries json:"carries" int

@@ -244,9 +244,7 @@ const VersionCodecFaits = 2
 // SCHEMA 20 (2026-11-12, infos de match) : la section 2, l identite du film (JSON de `profile.FilmIdentity`),
 // porte `InfosDeMatch` : la variante de partie (nom, description, score de victoire, duree, delai de
 // reapparition, prolongation, dotation, options), les identifiants de la variante de carte et l heure de debut.
-// Relue par `json.Unmarshal`, une section 2 du schema 19 rendrait ces champs absents sans erreur, et un
-// fait « absent » ne se distingue pas d un fait que le film ne porte pas : c est le refus SUR L EN-TETE qui
-// doit le dire. Aucun consommateur : le document de rejeu ne publie rien de neuf, `SchemaVersion` ne bouge pas.
+// Relue par `json.Unmarshal`, une section 2 du schema 19 rendrait ces champs absents sans erreur : le refus SUR L EN-TETE le dit. Aucun consommateur : `SchemaVersion` ne bouge pas.
 // SCHEMA 21 (2026-11-12, occupants tues lus) : la section 1 porte les dead-states des BIPEDES (`VehicleScan.BipedDeaths`, `ti=35` : victime,
 // tueur, effet de degat), a la suite de ceux des vehicules ; ils disent QUI est mort avec un vehicule detruit. Une charge du schema 20 les
 // rendrait vides sans erreur (« personne n est mort avec son vehicule ») : le refus SUR L EN-TETE le dit. Aucune revision de couche ne bouge.
@@ -260,7 +258,8 @@ const VersionCodecFaits = 2
 // SCHEMA 26 : le complement de la section 1 porte aussi les messages de jeu et les noms de script du chunk 0 (`FilmInputs.GameEvents`, `Scripts`) ; `grammar.Rev` monte.
 // SCHEMA 27 : le complement de la section 1 porte aussi les entrees des entites du tableau des scores (de qui est chaque ligne) ; `grammar.Rev` monte.
 // SCHEMA 28 : le complement de la section 1 porte aussi les suppressions de bipede (`FilmInputs.BipedDeletions`, les records DEL des bipedes lus par la marche des trames) et leurs comptes ; `grammar.Rev` monte.
-const SchemaDesFaits = 28
+// SCHEMA 29 : le complement de la section 1 porte aussi la jauge de retour lue par la marche (`FilmInputs.FlagGaugeWalk`), les messages `damage_aftermath` (`FilmInputs.Damages`) leurs points (`DamagePoints`) et le compte des trames de vitalites non lues ; `grammar.Rev` monte.
+const SchemaDesFaits = 29
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.
@@ -481,6 +480,7 @@ func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodeMedailles(w, g.MedalsRead, g.Medals)
 	encodePresenceEtEntrees(w, g)
 	encodeJeu(w, g)
+	encodeDegats(w, g)
 	encodeVerdictDuFilDesMorts(w, g.DeathsFeed)
 }
 
@@ -495,5 +495,6 @@ func decodeComplementDesEntrees(r *greader, g *FilmFacts) {
 	g.MedalsRead, g.Medals = decodeMedailles(r)
 	decodePresenceEtEntrees(r, g)
 	decodeJeu(r, g)
+	decodeDegats(r, g)
 	g.DeathsFeed = decodeVerdictDuFilDesMorts(r)
 }

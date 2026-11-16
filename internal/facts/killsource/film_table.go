@@ -104,7 +104,7 @@ type FilmTable struct {
 func (t FilmTable) Lue() bool { return t.Refusal == FilmTableRead && len(t.Seats) > 0 }
 
 // readFilmTable rend la table des joueurs que la grammaire lit dans le registre du film
-// ([grammar.ScanFilmPlayerTable] : la meme lecture que la cuisson, `chunk_00` par son numero).
+// ([grammar.ScanFilmPlayerTableAuxListages] : la meme lecture que la cuisson, `chunk_00` par son numero).
 //
 // ELLE NE REND JAMAIS D ERREUR : chaque cause d echec est TYPEE et NOMMEE par la grammaire, portee
 // par le resultat et journalisee par l appelant. Un refus se compte.
@@ -114,7 +114,8 @@ func readFilmTable(f *film) FilmTable {
 	}
 	// L erreur ne fait qu accompagner le refus : c est la cause nommee qui se publie et que
 	// l appelant journalise (`DiagTableNonLue`).
-	lue, _ := grammar.ScanFilmPlayerTable(f.src)
+	luAuxListages, _ := grammar.ScanFilmPlayerTableAuxListages(f.src)
+	lue := luAuxListages.Table
 	if lue.Refusal != FilmTableRead {
 		return FilmTable{Build: lue.Build, Refusal: lue.Refusal}
 	}

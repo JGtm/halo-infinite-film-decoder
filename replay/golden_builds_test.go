@@ -291,6 +291,7 @@ func TestGoldenBuildsInputsRoundTrip(t *testing.T) {
 			// LES PLAGES DE LISTAGE aussi (golden_presences_test.go).
 			again.RosterListings, again.RosterListingStats = g.RosterListings, g.RosterListingStats
 			again.GameEventsRead, again.GameEvents, again.GameEventStats, again.Scripts = g.GameEventsRead, g.GameEvents, g.GameEventStats, g.Scripts // idem, golden_jeu_test.go
+			again.DamagesRead, again.Damages, again.DamagePoints, again.DamageStats = g.DamagesRead, g.Damages, g.DamagePoints, g.DamageStats         // idem, golden_degats_test.go
 			a := renderAssembly(assemblerGoldenBuild(t, b, g, entry))
 			c := renderAssembly(assemblerGoldenBuild(t, b, again, entry))
 			if a != c {
@@ -335,5 +336,6 @@ func chargerGoldenBuild(t *testing.T, b goldenBuild) (*FilmFacts, profile.MapQua
 	chargerPresencesDuBuild(t, b.Short8, g)
 	// LES MESSAGES DE JEU AUSSI : golden_jeu_test.go.
 	chargerJeuDuBuild(t, b.Short8, g)
+	chargerDegatsDuBuild(t, b.Short8, g)
 	return g, entry
 }

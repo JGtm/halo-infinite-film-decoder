@@ -137,11 +137,14 @@ type FilmInputs struct {
 	// garde par ce que l'appelant a fourni (`Options.Flag`).
 	FlagMarks grammar.CarrierMarkScan
 	// FlagGauge / FlagGaugeScanned sont LA JAUGE DE RETOUR du drapeau (`ti=13 i1` tag 3), lue
-	// dans les paquets delta sur les SEULS films de CTF — meme garde que `FlagMarks`. Le canal
-	// est le MEME que celui des zones (`ScanManagedProperties`) ; ce sont les GARDES qui
-	// different, et un match n'est jamais CTF et colline a la fois.
+	// dans les paquets delta par la marche des trames ([grammar.ProprietesGereesLues]) sur les
+	// SEULS films de CTF — meme garde que `FlagMarks`. Le meme composant porte l'etat des zones,
+	// que la passe de `ScanManagedProperties` lit sous une autre garde.
 	FlagGauge        []grammar.ManagedPropertyRead
 	FlagGaugeScanned bool
+	// FlagGaugeWalk est la MEME jauge, lue par la marche des trames ([grammar.ProprietesGereesLues]) : la publication en
+	// prend la serie de chaque lacher qui en porte une, et celle de la passe pour les autres.
+	FlagGaugeWalk []grammar.ManagedPropertyRead
 	// ZoneReads / ZoneScanned sont l'etat des zones (ti=13). Le CATALOGUE de zones vient de
 	// l'appelant et commande le balayage : sans zones, rien n'est lu et `ZoneScanned` est faux.
 	ZoneReads   []grammar.ManagedPropertyRead
@@ -176,6 +179,13 @@ type FilmInputs struct {
 	GameEventStats grammar.StatsEvenementsDeJeu
 	GameEventsRead bool
 	Scripts        []string
+	// Damages sont les messages `damage_aftermath` des trames delta, DamageStats ce que leur canal a vu.
+	Damages     []grammar.DegatLu
+	DamagesRead bool
+	// DamagePoints : ce que chaque message de `Damages` retire a son unite blessee (meme ordre), calcule dans la marche depuis la vie lue des
+	// bipedes (`calculerLesPointsDeDegats`) : la vie elle-meme n est pas persistee.
+	DamagePoints []PointsDeDegat
+	DamageStats  grammar.StatsDegats
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -276,6 +286,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Vehicles = in.Vehicles
 	opt.Flag.Marks = in.FlagMarks
 	opt.Flag.Gauge, opt.Flag.GaugeScanned = in.FlagGauge, in.FlagGaugeScanned
+	opt.Flag.GaugeWalk = in.FlagGaugeWalk
 	opt.Zone.Reads, opt.Zone.Scanned = in.ZoneReads, in.ZoneScanned
 	opt.Zone.KeyReads = in.ZoneKeyReads
 	opt.Bomb.Reads = in.BombReads
@@ -286,6 +297,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.DeathsFeed = in.DeathsFeed.Verdict
 	opt.Medals = MedalInput{Read: in.MedalsRead, Awards: in.Medals}
 	opt.ScoreActions = ScoreActionInput{Read: in.GameEventsRead, Events: in.GameEvents, Stats: in.GameEventStats, Scripts: in.Scripts}
+	opt.Damages = HitInput{Read: in.DamagesRead, Messages: in.Damages, Points: in.DamagePoints, Stats: in.DamageStats}
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable
 	opt.PlayerTeams, opt.TeamScan = in.PlayerTeams, in.TeamScan

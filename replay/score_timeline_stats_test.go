@@ -113,4 +113,7 @@ func TestEntreeDuDrapeauGardeLaBandeSure(t *testing.T) {
 	if len(in.Records) != 2 || in.Records[1].Slot != 24 {
 		t.Errorf("enregistrements du drapeau = %+v, attendu les slots 8 et 24", in.Records)
 	}
+	if in.SeatsBeyondBand != 2 {
+		t.Errorf("sieges au-dela de la bande = %d, attendu 2 (les slots 26 et 58)", in.SeatsBeyondBand)
+	}
 }

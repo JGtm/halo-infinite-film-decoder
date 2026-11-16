@@ -23,7 +23,7 @@ var plafondsGeles = map[string]int{
 	"internal/facts/objectives/assaut_pied_ancre_test.go":                    558,
 	"internal/facts/objectives/e1911_manches_mesure_research_test.go":        525,
 	"internal/grammar/components_hooks_test.go":                              600,
-	"internal/grammar/golden_minibobine_test.go":                             549,
+	"internal/grammar/golden_minibobine_test.go":                             544,
 	"internal/grammar/ground_weapon_lifecycle_research_test.go":              566,
 	"internal/grammar/i59_anchor_test.go":                                    1138,
 	"internal/grammar/imagecle_oracle_n2_research_test.go":                   502,
@@ -36,12 +36,12 @@ var plafondsGeles = map[string]int{
 	"replay/attachement_phase0_bord_test.go":                                 522,
 	"replay/closures_test.go":                                                598,
 	"replay/ctf_retour_zone_research_test.go":                                806,
-	"replay/document_chronicle.go":                                           4383, // 2026-11-15, schema 124
+	"replay/document_chronicle.go":                                           4526, // 2026-11-15, schema 125
 	"replay/equipment_uses_join_test.go":                                     573,
 	"replay/golden_assembly_test.go":                                         1178,
 	"replay/ground_link_research_test.go":                                    813,
 	"replay/minifilm_test.go":                                                579,
-	"replay/structure_test.go":                                               1553, // 2026-11-15, schema 124
+	"replay/structure_test.go":                                               1561, // 2026-11-15, schema 125
 	"replay/t0_mouvement_research_test.go":                                   868,
 	"replay/vehicules_v1a_test.go":                                           577,
 	"replay/visee_larg114_research_test.go":                                  501,

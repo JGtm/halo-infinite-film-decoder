@@ -83,6 +83,8 @@ type FluxVueA struct {
 	Fil []lecture.EvenementDeFil
 	// Jeu : tous les messages `PlayerGameEventSmall` (genre 82) lus, couple ou non, dans l ordre.
 	Jeu []lecture.EvenementDeJeu
+	// Degats : les messages `damage_aftermath` (genre 0) lus, dans l ordre.
+	Degats []lecture.DegatDeJoueur
 	// Poussees : les messages de poussee d equipement (genres 104 et 105) lus, dans l ordre
 	// ([messageDePoussee]).
 	Poussees []lecture.MessageDePoussee
@@ -165,6 +167,8 @@ func recueillirLeMessage(br *Lecteur, out *FluxVueA, genre, debut int) {
 		e := br.filLu
 		e.Debut = uint32(debut) //nolint:gosec // position dans un payload
 		out.Fil = append(out.Fil, e)
+	case genre == GenreDegatsApres:
+		out.Degats = append(out.Degats, messageDeDegat(br, debut))
 	case genre == GenreObjetRepousse || genre == GenrePousseeDuJoueur:
 		out.Poussees = append(out.Poussees, messageDePoussee(br, genre, debut))
 	case genre == GenreProjectileDetonate || genre == GenreProjectileImpactEffect:

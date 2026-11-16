@@ -59,7 +59,8 @@ func resultatDeBotsSansKillFeed(film *source.Film) *killsource.Result {
 	}
 	// L erreur n accompagne que le refus de la table, deja porte par `table.Refusal` et sans effet ici :
 	// sans table lue, aucune borne des humains n existe et `killsource` epingle tous les bots.
-	table, _ := grammar.ScanFilmPlayerTable(film)
+	lu, _ := grammar.ScanFilmPlayerTableAuxListages(film)
+	table := lu.Table
 	lecture := grammar.LectureDesBotsPour(table.Build)
 	paquets := grammar.PaquetsBotMetadata(film, lecture)
 	bots, incomplets := agregerLesBots(paquets)

@@ -106,6 +106,25 @@ func decodeFilmFlagReturnGauge(ctx context.Context, p *ti13Partage, garde bool) 
 	return p.reads
 }
 
+// decodeFilmFlagGaugeWalk rend les lectures DELTA DE LA JAUGE DE RETOUR du drapeau que la marche des trames a rangees
+// ([grammar.MarcheDesTrames.ProprietesGerees]) — sur les memes films que [decodeFilmFlagReturnGauge]. Une marche qui a
+// echoue ne rend aucune lecture : la jauge de la passe reste seule.
+func decodeFilmFlagGaugeWalk(ctx context.Context, matchID string, m grammar.ProprietesGereesLues, err error,
+	garde bool) []grammar.ManagedPropertyRead {
+	if !garde {
+		return nil
+	}
+	if err != nil {
+		slog.InfoContext(ctx, "rejeu : marche des trames illisible — jauge de retour du drapeau lue par la passe seule",
+			"err", err, "match_id", matchID)
+		return nil
+	}
+	slog.InfoContext(ctx, "rejeu : proprietes ti=13 lues par la marche",
+		"match_id", matchID, "trames", m.Stats.Trames, "tramesNonLues", m.Stats.TramesNonLues,
+		"records", m.Stats.Records, "lectures", len(m.Lectures))
+	return m.Lectures
+}
+
 // attachZoneStates pose l'etat des zones sur le document, avec sa couverture et son journal.
 //
 // LES CAPTURES VIENNENT DE `doc.Objectives`, PAS D'UN SECOND DECODAGE : elles y sont deja posees

@@ -13,6 +13,7 @@ import (
 	"log/slog"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
 // horloge rend la grille du document et le compteur de replis de la cuisson, sous la forme que
@@ -167,6 +168,22 @@ func (a *assemblage) poserLesEquipesEtLeRoster() {
 	a.reg.logRegistry(a.ctx, a.matchID)
 }
 
+// tirsDuCombat rend les evenements de tir tels que TOUS les calques du combat les lisent (les tirs, les touches et le bilan de tirs) : l index de
+// tireur designe la place quand elle l est sur ce film, et le tir est rendu a l occupant de sa place a l instant ; sinon l index est retire, et seule la
+// reference 0 designe encore un tir. C EST LE SEUL ENDROIT QUI DECIDE (`indexTireur.estLaPlace`) : un calque qui lirait les tirs bruts attribuerait a un
+// joueur les tirs de l index d un autre. Calcule une fois ; le compte des tirs rendus a un autre index est celui de `coverage.seats.tirsParPlace`.
+func (a *assemblage) tirsDuCombat() []grammar.FireEvent {
+	if a.tirsAttribuesPoses {
+		return a.tirsAttribues
+	}
+	a.tirsAttribues = sansIndexDeTireur(a.fire)
+	if a.indexTireur.estLaPlace() {
+		a.tirsAttribues, a.siegeCov.TirsParPlace = nouveauxTireursParPlace(a.doc.Roster).tirsParPlace(a.fire, a.horloge())
+	}
+	a.tirsAttribuesPoses = true
+	return a.tirsAttribues
+}
+
 // poserTirsProjectilesEtGrenades publie les trois calques du combat, chacun avec sa couverture.
 func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	// Chaque calque rend sa COUVERTURE en même temps que son contenu. Le filtrage par
@@ -175,10 +192,7 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	// LE TIREUR EST L OCCUPANT DE SA PLACE (lot M4b.4, tirs_par_place.go) : l index d un tir est
 	// la place, et le remplacant en herite. Les evenements de `a.fire` restent ceux du film.
 	// Sur un film ou l index n est pas la place, seule la reference 0 pose un tir.
-	fire := sansIndexDeTireur(a.fire)
-	if a.indexTireur.estLaPlace() {
-		fire, a.siegeCov.TirsParPlace = nouveauxTireursParPlace(a.doc.Roster).tirsParPlace(a.fire, a.horloge())
-	}
+	fire := a.tirsDuCombat()
 	// LA VISEE DE CHAQUE TIR EST CELLE DU TIREUR A L INSTANT DU TIR (cf. shots_visee.go) : les
 	// lectures i21 de ses positions, et celles de ses records sans position (un occupant de
 	// vehicule cesse de repliquer la sienne) ; le champ du record ne sert qu en repli, compte.

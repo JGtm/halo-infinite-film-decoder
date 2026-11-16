@@ -159,8 +159,8 @@ type LabelCatalog struct {
 	// chaîne des socles continue d'écarter les identifiants de `ObjectiveObjects`. Dégradation,
 	// jamais erreur.
 	ObjectiveFamilies map[uint32]string
-	// FlagReturnZone est la RÈGLE de retour du drapeau du titre (rayon, minuterie, durée à un
-	// défenseur), posée par la COUCHE TITRE après NewLabelCatalog comme les icônes et les
+	// FlagReturnZone est la RÈGLE de retour du drapeau du titre (rayon, durée à un défenseur ; la
+	// minuterie est celle de la variante du film, `ResetSeconds` n'est pas lu ici), posée par la COUCHE TITRE après NewLabelCatalog comme les icônes et les
 	// teintes : elle n'entre dans aucune jointure de construction, elle voyage jusqu'au document
 	// telle quelle. Zéro quand le titre ne la déclare pas — le rejeu ne publie alors rien, et le
 	// client ne dessine ni cercle ni jauge.

@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 24596 frames · intervalle 33 ms · duree 811668 ms
-schema 124 · titre halo_infinite
+schema 125 · titre halo_infinite
 version majeure du film : 37
 origine de la frame 0 sur l horloge du fil : 11847 ms
 coup d envoi date par le film : 33495 ms · 169/169 piste(s) en mouvement · rafale 7 · marge depuis la frame 0 : 21648 ms
@@ -436,4 +436,16 @@ premiere : t=1234 ms=52575 xuid=2792409163379854 id=114 · derniere : t=24204 ms
 groupe "oddballevents.lua" (absent : false) · trames 49696 (lues 43640, arrêtées 6056, vue A illisible : true) · complet : false
 0 message(s) : 0 à points · 0 sans rapport avec le score · 0 nommé(s) sans points · 0 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
 0 (message, destinataire) à points · 0 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
+
+## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
+0 message(s) · 0 d'arme · 0 touche(s) · 0 posée(s) · 0 sans auteur · 0 sans victime · 0 avant la frame 0 · 0 après la fin · 0 joueur(s) dont 8 suffisant(s) (couverture >= 0.7, doublons < 1.2)
+0 ligne(s) de dégât dont 0 mesurée(s) · 0 message(s) sans piste · 0 touche(s) et 0 dégât(s) sur soi · 6056 trame(s) arrêtée(s) et 0 de vitalités non lues sur 49696
+  2578845697733485 : 269 tir(s) dont 250 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.93 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2579912055466813 : 145 tir(s) dont 135 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.93 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2623439693412443 : 253 tir(s) dont 227 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.90 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2639945145752479 : 183 tir(s) dont 165 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.90 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2734165004038666 : 249 tir(s) dont 216 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.87 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2771704521614951 : 282 tir(s) dont 250 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.89 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2789965669678788 : 281 tir(s) dont 247 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.88 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
+  2792409163379854 : 161 tir(s) dont 145 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.90 · doublons 0.00 · infligé 0.0 · subi 0.0 · suffisant false
 

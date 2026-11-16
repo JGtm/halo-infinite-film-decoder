@@ -53,7 +53,7 @@ var buildFromFilmSteps = []string{
 	"birthLoadouts", "birthLoadouts.stats",
 	"zoomEvents",
 	"placements", "placements.stats", "spawnEvents",
-	"pads", "vehicles", "carrierMarks", "zoneReads", "zoneKeyReads", "flagGauge", "bombReads",
+	"pads", "vehicles", "carrierMarks", "zoneReads", "zoneKeyReads", "flagGauge", "flagGaugeWalk", "bombReads",
 	// LES ETATS DE MOUVEMENT (schema 65, lot 5.3.6) : `balayerEtatsDeMouvement` tourne apres le
 	// monde, et cette liste suit l ORDRE des appels.
 	"movementStates", "movementStates.stats",
@@ -66,7 +66,7 @@ var buildFromFilmSteps = []string{
 	// L HORLOGE DE MANCHE ET LES COMPTES A REBOURS : la MEME marche, le canal des horloges.
 	"horloges",
 	// LES MESSAGES DE JEU ET LES SCRIPTS (score par action) : la MEME marche, la vue A de chaque trame, et les noms de script du chunk 0.
-	"gameEvents", "gameEvents.stats", "filmScripts",
+	"gameEvents", "gameEvents.stats", "damages", "damages.stats", "filmScripts",
 	// LES MORTS DE VEHICULE ET L OCCUPATION : la MEME marche, le canal des morts ; vides quand le
 	// calque des vehicules n a pas ete balaye.
 	"vehicleDeaths", "vehicleDeaths.stats",

@@ -105,11 +105,12 @@ func TestGoldenJeuRegenerate(t *testing.T) {
 	}
 }
 
-// renderMedaillesEtScores publie, dans le golden d'assemblage, les deux calques datés du film : les médailles
+// renderMedaillesEtScores publie, dans le golden d assemblage, les calques datés du film : les médailles
 // puis le score par action.
 func renderMedaillesEtScores(p func(string, ...any), doc ReplayDocument) {
 	renderMedailles(p, doc)
 	renderScoreActions(p, doc)
+	renderTouches(p, doc)
 }
 
 // renderScoreActions publie le calque du score par action : sa couverture, le compte par réponse, la somme
