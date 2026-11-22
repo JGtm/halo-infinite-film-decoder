@@ -25,10 +25,13 @@ package replay
 // `complete` EST LE VERDICT : la somme des points d'un joueur ne vaut son score personnel que s'il est vrai, c'est-à-dire
 // si aucune trame n'est arrêtée, si la vue A se lit, si le groupe de scripts est connu, si aucun rang n'est non confirmé,
 // si chaque action à points a été posée et si le tableau du film ne montre aucun point que le calque ne publie pas (le
-// tableau ne recule pas : les pénalités n'y entrent pas ; un tableau en dessous n'accuse pas la lecture). Faux, le consommateur n'affiche pas de score par action (« données
+// tableau est la courbe publiée, qui ne recule pas ; un tableau en dessous n'accuse pas la lecture). Faux, le consommateur n'affiche pas de score par action (« données
 // insuffisantes »). Vrai est NECESSAIRE et pas SUFFISANT : la table ne dit pas ce qu'un mode écrit par ses auteurs
-// (Assaut) paie hors de son arbre, et ses points sont ceux du jeu actuel (les véhicules d'un BTB de HI_1_11_0 se paient
-// autrement), ce que le tableau ne révèle pas toujours (points de véhicule que ni le tableau ni le score personnel ne comptent).
+// (Assaut) paie hors de son arbre, et ses points sont ceux du jeu actuel, ce que le tableau ne révèle pas toujours.
+//
+// LE BUILD DU FILM LIT L'ARBRE. Sur un build dont l'arbre des réponses est décalé de celui de la table
+// (`reponsesdejeu`, decalages.go), le rang d'un message désigne la réponse un ou deux rangs plus loin ; la couverture
+// compte ces messages (`treeShift`). Hors des intervalles déclarés, le rang se lit tel quel.
 //
 // L'HORLOGE. L'instant d'un message est celui de sa trame sur l'horloge du film, la même que celle des
 // positions : la frame est `(TS - origine) / pas`, l'origine étant le premier paquet de position. Une action
@@ -86,11 +89,10 @@ type ScoreActionInput struct {
 type ScoreActionCoverage struct {
 	// Complete : la lecture des actions à points est entière. Vrai seulement si aucune trame n'est arrêtée, la
 	// vue A se lit, le groupe de scripts est connu, aucun rang n'est non confirmé et chaque action à points est
-	// publiée et aucun joueur n'a un manque (ScoreboardMissing) : le tableau du film ne recule pas, donc les pénalités n'y
-	// entrent pas, et un tableau en dessous des points publiés (ScoreboardBehind) n'accuse pas la lecture. Nécessaire et non
+	// publiée et aucun joueur n'a un manque (ScoreboardMissing) : la courbe publiée du tableau ne recule pas, et un
+	// tableau en dessous des points publiés (ScoreboardBehind) n'accuse pas la lecture. Nécessaire et non
 	// suffisant pour que la somme des points d'un joueur vaille son score personnel : les points viennent de la table des
-	// réponses, qui peut différer du jeu (actions de véhicule des builds anciens) ou ne rien savoir d'un mode écrit hors de
-	// l'arbre (cf. l'en-tête du fichier).
+	// réponses, qui peut différer du jeu ou ne rien savoir d'un mode écrit hors de l'arbre (cf. l'en-tête du fichier).
 	Complete bool `json:"complete"`
 	// Group est le groupe de scripts du film dans la table des réponses ; vide quand GroupMissing.
 	Group string `json:"group,omitempty"`
@@ -124,6 +126,10 @@ type ScoreActionCoverage struct {
 	NamedWithoutPoints int `json:"namedWithoutPoints"`
 	OutsideTree        int `json:"outsideTree"`
 	UnconfirmedRank    int `json:"unconfirmedRank"`
+	// TreeShift est le nombre de messages dont le rang a été traduit par un décalage de l'arbre que le build du film
+	// déclare (`reponsesdejeu`, decalages.go), quelle que soit l'issue du message ; zéro hors des builds et des
+	// intervalles de rangs déclarés.
+	TreeShift int `json:"treeShift"`
 	// Scored est le nombre de (message, destinataire) à points ; Published, ceux posés sur l'axe ; les cinq
 	// suivants, ceux écartés : sans humain du roster à cet index, humain parti à l'instant du message, origine non
 	// établie, avant la frame 0, après la dernière.
@@ -238,6 +244,9 @@ func ciblePossible(r reponsesdejeu.Reponse) bool {
 
 // classerLeMessage compte le message dans la couverture et rend la réponse qui donne des points, ou faux.
 func classerLeMessage(groupe *reponsesdejeu.Groupe, e grammar.EvenementDeJeuLu, cov *ScoreActionCoverage) (reponsesdejeu.Reponse, bool) {
+	if groupe.Decalage(e.Rang) != 0 {
+		cov.TreeShift++
+	}
 	r, nature := groupe.Reponse(e.Rang, e.Texte, e.ATexte)
 	switch {
 	case nature == reponsesdejeu.NatureHorsArbre:
@@ -293,13 +302,13 @@ func destinatairesDuMessage(e grammar.EvenementDeJeuLu, r reponsesdejeu.Reponse,
 
 // buildScoreActions pose les réponses de score du film sur l'axe de frames. Les actions rendues sont triées
 // par frame, joueur, nom, points et cible.
-func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrames, tableau *ScoreTimeline) ([]ScoreAction, ScoreActionCoverage) {
+func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrames, tableau *ScoreTimeline, build string) ([]ScoreAction, ScoreActionCoverage) {
 	cov := ScoreActionCoverage{
 		Frames: in.Stats.Trames, ClosedFrames: in.Stats.Terminees, StoppedFrames: in.Stats.Arretees,
 		Messages: in.Stats.Messages, Copies: in.Stats.Copies,
 		ViewAUnreadable: in.Stats.Messages == 0 && in.Stats.Arretees > 0,
 	}
-	groupe, ok := reponsesdejeu.GroupeDesScripts(in.Scripts)
+	groupe, ok := reponsesdejeu.GroupeDuFilm(in.Scripts, build)
 	if !ok {
 		cov.GroupMissing = true
 		cov.OutsideTree = len(in.Events)
@@ -342,7 +351,11 @@ func (a *assemblage) poserLesScoresParAction() {
 	if !a.opt.ScoreActions.Read {
 		return
 	}
-	actions, cov := buildScoreActions(a.opt.ScoreActions, a.doc.Roster, axeDeFrames{a.origin, a.step, a.doc.FrameCount}, a.doc.ScoreTimeline)
+	build := ""
+	if id := a.opt.FilmIdentity; id != nil {
+		build = id.Build
+	}
+	actions, cov := buildScoreActions(a.opt.ScoreActions, a.doc.Roster, axeDeFrames{a.origin, a.step, a.doc.FrameCount}, a.doc.ScoreTimeline, build)
 	a.doc.ScoreActions = actions
 	a.doc.Coverage.ScoreActions = &cov
 }

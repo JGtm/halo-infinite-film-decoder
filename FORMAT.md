@@ -284,9 +284,11 @@ that holds the official score compares the sum to it. A mode written without a p
 gives points: nothing is invented. `coverage.scoreActions.scoreboardCompared` counts the players compared with the scoreboard (one with a
 published action or a line in `scoreTimeline.players`); `scoreboardMissing` those whose last scoreboard `score` is above the sum of their
 published actions with POSITIVE points (the scoreboard shows points the layer does not publish), and `scoreboardBehind` those for whom it is
-below (the scoreboard lags the published points). The scoreboard never goes down, so penalties (negative points) do not enter it; a player
+below (the scoreboard lags the published points). The game does remove a penalty from the score, but the published scoreboard curve (the longest non-decreasing run of the readings) never goes down, so its readings stay within the sum of the positive points; a player
 with no total counts zero; the three are zero when the film publishes no scoreboard player, and nothing is compared. `complete` is false when
 `scoreboardMissing` is above zero; `scoreboardBehind` does not change it.
+
+On some builds the game's response tree is shifted from the table's: the rank a message carries designates the response the table places a few ranks further. A shift is declared per build, per script group and per interval of ranks (on `HI_1_11_0`, in the Big Team Battle Slayer group, ranks 179 to 263 are shifted by one and ranks 447 to 460 by two); outside the declared intervals, and for any other build or group, a rank is read as it stands and none is guessed. `coverage.scoreActions.treeShift` counts the messages whose rank was translated, whatever their outcome; it is zero when no shift applies.
 
 **Reloads.** A genre-38 message (`weapon_reload`, reader `FUN_1407f0ff8`) of view A is three entity references (the header's gated
 `R(1)` then a domain reference each), four `R(1)` booleans, then the author's player index (`R(1)`; if 0, `R(5)`). Only reference 0 is

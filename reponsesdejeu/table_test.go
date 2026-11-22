@@ -29,7 +29,7 @@ func TestLaTableEstCelleDeLibfilmshell(t *testing.T) {
 		{[]string{"slayerevents.lua"}, 17, "perfectionResponse", genreMedaille, 0},
 	}
 	for _, c := range cas {
-		g, ok := GroupeDesScripts(c.scripts)
+		g, ok := GroupeDuFilm(c.scripts, "")
 		if !ok {
 			t.Fatalf("groupe de %v introuvable", c.scripts)
 		}
@@ -62,7 +62,7 @@ func TestLeGroupeSeLitAuxFichiersDuFilm(t *testing.T) {
 	}
 	for _, c := range cas {
 		t.Run(c.nom, func(t *testing.T) {
-			g, ok := GroupeDesScripts(c.scripts)
+			g, ok := GroupeDuFilm(c.scripts, "")
 			if c.groupe == "" {
 				if ok {
 					t.Fatalf("groupe %q, aucun attendu", g.Nom())
@@ -83,8 +83,8 @@ func TestLeGroupeSeLitAuxFichiersDuFilm(t *testing.T) {
 // MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : ignorer le texte ; attribuer un rang incertain sans texte ; refuser
 // un message sans texte pour un rang certain ; confondre un rang hors de l'arbre et une réponse sans score.
 func TestUneReponseSAttribueAuTexteQuiLaConfirme(t *testing.T) {
-	slayer, _ := GroupeDesScripts([]string{"slayerevents.lua"})
-	colline, ok := GroupeDesScripts([]string{"areacaptureeventstubs.lua", "fbastionevents.lua", "firefightevents.lua"})
+	slayer, _ := GroupeDuFilm([]string{"slayerevents.lua"}, "")
+	colline, ok := GroupeDuFilm([]string{"areacaptureeventstubs.lua", "fbastionevents.lua", "firefightevents.lua"}, "")
 	if !ok {
 		t.Fatal("groupe de Firefight introuvable")
 	}

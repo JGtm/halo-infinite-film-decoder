@@ -194,7 +194,7 @@ func TestBuildScoreActions(t *testing.T) {
 	}
 	for _, c := range cas {
 		t.Run(c.nom, func(t *testing.T) {
-			actions, cov := buildScoreActions(entreeDesActions(c.scripts, c.events...), rosterDesActions(), c.axe, nil)
+			actions, cov := buildScoreActions(entreeDesActions(c.scripts, c.events...), rosterDesActions(), c.axe, nil, "")
 			if !slices.Equal(actions, c.actions) {
 				t.Errorf("actions %+v, attendu %+v", actions, c.actions)
 			}
@@ -243,7 +243,7 @@ func TestLeVerdictCompletExigeUneLectureSansPerte(t *testing.T) {
 	for _, c := range cas {
 		t.Run(c.nom, func(t *testing.T) {
 			in := ScoreActionInput{Read: true, Events: c.events, Stats: c.stats, Scripts: c.scripts}
-			_, cov := buildScoreActions(in, rosterDesActions(), axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}, nil)
+			_, cov := buildScoreActions(in, rosterDesActions(), axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}, nil, "")
 			if cov.Complete != c.complet || cov.ViewAUnreadable != c.illisible || cov.Frames != c.stats.Trames ||
 				cov.ClosedFrames != c.stats.Terminees || cov.StoppedFrames != c.stats.Arretees || cov.Messages != c.stats.Messages ||
 				cov.Copies != c.stats.Copies {
