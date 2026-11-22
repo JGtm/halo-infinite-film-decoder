@@ -290,7 +290,11 @@ func tallyUsagePlacements(doc *ReplayDocument, players *usageTallies, slotOwner 
 		if p.Owner < 0 {
 			continue
 		}
-		t := players.of(slotOwner.atOrJustBefore(uint32(p.Owner), p.T0))
+		owner := slotOwner.atOrJustBefore
+		if p.Origin == OriginDropped {
+			owner = slotOwner.atLacher
+		}
+		t := players.of(owner(uint32(p.Owner), p.T0))
 		if t == nil {
 			continue
 		}
