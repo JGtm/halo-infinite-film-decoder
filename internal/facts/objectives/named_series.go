@@ -157,14 +157,18 @@ func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 // un point (1-2) et le seuil de garde de la colline en sortait faux. La regle est celle du slot
 // d'EQUIPE seulement : un JOUEUR re-emet le composant 0 a valeur A egale quand sa valeur B bouge
 // ([SkullTicksComponent]), ses canaux B sont des lectures.
+//
+// LES COMPOSANTS A DEUX COMPTEURS SONT BORNES DE LA MEME FACON ([pairedCounterComps]) : l'emission est jetee en
+// entier des qu'un de ses deux canaux est negatif ou depasse [statMaxModeScore] — le domaine d'un compteur est
+// celui de [modeScoreInDomain]. Les autres composants ne sont juges que sur le canal lu.
 func emissionHorsDomaine(key statSlotKey, slot int, v types.StatValue, val int64) bool {
 	if val < 0 {
 		return true
 	}
-	if key.Comp != modeScoreComp {
-		return false
+	if key.Comp == modeScoreComp {
+		return !modeScoreInDomain(v) || (IsTeamSlot(slot) && v.B != 0)
 	}
-	return !modeScoreInDomain(v) || (IsTeamSlot(slot) && v.B != 0)
+	return pairedCounterComps[key.Comp] && !modeScoreInDomain(v)
 }
 
 // cumulateRounds filtre chaque manche par la plus longue sous-suite non decroissante, puis
