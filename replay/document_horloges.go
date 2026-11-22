@@ -112,17 +112,41 @@ func secondesDeLHorloge(q uint16) float64 {
 	return float64(grammar.DequantEndpoint(uint64(q), 0, grammar.RoundTimerMax, 16, false, true))
 }
 
+// verdictDeLecture est ce que la mesure dit d une lecture de l horloge de manche.
+type verdictDeLecture int
+
+const (
+	// lectureRetenue : l etat est mesure et le temps de la minuterie est possible.
+	lectureRetenue verdictDeLecture = iota
+	// lectureEtatNonMesure : l etat n est ni 1, ni 6, ni 19.
+	lectureEtatNonMesure
+	// lectureImpossible : le temps de la minuterie est au-dessus de sa limite dans un etat qui ne monte pas.
+	lectureImpossible
+)
+
+// jugerLaLecture est LE SEUL JUGE des lectures de l horloge : la serie publiee et le coup d envoi ne lisent que
+// celles qu il retient.
+func jugerLaLecture(r grammar.LectureHorloge) verdictDeLecture {
+	switch {
+	case r.Etat != etatHorlogeArretee && r.Etat != etatHorlogeDescend && r.Etat != etatHorlogeMontante:
+		return lectureEtatNonMesure
+	case r.Reste > r.Limite && r.Etat != etatHorlogeMontante:
+		return lectureImpossible
+	}
+	return lectureRetenue
+}
+
 // serieDeLHorloge replie les lectures de l horloge en serie publiee, et compte ce qu elle ecarte.
 func serieDeLHorloge(reads []grammar.LectureHorloge, origin, step uint64, cov *ClocksCoverage) []ClockSample {
 	var out []ClockSample
 	cov.ClockReads = len(reads)
 	for _, r := range reads {
 		left, limit := secondesDeLHorloge(r.Reste), secondesDeLHorloge(r.Limite)
-		if r.Etat != etatHorlogeArretee && r.Etat != etatHorlogeDescend && r.Etat != etatHorlogeMontante {
+		switch jugerLaLecture(r) {
+		case lectureEtatNonMesure:
 			cov.ClockUnmeasuredState++
 			continue
-		}
-		if r.Reste > r.Limite && r.Etat != etatHorlogeMontante {
+		case lectureImpossible:
 			cov.ClockImpossible++
 			continue
 		}

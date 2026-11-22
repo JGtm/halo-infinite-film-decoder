@@ -37,25 +37,24 @@ type ReplayDocument struct {
 	// donc traitée en repli alors qu'elle est mesurée. ABSENT veut dire, et seulement :
 	// l'origine n'est pas établie — le client retombe alors sur son appariement.
 	OriginMs *int64 `json:"originMs,omitempty"`
-	// T0FilmMs est LE COUP D'ENVOI DU MATCH mesuré dans le film, sur la MÊME horloge
-	// qu'`OriginMs` (celle du fil des éliminations) : l'instant où la grille se lève, daté par
-	// le premier mouvement des pistes.
+	// T0FilmMs est LE COUP D'ENVOI DU MATCH lu dans le film, sur la MÊME horloge qu'`OriginMs` (celle du
+	// fil des éliminations) : l'instant où l'horloge de manche du jeu de la PREMIÈRE manche démarre.
 	//
 	// CE QU'IL FERME. Le T0 servi jusqu'ici est estimé des `first_joined_time` de l'API ; sur
 	// 10-15 % des matchs ces horodatages collent au `start_time` et le T0 tombe à ~0, ce qui
 	// fait démarrer le rejeu sur des joueurs statufiés pendant tout le décompte. Ce champ le
-	// mesure au lieu de l'estimer, et la mesure est plus stable que l'étalon (écart-type
-	// 9 752 ms contre 12 764 ms sur les 49 matchs au T0-API sain).
+	// lit au lieu de l'estimer. Les joueurs partent en médiane 0,36 s après lui.
 	//
-	// D'OÙ IL VIENT : `originMs` plus la frame du premier mouvement détecté, toutes pistes
-	// confondues. Aucune base, aucune horloge murale, aucune constante de jeu en dur — le
-	// détecteur mesure par match. Seuils, refus et mesures : t0_film.go.
+	// D'OÙ IL VIENT : la première lecture de l'horloge de manche qui court (état 6 ou 19), ramenée à
+	// l'instant où la minuterie valait sa valeur de départ (sa limite quand elle descend, zéro quand
+	// elle monte), posée sur l'horloge d'`originMs`. Aucune base, aucune horloge murale, aucun seuil,
+	// aucune lecture du mouvement des pistes. Règle et refus : t0_horloge.go. Il peut précéder la
+	// frame 0 (le film commence après le départ de l'horloge).
 	//
 	// POINTEUR, PAS int64 : même PIÈGE omitempty que sur `OriginMs` ci-dessus. Un coup d'envoi
-	// exactement à zéro (film dont la frame 0 est le coup d'envoi ET dont l'origine est nulle)
-	// serait omis et relu comme « pas de mesure ». ABSENT veut dire, et seulement : le
-	// détecteur a REFUSÉ — `coverage.t0Film.reason` dit lequel des trois refus, et le client
-	// retombe sur le T0 de l'API.
+	// exactement à zéro serait omis et relu comme « pas de lecture ». ABSENT veut dire, et
+	// seulement : aucune lecture de l'horloge ne court (`coverage.t0Film.reason`), ou la passe n'a
+	// pas tourné (origine non établie, `coverage.t0Film` absent) ; le client retombe sur le T0 de l'API.
 	T0FilmMs *int64 `json:"t0FilmMs,omitempty"`
 	// Geometry est le fond de carte : props Forge orientés (repères contextuels, pas les
 	// sols). Absent si la géométrie n'a pas été fournie au build.

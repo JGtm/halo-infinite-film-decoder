@@ -449,23 +449,21 @@ func renderReplis(p func(string, ...any), doc ReplayDocument) {
 	p("")
 }
 
-// renderT0Film fige LE COUP D ENVOI et son verdict (cf. t0_film.go). Le refus est rendu AVEC
-// ses deux chiffres : une ligne « non date » sans la rafale ni la marge ne dirait pas si le
-// film est muet ou si un seul joueur a bouge.
+// renderT0Film fige LE COUP D ENVOI et son verdict (cf. t0_horloge.go). L'absence est rendue AVEC sa
+// raison : une ligne « non date » sans elle ne dirait pas si le film est sans horloge qui court.
 func renderT0Film(p func(string, ...any), doc ReplayDocument) {
 	c := doc.Coverage.T0Film
 	if c == nil {
-		p("coup d envoi : NON MESURE (sans origine, l horloge du resultat serait inconnue)")
+		p("coup d envoi : NON LU (sans origine ou sans marche des trames, la passe n a pas tourne)")
 		return
 	}
 	if doc.T0FilmMs == nil {
-		p("coup d envoi : REFUSE (%s) · %d/%d piste(s) en mouvement · rafale %d · marge %d ms",
-			c.Reason, c.Moving, c.Tracks, c.Burst, c.MarginMs)
+		p("coup d envoi : ABSENT (%s) · source %s", c.Reason, c.Source)
 		return
 	}
-	p("coup d envoi date par le film : %d ms · %d/%d piste(s) en mouvement · rafale %d · "+
+	p("coup d envoi lu par l horloge de manche : %d ms · source %s · depart lu %t · "+
 		"marge depuis la frame 0 : %d ms",
-		*doc.T0FilmMs, c.Moving, c.Tracks, c.Burst, c.MarginMs)
+		*doc.T0FilmMs, c.Source, c.StartRead, c.MarginMs)
 }
 
 func renderTracks(p func(string, ...any), doc ReplayDocument) {

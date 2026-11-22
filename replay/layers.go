@@ -141,7 +141,7 @@ var couchesDesCalques = map[string]string{
 	"bounds":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- positions
 	"tracks":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- FilmInputs.Positions ; tracks_fin_par_commande.go <- FilmInputs.UnitControls + BipedDeletions (la fin du corps)
 	"originMs":            grammar.Rev, // build_pistes.go `resolveOriginMs` <- FilmInputs.FilmClockOriginUS + fil des morts
-	"t0FilmMs":            grammar.Rev, // build_pistes.go `DetectT0Film` <- pistes publiees
+	"t0FilmMs":            grammar.Rev, // t0_horloge.go `poserLeCoupDEnvoi` <- FilmInputs.Horloges (ti=0 i5), premiere lecture qui court
 	"shots":               grammar.Rev, // build_pistes.go + vehicle_shots.go <- FilmInputs.Fire
 	"bursts":              grammar.Rev, // build_calques.go `buildFireBursts` <- FilmInputs.ContinuousFire (vue C)
 	"loadouts":            grammar.Rev, // build_pistes.go <- FilmInputs.Loadouts
@@ -252,9 +252,10 @@ var calquesSansCouche = map[string]string{
 // UN CALQUE ABSENT DE CETTE TABLE A TOUJOURS SON ENTREE, fut-il vide : sa passe a tourne, et
 // « le film n en porte aucun » est une reponse que `layers` doit savoir donner.
 var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
-	// `DetectT0Film` ne tourne pas sans origine : un instant cale sur zero serait faux de 3,6 s
-	// a 50,8 s selon le match (build_pistes.go, `composerLaCouverture`).
-	"t0FilmMs": func(doc *ReplayDocument, _ Options) bool { return doc.OriginMs != nil },
+	// Le coup d'envoi ne se pose pas sans origine (un instant cale sur zero serait faux de 3,6 s a 50,8 s
+	// selon le match) ni sans la marche des trames qui lit l'horloge de manche (t0_horloge.go,
+	// `poserLeCoupDEnvoi`).
+	"t0FilmMs": coupDEnvoiLisible,
 	// L ancre d une traction exige les bornes de la carte : sans `MapQuant`, aucune traction
 	// n est publiee (build_calques.go, `poserGrappinEtPoses`).
 	"grappleLines": func(_ *ReplayDocument, opt Options) bool { return opt.MapQuant != nil },

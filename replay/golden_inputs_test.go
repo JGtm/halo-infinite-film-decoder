@@ -94,6 +94,7 @@ func loadGoldenInputs(t *testing.T) *FilmFacts {
 	chargerPresencesDuBuild(t, goldenFilm, g)
 	chargerJeuDuBuild(t, goldenFilm, g)
 	chargerDegatsDuBuild(t, goldenFilm, g)
+	chargerHorlogesDuBuild(t, goldenFilm, g)
 	return g
 }
 

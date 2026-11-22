@@ -70,6 +70,8 @@ const coordScale = 100
 //	la couverture APRES les mesures   `doc.Coverage` n'existe qu'a `composerLaCouverture`, et
 //	                                  les calques qui mesurent avant elle posent leur compte
 //	                                  ensuite (projectiles, equipes, sieges) ;
+//	le coup d'envoi APRES la couverture   son verdict vit dans `doc.Coverage` ; AVANT les zones, qui
+//	                                  lisent le coup d'envoi (t0_horloge.go) ;
 //	les tirs embarques APRES les vehicules, la palette AVANT les impulsions, les replis EN
 //	DERNIER (`clore`).
 func BuildFromPositions(ctx context.Context, matchID, titleSlug string, pos []grammar.BipedPosition,
@@ -89,6 +91,7 @@ func BuildFromPositions(ctx context.Context, matchID, titleSlug string, pos []gr
 	a.poserEpisodesDEquipement()
 	a.composerLaCouverture()
 	a.poserLesHorloges()
+	a.poserLeCoupDEnvoi()
 	a.poserLesRegles()
 	a.poserGrappinEtPoses()
 	a.poserPrisesEtSocles()
