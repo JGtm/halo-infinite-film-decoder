@@ -773,7 +773,7 @@ map in the catalogue:
 Closure says whether packet widths are right, not whether every field is decoded to a fact: a closed packet may hold components
 skipped by width. The profile holds values read from the executable only for `HI_1_12_0` and `HI_1_13_0`; for the other builds
 they are measured on witness films. Fallbacks and recoveries still fire on films of every build. The fallback registry
-(`internal/facts/fallback/`) holds about 130 entries across all layers (129 declarations at the time of writing); each fallback
+(`internal/facts/fallback/`) holds about 130 entries across all layers (127 declarations at the time of writing); each fallback
 that fired is counted in the replay document.
 
 **Open questions**, as the code leaves them:

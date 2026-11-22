@@ -21,19 +21,6 @@ var registreKillsourceCarte = []Repli{
 	// et les instruments de recherche le DECLARENT (`Options.RechercheSansCarte`, interdit en
 	// production par `archlint/killsource_recherche_sans_carte_test.go`).
 	{
-		// SANS SITE DANS LA BRIQUE : voir l'en-tete du fichier.
-		Nom:               "repli_distances_de_touche_desactivees",
-		Fait:              "la distance tireur -> victime de chaque touche",
-		Mecanisme:         "carte hors catalogue, ou positions de bipedes indisponibles : les distances sont desactivees, les touches restent comptees",
-		Condition:         CondSectionAbsente,
-		Ordre:             OrdreApresLecture,
-		CompleteeParLHote: true,
-		DatePose:          dateAudit0E,
-		CibleRetrait:      "le lot qui rallume la precision par arme : tant que la passe ne tourne pas, ses trois compteurs restent a zero par construction et ne prouvent rien",
-		CritereRetrait:    "passe rallumee, puis 0 match a distances desactivees sur le parc pour les trois causes",
-		CompteurBranche:   true,
-	},
-	{
 		Nom:       "repli_carte_premier_nom_resolu",
 		Fait:      "quelle carte du catalogue decrit CE match",
 		Mecanisme: "les identites candidates sont essayees dans l'ordre et la PREMIERE qui resout gagne, sans arbitrage",

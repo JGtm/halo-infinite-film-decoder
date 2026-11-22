@@ -2,21 +2,20 @@ package decfilm
 
 import "github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
 
-// replis_obsoletes.go — LES NOMS DE REPLI QUE LE DECODEUR NE DECLENCHE PLUS.
+// replis_obsoletes.go — LES NOMS DE REPLI QUE PLUS RIEN NE DECLENCHE.
 //
-// Ces deux noms (la precision par arme sautee, les distances de touche desactivees) sont decides
-// et comptes par l'hote : aucun chemin du decodeur ne les declenche. Leur entree reste au
-// registre, sans site dans la brique, pour qu'un `Declenche` de l'hote se rattache a un nom connu.
-// Les constantes gardent leur valeur et partent a la prochaine version majeure.
+// Ces deux noms designaient des replis que l'hote decidait et comptait lui-meme. Ils n'ont plus
+// d'entree au registre : un `Declenche` sur l'un d'eux est signale comme un repli hors registre.
+// Les constantes gardent leur type et leur valeur pour que le code qui les cite compile encore.
 
-// NomPrecisionParArmePasseSautee nomme un repli que l'hote declare et compte lui-meme.
+// NomPrecisionParArmePasseSautee nommait la passe de precision par arme sautee par l'hote.
 //
-// Deprecated: aucun chemin du decodeur ne declenche plus ce repli ; la constante est retiree a la
-// prochaine version majeure.
-const NomPrecisionParArmePasseSautee = fallback.NomPrecisionParArmePasseSautee
+// Deprecated: ce repli n'est plus au registre ; la constante est retiree a la prochaine version
+// majeure.
+const NomPrecisionParArmePasseSautee fallback.Nom = "repli_precision_par_arme_passe_sautee"
 
-// NomDistancesDeToucheDesactivees nomme un repli que l'hote declare et compte lui-meme.
+// NomDistancesDeToucheDesactivees nommait les distances de touche desactivees par l'hote.
 //
-// Deprecated: aucun chemin du decodeur ne declenche plus ce repli ; la constante est retiree a la
-// prochaine version majeure.
-const NomDistancesDeToucheDesactivees = fallback.NomDistancesDeToucheDesactivees
+// Deprecated: ce repli n'est plus au registre ; la constante est retiree a la prochaine version
+// majeure.
+const NomDistancesDeToucheDesactivees fallback.Nom = "repli_distances_de_touche_desactivees"
