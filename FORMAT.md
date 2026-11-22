@@ -283,6 +283,27 @@ actions on older builds) or know nothing of a mode written outside the tree. Fal
 that holds the official score compares the sum to it. A mode written without a point scale (Assault, a custom mode) has no response that
 gives points: nothing is invented.
 
+**Eliminations, headshots and perfect kills.** The scoreboard writes a player's elimination counter and headshot counter in the same entity
+record: on the 1,455 films of the corpus, 36,839 of the 36,847 rises of the headshot counter (99.98 %) fall on the same frame as exactly one
+step of the same player's elimination counter. The replay document publishes `eliminations[]`, one line per unit of each rise of
+`scoreTimeline.players[].kills.total` (frame `t`, killer `xuid`), so a step of n units gives n lines on one frame. Two marks, each with three
+states (true, false, absent for unknown), come from the game's own counters, never from an estimate:
+`headshot` is true when the same player's `stats.headshots` rises on that frame by as many units as the step, false when the player has a
+published headshot counter that does not rise there, and unknown otherwise: no headshot counter for the player (an absent series is not a
+counter left at zero: it is also the series of a counter whose emissions were all dropped, and the walk does not close every frame), a step
+with more or fewer rises than eliminations (which lines are headshots is not written), or a film where the counter guard dropped headshot
+emissions (`coverage.score.statsGuarded`; a kept rise still proves a true). `perfect` is true when the player's `Perfect` medal
+(`Perfection` is another medal) attaches to the step: the one step of the player within two frames of the medal, carrying as many medals as
+eliminations; it is never false, since a missing medal does not prove that the highlights list them all. `victim` comes from the player's
+`killPersonalScore` action within one frame of the step (same frame first, then the neighbour frame, each action used once); the game does
+not write it for every elimination (86 % of the corpus, none on several builds 1.8 to 1.10), and it is then absent. Measured on the 1,449
+films of the corpus (143,639 eliminations): 36,845 headshots, 75,265 not, 31,529 unknown (31,522 for lack of a counter, 7 ambiguous steps);
+1,897 perfect kills of the 1,897 `Perfect` medals, each with a single candidate step; 45 rises of the counter carried by no elimination.
+For a player with a headshot counter, the lines marked headshot equal the counter's final value on 9,570 of 9,585 players.
+`coverage.eliminations` counts the lines, the three states, why a headshot is unknown, the orphan rises and the medals left unattached.
+A consumer that holds its own eliminations joins on the killer, the victim and the frame (one frame of tolerance), or on the killer and
+the frame when the victim is absent.
+
 **Damage messages (genre 0, `damage_aftermath`).** One effect of damage that lands on a unit. The header names the unit hit (reference 0)
 and the unit that caused the damage (reference 1, the same domain as reference 0 of a weapon-fire message); the payload names the damage
 effect by its tag id (`R(1)` gate, then `R(32)`), the attacker's player index (`R(1)` gate that reads `R(5)` when it is *clear*, the inverse of

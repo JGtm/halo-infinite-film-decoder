@@ -195,6 +195,7 @@ var couchesDesCalques = map[string]string{
 	"equipmentEpisodes": killsource.Rev, // build_pistes.go : les episodes sortent de la grammaire, mais `attachAllEquipmentKills` y ECRIT `k`/`a` depuis opt.Kills (killsource)
 	"objectives":        objectives.Rev, // objectives.go <- opt.Objectives (`objectives.IdentifiedEvent`)
 	"scoreTimeline":     objectives.Rev, // build_score.go <- opt.Score.Records (enregistrements d entite du statborg)
+	"eliminations":      objectives.Rev, // eliminations.go <- `scoreTimeline` (pas des compteurs d eliminations et de tirs a la tete) ; la victime et la medaille viennent de `scoreActions` et `medals`
 	"flagCarries":       objectives.Rev, // build_objectives_live.go <- opt.Flag.Records (statborg) ; la jauge de retour vient de la grammaire (`FilmInputs.FlagGauge` et `FlagGaugeWalk`), mais les LACHERS auxquels elle s apparie sortent du statborg — la revision la plus tardive gagne
 	"flagReturnZone":    objectives.Rev, // build_objectives_live.go, meme entree que `flagCarries`
 	"vipCrown":          objectives.Rev, // vip_crown.go <- opt.Vip.Records (statborg)
@@ -270,6 +271,8 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// Sans enregistrements d entite, ni courbe ni couverture de score (score_timeline.go,
 	// `assembleScoreTimeline` : `in == nil` -> `nil, nil, nil`).
 	"scoreTimeline": func(_ *ReplayDocument, opt Options) bool { return opt.Score != nil },
+	// Le calque des eliminations derive du tableau des scores : meme garde (eliminations.go, `poserLesEliminations`).
+	"eliminations": func(_ *ReplayDocument, opt Options) bool { return opt.Score != nil },
 	// GARDES DE MODE, posees par l appelant sur `game_variant_name` : hors CTF / VIP / Oddball /
 	// famille bomb, le calque n est pas balaye (flag_carries.go `buildFlagCarries`,
 	// vip_crown.go `attachVipCrown`, skull_carries.go `attachSkullCarries`,
