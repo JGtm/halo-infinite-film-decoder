@@ -2,6 +2,7 @@ package replay
 
 import (
 	"context"
+	"maps"
 	"slices"
 	"testing"
 
@@ -283,5 +284,42 @@ func TestLaNumerotationDesTirsEstCelleDuJoueur(t *testing.T) {
 	compterLesTirs(fire, r, bilan)
 	if d, e := bilan[xuidD], bilan[xuidE]; d == nil || e == nil || d.ShotEvents != 2 || d.Shots != 2 || e.ShotEvents != 2 || e.Shots != 2 {
 		t.Fatalf("bilan D %+v, E %+v : deux tirs ecrits et deux tirs numerotes pour chacun", d, e)
+	}
+}
+
+// TestLArmeDUneToucheEstCelleDuJoueurALInstant : deux humains successifs sur le meme index ont chacun leurs tirs ; la touche (et le degat) du
+// second ne nomme jamais l'arme du dernier tir du partant, meme dans les deux secondes. Un bot, sans identifiant, se lit par son index.
+//
+// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : ranger les tirs par l'index seul ; resoudre l'auteur du message a une autre frame que celui du tir.
+func TestLArmeDUneToucheEstCelleDuJoueurALInstant(t *testing.T) {
+	axe := axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}
+	roster := rosterDesActions()
+	pistes := []Track{pisteDeLaTouche(5, xuidB, 0, finDesActions-1)}
+	const armeD, armeE, armeBot = 0x00000000AB00CD01, 0x00000000AB00CD02, 0x00000000AB00CD03
+	// D (index 4) tire a la frame 48 puis part ; E (meme index) touche a la frame 52 sans avoir tire, puis tire a la frame 60 et touche a la 62.
+	// Le bot de l'index 3 tire a la frame 10 et touche a la frame 11.
+	fire := []grammar.FireEvent{
+		tirDeTest(4, 1, instantDeLaFrame(48), armeD), tirDeTest(4, 1, instantDeLaFrame(60), armeE), tirDeTest(3, 1, instantDeLaFrame(10), armeBot),
+	}
+	messages := []grammar.DegatLu{
+		degatDeTest(instantDeLaFrame(52), effetArme, 4, 5), degatDeTest(instantDeLaFrame(62), effetArme, 4, 5), degatDeTest(instantDeLaFrame(11), effetArme, 3, 5),
+	}
+	points := []PointsDeDegat{{Corps: 100}, {Corps: 100}, {Corps: 100}}
+	hits, lignes, _, _ := buildHits(HitInput{Read: true, Messages: messages, Points: points, Stats: grammar.StatsDegats{Trames: 100, Terminees: 100}}, fire, roster, pistes, axe)
+	armes := map[int]string{}
+	for _, h := range hits {
+		armes[h.T] = h.Weapon
+	}
+	wantTouches := map[int]string{52: "", 62: "0x00000000AB00CD02"} // le bot ne pose aucune touche : il n'a pas de joueur
+	if !maps.Equal(armes, wantTouches) {
+		t.Errorf("armes des touches %v, attendu %v", armes, wantTouches)
+	}
+	want := map[int]string{11: "0x00000000AB00CD03", 52: "", 62: "0x00000000AB00CD02"}
+	degats := map[int]string{}
+	for _, l := range lignes {
+		degats[l.T] = l.Weapon
+	}
+	if !maps.Equal(degats, want) {
+		t.Errorf("armes des degats %v, attendu %v", degats, want)
 	}
 }

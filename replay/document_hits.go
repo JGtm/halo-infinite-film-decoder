@@ -6,7 +6,9 @@ package replay
 // effet d'arme ([damageeffects.EstUneTouche]), compté une fois par (auteur, unité blessée, trame) : une rafale de
 // plomb d'un fusil à pompe qui touche la même unité dans la même trame est une touche. Les projectiles sont
 // compris : leur effet est un effet d'arme comme un autre. L'arme est celle du dernier tir de l'auteur dans les
-// deux secondes qui précèdent (`w`) ; l'effet de dégât, lui, est toujours publié (`effect`).
+// deux secondes qui précèdent (`w`) ; l'effet de dégât, lui, est toujours publié (`effect`). L'auteur d'un tir et celui
+// d'une touche ou d'un dégât se résolvent pareil, à l'instant de chacun : le joueur que l'index nomme alors, ou l'index
+// seul quand aucun humain ne le porte (un bot). Un remplaçant sur le même index ne hérite donc jamais de l'arme du partant.
 //
 // C'EST UNE ESTIMATION, ET LE DOCUMENT LE DIT : `coverage.hits.estimated` vaut toujours vrai. Le film n'écrit pas
 // le nombre de touches que l'API compte (`shots_hit`) ; il écrit des dégâts, et la mesure les compare à elle
@@ -153,25 +155,39 @@ type HitCoverage struct {
 	Players     int `json:"players"`
 }
 
-// armesDesTirs range les tirs de chaque auteur par instant, pour retrouver l arme du dernier avant une touche.
-type armesDesTirs map[int][]grammar.FireEvent
+// auteurDArme désigne celui dont on cherche le dernier tir : le joueur que l'index résout à l'instant (xuid), ou, quand aucun humain ne le résout
+// (un bot, dont l'identifiant est vide), l'index lui-même. Une seule des deux formes est posée : deux humains successifs sur un même index
+// sont deux auteurs, un bot n'est que son index.
+type auteurDArme struct {
+	xuid  string
+	index int
+}
 
-func rangerLesTirs(fire []grammar.FireEvent) armesDesTirs {
-	out := armesDesTirs{}
+// armesDesTirs range les tirs de chaque auteur par instant, pour retrouver l arme du dernier avant une touche. L'auteur d'un tir et celui
+// d'une touche se résolvent de la même façon, à l'instant de chacun ([resolveurDeTouches.auteur]) : l'arme d'une touche n'est jamais celle
+// du joueur qui tenait l'index avant celui qui touche.
+type armesDesTirs struct {
+	tirs map[auteurDArme][]grammar.FireEvent
+	r    resolveurDeTouches
+}
+
+func rangerLesTirs(fire []grammar.FireEvent, r resolveurDeTouches) armesDesTirs {
+	out := armesDesTirs{tirs: map[auteurDArme][]grammar.FireEvent{}, r: r}
 	for _, e := range fire {
 		if e.HasShooter {
-			out[e.FilmIndex] = append(out[e.FilmIndex], e)
+			k := r.auteur(e.FilmIndex, e.TimestampUS)
+			out.tirs[k] = append(out.tirs[k], e)
 		}
 	}
-	for _, s := range out {
+	for _, s := range out.tirs {
 		slices.SortStableFunc(s, func(a, b grammar.FireEvent) int { return cmp.Compare(a.TimestampUS, b.TimestampUS) })
 	}
 	return out
 }
 
-// derniereArme rend l'arme du dernier tir de l'auteur `joueur` entre `ts - fenetreDeLArmeUS` et `ts`, ou "".
+// derniereArme rend l'arme du dernier tir de l'auteur `joueur` (un index de film, résolu à l'instant `ts`) entre `ts - fenetreDeLArmeUS` et `ts`, ou "".
 func (a armesDesTirs) derniereArme(joueur int, ts uint64) string {
-	s := a[joueur]
+	s := a.tirs[a.r.auteur(joueur, ts)]
 	i, _ := slices.BinarySearchFunc(s, ts, func(e grammar.FireEvent, ts uint64) int { return cmp.Compare(e.TimestampUS, ts+1) })
 	if i == 0 || ts-s[i-1].TimestampUS > fenetreDeLArmeUS {
 		return ""
@@ -197,6 +213,14 @@ func (r resolveurDeTouches) frameBornee(ts uint64) int {
 		return max(r.axe.frames-1, 0)
 	}
 	return t
+}
+
+// auteur rend l'auteur de l'instant `ts` pour l'index de joueur `i` : l'humain que l'index résout à cette frame, sinon l'index (cf. [auteurDArme]).
+func (r resolveurDeTouches) auteur(i int, ts uint64) auteurDArme {
+	if xuid, res := xuidALaFrame(r.humains, i, r.frameBornee(ts)); res == destinataireResolu {
+		return auteurDArme{xuid: xuid}
+	}
+	return auteurDArme{index: i}
 }
 
 // victime rend le xuid du joueur dont la piste est l'unité `unite` à la frame `t` (vide pour un bot : une piste sans xuid),
@@ -264,7 +288,7 @@ func buildHits(in HitInput, fire []grammar.FireEvent, roster []RosterEntry, trac
 	r := resolveurDeTouches{humains: humainsParIndex(roster), tracks: tracks, axe: axe}
 	bilan := bilanDesTirs{}
 	compterLesTirs(fire, r, bilan)
-	armes := rangerLesTirs(fire)
+	armes := rangerLesTirs(fire, r)
 	msgs := messagesParInstant(in)
 	vues := map[cleDeTouche]bool{}
 	var hits []Hit
