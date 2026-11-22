@@ -84,9 +84,11 @@ type statSlot struct {
 // namedStatSlots : par famille d'objectif, ce que porte chaque emplacement. Seules les
 // cles confirmees par le controle sur moities disjointes y figurent.
 //
-// Ce qui est TOMBE au controle et n'est donc pas ici : `5 B`, `6 A`, `8 A`, `8 B`, `9 A`,
-// `22 B`, `25 A` en CTF et `5 B` en zones — les cles a faible observation, nommees
-// par coincidence de comptes et non par une correspondance reelle.
+// Ce qui est TOMBE au controle et n'est donc pas ici : `5 B`, `6 A`, `8 A`, `8 B`, `9 A` en CTF
+// et `5 B` en zones — les cles a faible observation, nommees par coincidence de comptes et non
+// par une correspondance reelle. `22 B` et `25 A` en CTF y etaient : ils sont revenus, nommes
+// cette fois comme STATISTIQUES (`flag_returners_killed`, `flag_kills_as_returner`) et confrontes
+// aux colonnes de l'API, pas aux recompenses de score (cf. leurs entrees).
 //
 // `23 B` ETAIT DE CETTE LISTE ET N'Y EST PLUS (2026-09-11) : il y etait tombe comme candidat a
 // la RECOMPENSE `runner_stopped`, pas comme candidat a une STATISTIQUE. Confronte a
@@ -118,6 +120,19 @@ var namedStatSlots = map[string]map[statSlotKey]statSlot{
 		// `7fce3219` ne rend AUCUN pont d'identite, et `fb1a1a72` fait tomber le TEMOIN POSITIF
 		// (`comp 22 A` y publie 10 prises pour 0 a l'oracle sur un joueur).
 		{23, sideB}: {Stat: StatFlagSecures},
+		// `22 B` et `25 A` : les eliminations d'un joueur qui RAMENE le drapeau (`flag_returners_killed`,
+		// la victime) et celles qu'un joueur fait EN le ramenant (`flag_kills_as_returner`, l'auteur).
+		// Chaque unite se date a une elimination (100 % des montees co-datees avec un frag). Noms lus
+		// dans la definition d'emplacement des films recents, confrontes aux colonnes de l'API :
+		// exacts joueur par joueur sur les moities de films de rang pair et impair (9 et 7 joueurs
+		// a valeur non nulle pour `22 B`, 8 et 6 pour `25 A`, 0 desaccord en CTF).
+		{22, sideB}: {Stat: StatFlagReturnersKilled},
+		{25, sideA}: {Stat: StatFlagKillsAsReturner},
+		// `24 B` = `flag_kills_as_carrier` (`KillsAsFlagCarrier`) : eliminations faites PENDANT que le joueur porte le
+		// drapeau. Preuve d'une autre nature que ses voisins : le nom vient de la definition que la variante de
+		// jeu donne a l'emplacement ; un seul joueur du parc mesure porte une valeur non nulle, donc le controle
+		// sur deux moities de films ne s'applique pas.
+		{24, sideB}: {Stat: StatFlagKillsAsCarrier},
 		{24, sideA}: {Stat: StatFlagSteals},
 		{2, sideA}:  {Stat: StatKills},
 		{12, sideA}: {Stat: StatKills, Redundant: true},
@@ -127,6 +142,14 @@ var namedStatSlots = map[string]map[statSlotKey]statSlot{
 	ObjectiveTypeZone: {
 		{20, sideB}: {Stat: StatZoneCaptures},
 		{21, sideA}: {Stat: StatZoneSecures},
+		// `21 B` et `22 A` : les eliminations offensives (le joueur tue pres d'une base que son equipe
+		// ne tient pas) et defensives (pres d'une base tenue), comptes d'eliminations, une unite par
+		// elimination. Exacts contre `zone_offensive_kills` et `zone_defensive_kills` de l'API sur les
+		// deux moities de films (Bases et Controle total : 28 et 47 joueurs non nuls pour `21 B`, 28
+		// et 33 pour `22 A`), sauf un joueur par emplacement ou le film depasse l'API. Les deux
+		// valeurs ensemble ne depassent jamais les eliminations du joueur.
+		{21, sideB}: {Stat: StatZoneOffensiveKills},
+		{22, sideA}: {Stat: StatZoneDefensiveKills},
 		{2, sideA}:  {Stat: StatKills},
 		{12, sideA}: {Stat: StatKills, Redundant: true},
 		{3, sideA}:  {Stat: StatAssists},
@@ -138,6 +161,16 @@ var namedStatSlots = map[string]map[statSlotKey]statSlot{
 	// donc l'ouverture d'une periode de port de couronne (patron `flag_carries`).
 	ObjectiveTypeVip: {
 		{22, sideA}: {Stat: StatVipSelected},
+		// Eliminations et assistances de mode : `20 B` (`vip_kills`, les eliminations du VIP adverse),
+		// `21 A` (`vip_assists`, ses assistances) et `21 B` (`vip_kills_as_vip`, celles que le VIP
+		// fait lui-meme). Chaque unite est un evenement du joueur. Noms lus dans la definition
+		// d'emplacement du film et exacts contre les colonnes de l'API (6 a 8 joueurs non nuls par
+		// moitie de films, 0 desaccord ; deux films seulement). Les compteurs de DUREE
+		// (`TimeAsVip`, `LongestTimeAsVip`) et la meilleure serie (`BestKillingSpreeAsVip`) ne sont
+		// pas des evenements : ils ne se nomment pas ici.
+		{20, sideB}: {Stat: StatVipKills},
+		{21, sideA}: {Stat: StatVipAssists},
+		{21, sideB}: {Stat: StatVipKillsAsVip},
 	},
 	// ASSAUT : `comp 0 A` des slots de JOUEUR porte le point de mode, et en Assaut un point de
 	// mode vaut UNE EXPLOSION DE BOMBE — rien d'autre ne fait bouger le score (releve A0.3 du
@@ -191,6 +224,15 @@ const (
 	StatBombDetonations    = "bomb_detonations"
 	StatKills              = "kills"
 	StatAssists            = "assists"
+
+	StatFlagReturnersKilled = "flag_returners_killed"
+	StatFlagKillsAsReturner = "flag_kills_as_returner"
+	StatFlagKillsAsCarrier  = "flag_kills_as_carrier"
+	StatZoneOffensiveKills  = "zone_offensive_kills"
+	StatZoneDefensiveKills  = "zone_defensive_kills"
+	StatVipKills            = "vip_kills"
+	StatVipAssists          = "vip_assists"
+	StatVipKillsAsVip       = "vip_kills_as_vip"
 )
 
 // NamedEvent est une action de joueur nommee, datee a la milliseconde sur l'horloge du
