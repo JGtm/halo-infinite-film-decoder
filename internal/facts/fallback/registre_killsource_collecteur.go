@@ -55,18 +55,6 @@ var registreKillsourceCollecteur = []Repli{
 		CompteurBranche: true,
 	},
 	{
-		Nom:               "repli_precision_par_arme_passe_sautee",
-		Fait:              "la precision par arme d'un match",
-		Mecanisme:         "cache de films non configure : toute la passe est sautee, en best-effort silencieux",
-		Condition:         CondSectionAbsente,
-		Ordre:             OrdreSansLecture,
-		CompleteeParLHote: true,
-		DatePose:          dateAudit0E,
-		CibleRetrait:      "aucune (configuration d'exploitation) ; le COMPTE est ce qui manque",
-		CritereRetrait:    "un compteur expvar dit combien de matchs passent sans numerateur film ; retrait sans objet",
-		CompteurBranche:   true,
-	},
-	{
 		Nom:               "repli_coequipiers_partis_constante_nulle",
 		Fait:              "le nombre de coequipiers PARTIS a l'instant d'une mort (`teammates_left`)",
 		Mecanisme:         "la colonne est ecrite a 0 sur toutes les lignes depuis le retrait de son producteur, indiscernable d'une mesure",

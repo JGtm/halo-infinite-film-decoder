@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -99,9 +100,19 @@ func TestGoldenInputsPorteDesXuidsFictifs(t *testing.T) {
 // lireTableIdentites lit la table `original<TAB>fictif`.
 func lireTableIdentites(t *testing.T, chemin string) map[uint64]uint64 {
 	t.Helper()
-	f, err := os.Open(chemin) //nolint:gosec // chemin fourni par l'operateur
+	out, err := lireTableDesIdentites(chemin)
 	if err != nil {
 		t.Fatalf("table des identites : %v", err)
+	}
+	return out
+}
+
+// lireTableDesIdentites est la lecture de la table, sans test : le roster d appoint d un decodage
+// ([rosterDeLaFeuille]) la lit lui aussi.
+func lireTableDesIdentites(chemin string) (map[uint64]uint64, error) {
+	f, err := os.Open(chemin) //nolint:gosec // chemin fourni par l'operateur
+	if err != nil {
+		return nil, err
 	}
 	defer func() { _ = f.Close() }()
 	out := map[uint64]uint64{}
@@ -115,12 +126,34 @@ func lireTableIdentites(t *testing.T, chemin string) map[uint64]uint64 {
 		reel, errA := strconv.ParseUint(a, 10, 64)
 		fictif, errB := strconv.ParseUint(b, 10, 64)
 		if !ok || errA != nil || errB != nil {
-			t.Fatalf("table des identites : ligne %q", l)
+			return nil, fmt.Errorf("ligne %q", l)
 		}
 		out[reel] = fictif
 	}
+	if err := sc.Err(); err != nil {
+		return nil, err
+	}
 	if len(out) == 0 {
-		t.Fatal("table des identites vide")
+		return nil, errors.New("table vide")
+	}
+	return out, nil
+}
+
+// retraduireLeRoster rend le roster d appoint dans l espace des xuids DU FILM : la feuille de match du
+// corpus porte des xuids fictifs, que le film reel n ecrit nulle part ; la production, elle, recoit les
+// xuids reels de la base. Chaque xuid fictif que la table connait redevient l original dont il tient
+// lieu ; un xuid inconnu de la table reste tel quel.
+func retraduireLeRoster(roster []uint64, table map[uint64]uint64) []uint64 {
+	inverse := make(map[uint64]uint64, len(table))
+	for reel, fictif := range table {
+		inverse[fictif] = reel
+	}
+	out := make([]uint64, len(roster))
+	for i, x := range roster {
+		if reel, ok := inverse[x]; ok {
+			x = reel
+		}
+		out[i] = x
 	}
 	return out
 }

@@ -17,8 +17,8 @@ package replay
 //	trames delta  aucune lecture CHAINEE du bloc avant le premier contact ; la creation de
 //	              l objet est un record que l ancrage par masque ne reconnait pas.
 //
-// LA REGLE : la 1re periode commence au COUP D ENVOI du match (`T0FilmMs`, premier mouvement des
-// pistes), ramene dans la fenetre des images-cles — repli NOMME et COMPTE
+// LA REGLE : la 1re periode commence au COUP D ENVOI du match (`T0FilmMs`, le depart de l'horloge de
+// manche), ramene dans la fenetre des images-cles — repli NOMME et COMPTE
 // (`repli_colline_premiere_au_coup_d_envoi`), le film ne datant pas la creation. Sans coup
 // d envoi mesure, elle commence a la premiere image-cle qui porte le bloc (une LECTURE, borne
 // haute). Sans l une ni l autre, au premier contact. Jamais apres le premier contact.

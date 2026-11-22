@@ -7,9 +7,17 @@ import (
 	"slices"
 )
 
-// t0_film.go — LE COUP D'ENVOI, DATE PAR LE PREMIER MOUVEMENT DU FILM.
+// t0_film.go — LE DETECTEUR DE PREMIER MOUVEMENT, DEPRECIE.
 //
-// # 1. LE DEFAUT QUE CE FICHIER FERME
+// # 0. CE QUE CE FICHIER EST DEVENU
+//
+// Le coup d'envoi publie (`t0FilmMs`) n'est plus date par ce detecteur : il l'est par l'horloge de manche du
+// jeu (t0_horloge.go). La construction du document n'appelle plus rien d'ici. [DetectT0Film] et ses types
+// exportes restent dans le paquet parce que les retirer serait une rupture de compatibilite ; ils sont
+// marques `Deprecated`, et leurs tests restent. Ce qui suit decrit ce que le detecteur fait quand un appelant
+// l'emploie encore.
+//
+// # 1. LE DEFAUT QUE CE DETECTEUR FERMAIT
 //
 // Le T0 d'un match (fin du decompte pre-match, coup d'envoi du gameplay) est ESTIME cote
 // sync depuis les `first_joined_time` de l'API (`analysis/timeline/compute_t0.go`). Sur une
@@ -97,6 +105,9 @@ const (
 
 // T0FilmPoint est un point de piste reduit a ce que le detecteur lit : son instant sur la
 // grille de frames et sa position monde.
+//
+// Deprecated: le coup d'envoi se date par l'horloge de manche du jeu, plus par le premier mouvement des
+// pistes ; ce type n'est lu que par [DetectT0Film].
 type T0FilmPoint struct {
 	T       int
 	X, Y, Z float32
@@ -104,33 +115,46 @@ type T0FilmPoint struct {
 
 // T0FilmTrack est une piste — UNE VIE, pas un joueur (cf. `Track.XUID`) — et l'identite de
 // son porteur, qui sert a compter la rafale par JOUEUR et non par vie.
+//
+// Deprecated: voir [T0FilmPoint] ; ce type n'est lu que par [DetectT0Film].
 type T0FilmTrack struct {
 	XUID   string
 	Points []T0FilmPoint
 }
 
-// T0FilmCoverage est le VERDICT du detecteur, publie dans l'artefact a cote du champ.
+// T0FilmCoverage est le VERDICT du coup d'envoi, publie dans l'artefact a cote du champ.
 //
-// ELLE EST PUBLIEE MEME QUAND LE DETECTEUR REFUSE, et c'est le point : un film sans mouvement,
-// un film dont un seul joueur part et un film qui demarre trop tard rendent tous trois un
-// `t0FilmMs` absent — seule la raison les distingue.
+// ELLE EST PUBLIEE MEME QUAND LE COUP D'ENVOI N'EST PAS DATE : seule la raison dit pourquoi un
+// `t0FilmMs` est absent. Elle est ABSENTE quand la passe n'a pas tourne (origine de la frame 0 non etablie,
+// ou marche des trames sans lecture : le resultat vivrait sur une horloge inconnue ou sans horloge a lire).
 type T0FilmCoverage struct {
 	// Detected dit si un coup d'envoi a ete date. Faux = `t0FilmMs` est absent.
 	Detected bool `json:"detected"`
-	// Reason nomme la cause du refus (`noMovement` / `burstTooSmall` / `tooLate` /
-	// `noFrameInterval`). Vide quand la detection a abouti.
+	// Reason nomme la cause de l'absence : `noRunningClock` (aucune lecture de l'horloge de manche ne court) ;
+	// le detecteur de premier mouvement deprecie emploie `noMovement` / `burstTooSmall` / `tooLate` /
+	// `noFrameInterval`. Vide quand le coup d'envoi est date.
 	Reason string `json:"reason,omitempty"`
+	// Source nomme la lecture qui date le coup d'envoi : `roundClock`, l'horloge de manche du film. Vide pour le
+	// resultat du detecteur de premier mouvement.
+	Source string `json:"source"`
+	// StartRead dit que le depart de l'horloge est LU : une lecture arretee (valeur de depart) precede directement
+	// la premiere lecture qui court. Faux : le film commence horloge en marche, le depart se deduit de la valeur
+	// lue.
+	StartRead bool `json:"startRead"`
 	// Tracks est le nombre de pistes exploitables (au moins deux points) — le denominateur.
-	Tracks int `json:"tracks"`
+	//
+	// Deprecated: ne vaut que pour le detecteur de premier mouvement ; zero, et absent du document, sinon.
+	Tracks int `json:"tracks,omitempty"`
 	// Moving est le nombre de pistes qui portent un mouvement.
-	Moving int `json:"moving"`
-	// Burst est le nombre de partants distincts dans la seconde du premier. C'est le TEMOIN
-	// DIRECT de l'hypothese : si la grille se leve d'un coup, l'essentiel de l'effectif part
-	// ensemble ; un partant isole est un artefact.
-	Burst int `json:"burst"`
-	// MarginMs est l'ecart entre le premier mouvement et la FRAME 0 du film. Une marge
-	// quasi nulle dit que le film commence SUR le coup d'envoi (18 films sur 101 mesures) —
-	// la valeur reste bonne, le decompte n'est simplement pas filme.
+	//
+	// Deprecated: voir Tracks.
+	Moving int `json:"moving,omitempty"`
+	// Burst est le nombre de partants distincts dans la seconde du premier.
+	//
+	// Deprecated: voir Tracks.
+	Burst int `json:"burst,omitempty"`
+	// MarginMs est l'ecart entre le coup d'envoi et la FRAME 0 du film, en millisecondes ; NEGATIF quand le film
+	// commence apres le depart de l'horloge.
 	MarginMs int64 `json:"marginMs"`
 }
 
@@ -301,7 +325,12 @@ func t0FilmBurst(deps []t0FilmDeparture, frameIntervalMS int, windowMS int64) in
 	return n
 }
 
-// DetectT0Film date le coup d'envoi du match sur l'horloge du fil des eliminations, ou REFUSE.
+// DetectT0Film date le premier mouvement des pistes sur l'horloge du fil des eliminations, ou REFUSE.
+//
+// Deprecated: le coup d'envoi du match est l'instant ou l'horloge de manche de la premiere manche demarre
+// (t0_horloge.go) ; le premier mouvement des joueurs le suit de 0,3 a 0,5 s, et en rate le depart quand la
+// rafale compte un seul partant ou que des deplacements precedent le depart. La construction du document ne
+// l'appelle plus ; il n est garde que pour la compatibilite de l'interface.
 //
 // `originMs` est l'instant de la frame 0 sur cette meme horloge (cf. origin.go) : le resultat
 // est `originMs + frameDuPremierMouvement * frameIntervalMS`, une addition, pas un recalage.
@@ -337,21 +366,8 @@ func DetectT0Film(ctx context.Context, tracks []T0FilmTrack, frameIntervalMS int
 func t0FilmRefuse(ctx context.Context, cov *T0FilmCoverage, reason, matchID string) (*int64, *T0FilmCoverage) {
 	cov.Detected, cov.Reason = false, reason
 	slog.WarnContext(ctx,
-		"rejeu : coup d'envoi NON date par le film — le T0 de l'API reste la source",
+		"rejeu : premier mouvement NON date par le detecteur deprecie",
 		"match_id", matchID, "raison", reason, "pistes", cov.Tracks, "pistesEnMouvement",
 		cov.Moving, "rafale", cov.Burst, "margeMs", cov.MarginMs)
 	return nil, cov
-}
-
-// t0FilmTracksOf ramene les pistes publiees du document a ce que le detecteur lit.
-func t0FilmTracksOf(tracks []Track) []T0FilmTrack {
-	out := make([]T0FilmTrack, 0, len(tracks))
-	for i := range tracks {
-		pts := make([]T0FilmPoint, len(tracks[i].Points))
-		for j, p := range tracks[i].Points {
-			pts[j] = T0FilmPoint{T: p.T, X: p.X, Y: p.Y, Z: p.Z}
-		}
-		out = append(out, T0FilmTrack{XUID: tracks[i].XUID, Points: pts})
-	}
-	return out
 }

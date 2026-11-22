@@ -201,7 +201,7 @@ func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, entries *object
 	slots := teamSlotsOf(teamScore, teamFrags)
 	teamID, method := resolveTeamIdentity(in, slots, teamScore, teamFrags, playerFrags, identity)
 
-	players, withheld := buildPlayerScoresOf(recs, identity, in.Lines, deaths, entries, c)
+	players, withheld, frozenDiscarded := buildPlayerScoresOf(recs, identity, in.Lines, deaths, entries, c)
 	tl := &ScoreTimeline{
 		Teams:   buildTeamScores(slots, teamScore, teamID, c),
 		Players: players,
@@ -218,8 +218,10 @@ func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, entries *object
 		Oracle:        ScoreOracleDisplayed,
 		Points:        countScorePoints(tl),
 		StatsWithheld: withheld,
+		StatsGuarded:  c.cons.EmissionsGardees(),
 	}
 	attachRoundsCoverage(cov, objectives.ResolveRounds(recs), fb)
+	cov.FrozenRounds = frozenRoundsCoverage(tl.Players, cov.Rounds, frozenDiscarded)
 	if len(tl.Teams) == 0 && len(tl.Players) == 0 {
 		tl = nil
 	}

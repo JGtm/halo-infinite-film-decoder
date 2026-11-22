@@ -31,7 +31,17 @@ import (
 // SITE DE `repli_emission_hors_domaine_jetee` (lot J8.7-bis, 2026-09-28) : meme filtre
 // ([emissionHorsDomaine]), meme repli, meme enregistreur que [rawSeriesByRound] — une emission que
 // les deux marches jettent compte une fois.
+//
+// La table de la famille JUGE les emissions : c'est la lecture d'un film dont la famille est celle de `table`.
 func rawSeriesByKey(recs []types.StatRecord, table map[statSlotKey]statSlot,
+	cons *ReplisALaConsultation) map[statSlotKey]map[int]map[int][]types.ScorePoint {
+	return rawSeriesJugees(recs, table, table, cons)
+}
+
+// rawSeriesJugees est [rawSeriesByKey] quand la table des emplacements lus (`table`) n'est pas forcement celle qui
+// juge les emissions (`juge`). `juge` nil : la table lue n'est pas celle de la famille du film, aucun canal frere
+// n'est juge et seules les valeurs negatives (et le score de mode) sont jetees, comme une lecture hors de toute famille.
+func rawSeriesJugees(recs []types.StatRecord, table, juge map[statSlotKey]statSlot,
 	cons *ReplisALaConsultation) map[statSlotKey]map[int]map[int][]types.ScorePoint {
 	bornes := ResolveRoundBounds(recs)
 	out := make(map[statSlotKey]map[int]map[int][]types.ScorePoint, len(table))
@@ -52,14 +62,11 @@ func rawSeriesByKey(recs []types.StatRecord, table map[statSlotKey]statSlot,
 			if !ok {
 				continue
 			}
-			val := v.A
-			if key.Side == sideB {
-				val = v.B
-			}
-			// Memes deux rejets que [rawSeriesByRound], et pour les memes raisons : une
-			// emission negative est un ancrage parasite, et un score de mode hors domaine
-			// denonce une emission mal alignee sur ses DEUX canaux.
-			if emissionHorsDomaine(key, r.Slot, v, val) {
+			val := canalDe(v, key.Side)
+			// Memes rejets que [rawSeriesByRound], et pour les memes raisons : une
+			// emission negative est un ancrage parasite, et un canal hors domaine que la table
+			// du mode nomme comme compteur denonce une emission mal alignee sur ses deux canaux.
+			if emissionHorsDomaine(key, r.Slot, v, juge) {
 				cons.noterEmissionJetee(key, r)
 				continue
 			}
@@ -115,11 +122,8 @@ func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 		if !ok {
 			continue
 		}
-		val := v.A
-		if key.Side == sideB {
-			val = v.B
-		}
-		if emissionHorsDomaine(key, r.Slot, v, val) {
+		val := canalDe(v, key.Side)
+		if emissionHorsDomaine(key, r.Slot, v, nil) {
 			cons.noterEmissionJetee(key, r)
 			continue
 		}
@@ -132,7 +136,7 @@ func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 	return raw
 }
 
-// emissionHorsDomaine dit qu une emission de l emplacement `key` (valeur lue `val`, composant `v`)
+// emissionHorsDomaine dit qu une emission de l emplacement `key` (composant `v`, table du mode `table`)
 // est jetee avant toute serie — LE filtre des deux marches ([rawSeriesByRound], [rawSeriesByKey]).
 //
 // Une emission NEGATIVE est un ancrage parasite : un compteur de recompense est positif. Elle est
@@ -157,14 +161,43 @@ func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 // un point (1-2) et le seuil de garde de la colline en sortait faux. La regle est celle du slot
 // d'EQUIPE seulement : un JOUEUR re-emet le composant 0 a valeur A egale quand sa valeur B bouge
 // ([SkullTicksComponent]), ses canaux B sont des lectures.
-func emissionHorsDomaine(key statSlotKey, slot int, v types.StatValue, val int64) bool {
-	if val < 0 {
+//
+// LA TABLE DU MODE DIT QUEL CANAL FRERE EST UN COMPTEUR. Les deux canaux d'un composant sortent de la meme emission :
+// quand la table du mode ([namedStatSlots], `table`) nomme comme compteur l'emplacement lu ET son frere (meme composant,
+// autre cote, redondants compris : les DEUX cotes du composant), un canal negatif ou au-dela de [statMaxModeScore] sur l'un des deux prouve que
+// l'emission est mal alignee, et la valeur de l'autre ne vaut rien non plus : elle est jetee en entier, sur les deux
+// emplacements. En Drapeau `24 A` et `24 B` sont nommes tous les deux, donc le releve (12, 7034) est jete. Un composant dont la
+// table ne nomme qu'un cote (`2 A`, `22 A` en zones, `20 B`) n'est juge que sur la valeur negative du canal lu, et un canal que la
+// table ne nomme pas (une duree comme `22 B` en zones, une lecture, un inconnu) n'est JAMAIS juge : il depasse la borne
+// de facon reguliere sur des emissions saines, et jeter l'emission retirerait des valeurs justes de son frere. `table`
+// nil — une lecture hors de toute famille (morts, frags, assistances du pont d'identite et du tableau des scores) — ne
+// nomme aucun frere : seule la valeur negative du canal lu est jugee.
+func emissionHorsDomaine(key statSlotKey, slot int, v types.StatValue, table map[statSlotKey]statSlot) bool {
+	if canalDe(v, key.Side) < 0 {
 		return true
 	}
-	if key.Comp != modeScoreComp {
+	if key.Comp == modeScoreComp {
+		return !modeScoreInDomain(v) || (IsTeamSlot(slot) && v.B != 0)
+	}
+	_, aNomme := table[statSlotKey{Comp: key.Comp, Side: sideA}]
+	_, bNomme := table[statSlotKey{Comp: key.Comp, Side: sideB}]
+	if !aNomme || !bNomme {
 		return false
 	}
-	return !modeScoreInDomain(v) || (IsTeamSlot(slot) && v.B != 0)
+	for _, cote := range [...]string{sideA, sideB} {
+		if x := canalDe(v, cote); x < 0 || x > statMaxModeScore {
+			return true
+		}
+	}
+	return false
+}
+
+// canalDe rend la valeur du cote `cote` d'un composant.
+func canalDe(v types.StatValue, cote string) int64 {
+	if cote == sideB {
+		return v.B
+	}
+	return v.A
 }
 
 // cumulateRounds filtre chaque manche par la plus longue sous-suite non decroissante, puis

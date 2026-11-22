@@ -337,5 +337,6 @@ func chargerGoldenBuild(t *testing.T, b goldenBuild) (*FilmFacts, profile.MapQua
 	// LES MESSAGES DE JEU AUSSI : golden_jeu_test.go.
 	chargerJeuDuBuild(t, b.Short8, g)
 	chargerDegatsDuBuild(t, b.Short8, g)
+	chargerHorlogesDuBuild(t, b.Short8, g)
 	return g, entry
 }

@@ -166,12 +166,43 @@ func rosterDeLaFeuille(film string) ([]uint64, error) {
 		xuids = append(xuids, p.XUID)
 	}
 	roster := RosterXUIDsOf(xuids)
+	if len(roster) > 0 {
+		var err error
+		if roster, err = rosterDansLEspaceDuFilm(roster); err != nil {
+			return nil, err
+		}
+	}
 	if len(roster) == 0 {
 		return nil, fmt.Errorf("feuille de match du film %s : AUCUN xuid exploitable sur %d "+
 			"ligne(s) — la forme de %s a-t-elle change ? un roster vide ferait disparaitre du "+
 			"golden les joueurs a zero mort, en silence", film, len(feuille.Players), path)
 	}
 	return roster, nil
+}
+
+// rosterDansLEspaceDuFilm rend le roster de la feuille dans l espace des xuids que le FILM ecrit.
+//
+// POURQUOI (revue de la quatrieme integration, 2026-11-22). La feuille du corpus porte des xuids FICTIFS,
+// alors que le film local est reel : un joueur sans mort n est dans aucune mort du fil, donc le roster
+// d appoint est la SEULE voie qui le fait trouver dans le film, et un xuid fictif n y est ecrit nulle
+// part. Le fixture regenere perdait ces joueurs (mesure : un joueur de `a521164d`, 26 index pour 27 joueurs, et la
+// table des places comptait alors 13 sieges pour une equipe de 12 ; quatre builds, cinq joueurs en tout), la
+// ou la production recoit les xuids reels de la base. Meme espace de xuids que la production : chaque fictif redevient son original par la
+// table que la porte de regeneration emploie deja ([tableIdentitesEnv]).
+//
+// SANS TABLE le roster reste celui de la feuille : les tests qui decodent un film pour comparer a lui-meme
+// (aller-retour du codec) n en dependent pas ; une REGENERATION de fixture, elle, pose toujours la table,
+// puisqu elle pseudonymise ensuite avec.
+func rosterDansLEspaceDuFilm(roster []uint64) ([]uint64, error) {
+	chemin := os.Getenv(tableIdentitesEnv)
+	if chemin == "" {
+		return roster, nil
+	}
+	table, err := lireTableDesIdentites(chemin)
+	if err != nil {
+		return nil, fmt.Errorf("table des identites (%s) : %w", tableIdentitesEnv, err)
+	}
+	return retraduireLeRoster(roster, table), nil
 }
 
 // goldenMapQuant rend l'ENTREE DE CATALOGUE de Cliffhanger : bornes ET largeurs d'axe, comme

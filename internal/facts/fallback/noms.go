@@ -330,12 +330,8 @@ const (
 	NomIndiceEnCollisionJete Nom = "repli_indice_en_collision_jete"
 	// NomPremiereOccurrenceSansConcordance : `killcollector/shots.go`.
 	NomPremiereOccurrenceSansConcordance Nom = "repli_premiere_occurrence_sans_concordance"
-	// NomPrecisionParArmePasseSautee : `killcollector/hits.go`.
-	NomPrecisionParArmePasseSautee Nom = "repli_precision_par_arme_passe_sautee"
 	// NomCoequipiersPartisConstanteNulle : `killcollector/isolation_facts.go`.
 	NomCoequipiersPartisConstanteNulle Nom = "repli_coequipiers_partis_constante_nulle"
-	// NomDistancesDeToucheDesactivees : `killcollector/hits.go`.
-	NomDistancesDeToucheDesactivees Nom = "repli_distances_de_touche_desactivees"
 	// NomCartePremierNomResolu : `killcollector/map_identity.go` (et `hits.go`).
 	NomCartePremierNomResolu Nom = "repli_carte_premier_nom_resolu"
 )

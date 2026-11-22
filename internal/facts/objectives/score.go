@@ -86,6 +86,10 @@ type StatComponent struct {
 	// part et il est ecarte. Pour un compteur de base, dont les emissions a valeur negative sont
 	// des valeurs (le composant 3 en porte).
 	DropClears bool
+	// KillBounded dit que la valeur lue compte des eliminations du joueur dans la manche (un compteur nomme d'eliminations,
+	// la plus longue serie) : elle ne depasse jamais les eliminations du joueur dans la manche, et une emission dont une
+	// valeur bornee la depasse est ecartee avant la selection de la suite ([withinKillBound]).
+	KillBounded bool
 	// Joint dit, en plus, que les DEUX valeurs du composant ne decroissent jamais : une emission
 	// dont l'une recule est mal alignee, et la suite retenue est la plus longue qui les tient
 	// toutes deux ([jointRun]). Faux quand la valeur A du composant n'est pas un compteur.

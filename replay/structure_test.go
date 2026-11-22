@@ -1554,8 +1554,18 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   `coverage.hits` (dont `selfHits`, `selfDamages`, `vitalsUnread`). Champs optionnels pour (2) et (3), mais la version monte pour la raison des
 	//   montees v3..v24 et pour le contenu de (1) : un v124 ne porte rien de cela. `SchemaDesFaits` 28 -> 29 et `grammar.Rev` montent : un v124 se
 	//   lit « à redécoder ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 125 {
-		t.Fatalf("SchemaVersion = %d, attendu 125 : incrémenter exige une raison écrite ci-dessus "+
+	// - 126 (2026-11-22, trajets de vehicule, coup d envoi, tableau des scores, eliminations) : huit apports en une version. (1) `vehicles[].rides[].xuid` porte le
+	//   joueur du corps qui monte, jamais le premier occupant nomme du siege (`coverage.vehicles.ridesNamed`). (2) `t0FilmMs` est l instant ou l horloge de
+	//   la premiere manche demarre (`coverage.t0Film` : `source`, `startRead`) ; le detecteur de premier mouvement n est plus appele. (3) Un compteur nomme
+	//   du tableau qui depasse les eliminations du joueur est ecarte (`scoreTimeline.players[].stats`, `coverage.score.statsGuarded`). (4) Un enregistrement du
+	//   tableau dont un compteur de la manche ne se decode pas est abandonne en entier (`scoreTimeline`, `roundsUnplayed`). (5) `medalLabels` est declare
+	//   (calque a la requete, rien de cuit). (6) Huit compteurs de mode sont nommes (`objectives[].stat` : Drapeau, zones ; VIP quand l hote passe la famille).
+	//   (7) Le calque `eliminations[]` porte la marque a la tete et le frag parfait, a trois etats (`coverage.eliminations`). (8) Les valeurs figees par manche
+	//   terminee sont publiees (`scoreTimeline.players[].frozenRounds[]`, `coverage.score.frozenRounds`), la derniere manche n etant jamais figee, les totaux
+	//   inchanges. Le contenu cuit change, des champs et des calques neufs. `grammar.Rev` et `objectives.Rev` montent : un v125 se lit
+	//   « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 126 {
+		t.Fatalf("SchemaVersion = %d, attendu 126 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

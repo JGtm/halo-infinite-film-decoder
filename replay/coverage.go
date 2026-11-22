@@ -178,6 +178,10 @@ type Coverage struct {
 	Medals *MedalCoverage `json:"medals,omitempty"`
 	// ScoreActions dit ce que le calque du score par action a lu, publie et ecarte ; absent quand la marche des trames n a pas lu les messages de jeu.
 	ScoreActions *ScoreActionCoverage `json:"scoreActions,omitempty"`
+	// Reloads dit ce que le calque des rechargements a lu, publie et ecarte ; absent quand la marche des trames n a lu aucune trame.
+	Reloads *ReloadCoverage `json:"reloads,omitempty"`
+	// Eliminations dit ce que le calque des éliminations a posé et sait marquer (tirs à la tête, frags parfaits) ; absent sans tableau des scores.
+	Eliminations *EliminationCoverage `json:"eliminations,omitempty"`
 	// Hits dit ce que le calque des touches a lu, pose et ecarte ; absent quand les messages de degat n ont pas ete lus.
 	Hits *HitCoverage `json:"hits,omitempty"`
 	// PadDating dit ce que l'événement natif a pu dater parmi les occupations de socle : les
@@ -292,16 +296,12 @@ type Coverage struct {
 	// FAUX N'EST PAS « PAS DE DONNÉE » : les calques sont publiés, mais leur axe de temps n'est
 	// pas fiable. Le rendu les masque plutôt que de les poser au mauvais instant.
 	OriginResolved bool `json:"originResolved"`
-	// T0Film est le verdict du détecteur de COUP D'ENVOI (schéma 36, cf. t0_film.go) : détecté
-	// ou refusé et pourquoi, avec les deux chiffres qui fondent le verdict — la rafale de
-	// départ et la marge depuis la frame 0.
+	// T0Film est le verdict du COUP D'ENVOI (cf. t0_horloge.go) : daté ou non et pourquoi, la source (`roundClock`,
+	// l'horloge de manche du film), si le départ de l'horloge est lu ou déduit, et l'écart à la frame 0.
 	//
-	// ELLE EST PUBLIÉE MÊME QUAND LE DÉTECTEUR REFUSE, pour la raison exacte de `placements`
-	// et `groundWeapons` : un film sans mouvement, un film où un seul joueur part et un film
-	// qui démarre trop tard rendent tous trois un `t0FilmMs` absent — seule la raison les
-	// distingue. Son ABSENCE dit encore autre chose : l'origine de la frame 0 n'étant pas
-	// établie, le détecteur n'a même pas été lancé (son résultat vivrait sur une horloge
-	// inconnue).
+	// ELLE EST PUBLIÉE MÊME QUAND LE COUP D'ENVOI N'EST PAS DATÉ : seule la raison dit pourquoi un `t0FilmMs`
+	// est absent. Son ABSENCE dit encore autre chose : l'origine de la frame 0 n'étant pas établie, ou la marche
+	// des trames n'ayant rien lu, la passe n'a pas tourné.
 	T0Film *T0FilmCoverage `json:"t0Film,omitempty"`
 	// FilmMajorVersion est LA VERSION DU FILM qui a produit cet artefact, lue dans l'en-tête de
 	// son registre (`grammar.FilmMajorVersionFromHeader`, u32 LE en tête de `chunk_00`).

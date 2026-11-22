@@ -77,9 +77,10 @@ package replay
 // exactement la distinction que `coverage` tient aujourd hui a coups de blocs `omitempty`, et
 // qu un tableau vide seul ne sait pas dire.
 //
-// # LES SIX CALQUES A LA REQUETE N Y ENTRENT JAMAIS
+// # LES SEPT CALQUES A LA REQUETE N Y ENTRENT JAMAIS
 //
-// `mapObjectives`, `mapWeaponPads`, `weaponTiers`, `vehicleLabels`, — depuis le schema 69 —
+// `mapObjectives`, `mapWeaponPads`, `weaponTiers`, `vehicleLabels`, `medalLabels` (libelles et visuels des
+// medailles, remplis par l hote d apres le referentiel du titre), — depuis le schema 69 —
 // `vehicleWeapons` (registre des armes de vehicule) et `vehicleScenery` (decor hors de la zone
 // jouable, lot M7 du 2026-09-24) sont resolus PAR LE SERVICE,
 // a la requete : la cuisson ne les ecrit pas (garde
@@ -140,7 +141,7 @@ var couchesDesCalques = map[string]string{
 	"bounds":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- positions
 	"tracks":              grammar.Rev, // tracks_publication.go `poserLesTraces` <- FilmInputs.Positions ; tracks_fin_par_commande.go <- FilmInputs.UnitControls + BipedDeletions (la fin du corps)
 	"originMs":            grammar.Rev, // build_pistes.go `resolveOriginMs` <- FilmInputs.FilmClockOriginUS + fil des morts
-	"t0FilmMs":            grammar.Rev, // build_pistes.go `DetectT0Film` <- pistes publiees
+	"t0FilmMs":            grammar.Rev, // t0_horloge.go `poserLeCoupDEnvoi` <- FilmInputs.Horloges (ti=0 i5), premiere lecture qui court
 	"shots":               grammar.Rev, // build_pistes.go + vehicle_shots.go <- FilmInputs.Fire
 	"bursts":              grammar.Rev, // build_calques.go `buildFireBursts` <- FilmInputs.ContinuousFire (vue C)
 	"loadouts":            grammar.Rev, // build_pistes.go <- FilmInputs.Loadouts
@@ -174,6 +175,7 @@ var couchesDesCalques = map[string]string{
 	"vehicles":            grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles
 	"vehicleCycles":       grammar.Rev, // vehicle_cycles.go <- `doc.Vehicles` SEUL : une couche d ANALYSE sur les vies deja publiees, donc la MEME revision que le calque dont elle derive
 	"stances":             grammar.Rev, // document_stances.go <- FilmInputs.MovementStates (i29/i62/i54, lot 5.3.6)
+	"reloads":             grammar.Rev, // document_reloads.go <- FilmInputs.Reloads (messages weapon_reload, genre 38 de la vue A)
 	"roundClock":          grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=0 i5)
 	"rules":               grammar.Rev, // document_regles.go <- Options.FilmIdentity.InfosDeMatch (la variante de partie de chunk_00)
 	"respawnCountdowns":   grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=5 i1, nommee par l etat de creation de l entite)
@@ -194,6 +196,7 @@ var couchesDesCalques = map[string]string{
 	"equipmentEpisodes": killsource.Rev, // build_pistes.go : les episodes sortent de la grammaire, mais `attachAllEquipmentKills` y ECRIT `k`/`a` depuis opt.Kills (killsource)
 	"objectives":        objectives.Rev, // objectives.go <- opt.Objectives (`objectives.IdentifiedEvent`)
 	"scoreTimeline":     objectives.Rev, // build_score.go <- opt.Score.Records (enregistrements d entite du statborg)
+	"eliminations":      objectives.Rev, // eliminations.go <- `scoreTimeline` (pas des compteurs d eliminations et de tirs a la tete) ; la victime et la medaille viennent de `scoreActions` et `medals`
 	"flagCarries":       objectives.Rev, // build_objectives_live.go <- opt.Flag.Records (statborg) ; la jauge de retour vient de la grammaire (`FilmInputs.FlagGauge` et `FlagGaugeWalk`), mais les LACHERS auxquels elle s apparie sortent du statborg — la revision la plus tardive gagne
 	"flagReturnZone":    objectives.Rev, // build_objectives_live.go, meme entree que `flagCarries`
 	"vipCrown":          objectives.Rev, // vip_crown.go <- opt.Vip.Records (statborg)
@@ -251,9 +254,10 @@ var calquesSansCouche = map[string]string{
 // UN CALQUE ABSENT DE CETTE TABLE A TOUJOURS SON ENTREE, fut-il vide : sa passe a tourne, et
 // « le film n en porte aucun » est une reponse que `layers` doit savoir donner.
 var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
-	// `DetectT0Film` ne tourne pas sans origine : un instant cale sur zero serait faux de 3,6 s
-	// a 50,8 s selon le match (build_pistes.go, `composerLaCouverture`).
-	"t0FilmMs": func(doc *ReplayDocument, _ Options) bool { return doc.OriginMs != nil },
+	// Le coup d'envoi ne se pose pas sans origine (un instant cale sur zero serait faux de 3,6 s a 50,8 s
+	// selon le match) ni sans la marche des trames qui lit l'horloge de manche (t0_horloge.go,
+	// `poserLeCoupDEnvoi`).
+	"t0FilmMs": coupDEnvoiLisible,
 	// L ancre d une traction exige les bornes de la carte : sans `MapQuant`, aucune traction
 	// n est publiee (build_calques.go, `poserGrappinEtPoses`).
 	"grappleLines": func(_ *ReplayDocument, opt Options) bool { return opt.MapQuant != nil },
@@ -268,6 +272,8 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// Sans enregistrements d entite, ni courbe ni couverture de score (score_timeline.go,
 	// `assembleScoreTimeline` : `in == nil` -> `nil, nil, nil`).
 	"scoreTimeline": func(_ *ReplayDocument, opt Options) bool { return opt.Score != nil },
+	// Le calque des eliminations derive du tableau des scores : meme garde (eliminations.go, `poserLesEliminations`).
+	"eliminations": func(_ *ReplayDocument, opt Options) bool { return opt.Score != nil },
 	// GARDES DE MODE, posees par l appelant sur `game_variant_name` : hors CTF / VIP / Oddball /
 	// famille bomb, le calque n est pas balaye (flag_carries.go `buildFlagCarries`,
 	// vip_crown.go `attachVipCrown`, skull_carries.go `attachSkullCarries`,
@@ -286,7 +292,9 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	"zoneStates": func(_ *ReplayDocument, opt Options) bool { return opt.Zone.Scanned },
 	// La marche des trames n a pas tourne : aucune trame lue, donc ni horloge ni compte a rebours
 	// (document_horloges.go, `poserLesHorloges`).
-	"roundClock":        func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
+	"roundClock": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
+	// La marche des trames n a lu aucune trame : aucun rechargement ne se lit (document_reloads.go, `poserLesRechargements`).
+	"reloads":           func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
 	"respawnCountdowns": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
 	// Le film n a pas d identite, ou sa variante n a pas ete lue : aucune regle (document_regles.go).
 	"rules": func(_ *ReplayDocument, opt Options) bool { return !rulesOf(opt.FilmIdentity).vide() },

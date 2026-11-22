@@ -112,6 +112,19 @@ func (o usageOwners) atOrJustBefore(slot uint32, frame int) string {
 	return o.repliDernierOccupant(slot)
 }
 
+// atLacher rend le propriétaire d'un objet LÂCHÉ à cette image : la vie qui s'achève à l'image
+// précédente, parce qu'un objet lâché à la mort naît à `finVie + 1` et que celui qui l'a lâché est
+// celui qui vient de mourir, même quand le repreneur du slot naît à cette image même. Sans vie
+// achevée à l'image précédente, la règle est celle de [usageOwners.atOrJustBefore].
+func (o usageOwners) atLacher(slot uint32, frame int) string {
+	for _, v := range o.parVie[slot] {
+		if v.to+1 == frame {
+			return v.xuid
+		}
+	}
+	return o.atOrJustBefore(slot, frame)
+}
+
 // repliPremiereVieDuSlot — LE REPLI NOMMÉ ET COMPTÉ (D14) de la pose datée AVANT la première
 // vie publiée du slot : faute de vie précédente, la PREMIÈRE vie du slot est créditée.
 //

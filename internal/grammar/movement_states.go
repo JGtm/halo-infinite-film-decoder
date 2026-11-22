@@ -112,6 +112,10 @@ type MarcheDesTrames struct {
 	MovementStateStats  types.MovementStateStats
 	ContinuousFire      []types.ContinuousFireBurst
 	ContinuousFireStats types.ContinuousFireStats
+	// ControlHolds sont les commandes de deplacement tenues de la meme vue de controle et ControlHoldStats
+	// leurs denominateurs ([collecteurTirContinu]).
+	ControlHolds     []types.ControlHold
+	ControlHoldStats types.ControlHoldStats
 	// UnitControls sont les lectures du joueur aux commandes de chaque bipede (`unit-control`), et
 	// UnitControlStats leurs denominateurs : lues sur le meme crochet que les etats de mouvement, y
 	// compris sur un film qui n en transmet aucun.
@@ -133,6 +137,9 @@ type MarcheDesTrames struct {
 	// Degats : les messages `damage_aftermath` des trames delta et ce que leur canal a vu.
 	Degats      []DegatLu
 	DegatsStats StatsDegats
+	// Reloads : les rechargements d arme des trames delta et ReloadStats ce que leur canal a vu.
+	Reloads     []types.ReloadRead
+	ReloadStats types.ReloadStats
 	// Vitalites : la sante et le bouclier des bipedes, par vie.
 	Vitalites VitalitesLues
 	// LiaisonsParRepliDAnticipation : les liaisons que le repli `repli_liaison_par_anticipation`
@@ -205,8 +212,9 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	tir := nouveauCollecteurTirContinu(&m.ContinuousFireStats)
 	jeu := nouveauCanalDesEvenementsDeJeu()
 	degats := nouveauCanalDesDegats()
+	rechargements := nouveauCanalDesRechargements()
 	vitalites := nouveauCanalDesVitalites()
-	canaux := []Canal{sc, tir, jeu, degats, vitalites}
+	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -233,9 +241,11 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.LiaisonsParRepliDAnticipation = sc.liaisonsDuRepliDAnticipation()
 	m.DebutsDeListeParRepliFermeAuBit = sc.obs.DebutsDeListeParRepliFermeAuBit
 	m.ContinuousFire = tir.out
+	m.ControlHolds, m.ControlHoldStats = tir.commandes, tir.commandeStats
 	m.EvenementsDeJeu = jeu.lus
 	m.EvenementsDeJeuStats = jeu.stats
 	m.Degats, m.DegatsStats = degats.lus, degats.stats
+	m.Reloads, m.ReloadStats = rechargements.out, rechargements.stats
 	m.Vitalites = vitalites.resultat()
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()

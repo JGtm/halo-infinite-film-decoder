@@ -46,17 +46,23 @@ func ScoreboardStats() []ScoreboardStat {
 	held := func(comp int, side bool) StatComponent {
 		return StatComponent{Comp: comp, SideB: side, Unitary: true, HoldOnClear: true, Joint: true}
 	}
+	// Un compteur d'eliminations nomme est en plus borne par les eliminations de la manche ([withinKillBound]).
+	heldKills := func(comp int, side bool) StatComponent {
+		c := held(comp, side)
+		c.KillBounded = true
+		return c
+	}
 	// La valeur A du composant 5 n'est pas un compteur (elle recule d'une vie a l'autre) : seule
 	// sa valeur B, la serie maximale, est lue.
-	spree := StatComponent{Comp: 5, SideB: true, HoldOnClear: true}
+	spree := StatComponent{Comp: 5, SideB: true, HoldOnClear: true, KillBounded: true}
 	return []ScoreboardStat{
 		{Name: StatSuicides, Component: held(4, false)},
 		{Name: StatBetrayals, Component: held(4, true)},
 		{Name: StatMaxSpree, Component: spree, Peak: true},
-		{Name: StatHeadshots, Component: held(6, false)},
-		{Name: StatMeleeKills, Component: held(8, false)},
-		{Name: StatGrenadeKills, Component: held(8, true)},
-		{Name: StatPowerWeaponKills, Component: held(9, false)},
+		{Name: StatHeadshots, Component: heldKills(6, false)},
+		{Name: StatMeleeKills, Component: heldKills(8, false)},
+		{Name: StatGrenadeKills, Component: heldKills(8, true)},
+		{Name: StatPowerWeaponKills, Component: heldKills(9, false)},
 		{Name: StatSpawns, Component: held(10, true)},
 	}
 }
@@ -79,7 +85,7 @@ func rawSeries(recs []types.StatRecord, c StatComponent, teams bool,
 		}
 		return raw
 	}
-	pairs := valuePairsByRound(recs, c, teams, cons)
+	pairs := withinKillBound(recs, c, valuePairsByRound(recs, c, teams, cons), cons)
 	raw := make(map[int]map[int][]types.ScorePoint, len(pairs))
 	for slot, byRound := range pairs {
 		raw[slot] = map[int][]types.ScorePoint{}

@@ -178,7 +178,9 @@ func vehicleFilmRideOf(o types.VehicleOccupancy, endUS uint64, in vehicleRideInp
 		r.Seat = &s
 	}
 	r.Aim = vehicleRideAimOf(in.aimBySlot[o.Slot], o.TimestampUS, endUS, in.clock)
-	r.XUID = in.reg.XUIDAt(o.Slot, o.TimestampUS)
+	// Le trajet porte le joueur du corps qui monte (un occupant embarque ne replique plus : aucune vie ne
+	// couvre l instant de la montee), jamais le premier occupant nomme du siege.
+	r.XUID = in.reg.XUIDDuTrajetA(o.Slot, o.TimestampUS)
 	return r
 }
 

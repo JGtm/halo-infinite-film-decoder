@@ -29,11 +29,11 @@ type LectureDuStatborg struct {
 	// « ce film ne porte rien », et le second se repare (le manifeste se retelecharge).
 	ChunksDatables int
 	// EnregistrementsAbandonnes : `repli_enregistrement_statborg_abandonne` — en-tetes
-	// d enregistrement reconnus dont aucun composant ne se decode ou dont un compteur sort du
-	// domaine, abandonnes ([scanFrameAvecReplis]).
+	// d enregistrement reconnus qui ne rendent aucun compteur de la manche, dont un compteur ou une
+	// valeur figee ne se decode pas, ou dont un compteur sort du domaine, abandonnes ([scanFrameAvecReplis]).
 	EnregistrementsAbandonnes int
 	// ComposantsArretes : `repli_composants_statborg_arretes` — enregistrements GARDES dont la
-	// lecture des composants s est arretee avant le dernier annonce ([decodeComponentsAvecArret]).
+	// lecture s est arretee sur un composant d index 56 ou plus, que le paquet ne lit pas, avant le dernier annonce ([lireLesComposants]).
 	ComposantsArretes int
 	// BandeParDefaut : `repli_bande_statborg_par_defaut` — aucune table de datums ne portait la
 	// bande des joueurs, la lecture s'est arretee au slot [StatborgSlotBandeSure] ([BandeDuStatborg]).

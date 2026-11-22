@@ -93,6 +93,15 @@ All five are identifiers, labels and points, not content of the game: no mesh, t
   component and of the DEL records, and the body-by-body bookkeeping of the assembly (`replay/tracks_fin_par_commande.go`),
   are this module's own code; no line of libfilmshell code is copied or translated.
 - **libfilmshell, a sixth time, for the damage effects** (same author, licence and commit): `damageeffects/data/effects.tsv` reproduces, in this module's own format, the cause and the damage amounts of each damage effect of `src/game/damage_data.rs`, because that table comes from the game's damage tags, which this decoder does not read. Same credit header, same licence file; the README names libfilmshell in its credits. The **method** of `src/game/hit_damage.rs` is also taken: a hit of a fixed-amount effect is applied to the unit's real life (shield first, then body, with the tag's flags), the hits that the table cannot size are measured on what the life loses, and a headshot that finishes the unit takes what remains. The reading of the damage messages, of the two vitality components of the biped, and the code that applies the method (`damageeffects/effects.go`, `replay/degats_en_points.go`, `replay/vie_des_bipedes.go`) are this module's own code; no line of libfilmshell code is copied or translated.
+- **libfilmshell, a seventh time, for the frozen round values of the scoreboard** (same author and licence, tree published
+  on 2026-11-09). Its reader of the statborg components (`src/components.rs`, `StatFinalizedRounds`) gave the layout of
+  components 28 to 55: a 32-bit mask of ended rounds, then two values per set bit, each behind a "default" flag; its
+  snapshot reader (`src/gamestate.rs`) reads the 28 current-round rows only. The layout matches the game's reader
+  (`FUN_142ed3c50`, already ported for the walk as `grammar.consumeStatborgFinalized`), and the order of the values, the
+  meaning of the default flag, the rounds a record carries and the player the values belong to were measured on the
+  maintainer's own films (see `FORMAT.md`, section 5). The reader of the record components (`internal/grammar/signaux/statborg_figees.go`)
+  and the publication per player and round (`internal/facts/objectives/frozen_rounds.go`, `replay/score_timeline_figees.go`)
+  are this module's own code; no line of libfilmshell code is copied or translated.
 
 ## Third-party code
 

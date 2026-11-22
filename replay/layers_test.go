@@ -206,6 +206,7 @@ func optionsToutesGardesOuvertes() Options {
 			DelaiDeReapparitionSecondes: new(int64)}},
 		ScoreActions: ScoreActionInput{Read: true},
 		Damages:      HitInput{Read: true},
+		ReloadStats:  types.ReloadStats{Frames: 1},
 	}
 }
 
@@ -262,7 +263,7 @@ func TestCalquesProduitsSuiventLesGardes(t *testing.T) {
 // quatrieme), et le remede — une constante par nom — rendrait les deux tables de `layers.go`
 // illisibles ligne a ligne, ce qui est exactement ce qu elles existent pour etre.
 const calquesGardesGeles = "abilityCharges abilityImpulses bombArmings bombCarries bombEvents " +
-	"bombStats damage flagCarries flagReturnZone grappleLines hits inventory medals respawnCountdowns roundClock rules scoreActions " +
+	"bombStats damage eliminations flagCarries flagReturnZone grappleLines hits inventory medals reloads respawnCountdowns roundClock rules scoreActions " +
 	"scoreTimeline shotStats skullCarries t0FilmMs vehicles vipCrown zoneStates"
 
 // TestCalquesGardesSontLaListeGelee : le jeu des calques gardes ne bouge pas en silence.
@@ -376,7 +377,7 @@ func TestLayersEstPoseParLaCuisson(t *testing.T) {
 			doc.Layers["tracks"], grammar.Rev)
 	}
 	for _, requete := range []string{
-		"mapObjectives", "mapWeaponPads", "weaponTiers", "vehicleLabels", "vehicleWeapons",
+		"mapObjectives", "mapWeaponPads", "weaponTiers", "vehicleLabels", "medalLabels", "vehicleWeapons",
 	} {
 		if _, ok := doc.Layers[requete]; ok {
 			t.Errorf("le calque a la requete %q est declare produit par la cuisson", requete)

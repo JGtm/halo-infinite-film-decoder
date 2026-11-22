@@ -2,6 +2,7 @@ package replay
 
 import (
 	"context"
+	"maps"
 	"slices"
 	"testing"
 
@@ -283,5 +284,87 @@ func TestLaNumerotationDesTirsEstCelleDuJoueur(t *testing.T) {
 	compterLesTirs(fire, r, bilan)
 	if d, e := bilan[xuidD], bilan[xuidE]; d == nil || e == nil || d.ShotEvents != 2 || d.Shots != 2 || e.ShotEvents != 2 || e.Shots != 2 {
 		t.Fatalf("bilan D %+v, E %+v : deux tirs ecrits et deux tirs numerotes pour chacun", d, e)
+	}
+}
+
+// TestLArmeDUneToucheEstCelleDuJoueurALInstant : deux humains successifs sur le meme index ont chacun leurs tirs ; la touche (et le degat) du
+// second ne nomme jamais l'arme du dernier tir du partant, meme dans les deux secondes. Un bot, sans identifiant, se lit par son index.
+//
+// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : ranger les tirs par l'index seul ; resoudre l'auteur du message a une autre frame que celui du tir.
+func TestLArmeDUneToucheEstCelleDuJoueurALInstant(t *testing.T) {
+	axe := axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}
+	roster := rosterDesActions()
+	pistes := []Track{pisteDeLaTouche(5, xuidB, 0, finDesActions-1)}
+	const armeD, armeE, armeBot = 0x00000000AB00CD01, 0x00000000AB00CD02, 0x00000000AB00CD03
+	// D (index 4) tire a la frame 48 puis part ; E (meme index) touche a la frame 52 sans avoir tire, puis tire a la frame 60 et touche a la 62.
+	// Le bot de l'index 3 tire a la frame 10 et touche a la frame 11.
+	fire := []grammar.FireEvent{
+		tirDeTest(4, 1, instantDeLaFrame(48), armeD), tirDeTest(4, 1, instantDeLaFrame(60), armeE), tirDeTest(3, 1, instantDeLaFrame(10), armeBot),
+	}
+	messages := []grammar.DegatLu{
+		degatDeTest(instantDeLaFrame(52), effetArme, 4, 5), degatDeTest(instantDeLaFrame(62), effetArme, 4, 5), degatDeTest(instantDeLaFrame(11), effetArme, 3, 5),
+	}
+	points := []PointsDeDegat{{Corps: 100}, {Corps: 100}, {Corps: 100}}
+	hits, lignes, _, _ := buildHits(HitInput{Read: true, Messages: messages, Points: points, Stats: grammar.StatsDegats{Trames: 100, Terminees: 100}}, fire, roster, pistes, axe)
+	armes := map[int]string{}
+	for _, h := range hits {
+		armes[h.T] = h.Weapon
+	}
+	wantTouches := map[int]string{52: "", 62: "0x00000000AB00CD02"} // le bot ne pose aucune touche : il n'a pas de joueur
+	if !maps.Equal(armes, wantTouches) {
+		t.Errorf("armes des touches %v, attendu %v", armes, wantTouches)
+	}
+	want := map[int]string{11: "0x00000000AB00CD03", 52: "", 62: "0x00000000AB00CD02"}
+	degats := map[int]string{}
+	for _, l := range lignes {
+		degats[l.T] = l.Weapon
+	}
+	if !maps.Equal(degats, want) {
+		t.Errorf("armes des degats %v, attendu %v", degats, want)
+	}
+}
+
+// TestLAuteurDUnMessageEstLeJoueurDeSonUnite : un message dont l'index de joueur ne résout aucun humain présent (la
+// présence publiée du joueur est close, G n'en a aucune) mais dont l'unité responsable porte la piste de G est une touche
+// de G, au bilan, sur l'axe et dans les dégâts ; une unité sans piste, ou celle d'un bot, laisse l'index décider.
+//
+// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : résoudre l'auteur par l'index seul ; prendre une unité sans xuid pour un humain ;
+// ne pas poser l'auteur des lignes de dégât par l'unité.
+func TestLAuteurDUnMessageEstLeJoueurDeSonUnite(t *testing.T) {
+	axe := axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}
+	roster := rosterDesActions()
+	pistes := []Track{pisteDeLaTouche(5, xuidB, 0, finDesActions-1), pisteDeLaTouche(8, xuidG, 0, finDesActions-1), pisteDeLaTouche(9, "", 0, finDesActions-1)}
+	avecUnite := func(d grammar.DegatLu, unite uint16) grammar.DegatLu {
+		d.Responsable, d.AResponsable = unite, true
+		return d
+	}
+	messages := []grammar.DegatLu{
+		avecUnite(degatDeTest(instantDeLaFrame(3), effetArme, 7, 5), 8),  // index 7 : G n'a aucune présence ; l'unité 8 est celle de G
+		avecUnite(degatDeTest(instantDeLaFrame(4), effetArme, 0, 5), 40), // unité sans piste : l'index 0 résout A
+		avecUnite(degatDeTest(instantDeLaFrame(5), effetArme, 0, 5), 9),  // unité d'un bot : l'index 0 résout A
+		avecUnite(degatDeTest(instantDeLaFrame(6), effetArme, 7, 5), 40), // ni l'un ni l'autre : aucun auteur
+	}
+	points := []PointsDeDegat{{Corps: 100}, {Corps: 100}, {Corps: 100}, {Corps: 100}}
+	hits, lignes, stats, cov := buildHits(HitInput{Read: true, Messages: messages, Points: points, Stats: grammar.StatsDegats{Trames: 100, Terminees: 100}}, nil, roster, pistes, axe)
+	wantHits := []Hit{{T: 3, Shooter: xuidG, Victim: xuidB, Effect: "0000563f"}, {T: 4, Shooter: xuidA, Victim: xuidB, Effect: "0000563f"}, {T: 5, Shooter: xuidA, Victim: xuidB, Effect: "0000563f"}}
+	if !slices.Equal(hits, wantHits) {
+		t.Errorf("touches %+v, attendu %+v", hits, wantHits)
+	}
+	if cov.NoShooter != 1 {
+		t.Errorf("%d touche(s) sans auteur, attendu 1 (le dernier message)", cov.NoShooter)
+	}
+	degats := map[int]string{}
+	for _, l := range lignes {
+		degats[l.T] = l.Attacker
+	}
+	if want := map[int]string{3: xuidG, 4: xuidA, 5: xuidA, 6: ""}; !maps.Equal(degats, want) {
+		t.Errorf("auteurs des lignes de dégât %v, attendu %v", degats, want)
+	}
+	par := map[string]int{}
+	for _, s := range stats {
+		par[s.XUID] = s.Hits
+	}
+	if par[xuidG] != 1 || par[xuidA] != 2 {
+		t.Errorf("touches au bilan : G %d, A %d ; attendu 1 et 2", par[xuidG], par[xuidA])
 	}
 }

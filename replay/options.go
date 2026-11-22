@@ -126,6 +126,13 @@ type Options struct {
 	ContinuousFire      []types.ContinuousFireBurst
 	ContinuousFireStats types.ContinuousFireStats
 	Horloges            grammar.HorlogesLues // horloge de manche et comptes a rebours : la marche des trames
+	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
+	Reloads     []types.ReloadRead
+	ReloadStats types.ReloadStats
+	// ControlHolds / ControlHoldStats : les commandes de deplacement tenues de la vue de controle, publiees
+	// en `stances[]` (document_stances_commandes.go).
+	ControlHolds     []types.ControlHold
+	ControlHoldStats types.ControlHoldStats
 	// AbilityCharges / AbilityChargeStats : les CHARGES RESTANTES lues sur les emplacements
 	// ARMES du composant i56 (cf. filmdec/ability_charges.go). Entree de DONNEES, comme
 	// AbilityImpulses — meme canal d'identite (i48), autre grandeur.

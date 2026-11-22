@@ -53,6 +53,7 @@ func statNamed(t *testing.T, name string) ScoreboardStat {
 // derniere emission a longueur egale) finissait sur zero. Le vidage ecarte est note comme repli.
 func TestSeriesDesCompteursNommesTiennentLeVidage(t *testing.T) {
 	recs := []types.StatRecord{
+		{TimeMS: 500, Slot: 10, Comps: map[int]types.StatValue{2: {A: 5}}}, // les eliminations qui bornent les compteurs nommes
 		{TimeMS: 1_000, Slot: 10, Comps: map[int]types.StatValue{6: {A: 1, B: 218}}},
 		{TimeMS: 2_000, Slot: 10, Comps: map[int]types.StatValue{6: {A: 0, B: 0}}},
 	}
@@ -75,6 +76,7 @@ func TestSeriesDesCompteursNommesTiennentLeVidage(t *testing.T) {
 // et une emission a valeur negative est jetee et notee.
 func TestSerieMaximaleADeuxEmissions(t *testing.T) {
 	recs := []types.StatRecord{
+		{TimeMS: 500, Slot: 10, Comps: map[int]types.StatValue{2: {A: 5}}}, // les eliminations qui bornent les compteurs nommes
 		{TimeMS: 1_000, Slot: 10, Comps: map[int]types.StatValue{5: {A: 126, B: 1}}},
 		{TimeMS: 2_000, Slot: 10, Comps: map[int]types.StatValue{5: {A: 271, B: 2}}},
 		{TimeMS: 3_000, Slot: 10, Comps: map[int]types.StatValue{5: {A: 0, B: 0}}},
@@ -94,6 +96,7 @@ func TestSerieMaximaleADeuxEmissions(t *testing.T) {
 // suite jointe et notee.
 func TestSuiteJointeNoteLesEmissionsEcartees(t *testing.T) {
 	recs := []types.StatRecord{
+		{TimeMS: 500, Slot: 10, Comps: map[int]types.StatValue{2: {A: 5}}}, // les eliminations qui bornent les compteurs nommes
 		{TimeMS: 1_000, Slot: 10, Comps: map[int]types.StatValue{6: {A: 1, B: 11}}},
 		{TimeMS: 2_000, Slot: 10, Comps: map[int]types.StatValue{6: {A: 2, B: 118}}},
 		{TimeMS: 3_000, Slot: 10, Comps: map[int]types.StatValue{6: {A: 3, B: 120}}},

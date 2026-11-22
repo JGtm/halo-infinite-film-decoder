@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 125
-empreinte-stockee 8d17e625ce2e53c8
-empreinte-servie 8d17e625ce2e53c8
-empreinte-cuite 9254aadd381c8b1f
+schema 126
+empreinte-stockee dffaa24b27dbdad1
+empreinte-servie dffaa24b27dbdad1
+empreinte-cuite a0cc165ccb657c4f
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -308,6 +308,7 @@ Coverage
   ContinuousFire json:"continuousFire,omitempty" *ContinuousFireCoverage
   DeathsPaths json:"deathsPaths,omitempty" *DeathsPathsCoverage
   Decoder json:"decoder,omitempty" *DecoderCoverage
+  Eliminations json:"eliminations,omitempty" *EliminationCoverage
   Equipment json:"equipment,omitempty" *EquipmentCoverage
   EquipmentChanges json:"equipmentChanges,omitempty" *EquipmentChangeCoverage
   Fallbacks json:"fallbacks,omitempty" []FallbackHit
@@ -330,6 +331,7 @@ Coverage
   Pickups json:"pickups,omitempty" *PickupCoverage
   Placements json:"placements,omitempty" *EquipmentPlacementCoverage
   Projectiles json:"projectiles,omitempty" *ProjectileCoverage
+  Reloads json:"reloads,omitempty" *ReloadCoverage
   Score json:"score,omitempty" *ScoreCoverage
   ScoreActions json:"scoreActions,omitempty" *ScoreActionCoverage
   Seats json:"seats,omitempty" *SeatCoverage
@@ -382,6 +384,26 @@ DecoderCoverage
   ProfileRev json:"profileRev" string
   Registry json:"registry,omitempty" *RegistryCoverage
   SourceRev json:"sourceRev" string
+Elimination
+  Headshot json:"headshot,omitempty" *bool
+  Perfect json:"perfect,omitempty" *bool
+  T json:"t" int
+  Victim json:"victim,omitempty" string
+  XUID json:"xuid" string
+EliminationCoverage
+  Eliminations json:"eliminations" int
+  HeadAmbiguous json:"headAmbiguous" int
+  HeadGuarded json:"headGuarded" int
+  HeadNo json:"headNo" int
+  HeadNoCounter json:"headNoCounter" int
+  HeadOrphanRises json:"headOrphanRises" int
+  HeadUnknown json:"headUnknown" int
+  HeadYes json:"headYes" int
+  PerfectAmbiguous json:"perfectAmbiguous" int
+  PerfectOrphans json:"perfectOrphans" int
+  PerfectUnknown json:"perfectUnknown" int
+  PerfectYes json:"perfectYes" int
+  WithVictim json:"withVictim" int
 EquipmentChange
   From json:"from" int
   Gap json:"gap,omitempty" int
@@ -553,6 +575,14 @@ FlagSpan
   X json:"x" float32
   XUID json:"xuid" *string
   Y json:"y" float32
+FrozenRound
+  Round json:"round" int
+  Values json:"values" map[string]int
+FrozenRoundsCoverage
+  Discarded json:"discarded,omitempty" int
+  Expected json:"expected" int
+  PlayersWithout json:"playersWithout" int
+  Read json:"read" int
 GaugePoint
   T json:"t" int
   V json:"v" float32
@@ -822,6 +852,20 @@ MedalCoverage
   NoOrigin json:"noOrigin" int
   Published json:"published" int
   UnknownName json:"unknownName" int
+MedalDescription
+  Text json:"i18n_text,omitempty" map[string]string
+MedalLabel
+  Description json:"description,omitempty" *MedalDescription
+  Difficulty json:"difficulty,omitempty" string
+  Img json:"img,omitempty" string
+  Sprite json:"sprite,omitempty" *MedalSprite
+  Text json:"i18n_text,omitempty" map[string]string
+MedalSprite
+  Height json:"height" int
+  Left json:"left" int
+  Sheet json:"sheet" string
+  Top json:"top" int
+  Width json:"width" int
 NeutralDeath
   FeedMs json:"feedMs" int
   Img json:"img,omitempty" string
@@ -928,6 +972,7 @@ PickupCoverage
 PlayerScore
   Assists json:"assists" ScoreSeries
   Deaths json:"deaths" ScoreSeries
+  FrozenRounds json:"frozenRounds,omitempty" []FrozenRound
   Kills json:"kills" ScoreSeries
   Score json:"score" ScoreSeries
   Stats json:"stats,omitempty" map[string]ScoreSeries
@@ -968,6 +1013,19 @@ RegistryCoverage
   Fingerprint json:"fingerprint" string
   NamedSlots json:"namedSlots" int
   Status json:"status" string
+Reload
+  Place json:"place" int
+  T json:"t" int
+ReloadCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  ClosedFrames json:"closedFrames" int
+  Copies json:"copies" int
+  Frames json:"frames" int
+  Published json:"published" int
+  Read json:"read" int
+  StoppedFrames json:"stoppedFrames" int
+  WithoutPlayer json:"withoutPlayer" int
 ReplayDocument
   Abilities json:"abilities,omitempty" []AbilityRead
   AbilityCharges json:"abilityCharges,omitempty" []AbilityCharge
@@ -983,6 +1041,7 @@ ReplayDocument
   Coverage json:"coverage,omitempty" *Coverage
   Damage json:"damage,omitempty" []Damage
   DurationMS json:"durationMs,omitempty" int
+  Eliminations json:"eliminations,omitempty" []Elimination
   EquipmentChanges json:"equipmentChanges,omitempty" []EquipmentChange
   EquipmentEpisodes json:"equipmentEpisodes,omitempty" []EquipmentEpisode
   EquipmentPlacements json:"equipmentPlacements,omitempty" []EquipmentPlacement
@@ -1007,6 +1066,7 @@ ReplayDocument
   MapObjectives json:"mapObjectives,omitempty" *MapObjectives
   MapWeaponPads json:"mapWeaponPads,omitempty" *MapWeaponPads
   MatchID json:"matchId" string
+  MedalLabels json:"medalLabels,omitempty" map[string]MedalLabel
   Medals json:"medals,omitempty" []Medal
   NeutralDeaths json:"neutralDeaths,omitempty" []NeutralDeath
   ObjectiveObjects json:"objectiveObjects,omitempty" []ObjectiveObjectLife
@@ -1015,6 +1075,7 @@ ReplayDocument
   PadPickups json:"padPickups,omitempty" []PadPickup
   Pickups json:"pickups,omitempty" []Pickup
   Projectiles json:"projectiles,omitempty" []Projectile
+  Reloads json:"reloads,omitempty" []Reload
   RespawnCountdowns json:"respawnCountdowns,omitempty" []RespawnCountdown
   RiftPoses json:"riftPoses,omitempty" []RiftPose
   Roster json:"roster,omitempty" []RosterEntry
@@ -1094,12 +1155,17 @@ ScoreActionCoverage
   OutsideTree json:"outsideTree" int
   Published json:"published" int
   ScoreMessages json:"scoreMessages" int
+  ScoreboardBehind json:"scoreboardBehind" int
+  ScoreboardCompared json:"scoreboardCompared" int
+  ScoreboardMissing json:"scoreboardMissing" int
   Scored json:"scored" int
   StoppedFrames json:"stoppedFrames" int
+  TreeShift json:"treeShift" int
   UnconfirmedRank json:"unconfirmedRank" int
   Unrelated json:"unrelated" int
   ViewAUnreadable json:"viewAUnreadable" bool
 ScoreCoverage
+  FrozenRounds json:"frozenRounds,omitempty" *FrozenRoundsCoverage
   ModeSupported json:"modeSupported" bool
   Oracle json:"oracle" string
   Points json:"points" int
@@ -1109,6 +1175,7 @@ ScoreCoverage
   RoundsDecreed json:"roundsDecreed,omitempty" bool
   RoundsUnplayed json:"roundsUnplayed,omitempty" []int
   RoundsWritten json:"roundsWritten,omitempty" []int
+  StatsGuarded json:"statsGuarded,omitempty" map[string]int
   StatsWithheld json:"statsWithheld,omitempty" int
   TeamIdentity json:"teamIdentity" string
   Truncated json:"truncated" bool
@@ -1211,9 +1278,19 @@ Stance
   Slot json:"slot" uint32
   T0 json:"t0" int
   T1 json:"t1" int
+StanceControlCoverage
+  Entries json:"entries" int
+  Holds json:"holds" int
+  InnerHoles json:"innerHoles" int
+  Intervals json:"intervals" int
+  NoPlayer json:"noPlayer" int
+  NoTrack json:"noTrack" int
+  Published json:"published" int
+  WithHole json:"withHole" int
 StanceCoverage
   Absent json:"absent,omitempty" bool
   ByKind json:"byKind,omitempty" map[string]int
+  Control json:"control,omitempty" *StanceControlCoverage
   Desyncs json:"desyncs" int
   Dropped json:"dropped,omitempty" int
   EventPacketsUnlocated json:"eventPacketsUnlocated,omitempty" int
@@ -1240,12 +1317,14 @@ Surface
   Z json:"z" float32
   ZB json:"zb" float32
 T0FilmCoverage
-  Burst json:"burst" int
+  Burst json:"burst,omitempty" int
   Detected json:"detected" bool
   MarginMs json:"marginMs" int64
-  Moving json:"moving" int
+  Moving json:"moving,omitempty" int
   Reason json:"reason,omitempty" string
-  Tracks json:"tracks" int
+  Source json:"source" string
+  StartRead json:"startRead" bool
+  Tracks json:"tracks,omitempty" int
 TeamCoverage
   Accord json:"accord" int
   Contradiction json:"contradiction" int
@@ -1363,11 +1442,13 @@ VehicleCoverage
   SilencesNonTranches json:"silencesNonTranches" int
   SpawnsHorsEmprise json:"spawnsHorsEmprise" int
   TurretCarrierBirthMismatch json:"turretCarrierBirthMismatch" int
+  TurretParentUnknown json:"turretParentUnknown" int
   TurretRides json:"turretRides" int
   TurretRidesAlreadyAboard json:"turretRidesAlreadyAboard" int
   TurretRidesDropped json:"turretRidesDropped" int
   TurretRidesOutOfWindow json:"turretRidesOutOfWindow" int
   Turrets json:"turrets" int
+  TurretsByRead json:"turretsByRead" int
   TurretsOnCarrier json:"turretsOnCarrier" int
   UnknownChassis json:"unknownChassis,omitempty" map[string]int
   Variants json:"variants" int

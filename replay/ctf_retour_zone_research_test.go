@@ -559,14 +559,6 @@ func ctfzNaissanceLaPlusProche(ns []ctfzNaissance, at int) (int, bool) {
 	return best, found
 }
 
-// abs rend la valeur absolue d'un entier.
-func abs(v int) int {
-	if v < 0 {
-		return -v
-	}
-	return v
-}
-
 // ctfzResetSecondes — la minuterie NUE, telle que le volet EXPIRATION la mesure (30 s au
 // premier tour, sur trois episodes ou aucun defenseur n'entre jamais). Elle entre ici comme
 // CONSTANTE DU MODELE : sans elle, la part de jauge que le temps seul consomme resterait

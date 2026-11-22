@@ -298,7 +298,7 @@ func (a *assemblage) poserEpisodesDEquipement() {
 }
 
 // composerLaCouverture assemble `doc.Coverage` et y pose les mesures faites par les passes
-// precedentes, puis le coup d envoi. C EST ICI QUE `doc.Coverage` NAIT : toute passe qui mesure
+// precedentes. C EST ICI QUE `doc.Coverage` NAIT : toute passe qui mesure
 // avant elle garde sa mesure et la pose apres.
 func (a *assemblage) composerLaCouverture() {
 	a.doc.Coverage = buildCoverage(a.ctx, a.shotCov, a.grenCov, a.objCov, a.reg, a.doc.OriginMs != nil, a.scoreCov)
@@ -345,14 +345,4 @@ func (a *assemblage) composerLaCouverture() {
 	// de l APPELANT, qui a decode les morts, et elle se pose ICI parce qu elle qualifie le meme
 	// decodage que `KillsRead` juste au-dessus. nil reste nil : le bloc absent dit « non lu ».
 	a.doc.Coverage.DeathsPaths = a.opt.Kills.Paths
-	// LE COUP D'ENVOI, date par le premier mouvement des pistes (cf. t0_film.go). Il se pose
-	// APRES la couverture et non a cote d'`OriginMs` (l. 528) pour deux raisons : son verdict
-	// vit dans `doc.Coverage`, qui n'existe qu'ici, et il se calcule sur les pistes PUBLIEES,
-	// posees juste au-dessus. SANS ORIGINE, PAS DE COUP D'ENVOI : le resultat est un instant
-	// sur l'horloge du fil, et sans origine cette horloge n'est pas etablie — publier une
-	// mesure calee sur zero la rendrait fausse de 3,6 s a 50,8 s selon le match.
-	if a.doc.OriginMs != nil {
-		a.doc.T0FilmMs, a.doc.Coverage.T0Film = DetectT0Film(a.ctx,
-			t0FilmTracksOf(a.doc.Tracks), a.interval, *a.doc.OriginMs, a.matchID)
-	}
 }

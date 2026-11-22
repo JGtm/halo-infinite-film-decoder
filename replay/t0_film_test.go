@@ -266,17 +266,6 @@ func TestT0FilmBurstCompteLesJoueursPasLesVies(t *testing.T) {
 	}
 }
 
-func TestT0FilmTracksOfConserveIdentiteEtPoints(t *testing.T) {
-	src := []Track{{XUID: "A", Points: []Point{{T: 3, X: 1, Y: 2, Z: 3}, {T: 4, X: 5}}}}
-	got := t0FilmTracksOf(src)
-	if len(got) != 1 || got[0].XUID != "A" || len(got[0].Points) != 2 {
-		t.Fatalf("conversion = %+v, attendu une piste nommee A a deux points", got)
-	}
-	if p := got[0].Points[0]; p.T != 3 || p.X != 1 || p.Y != 2 || p.Z != 3 {
-		t.Errorf("premier point = %+v, attendu {T:3 X:1 Y:2 Z:3}", p)
-	}
-}
-
 // TestTeleportationSeJugeSurLaDureEcoulee : deux points separes de plusieurs pas (un trou de replication)
 // qui avancent a 25 m/s sont une locomotion, a toute cadence ; le meme deplacement a 80 m/s est une
 // teleportation. Un seuil en distance par PAS en faisait une teleportation des que le trou depassait une frame.

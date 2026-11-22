@@ -114,9 +114,7 @@ const NomFraicheurDesDerivationsParTaille = fallback.NomFraicheurDesDerivationsP
 const NomXuidVidePourNomInconnu = fallback.NomXuidVidePourNomInconnu
 const NomIndiceEnCollisionJete = fallback.NomIndiceEnCollisionJete
 const NomPremiereOccurrenceSansConcordance = fallback.NomPremiereOccurrenceSansConcordance
-const NomPrecisionParArmePasseSautee = fallback.NomPrecisionParArmePasseSautee
 const NomCoequipiersPartisConstanteNulle = fallback.NomCoequipiersPartisConstanteNulle
-const NomDistancesDeToucheDesactivees = fallback.NomDistancesDeToucheDesactivees
 const NomCartePremierNomResolu = fallback.NomCartePremierNomResolu
 
 func NouveauCompteur() *fallback.Compteur { return fallback.NouveauCompteur() }
@@ -362,6 +360,7 @@ func ObjectiveTypeOf(gameVariantName string) string {
 
 const ObjectiveTypeSkull = objectives.ObjectiveTypeSkull
 const ObjectiveTypeZone = objectives.ObjectiveTypeZone
+const ObjectiveTypeVip = objectives.ObjectiveTypeVip
 const OriginRoundResidue = objectives.OriginRoundResidue
 
 type PlayerLine = types.PlayerLine

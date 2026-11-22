@@ -36,7 +36,12 @@ import (
 // 100 ms), 4,00 Mio a un point par seconde (1,00 Mio au-dessus de 3 Mio : la reference intacte pese a elle
 // seule 1,00 Mio). 500 ms est garde ; le plafond serre la mesure (4,75 Mio, 0,21 Mio de marge) pour que la
 // montee suivante pose la question. Rien d'autre n'a ete coupe : ni calque, ni build.
-const contractFixturesBudget = 4<<20 + 3<<18
+//
+// RELEVE A 5 111 808 OCTETS LE 2026-11-22 (schema 126) : les entrees figees des goldens portent
+// desormais les lectures d'horloge (`roundClock`, `respawnCountdowns`, `coverage.clocks` et deux
+// entrees de `layers` gagnent chaque fixture), et le jeu de huit passe de 4 936 939 a 4 992 442 octets,
+// au-dela de l'ancien plafond (4 980 736). Le plafond se releve de 131 072 octets (4<<20 + 7<<17) ; rien n'est coupe, ni calque ni build.
+const contractFixturesBudget = 4<<20 + 7<<17
 
 // TestContractFixturesTiennentDansLeBudget : le jeu entier tient-il sous le plafond, et
 // combien pese chaque fixture ?

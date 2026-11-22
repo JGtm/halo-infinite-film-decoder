@@ -78,3 +78,9 @@ func FlagFilmSignalsFrom(bursts []int, evs []NamedEvent) FlagFilmSignals {
 func (s FlagFilmSignals) IsFlagFilm() bool {
 	return s.Bursts > 0 && s.Captures > 0 && s.Captures <= s.Bursts && s.Steals > 0
 }
+
+// FlagFilmStats rend les statistiques que le verdict compte ([FlagFilmSignalsFrom]) : une lecture du verdict sur un film
+// dont la famille n'est pas celle du Drapeau ne lit que leurs emplacements ([NamedEventsFromAutreFamille]).
+func FlagFilmStats() []string {
+	return []string{StatFlagCaptures, StatFlagSteals, StatFlagGrabs}
+}

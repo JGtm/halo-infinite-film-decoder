@@ -27,7 +27,7 @@ type ComptesDesReplis struct {
 	// domaine, abandonnes (`grammar/signaux/statborg.go`, porte par [StatRecordsAvecReplis]).
 	EnregistrementsAbandonnes int
 	// ComposantsArretes : `repli_composants_statborg_arretes` — enregistrements GARDES dont la
-	// lecture des composants s est arretee avant le dernier annonce (`grammar/signaux/statborg.go`).
+	// lecture s est arretee sur un composant d index 56 ou plus, que le paquet ne lit pas, avant le dernier annonce (`grammar/signaux/statborg.go`).
 	ComposantsArretes int
 	// BandesParDefaut : `repli_bande_statborg_par_defaut` — films dont aucune table de datums ne porte
 	// la bande des joueurs : la lecture s'arrete aux huit premiers (`grammar/signaux/statborg_bande.go`).

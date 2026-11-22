@@ -68,7 +68,7 @@ import (
 // une règle d'attribution ici DOIT incrémenter cette révision, sinon le backfill
 // sautera des matchs à re-résumer. CE QUE CHAQUE RÉVISION A CHANGÉ, ET CE QU'ELLE
 // EXIGE COMME RECUISSON : usage_summary_chronicle.go, sa seule et unique chronique.
-const UsageSummaryRev = "us7"
+const UsageSummaryRev = "us8"
 
 // UsagePlayerSummary — les usages d'UN joueur sur UN match, prêt à persister.
 type UsagePlayerSummary struct {
@@ -290,7 +290,11 @@ func tallyUsagePlacements(doc *ReplayDocument, players *usageTallies, slotOwner 
 		if p.Owner < 0 {
 			continue
 		}
-		t := players.of(slotOwner.atOrJustBefore(uint32(p.Owner), p.T0))
+		owner := slotOwner.atOrJustBefore
+		if p.Origin == OriginDropped {
+			owner = slotOwner.atLacher
+		}
+		t := players.of(owner(uint32(p.Owner), p.T0))
 		if t == nil {
 			continue
 		}

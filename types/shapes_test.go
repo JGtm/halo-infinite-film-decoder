@@ -100,6 +100,8 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.ContinuousFireBurst{}},
 	{"grammar", types.ContinuousFireHole{}},
 	{"grammar", types.ContinuousFireStats{}},
+	{"grammar", types.ControlHold{}},
+	{"grammar", types.ControlHoldStats{}},
 	{"grammar", types.DeadState{}},
 	{"grammar", types.Death{}},
 	{"grammar", types.EquipmentChange{}},
@@ -134,6 +136,8 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.ProjectileDetonationStats{}},
 	{"grammar", types.ProjectileSample{}},
 	{"grammar", types.ProjectileTrack{}},
+	{"grammar", types.ReloadRead{}},
+	{"grammar", types.ReloadStats{}},
 	{"grammar", types.RosterListing{}},
 	{"grammar", types.RosterListingStats{}},
 	{"grammar", types.StatborgEntry{}},
@@ -155,6 +159,7 @@ var formesFigees = []typeDeContrat{
 	{"facts/objectives", types.ScorePoint{}},
 	{"facts/objectives", types.StatRecord{}},
 	{"facts/objectives", types.StatValue{}},
+	{"facts/objectives", types.StatFrozen{}},
 }
 
 // typesSansForme — LES TYPES DU PAQUET QUI NE SONT PAS DES STRUCTURES, ET QUI N ONT DONC PAS DE

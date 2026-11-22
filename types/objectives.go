@@ -105,6 +105,23 @@ type StatRecord struct {
 	// est lue dans les en-tetes de 5 bits du premier composant. Un compteur repart de zero a
 	// chaque manche : le total d'un match est la SOMME des manches, jamais la derniere valeur.
 	Round int
-	// Comps porte les composants effectivement transportes par cet enregistrement.
+	// Comps porte les composants de la manche en cours (index 0 a 27) effectivement transportes par cet
+	// enregistrement.
 	Comps map[int]StatValue
+	// Frozen porte les valeurs FIGEES des manches terminees que l'enregistrement transporte, par index du
+	// composant de la manche en cours dont elles sont la valeur figee (le composant `28 + cle` de
+	// l'archetype), une entree par manche terminee, dans l'ordre des manches. Elles appartiennent au
+	// joueur de la ligne a l'instant de l'enregistrement, pas au slot. Vide sur un enregistrement qui
+	// n'en porte pas.
+	Frozen map[int][]StatFrozen `json:",omitempty"`
+}
+
+// StatFrozen est la paire de valeurs d'un emplacement du tableau des scores telle que le film l'a figee
+// a la fin d'une manche terminee. La derniere manche d'un match n'est jamais figee.
+type StatFrozen struct {
+	// Round est la manche terminee, 0-based.
+	Round int
+	// A et B sont les deux valeurs de l'emplacement, dans l'unite du composant de la manche en cours ;
+	// une valeur que le film declare par defaut vaut 0.
+	A, B int64
 }

@@ -65,6 +65,9 @@ package source
 // l erreur change, la valeur rendue non. AUCUN OCTET N EST LU AUTREMENT — aucun appelant de
 // [Load], de [Paquets] ni des lecteurs de bits ne voit une valeur differente, et rien n est
 // candidat a un redecodage.
+//
+// A REVISION CONSTANTE (2026-11-22) : aucun octet n est lu autrement et aucune source de cette couche ne change ; les types de contrat que sa fermeture nomme (`types.ControlHold`, `types.ReloadRead`, deux champs de
+// `types.EquipmentCreation`) grandissent, et son golden est recopie au meme rang.
 const Rev = "source-2026-09-16.2"
 
 // L EMPREINTE DES SOURCES DE LA COUCHE VIT DANS UN GOLDEN, A COTE DE CETTE REVISION :

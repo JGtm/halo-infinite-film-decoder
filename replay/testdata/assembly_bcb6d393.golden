@@ -6,10 +6,10 @@
 
 ## AXE DE TEMPS
 10500 frames · intervalle 33 ms · duree 346500 ms
-schema 125 · titre halo_infinite
+schema 126 · titre halo_infinite
 version majeure du film : 40
 origine de la frame 0 sur l horloge du fil : 12904 ms
-coup d envoi date par le film : 35641 ms · 55/57 piste(s) en mouvement · rafale 5 · marge depuis la frame 0 : 22737 ms
+coup d envoi lu par l horloge de manche : 35220 ms · source roundClock · depart lu true · marge depuis la frame 0 : 22316 ms
 
 ## TRACES PUBLIEES — une trace est UNE VIE, pas un joueur (le slot migre a chaque reapparition)
 57 trace(s) · 56189 point(s) de grille
@@ -46,24 +46,24 @@ vies : 57/57 portent une equipe du film
 repartition des vies par designateur : 0 x24 · 1 x33
 
 ## TIRS — rattaches sur DISPONIBLES, et la ventilation de tout ce qui est ecarte
-1049 rattache(s) / 1078 disponible(s) = 97.3 %
-rejets : slot introuvable=29 · slot ambigu=0 · hors fenetre=0 · sans trace publiee=0
-somme de controle : rattaches + rejets = disponibles -> 1078 = 1078 (equilibre : true)
+1177 rattache(s) / 1209 disponible(s) = 97.4 %
+rejets : slot introuvable=32 · slot ambigu=0 · hors fenetre=0 · sans trace publiee=0
+somme de controle : rattaches + rejets = disponibles -> 1209 = 1209 (equilibre : true)
 verdict : nominal
-1049 tir(s) publie(s) · 1046 avec un cap de visee lisible · 1049 avec une arme nommee
+1177 tir(s) publie(s) · 1173 avec un cap de visee lisible · 1177 avec une arme nommee
 
 ## GRENADES — le lancer porte son auteur ; ce qui se mesure est OU il est pose
 51 rattache(s) / 55 disponible(s) = 92.7 %
 rejets : slot introuvable=4 · slot ambigu=0 · hors fenetre=0 · sans trace publiee=0
 somme de controle : rattaches + rejets = disponibles -> 55 = 55 (equilibre : true)
 verdict : nominal
-par source : projectile=43 (aucun pont) · biped=8 (le pont a servi)
+par source : projectile=51 (aucun pont) · biped=0 (le pont a servi)
 par type : Dynamo=7 · Frag=33 · Plasma=7 · Spike=4
 
 ## PROJECTILES — le dernier point est la DERNIERE POSITION REPLIQUEE, jamais un impact
-108 trajectoire(s) · 2271 point(s) de grille
+120 trajectoire(s) · 2930 point(s) de grille
 2 se terminent sur `projectile-at-rest-state` — le SEUL champ qui certifie une fin de vol
-couverture : 108 piste(s) decodee(s) · 108 publiee(s) · 0 coupee(s) a un pas impossible
+couverture : 120 piste(s) decodee(s) · 120 publiee(s) · 0 coupee(s) a un pas impossible
 
 ## INVENTAIRE — lu aux images-cles, jamais interpole entre deux
 137 etat(s) publie(s) · 107 avec grenades lues · 107 avec munitions lues
@@ -138,7 +138,7 @@ couverture : 57 vie(s) publiee(s) · camo 2 vie(s) / 3 episode(s) · surbouclier
   slot=536 t=[9295, 9341] ancre=(5.49, -1.61, 0.86)
 
 ## OBJETS D EQUIPEMENT — objets DEPLOYES et objets LACHES a la mort, par famille et origine
-calibre=true decoupage="9/5" · 126 vie(s) d objet · 240 ancre(s) -> 115 confirmee(s) par l oracle de position -> 101 pose(s)
+calibre=true decoupage="9/5" · 115 vie(s) d objet · 239 ancre(s) -> 115 confirmee(s) par l oracle de position -> 101 pose(s)
 101 nommee(s) · 0 `other` (nature non etablie : le manifeste ne les revendique pas) · 97 avec poseur mesure · 90 avec cap de visee
 origine lue : 0 deployee(s) (piece engendree) · 94 lachee(s) · 7 inconnue(s)
 provenance : 1 evenement(s) 103 lu(s) sur 2730 liste(s) d evenements non vides
@@ -264,11 +264,11 @@ provenance : 1 evenement(s) 103 lu(s) sur 2730 liste(s) d evenements non vides
   grenade_frag dropped 0xbcabbe43 t=[10251, 10369] pos=(17.40, 4.53, 1.16) poseur=567 cap=277.5 deg
 
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
-balaye=true · bande 579 slot(s) · 199 ancre(s) -> 195 acceptee(s) -> 159 retenue(s) par l IDENTITE (36 ecartee(s))
+balaye=true · bande 579 slot(s) · 195 ancre(s) -> 193 acceptee(s) -> 159 retenue(s) par l IDENTITE (34 ecartee(s))
 99 lachee(s) a une mort · 60 apparue(s) sans mort a proximite, dont 34 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
 16 grappe(s) -> 10 socle(s) publie(s) · 34 occupation(s) : 23 datee(s) · 3 sans passage · 8 jamais videe(s)
 3 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 172 creation(s) acceptee(s) -> 6 retenue(s) par l IDENTITE `powerup_*` -> 1 socle(s) publie(s)
+POWER-UPS (voie ti=37) — balaye=true · 171 creation(s) acceptee(s) -> 6 retenue(s) par l IDENTITE `powerup_*` -> 1 socle(s) publie(s)
   socle 0 0xB619D84A pos=(-0.74, 20.50, -2.92) apparitions=[0 5998] cycle=non etabli
     presence t0=0 prouvee jusqu a 820, absente a 1427
     presence t0=5998 prouvee jusqu a 9307, absente a 9913
@@ -339,6 +339,7 @@ entrees 15 · sieges 8 · lus 8 · tirs 0 · apparies 7 · ouvertes 0 · sans pl
 arrivants 7 · presences closes 7 · sans presence 0 · occupants au plus 8 · depassements 0 · relais bornes 0 · sans table false
 
 ## REPLIS DECLENCHES — la part de ce document qui ne vient PAS d une lecture du film
+repli_effet_d_ecran_par_la_fin_de_la_grenade     1
 repli_fin_de_vie_sans_tableau_api                6
 repli_identite_premier_occupant_du_siege         29
 repli_impulsion_fusionnee_dans_le_geste          4
@@ -419,19 +420,19 @@ groupe "arenaflagevents.lua+flageventstubs.lua" (absent : false) · trames 21864
 première : t=1081 xuid=2547408409520575 assistPersonalScore 50 cible="" · dernière : t=10270 xuid=2669605393856835 flagCaptureScore 300 cible=""
 
 ## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
-873 message(s) · 760 d'arme · 627 touche(s) · 542 posée(s) · 76 sans auteur · 9 sans victime · 0 avant la frame 0 · 0 après la fin · 4 joueur(s) dont 11 suffisant(s) (couverture >= 0.7, doublons < 1.2)
+873 message(s) · 760 d'arme · 627 touche(s) · 617 posée(s) · 1 sans auteur · 9 sans victime · 0 avant la frame 0 · 0 après la fin · 6 joueur(s) dont 11 suffisant(s) (couverture >= 0.7, doublons < 1.2)
 800 ligne(s) de dégât dont 234 mesurée(s) · 8 message(s) sans piste · 0 touche(s) et 2 dégât(s) sur soi · 0 trame(s) arrêtée(s) et 0 de vitalités non lues sur 21864
-  2544014377305993 : 53 tir(s) dont 45 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.85 · doublons 0.00 · infligé 0.0 · subi 1299.9 · suffisant false
-  2547408409520575 : 275 tir(s) dont 240 écrit(s) · 113 message(s) · 113 touche(s) · couverture 0.87 · doublons 1.00 · infligé 2117.6 · subi 2274.2 · suffisant true
-  2590497315793132 : 121 tir(s) dont 109 écrit(s) · 35 message(s) · 35 touche(s) · couverture 0.90 · doublons 1.00 · infligé 895.5 · subi 1921.2 · suffisant true
-  2603225103667623 : 44 tir(s) dont 39 écrit(s) · 26 message(s) · 26 touche(s) · couverture 0.89 · doublons 1.00 · infligé 850.9 · subi 1042.0 · suffisant true
-  2623439693412443 : 264 tir(s) dont 231 écrit(s) · 128 message(s) · 128 touche(s) · couverture 0.88 · doublons 1.00 · infligé 3277.7 · subi 1873.2 · suffisant true
-  2653441341920331 : 96 tir(s) dont 79 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.82 · doublons 0.00 · infligé 0.0 · subi 925.3 · suffisant false
-  2669605393856835 : 80 tir(s) dont 71 écrit(s) · 57 message(s) · 41 touche(s) · couverture 0.89 · doublons 1.39 · infligé 2067.8 · subi 2049.6 · suffisant false
+  2544014377305993 : 53 tir(s) dont 53 écrit(s) · 27 message(s) · 27 touche(s) · couverture 1.00 · doublons 1.00 · infligé 785.0 · subi 1299.9 · suffisant true
+  2547408409520575 : 275 tir(s) dont 268 écrit(s) · 113 message(s) · 113 touche(s) · couverture 0.97 · doublons 1.00 · infligé 2117.6 · subi 2274.2 · suffisant true
+  2590497315793132 : 121 tir(s) dont 118 écrit(s) · 35 message(s) · 35 touche(s) · couverture 0.98 · doublons 1.00 · infligé 895.5 · subi 1921.2 · suffisant true
+  2603225103667623 : 46 tir(s) dont 46 écrit(s) · 26 message(s) · 26 touche(s) · couverture 1.00 · doublons 1.00 · infligé 850.9 · subi 1042.0 · suffisant true
+  2623439693412443 : 264 tir(s) dont 260 écrit(s) · 128 message(s) · 128 touche(s) · couverture 0.98 · doublons 1.00 · infligé 3277.7 · subi 1873.2 · suffisant true
+  2653441341920331 : 96 tir(s) dont 92 écrit(s) · 48 message(s) · 48 touche(s) · couverture 0.96 · doublons 1.00 · infligé 842.6 · subi 925.3 · suffisant true
+  2669605393856835 : 80 tir(s) dont 79 écrit(s) · 57 message(s) · 41 touche(s) · couverture 0.99 · doublons 1.39 · infligé 2067.8 · subi 2049.6 · suffisant false
   2671702200150518 : 0 tir(s) dont 0 écrit(s) · 0 message(s) · 0 touche(s) · couverture 0.00 · doublons 0.00 · infligé 0.0 · subi 230.1 · suffisant false
-  2701236422544437 : 204 tir(s) dont 68 écrit(s) · 85 message(s) · 85 touche(s) · couverture 0.33 · doublons 1.00 · infligé 931.0 · subi 1250.0 · suffisant false
-  2713751699127665 : 77 tir(s) dont 65 écrit(s) · 81 message(s) · 43 touche(s) · couverture 0.84 · doublons 1.88 · infligé 1216.9 · subi 1324.8 · suffisant false
-  2785135846704150 : 145 tir(s) dont 122 écrit(s) · 159 message(s) · 80 touche(s) · couverture 0.84 · doublons 1.99 · infligé 2300.8 · subi 1694.9 · suffisant false
+  2701236422544437 : 204 tir(s) dont 74 écrit(s) · 85 message(s) · 85 touche(s) · couverture 0.36 · doublons 1.00 · infligé 931.0 · subi 1250.0 · suffisant false
+  2713751699127665 : 78 tir(s) dont 74 écrit(s) · 81 message(s) · 43 touche(s) · couverture 0.95 · doublons 1.88 · infligé 1216.9 · subi 1324.8 · suffisant false
+  2785135846704150 : 145 tir(s) dont 135 écrit(s) · 159 message(s) · 80 touche(s) · couverture 0.93 · doublons 1.99 · infligé 2300.8 · subi 1694.9 · suffisant false
 première : t=1044 2547408409520575 -> 2713751699127665 0000b238 w=0x48C19D2D42C9679F · dernière : t=10267 2590497315793132 -> 2547408409520575 bb1a095b w=0xF408190F42C9679F
 dégât, première : t=1044 2547408409520575 -> 2713751699127665 0000b238 bouclier 11.8 corps 0.0 · dernière : t=10267 2590497315793132 -> 2547408409520575 bb1a095b bouclier 23.1 corps 0.0
 

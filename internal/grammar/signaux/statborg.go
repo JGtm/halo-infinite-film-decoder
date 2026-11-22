@@ -28,6 +28,10 @@ import (
 //
 //	puis, par index : [5 bits MANCHE][5 bits MANCHE][valeur A][valeur B][2 drapeaux][conditionnelles]
 //
+// pour les compteurs de la manche en cours (index 0 a 27). Les index 28 a 55 portent les valeurs figees
+// des manches terminees, de grammaire propre (`statborg_figees.go`) ; 56 et 57 (issues des manches,
+// entree de la ligne) ne sont pas lus ici.
+//
 // Chaque constante a ete lue sur 1 078 en-tetes et 2 708 lectures de composant issus d'une
 // capture Cheat Engine, pas supposee :
 //   - le bit qui precede l'identifiant vaut 1 dans 1 077/1 078 (c'est le code de record DELTA) ;
@@ -129,6 +133,11 @@ const (
 	statDenseMaskBits = 64
 	// statMaxComp borne les index de composant de l'archetype (58 composants).
 	statMaxComp = 58
+	// statCompteursDeManche est le nombre de composants de tete de l'archetype qui portent les valeurs
+	// de la manche en cours (`statborg-current-round-value-stat-component`, index 0 a 27) : ce sont
+	// eux, et eux seuls, que le lecteur du jeu FUN_140C18794 lit, et que [decodeStatComponent]
+	// reproduit. Les suivants (valeurs figees des manches, issues, entree) ont d'autres lecteurs.
+	statCompteursDeManche = 28
 	// statCompIndexBits est la largeur d'un index de composant dans la liste creuse.
 	statCompIndexBits = 6
 	// statMaxCompPerRecord : un enregistrement porte de 1 a 7 composants (compte sur
@@ -179,7 +188,11 @@ func scanFrameAvecReplis(pay []byte, tMS, slotMax int, c *LectureDuStatborg) []t
 		if !ok {
 			continue
 		}
-		comps, round, arrete := decodeComponentsAvecArret(pay, at, idx)
+		comps, figees, round, arrete := lireLesComposants(pay, at, idx)
+		// Un enregistrement sans compteur de la manche n'a pas de numero de manche (il est lu dans les
+		// en-tetes du premier compteur) : il n'est pas rendu, meme quand il porte des valeurs figees. Le
+		// moteur les reemet a la fin d'une manche ou du film ; leur premiere emission, au debut de la
+		// manche suivante, porte des compteurs.
 		if len(comps) == 0 || !statCountersInDomain(comps) {
 			abandonnes++
 			continue
@@ -187,7 +200,7 @@ func scanFrameAvecReplis(pay []byte, tMS, slotMax int, c *LectureDuStatborg) []t
 		if arrete {
 			arretes++
 		}
-		out = append(out, types.StatRecord{TimeMS: tMS, Slot: slot, Round: round, Comps: comps})
+		out = append(out, types.StatRecord{TimeMS: tMS, Slot: slot, Round: round, Comps: comps, Frozen: figees})
 	}
 	if c != nil {
 		c.EnregistrementsAbandonnes += abandonnes
@@ -281,31 +294,68 @@ func denseComponentList(pay []byte, p int) ([]int, bool) {
 // valeur, un couple depareille est un faux positif.
 //
 // Les composants suivants ne sont pas re-contraints — leurs largeurs sont chainees, une lecture
-// qui derape s'arrete d'elle-meme.
+// qui derape s'arrete d'elle-meme, et l'enregistrement est abandonne quand elle echoue sur un
+// composant que ce paquet sait lire ([lireLesComposants]).
 func decodeComponents(pay []byte, at int, idx []int) (map[int]types.StatValue, int) {
 	out, round, _ := decodeComponentsAvecArret(pay, at, idx)
 	return out, round
 }
 
-// decodeComponentsAvecArret est [decodeComponents], plus `arrete` : un composant non decodable a
-// ARRETE la boucle avant le dernier annonce — le verdict de `repli_composants_statborg_arretes`.
+// decodeComponentsAvecArret est [lireLesComposants] sans les valeurs figees.
 func decodeComponentsAvecArret(pay []byte, at int, idx []int) (map[int]types.StatValue, int, bool) {
+	out, _, round, arrete := lireLesComposants(pay, at, idx)
+	return out, round, arrete
+}
+
+// lireLesComposants lit les composants listes, dans l'ordre, chacun par le lecteur de sa famille : les
+// compteurs de la manche (index 0 a 27, [decodeStatComponent]) et les valeurs figees des manches
+// terminees (28 a 55, [decodeFrozenComponent], rangees par index du compteur dont elles sont la valeur).
+// Il rend aussi la MANCHE de l'enregistrement et `arrete` : la lecture s'est ARRETEE avant le dernier
+// composant annonce — le verdict de `repli_composants_statborg_arretes`.
+//
+// UN COMPOSANT D'UNE FAMILLE LUE ICI QUI NE SE DECODE PAS PROUVE UN ANCRAGE FORTUIT. Ces deux lecteurs
+// reproduisent ceux du jeu : une emission du moteur se relit toujours en entier, dans son paquet. Si l'un
+// echoue, les bits lus ne sont pas un enregistrement, et ses composants deja lus sont du bruit au meme
+// titre : rien n'est rendu, et l'enregistrement est abandonne. Seul l'arret sur un composant d'un autre
+// lecteur (issues des manches, entree de la ligne, index 56 et 57) garde les composants lus avant lui ;
+// ce composant n'est pas lu, et un enregistrement qui ne porte rien avant lui ne rend rien.
+func lireLesComposants(pay []byte, at int, idx []int) (
+	map[int]types.StatValue, map[int][]types.StatFrozen, int, bool,
+) {
 	h1 := int(source.BitsTronques(pay, at, statHdrBits))
 	h2 := int(source.BitsTronques(pay, at+statHdrBits, statHdrBits))
 	if h1 != h2 || h1 > StatborgMancheMax {
-		return nil, 0, false
+		return nil, nil, 0, false
 	}
 	out := make(map[int]types.StatValue, len(idx))
+	var figees map[int][]types.StatFrozen
 	q := at
 	for _, i := range idx {
-		v, w, ok := decodeStatComponent(pay, q)
-		if !ok {
-			return out, h1, true
+		switch {
+		case i < statCompteursDeManche:
+			v, w, ok := decodeStatComponent(pay, q)
+			if !ok {
+				return nil, nil, 0, false
+			}
+			out[i] = v
+			q += w
+		case i < statFigeesFin:
+			vals, w, ok := decodeFrozenComponent(pay, q)
+			if !ok {
+				return nil, nil, 0, false
+			}
+			if len(vals) > 0 {
+				if figees == nil {
+					figees = make(map[int][]types.StatFrozen, statComposantsFiges)
+				}
+				figees[i-statCompteursDeManche] = vals
+			}
+			q += w
+		default:
+			return out, figees, h1, true
 		}
-		out[i] = v
-		q += w
 	}
-	return out, h1, false
+	return out, figees, h1, false
 }
 
 // decodeStatComponent lit un composant et rend sa largeur consommee. Reproduit

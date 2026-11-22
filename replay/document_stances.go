@@ -42,8 +42,9 @@ type Stance struct {
 	// Slot designe la Track concernee — donc une VIE, pas un joueur (meme regle que les autres
 	// calques : le slot migre aux reapparitions).
 	Slot uint32 `json:"slot"`
-	// Kind est le genre d etat : `crouch`, `slide`, `clamber`, `sprint` (LUS) ou `jumpDerived`
-	// (DERIVE — cf. `types.MovementJumpDerived`). Un genre inconnu du client ne doit recevoir
+	// Kind est le genre d etat : `crouch`, `slide`, `clamber`, `sprint` (LUS dans les composants du bipede),
+	// `moveCommand` (LU dans la vue de controle, cf. document_stances_commandes.go) ou
+	// `jumpDerived` (DERIVE — cf. `types.MovementJumpDerived`). Un genre inconnu du client ne doit recevoir
 	// AUCUN libelle — jamais celui d un voisin.
 	Kind string `json:"kind"`
 	// T0 / T1 bornent l intervalle sur le meme axe que `Point.T`. T1 est soit la transition
@@ -55,14 +56,17 @@ type Stance struct {
 // StanceCoverage dit ce que la marche a lu et ce qu elle a jete — les denominateurs sans
 // lesquels « N intervalles » ne se juge pas.
 //
-// UNE COUVERTURE PARTIELLE EST UN RESULTAT, PAS UN ECHEC : la plupart des vies ne s accroupissent
-// ni ne glissent, et zero intervalle sur un film sans transition est la valeur juste.
+// UNE COUVERTURE PARTIELLE EST UN RESULTAT, PAS UN ECHEC : zero intervalle sur un film sans transition est
+// la valeur lue. Les composants d accroupissement (`i29`) et de glissade (`i62`) ne se lisent sur aucun film
+// de version de film 37 et plus : ces versions ne les annoncent pas dans les deltas du bipede. Leurs intervalles
+// manquent parce que le film ne les ecrit pas, et zero accroupissement publie ne dit pas que personne ne s est
+// accroupi.
 type StanceCoverage struct {
 	// Scanned dit que le balayage a eu lieu. Faux = il a refuse, et tout le reste est sans
 	// valeur.
 	Scanned bool `json:"scanned"`
-	// Absent dit que l archetype bipede du film ne declare AUCUN des trois composants — un fait
-	// mesure, distinct d un film ou personne ne bouge.
+	// Absent dit que l archetype bipede du film ne declare AUCUN des quatre composants lus (accroupi,
+	// glissade, escalade, sprint) — un fait mesure, distinct d un film ou personne ne bouge.
 	Absent bool `json:"absent,omitempty"`
 	// Records est le nombre de records `ti=35` que la marche a traverses, Desyncs ceux qu elle
 	// n a pas pu finir. Mesure de reference : 3 desyncs sur 97 447 records (`bfecd02b`).
@@ -107,6 +111,9 @@ type StanceCoverage struct {
 	RefusedNewFalseReads  int `json:"refusedNewFalseReads,omitempty"`
 	RefusedNewLostCreates int `json:"refusedNewLostCreations,omitempty"`
 	RefusedNewUndecided   int `json:"refusedNewUndecided,omitempty"`
+	// Control dit ce que la lecture de la commande de deplacement tenue a rendu et ce que la publication en a
+	// fait (`moveCommand` ; document_stances_commandes.go). Absent quand la vue de controle n a pas ete lue.
+	Control *StanceControlCoverage `json:"control,omitempty"`
 	// MapWidths est le triplet de largeurs d axe employe par le chemin absolu d `i0`. PUBLIE
 	// parce que c est le pre-requis le plus facile a oublier : un triplet qui n est pas celui de
 	// la carte du match rend la marche muette (cf. `grammar/movement_states.go`).

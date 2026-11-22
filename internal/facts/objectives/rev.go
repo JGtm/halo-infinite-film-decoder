@@ -308,6 +308,27 @@ package objectives
 // Les enregistrements, les entrees et les plages ne changent pas ; les faits persistes de la couche et les calques dates `objectives-2026-11-15.2` deviennent `redecoder`. Aucun backlog
 // killsource ne s'ouvre.
 
+// ENTREE `objectives-2026-11-22` (2026-11-22, un compteur nomme du tableau ne depasse pas les eliminations du joueur dans la manche ; huit compteurs de mode nommes ; les valeurs figees par manche) : LA SORTIE CHANGE. Quand le film porte
+// deux emissions d un meme composant, une emission mal alignee pouvait gagner la selection de la suite avec une valeur impossible. Une emission dont un compteur d eliminations
+// nomme (tete, corps a corps, grenades, armes lourdes) ou la plus longue serie depasse les eliminations du joueur dans la manche est ecartee avant la selection, comptee et publiee
+// (`coverage.score.statsGuarded`, [named_kill_bound.go]) ; un compteur dont toutes les emissions sont ecartees est absent, jamais remis a zero. `scoreTimeline.players[].stats` des
+// joueurs concernes change ; les entrees et les plages ne changent pas. Les faits persistes de la couche et les calques dates `objectives-2026-11-15.3`
+// deviennent `redecoder`. Aucun backlog killsource ne s'ouvre.
+// A LA MEME VALEUR (la version n est pas publiee) : (1) HUIT COMPTEURS DE MODE sont nommes ([namedStatSlots]) : `flag_returners_killed` (`22 B`), `flag_kills_as_returner` (`25 A`), `flag_kills_as_carrier` (`24 B`,
+// prouve par la seule definition du film), `zone_offensive_kills` (`21 B`), `zone_defensive_kills` (`22 A`), `vip_kills` (`20 B`), `vip_assists` (`21 A`), `vip_kills_as_vip` (`21 B`) ; `objectives[]` gagne ces
+// actions sur les films de Drapeau et de zones (un film VIP n en publie rien tant que l appelant ne passe pas la famille). (2) LES VALEURS FIGEES : [FrozenRoundsByOwner] rend, par joueur et par manche terminee,
+// les valeurs que le film a figees (`frozen_rounds.go`, publiees par le document en `scoreTimeline.players[].frozenRounds[]`) ; `types.StatRecord` gagne `Frozen`. (3) Le calque `eliminations[]` du document
+// derive du tableau des scores et se date par cette revision (`couchesDesCalques`). Les totaux publies du tableau ne changent pas.
+
+// ENTREE `objectives-2026-11-22.2` (2026-11-22, une emission est jetee en entier quand la table du mode nomme ses deux canaux comme compteurs et qu un des deux sort du domaine d un compteur) : LA SORTIE CHANGE. Les deux canaux d un composant sortent de la
+// meme emission : quand [namedStatSlots] (la table de la famille du mode) nomme l emplacement lu ET son frere (meme composant, autre cote, redondants compris), un canal negatif ou au-dela de [statMaxModeScore] sur l un des deux prouve que
+// l emission est mal alignee, et la valeur de l autre ne vaut rien non plus : [emissionHorsDomaine] la jette en entier, sur les deux emplacements, dans les deux marches des series, par le meme enregistreur que le composant du score de mode.
+// Avant, chaque canal n etait juge que seul : le canal lu d une emission dont le canal frere etait aberrant (`12` d un cote, `7034` de l autre en Drapeau, `24 A` et `24 B`) entrait dans la serie comme un saut de compteur, et le deroulage en
+// faisait douze vols au meme instant. UN COMPOSANT DONT LA TABLE NE NOMME QU UN COTE (`2 A`, `22 A` en zones) N EST JUGE QUE SUR LA VALEUR NEGATIVE DU CANAL LU, ET UN CANAL QUE LA TABLE NE NOMME PAS N EST JAMAIS JUGE : en zones `22 B` est une duree (470, 555, ... 3670) et `22 A` (`zone_defensive_kills`) reste intact ; en VIP `23 B` n est pas nomme. Une lecture
+// hors de toute famille (frags, morts et assistances du pont d identite et du tableau des scores, series des composants publies) ne nomme aucun frere : seule la valeur negative du canal lu est jugee, comme avant. Les enregistrements, les entrees et
+// les plages ne changent pas : les faits persistes portent les enregistrements bruts, la regle s applique a la lecture des series, donc `replay.SchemaDesFaits` ne bouge pas ; les faits persistes de la couche et les calques dates
+// `objectives-2026-11-22` deviennent `redecoder`. Aucun backlog killsource ne s ouvre. LA MESURE est a l entree de chronique de `replay.SchemaVersion` 126 (quinzieme apport).
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
@@ -321,4 +342,14 @@ package objectives
 // A REVISION CONSTANTE (quatre lectures de la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte quatre fois, jusqu a `grammar-2026-11-15.4` (la
 // suppression d un bipede, les valeurs des proprietes reseau lues par la marche, les messages de degat, la vie des bipedes) ; sa seule source neuve est [SiegesAuDelaDeLaBandeSure] ; les enregistrements qu elle rend ne changent pas. [SiegesAuDelaDeLaBandeSure] compte les sieges que le calque du drapeau ne lit pas.
 // L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-11-15.3"
+//
+// A REVISION CONSTANTE (rechargements, commande de deplacement, tirs a tout rang, parent des pieces montees, 2026-11-22) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-22.2`) ; aucune source de cette couche
+// ne change, et ni les enregistrements, ni les entrees, ni les plages, ni les actions d objectif non plus (`types.ControlHold`, `types.ReloadRead` et les champs neufs de `types.EquipmentCreation` entrent dans sa
+// fermeture). Les etapes `score`, `objectives`, `scoreTimeline` et `eliminations` de l equivalence ne changent sur aucun des 20 films. L empreinte du golden est recopiee au meme rang.
+//
+// A REVISION CONSTANTE (la table du Drapeau lue par le verdict de mode, 2026-11-22 ; serie nee sur cette branche, jamais publiee) : la lecture du verdict de mode applique la table du Drapeau a tout film, et la regle des deux canaux de `objectives-2026-11-22.2`
+// jugeait aussi les emissions saines d'un film d'un autre mode (`22 B` d'un film de zones est une duree) : elles se comptaient comme jetees (`repli_emission_hors_domaine_jetee` : 0 -> 1 838 sur un film de crane, 0 -> 846 sur un film de colline). Une emission jetee par la table
+// du Drapeau ne se compte plus que sur un film que cette table reconnait. [NamedEventsFromAutreFamille] lit les seuls emplacements que le verdict compte, sans jugement par la table, et [ReplisALaConsultation.Essai] ouvre l'enregistreur a part ; les lectures
+// d'une famille par sa propre table ([NamedEventsFrom]) ne changent pas, aucune serie, aucun evenement, aucun calque ne change : la sortie qui bouge est le compte des replis de six films du corpus (`01e1f945` 515 -> 11, `d9781168` 1 838 -> 0, `60ae07c4` 1 952 -> 0,
+// `696a9d7c` 38 -> 0, `7344d24f` 36 -> 0, `50247b26` 44 -> 4), et il revient en dessous ou au niveau de celui d'avant les deux canaux. Les faits persistes portent les enregistrements bruts : ils ne sont pas perimes. L empreinte du golden est recopiee au meme rang.
+const Rev = "objectives-2026-11-22.2"
