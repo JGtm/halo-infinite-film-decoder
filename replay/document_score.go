@@ -152,6 +152,12 @@ type PlayerScore struct {
 	// (`coverage.score.statsWithheld`) ; nomme par les entrees du tableau, un tel film publie ses compteurs.
 	// `maxSpree` est un maximum : sa courbe par manche se publie sans total.
 	Stats map[string]ScoreSeries `json:"stats,omitempty"`
+	// FrozenRounds sont les valeurs que le film a FIGEES a la fin de chaque manche terminee, par manche
+	// (cf. FrozenRound) : tirs tires et au but, precision, degats, duree de vie moyenne, KDA, manches gagnees et
+	// les compteurs du tableau. La derniere manche du match n'y est jamais. Absent sur un match a une manche, pour
+	// un joueur sans manche figee, et sur tout film dont les entrees du tableau ne nomment pas les lignes
+	// (`coverage.score.frozenRounds`).
+	FrozenRounds []FrozenRound `json:"frozenRounds,omitempty"`
 }
 
 // ScoreTimeline est le calque du score dans le temps.
@@ -239,6 +245,9 @@ type ScoreCoverage struct {
 	// n'en a dans la manche : une valeur impossible, jamais publiee et jamais remise a zero en silence. Un compteur dont toutes
 	// les emissions sont ecartees est absent de `players[].stats`. Absent (nil) quand la garde n'a rien ecarte.
 	StatsGuarded map[string]int `json:"statsGuarded,omitempty"`
+	// FrozenRounds dit ce que vaut la lecture des valeurs figees (`players[].frozenRounds`) : manches lues,
+	// manches attendues, joueurs sans valeurs. Absent sur un match a une manche.
+	FrozenRounds *FrozenRoundsCoverage `json:"frozenRounds,omitempty"`
 	// Rounds est le nombre de manches RETENUES par le decodeur (les manches fantomes,
 	// ancrages fortuits, sont ecartees). 1 sur un match sans manches multiples.
 	Rounds int `json:"rounds"`

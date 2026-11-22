@@ -401,8 +401,51 @@ slot `2c` or `2c+1`. Named and measured: 0A mode score, 1B personal score, 2A ki
 betrayals, 5B longest kill spree, 6A headshot kills, 8A melee kills, 8B grenade kills, 9A power weapon kills, 10B spawns. A row
 is cleared to zero when its player leaves. Components 0 to 27 (current-round values) are the ones the reader of the decoder
 reproduces (`FUN_140C18794`): an emission always decodes all of them in its packet, so an anchored record on which one of them does
-not decode is not an emission and is dropped whole, the components read before it included. A stop on a component of another reader
-(frozen round values 28 to 55, outcomes 56, entry 57) keeps what was read before it.
+not decode is not an emission and is dropped whole, the components read before it included. Components 28 to 55 are read too, by their
+own reader (below), under the same rule. A stop on a component of another reader (outcomes 56, entry 57) keeps what was read before it;
+those two are not read by the record reader. A record that carries no current-round value has no round number (it is read in the
+headers of the first counter) and is not kept, even when it carries frozen values.
+
+**Frozen round values.** Component 28 + k (`statborg-finalized-rounds-values-stat-component`, the game's reader `FUN_142ed3c50`) holds,
+for each round that has ended, the value pair of component k at the end of that round:
+
+```
+[32 bits: mask of ended rounds, bit r = round r]
+then, for each set bit in round order:
+[1 bit default][if 0: value A, variable width][1 bit default][if 0: value B, variable width]
+```
+
+The variable width is the counters' (2-bit selector, 8 << selector bits, signed; a 64-bit selector is refused). A default value is 0
+(no zero is ever written as a value: 12,236 frozen components on 9 films of several rounds). A component that does not decode, a value
+out of the counters' domain or a mask bit beyond round 7 drops the record, as for a counter. What was measured (9 films of 2 or 3
+rounds, 4 films of one round): after components 28 to 55 and the 64 bits of 56, component 57 reads a valid player entry or a cleared
+entry in 280 records out of 280; the pairs come round by round (A then B for round 0, then round 1): on films of three rounds the
+round-0 pairs read at the start of round 2 equal those read at the start of round 1, which the other order does not give. The values
+of round r are written about 50 ms after round r + 1 starts, on the line of each player (after a reset of every line with all values
+default), and written again at later round starts and at the end of the film; the mask of a record of round r holds rounds 0 to
+r - 1, so the last round of a match is never frozen and a match of one round has none. Frozen values follow the player, not the slot:
+when rows are reassigned at a round start, a player carries his ended rounds to his new row. No frozen value changes from one
+emission to the next. Against the live values of the same player and round, the frozen kills, deaths, assists, personal score,
+headshots, melee, grenade and power weapon kills, longest spree, suicides and betrayals agree 131 times out of 131; spawns 130 out of
+131 (a player with no death whose round has no live spawn emission: frozen 1). Inside a round, accuracy (7B) is the hits (7A) over
+the shots fired (6B), in hundredths of a percent, truncated (131 out of 131), and KDA (3B) is kills - deaths + assists / 3, in
+hundredths, truncated (131 out of 131); the average life (5A) is in tenths of a second (precision 1 of the slot's definition; against
+the API's match average, median ratio 1.03).
+
+The replay document publishes the frozen values per player and ended round, `scoreTimeline.players[].frozenRounds[]` = `{round,
+values}`, `values` a table name -> value in the film's unit: `modeScore` (0A), `roundsWon` (0B, 1 to the round's winners),
+`personalScore` (1B), `kills`, `deaths` (2A, 2B), `assists` (3A), `kda` (3B, hundredths), `suicides`, `betrayals` (4A, 4B),
+`averageLifeDuration` (5A, tenths of a second), `maxSpree` (5B), `headshots`, `shotsFired` (6A, 6B), `shotsHit`, `accuracy` (7A, 7B,
+hundredths of a percent), `meleeKills`, `grenadeKills` (8A, 8B), `powerWeaponKills`, `damageDealt` (9A, 9B), `damageTaken`, `spawns`
+(10A, 10B). The mode slots (20 to 27), the duplicates (`Spartan*`, loadout experience) and the slots never written are not published.
+A player's value for a round is the last non-zero emission; a round whose values are all zero (the reset of a line, a player absent
+from the round) is not a frozen round; a round that is not a kept round followed by another kept round is not published and is
+counted. The values are published only when the scoreboard entries name the rows (the identity bridge does not reach the level of a
+round). `coverage.score.frozenRounds` (absent on a match of one round) gives `read` (ended rounds with at least one published player),
+`expected` (kept rounds minus one), `playersWithout` (published players with no frozen round) and `discarded`. The live curves and
+their totals are unchanged: on the 9 films, the published totals of kills, deaths, assists, personal score, headshots, melee,
+grenade and power weapon kills already equal the API for 94 players out of 94, and frozen rounds plus the live last round give the
+same values for the 82 players whose ended rounds are all frozen.
 
 **Whose row it is.** Each statborg entity carries its own entry, component 57 (`statborg-entry-index-and-type`): a 32-bit value and an
 8-bit kind, written at creation and read at the keyframes (`internal/grammar/statborg_entries.go`, one record per entity and keyframe).

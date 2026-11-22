@@ -155,6 +155,7 @@ var formesFigees = []typeDeContrat{
 	{"facts/objectives", types.ScorePoint{}},
 	{"facts/objectives", types.StatRecord{}},
 	{"facts/objectives", types.StatValue{}},
+	{"facts/objectives", types.StatFrozen{}},
 }
 
 // typesSansForme — LES TYPES DU PAQUET QUI NE SONT PAS DES STRUCTURES, ET QUI N ONT DONC PAS DE
