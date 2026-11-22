@@ -6,10 +6,10 @@
 
 ## AXE DE TEMPS
 24596 frames · intervalle 33 ms · duree 811668 ms
-schema 125 · titre halo_infinite
+schema 126 · titre halo_infinite
 version majeure du film : 37
 origine de la frame 0 sur l horloge du fil : 11847 ms
-coup d envoi date par le film : 33495 ms · 169/169 piste(s) en mouvement · rafale 7 · marge depuis la frame 0 : 21648 ms
+coup d envoi lu par l horloge de manche : 33165 ms · source roundClock · depart lu false · marge depuis la frame 0 : 21318 ms
 
 ## TRACES PUBLIEES — une trace est UNE VIE, pas un joueur (le slot migre a chaque reapparition)
 169 trace(s) · 135722 point(s) de grille

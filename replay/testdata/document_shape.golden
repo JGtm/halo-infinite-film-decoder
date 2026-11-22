@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 125
-empreinte-stockee f81ff61f648808bb
-empreinte-servie f81ff61f648808bb
-empreinte-cuite 9254aadd381c8b1f
+schema 126
+empreinte-stockee 9e97988bfbdb7d22
+empreinte-servie 9e97988bfbdb7d22
+empreinte-cuite 6e45d9c629eec4f8
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -1124,6 +1124,7 @@ ScoreCoverage
   RoundsDecreed json:"roundsDecreed,omitempty" bool
   RoundsUnplayed json:"roundsUnplayed,omitempty" []int
   RoundsWritten json:"roundsWritten,omitempty" []int
+  StatsGuarded json:"statsGuarded,omitempty" map[string]int
   StatsWithheld json:"statsWithheld,omitempty" int
   TeamIdentity json:"teamIdentity" string
   Truncated json:"truncated" bool
@@ -1255,12 +1256,14 @@ Surface
   Z json:"z" float32
   ZB json:"zb" float32
 T0FilmCoverage
-  Burst json:"burst" int
+  Burst json:"burst,omitempty" int
   Detected json:"detected" bool
   MarginMs json:"marginMs" int64
-  Moving json:"moving" int
+  Moving json:"moving,omitempty" int
   Reason json:"reason,omitempty" string
-  Tracks json:"tracks" int
+  Source json:"source" string
+  StartRead json:"startRead" bool
+  Tracks json:"tracks,omitempty" int
 TeamCoverage
   Accord json:"accord" int
   Contradiction json:"contradiction" int

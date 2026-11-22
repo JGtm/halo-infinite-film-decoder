@@ -4524,3 +4524,89 @@ package replay
 //
 // LE PARC         un artefact 124 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une decision de
 //                 l utilisateur.
+
+// v126 (2026-11-22, cinq apports en une version : un trajet de vehicule porte le joueur du corps qui monte, le coup d envoi se lit sur l horloge de manche du
+// jeu, les compteurs nommes du tableau ne depassent plus les eliminations du joueur, les faux enregistrements du tableau sont abandonnes, `medalLabels` est declare).
+// Les cinq commits ont ete integres sur une seule branche : une version, une revision de grammaire, une revision des objectifs. Les mesures de chaque apport
+// sont gardees telles qu elles ont ete prises, avant l integration.
+//
+// PREMIER APPORT : UN TRAJET DE VEHICULE PORTE LE JOUEUR DU CORPS QUI MONTE :
+// Un occupant qui monte a bord ne replique plus : aucune vie ne couvre l instant de la
+// montee, et le nom retombait sur le pont par siege (`repli_identite_premier_occupant_du_siege`). Sur un siege tenu par un bot puis par un humain, le trajet du bot
+// prenait le nom de l humain. Le corps que les enregistrements de creation placent sur le siege a l instant porte desormais le nom ; un corps sans vie nommee
+// donne un trajet sans nom.
+//
+//	`vehicles[].rides[].xuid`   le joueur du corps qui monte ; absent quand ce corps n a pas de vie nommee. Un trajet qui perd son nom faux peut aussi changer de borne de
+//	                 fin et de visee : un trajet est coupe a la vie suivante de SON occupant (`vehicle_rides_next_life.go`), et sous le nom d un autre joueur
+//	                 il etait coupe par la vie de ce joueur-la.
+//	`coverage.vehicles.ridesNamed`   le compte des trajets nommes.
+//	`coverage.fallbacks[]`   le compteur du repli du premier occupant du siege baisse sur les films a vehicules (quatre films de reference : 82 -> 68, 87 -> 75, 89 -> 84,
+//	                 125 -> 112 declenchements).
+//
+// LA MESURE (le corpus d equivalence, 20 films, et `3abf0258`, hors corpus). Sur le corpus, aucun trajet ne change de nom : seul le compteur du repli baisse (sur sept films
+// a vehicules). Sur `3abf0258`, 3 trajets sur 191 perdent leur nom (187 trajets nommes avant, 184 apres) et 188 sont inchanges ; deux de ces trois changent aussi de borne de fin
+// et un de visee, par la regle de la vie suivante de leur occupant (voir ci-dessus).
+//
+//
+//
+// SECOND APPORT : LE COUP D ENVOI SE LIT SUR L HORLOGE DE MANCHE DU JEU :
+// `t0FilmMs` est l instant ou l horloge de la premiere manche demarre : la premiere lecture qui court, ramenee a sa valeur
+// de depart par l arithmetique de la lecture. Aucun seuil, aucun repli : un film sans lecture qui court n a pas de coup d envoi, et la couverture le dit
+// (`reason` `noRunningClock`). Le detecteur de premier mouvement (`DetectT0Film`) n est plus appele ; il reste exporte, marque obsolete.
+//
+//	`t0FilmMs`          recule de 0,3 a 0,9 s sur le corpus d equivalence ; les films que le detecteur refusait sont dates.
+//	`coverage.t0Film`   gagne `source` et `startRead` ; `tracks`, `moving` et `burst` ne sont plus ecrits.
+//	entrees figees des goldens et des fixtures de contrat   elles portent l horloge : `roundClock`, `respawnCountdowns`, `coverage.clocks` et deux entrees de `layers`
+//	                 s y ajoutent (le plafond de poids des fixtures de contrat est releve en consequence).
+//
+// LA MESURE (34 films). Le coup d envoi recule de 0,37 s en mediane ; huit films refuses par le detecteur sont dates ; une vingtaine de films
+// que le detecteur datait 17 s trop tot sont corriges. Sur ces films, le troisieme joueur a bouger reellement le fait 0,17 a 0,84 s apres le depart de
+// l horloge et 16,8 a 21,6 s apres le « premier mouvement » ; la premiere elimination de l API tombe 16,1 s apres l horloge contre 32,5 s ; les arrivees des
+// joueurs de l API tombent 0,2 s apres l horloge : l horloge a raison. PRECISION : l horloge se lit par pas d environ 0,55 s, et le coup d envoi est connu a ce pas
+// pres ; la piste d une precision plus fine par le premier battement est refutee par la mesure, la regle est inchangee.
+//
+//
+//
+// TROISIEME APPORT : UN COMPTEUR NOMME DU TABLEAU NE DEPASSE PAS LES ELIMINATIONS DU JOUEUR :
+// Quand le film porte deux emissions d un meme composant, une emission mal alignee pouvait gagner la selection de la suite avec
+// une valeur impossible. Une emission dont un compteur d eliminations nomme (tete, corps a corps, grenades, armes lourdes) ou la plus longue serie depasse les
+// eliminations du joueur dans la manche est ecartee avant la selection, comptee et publiee ; un compteur dont toutes les emissions sont ecartees est absent, jamais
+// remis a zero.
+//
+//	`scoreTimeline.players[].stats`   les valeurs impossibles sont ecartees sur les joueurs concernes.
+//	`coverage.score.statsGuarded`   le compte des emissions ecartees.
+//
+// LA MESURE (le corpus d equivalence, 20 films, avant le quatrieme apport). Trois films portent des emissions ecartees (`statsGuarded`) ; sur deux d entre eux un compteur
+// (corps a corps, grenades) change ou devient absent, et le nombre de points de la courbe de score (`coverage.score.points`) baisse sur ces deux films (4 118 -> 4 114 et 2 227 -> 2 226). Aucun autre film n est touche.
+//
+//
+//
+// QUATRIEME APPORT : LES FAUX ENREGISTREMENTS DU TABLEAU SONT ABANDONNES :
+// Le balayage ancrait de faux enregistrements du tableau dans une liste repetitive d une autre structure : leur lecture s arretait en route apres un premier
+// composant de valeurs (corps a corps 0, grenades 16), et ce faux pouvait gagner la selection de la suite. Les composants 0 a 27 sont relus en entier par toute
+// emission du moteur : un arret sur l un d eux prouve un ancrage fortuit, et l enregistrement n est plus rendu. Un arret sur un composant d un autre lecteur (valeurs
+// figees, issues, entree) garde ce qui precede.
+//
+//	`scoreTimeline`   les compteurs nommes, les assistances et quelques points de courbe faux disparaissent des films concernes.
+//	`coverage.score.roundsUnplayed`   change sur certains films.
+//
+// LA MESURE (le corpus d equivalence, 20 films, apres le troisieme apport). Quinze films changent a l etape du tableau (`scoreTimeline` : compteurs, assistances, quelques
+// points de courbe) ; `roundsUnplayed` ou `roundsWritten` change sur six films ; le repli `repli_enregistrement_statborg_abandonne` compte plus de lectures abandonnees
+// (par exemple 1 670 -> 1 671) et `repli_composants_statborg_arretes` moins ; `statsGuarded` retombe a zero sur deux des trois films qui en portaient.
+//
+//
+//
+// CINQUIEME APPORT : `medalLabels` DECLARE. Le champ est un calque a la requete (types `MedalLabel`, `MedalDescription`, `MedalSprite`) : aucune sortie cuite ne
+// change, seule l empreinte de la forme stockee bouge. Le registre des replis passe a 127 declarations (deux replis tenus par l hote en sortent ; leurs constantes
+// restent exportees, marquees obsoletes).
+//
+// POURQUOI LA VERSION MONTE. Le premier, le troisieme et le quatrieme apport changent le contenu cuit a forme egale ou presque (la pratique du depot, v21, v51, v108 et
+// v125, monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`) ; le second change une valeur de chaque rejeu et deux champs de
+// couverture.
+//
+// CE QUI MONTE    `SchemaVersion` 125 -> 126, et avec lui `publication-126`. `grammar.Rev` -> `grammar-2026-11-22` (l abandon des faux enregistrements du tableau).
+// AVEC ELLE       `objectives.Rev` -> `objectives-2026-11-22` (les valeurs impossibles ecartees). `SchemaDesFaits` reste 29 : le format des faits ne change pas, leur
+//                 fraicheur se juge sur les revisions.
+//
+// LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire et celle des objectifs). La recuisson est une
+//                 decision de l utilisateur.

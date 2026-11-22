@@ -325,3 +325,11 @@ package grammar
 // REVUE, SECONDE RONDE : le canal de la vie des bipedes compte les listes qu il recupere a largeur libre (`StatsVitalites.LocalisationsALargeurLibre`), comme le canal des
 // morts, et les verse au meme repli `repli_localisation_largeur_libre` du rapport du contexte ([MarcheDesTrames.verserLesReplisDesVitalites]). Aucun bit n est lu
 // autrement : seul le compte du repli change.
+
+// ENTREE `grammar-2026-11-22` (2026-11-22, un enregistrement du tableau dont un compteur de la manche ne se decode pas est abandonne en entier). LA LECTURE
+// DU TABLEAU DES SCORES CHANGE : le balayage ancrait de faux enregistrements du tableau dans une liste repetitive d une autre structure ; leur lecture s arretait en
+// route apres un premier composant de valeurs (corps a corps 0, grenades 16), et ce faux pouvait gagner la selection de la suite. Les composants 0 a 27 sont relus en
+// entier par toute emission du moteur : un arret sur l un d eux prouve un ancrage fortuit, et l enregistrement n est plus rendu ([signaux], `statborg.go`). Un arret sur
+// un composant d un autre lecteur (valeurs figees, issues, entree) garde ce qui precede. Sortie changee : `scoreTimeline` (compteurs nommes, assistances, quelques points
+// de courbe faux) et `roundsUnplayed` sur certains films. Les rejeux et les faits cuits avant se refusent sur cette revision (`replay.SchemaVersion` 126) : la recuisson est
+// une decision de l utilisateur.
