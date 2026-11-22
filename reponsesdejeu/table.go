@@ -8,6 +8,10 @@
 // (`killPersonalScore`), son genre (score personnel, médaille, annonce, ligne du fil des éliminations...)
 // et, pour un score personnel, ses points et le libellé anglais que le jeu affiche avec eux (« Killed %pe »).
 //
+// LE BUILD PEUT DÉCALER L'ARBRE. Pour un build et un groupe que decalages.go déclare, le rang du film désigne la
+// réponse de la table quelques rangs plus loin, sur les intervalles déclarés seulement ; partout ailleurs le rang
+// se lit tel quel.
+//
 // QUATRE ISSUES POUR UN MESSAGE ([Nature]) : une réponse qui donne du score ([NatureScore]), une réponse que
 // l'arbre nomme et qui n'en donne pas ([NatureSansScore] : annonce, médaille, ligne du fil), un rang de l'arbre
 // que le message ne confirme pas ([NatureNonConfirmee]), et un rang hors de l'arbre ([NatureHorsArbre]). L'arbre ne
@@ -98,17 +102,21 @@ const (
 type Groupe struct {
 	nom     string
 	reponse map[uint32]Reponse
+	// decalages sont les décalages de rang déclarés pour le build du film (cf. decalages.go) ; vide pour un
+	// groupe lu sans décalage.
+	decalages []decalage
 }
 
 // Nom rend le groupe : les fichiers d'événements du mode, joints par « + ».
 func (g *Groupe) Nom() string { return g.nom }
 
 // Reponse rend la réponse que le message de rang `rang` désigne dans ce groupe, et ce que la table en sait.
-// `texte` est le mot texte du message, valable quand `aTexte`. [NatureHorsArbre] quand le rang n'est pas dans l'arbre ; [NatureNonConfirmee]
-// (et une réponse vide) quand le texte du message est celui d'une autre réponse, ou quand le rang
-// est incertain et que le texte ne le confirme pas.
+// `rang` est celui du film : le décalage que le build déclare pour lui ([Groupe.Decalage]) est appliqué avant la
+// recherche dans l'arbre. `texte` est le mot texte du message, valable quand `aTexte`. [NatureHorsArbre] quand le
+// rang n'est pas dans l'arbre ; [NatureNonConfirmee] (et une réponse vide) quand le texte du message est celui d'une
+// autre réponse, ou quand le rang est incertain et que le texte ne le confirme pas.
 func (g *Groupe) Reponse(rang, texte uint32, aTexte bool) (Reponse, Nature) {
-	r, ok := g.reponse[rang]
+	r, ok := g.reponse[rang+g.Decalage(rang)]
 	if !ok {
 		return Reponse{}, NatureHorsArbre
 	}
@@ -126,10 +134,12 @@ func (g *Groupe) Reponse(rang, texte uint32, aTexte bool) (Reponse, Nature) {
 // groupes sont les groupes de la table, dans l'ordre du fichier.
 var groupes = charger(brut)
 
-// GroupeDesScripts rend le groupe dont les fichiers d'événements sont exactement ceux, parmi les fichiers
-// de tous les groupes, que `scripts` (noms de fichier en minuscules) contient. Faux quand aucun groupe ne
-// correspond : un film dont le mode est inconnu de la table n'a pas de réponse nommée.
-func GroupeDesScripts(scripts []string) (*Groupe, bool) {
+// GroupeDuFilm rend le groupe dont les fichiers d'événements sont exactement ceux, parmi les fichiers
+// de tous les groupes, que `scripts` (noms de fichier en minuscules) contient, lu pour le `build` du film (le nom
+// que `FilmIdentity.Build` rend ; vide quand le film n'en porte pas) : seuls les décalages que ce build déclare pour ce
+// groupe s'appliquent (cf. decalages.go). Faux quand aucun groupe ne correspond : un film dont le mode est inconnu
+// de la table n'a pas de réponse nommée.
+func GroupeDuFilm(scripts []string, build string) (*Groupe, bool) {
 	present := map[string]bool{}
 	for _, g := range groupes {
 		for _, f := range g.fichiers {
@@ -140,7 +150,9 @@ func GroupeDesScripts(scripts []string) (*Groupe, bool) {
 	}
 	for _, g := range groupes {
 		if len(g.fichiers) == len(present) && !slices.ContainsFunc(g.fichiers, func(f string) bool { return !present[f] }) {
-			return &g.Groupe, true
+			lu := g.Groupe
+			lu.decalages = decalagesDe(build, g.nom)
+			return &lu, true
 		}
 	}
 	return nil, false
@@ -218,4 +230,10 @@ func charger(texte string) []*groupeCharge {
 		g.reponse[uint32(rang)] = r
 	}
 	return out
+}
+
+// GroupeDesScripts rend le groupe des scripts d'un film dont le build n'est pas connu : aucun décalage ne
+// s'applique. Qui connaît le build du film passe par [GroupeDuFilm].
+func GroupeDesScripts(scripts []string) (*Groupe, bool) {
+	return GroupeDuFilm(scripts, "")
 }

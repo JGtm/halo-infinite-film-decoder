@@ -53,7 +53,7 @@ func TestLeManqueDuTableauFaitLeVerdict(t *testing.T) {
 	for _, c := range cas {
 		t.Run(c.nom, func(t *testing.T) {
 			_, cov := buildScoreActions(entreeDesActions([]string{scriptsDeLArene}, c.events...), rosterDesActions(),
-				axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}, c.tableau)
+				axeDeFrames{origin: origineDesActions, step: pasDesActions, frames: finDesActions}, c.tableau, "")
 			if cov.ScoreboardCompared != c.compares || cov.ScoreboardMissing != c.manque || cov.ScoreboardBehind != c.retard || cov.Complete != c.complet {
 				t.Errorf("comparés %d, manques %d, retards %d, complet %v ; attendu %d, %d, %d, %v",
 					cov.ScoreboardCompared, cov.ScoreboardMissing, cov.ScoreboardBehind, cov.Complete, c.compares, c.manque, c.retard, c.complet)
