@@ -1,50 +1,4 @@
-// Package replay est la couche de PUBLICATION du décodeur de film (ADR 0034 D-1 et D-7) : il
-// assemble l'artefact de rejeu 2D (vue du dessus) d'un match à partir des faits décodés du
-// film — trajectoires, géométrie de carte, tirs, équipement, véhicules, morts et effets de
-// kill, objectifs, identités, couverture. Assemblage pur — aucun accès DB ni HTTP ; les
-// lectures du film sont faites par les couches `grammar` et `facts`.
-//
-// Le document (ReplayDocument) est produit HORS LIGNE par `internal/replaybuild` (étape
-// post-sync, `levelup backfill-replay`, `cmd/replay-build`) à partir des SEULS chunks du film
-// (zéro capture Cheat Engine) et servi tel quel par l'API. C'est
-// délibérément un DTO d'artefact bespoke (pas un type canonical) : c'est une charge utile
-// de rendu, versionnée par SchemaVersion pour la compat client.
-//
-// Repère : les positions sont en MÈTRES MONDE. Ce paragraphe disait le contraire
-// (« l'échelle/offset absolus ne sont PAS garantis », handoff ALL_PLAYERS_TRAJECTORIES) et
-// c'était vrai AVANT profile/map_bounds.go : le film ne porte que des indices de quantum, et
-// tant que les bornes du BSP manquaient, la déquantification employait celles de Cliffhanger
-// pour toutes les cartes — d'où un facteur d'échelle arbitraire. Depuis, cmd/replay-build
-// EXIGE la carte (`-map`) et refuse de produire un artefact sans ses bornes.
-//
-// CE QUE ÇA AUTORISE, et pourquoi la correction n'est pas cosmétique : le fond de carte
-// figé (`MapBackground`) est calé dans ce même repère, donc il se superpose au rejeu.
-// Contrôle sur 000d5950 : les bornes du rejeu tombent dans le cadre de `ridgeline.png`
-// (cf. TestMapBackground_DonneesReelles). Le client garde son auto-cadrage via Bounds.
 package replay
-
-// SchemaVersion est incrémenté quand la forme de ReplayDocument change d'une façon que le
-// client web doit gérer. L'ajout de champs OPTIONNELS (omitempty) ne casse pas le client
-// et n'incrémente pas la version ; seul un changement cassant le fait.
-//
-// EXCEPTION ASSUMÉE AU 2026-09-08 (v49, lot M1b, décision utilisateur ferme) : le champ ajouté
-// (`coverage.bridge.deathOffsetMs`) est bien optionnel — le web sait déjà distinguer « connu »
-// de « absent » sur le seul pointeur, sans regarder cette version. Le bump n'est donc pas
-// exigé par la RÈGLE ci-dessus ; il est posé quand même pour que `backfill-replay` recuise
-// tout le parc < 49 en une passe (plutôt que de laisser un artefact ancien répondre « calage
-// inconnu » indéfiniment faute de recuisson déclenchée).
-//
-// LA CHRONIQUE FAIT FOI, ET ELLE EST LA SEULE : `document_chronicle.go` (les notes par version qui
-// la recopiaient ici ont ete retirees le 2026-09-14, lot 1.0, revue R1, constat R1-4).
-//
-// CE QUE LE GARDE-RAIL TIENT, EXACTEMENT (revue R2, constat R2-1) : `document_shape_test.go`
-// exige une entree de chronique pour la version COURANTE, au moment ou la forme se refige. Il ne
-// balaie PAS les versions passees — c'est `replaybuild/artifact_schema_history_test.go` qui les
-// rejoue, sur la liste que la chronique DECLARE. Une version cuite dont l'entree manque echappe
-// donc aux deux : le retrait de ces notes-ci a fait disparaitre la seule description de la v51,
-// restauree a la chronique le meme jour. Une entree de chronique se pose DANS LE COMMIT qui
-// monte la version, jamais apres.
-const SchemaVersion = 125
 
 // ReplayDocument est le rejeu 2D sérialisé d'un match.
 type ReplayDocument struct {
@@ -166,15 +120,14 @@ type ReplayDocument struct {
 	// devinés. Absent si aucune vie publiée ne porte d'épisode.
 	EquipmentEpisodes []EquipmentEpisode `json:"equipmentEpisodes,omitempty"`
 	// Stances est l'ETAT DE MOUVEMENT du Spartan, en intervalles datés par vie (schéma 66,
-	// cf. document_stances.go) : `crouch` (accroupi, `i29`), `slide` (glissade, `i62`) et
-	// `mobility` (action de mobilité, `i54`).
+	// cf. document_stances.go), chaque intervalle portant son genre dans `kind`.
 	//
-	// TROIS GENRES SEULEMENT, PARCE QUE TROIS SEULEMENT SONT LUS. Le SPRINT est RÉFUTÉ comme
-	// observable par la vitesse (la loi de déquantification d'`i1` est exacte — écrivain relu,
-	// constantes relues — et la distribution au sol n'a qu'un seul mode, à 2-3 m/s sur deux
-	// films) ; le SAUT est LU mais PAS PROUVÉ (sa segmentation repose sur deux seuils
-	// d'instrument, et la signature ne tient pas d'un film à l'autre). Publier l'un des deux
-	// publierait un seuil comme une donnée. Chiffres : note 5.3, § 2septdecies.
+	// QUATRE GENRES SONT LUS dans un composant du film : `crouch` (accroupi, `i29`), `slide`
+	// (glissade, `i62`), `clamber` (escalade de rebord, `i54`) et `sprint` (`i57`, fente de capacité
+	// active n° 1). UN GENRE EST DÉRIVÉ : `jumpDerived`, le saut, intégrale de la vitesse verticale
+	// d'`i1` reconnue à sa hauteur (`types.SpartanJumpHeightM`) — il n'existe aucun champ du film à
+	// lire pour le saut, et le nom du genre le dit pour qu'un client ne le prenne pas pour une lecture.
+	// Un genre que le client ne connaît pas ne reçoit AUCUN libellé.
 	//
 	// ABSENT si aucune vie publiée ne porte d'intervalle — `coverage.stances` dit alors si le
 	// balayage a tourné (`scanned`) et si le film déclare les composants (`absent`).
@@ -333,11 +286,14 @@ type ReplayDocument struct {
 	NeutralDeaths []NeutralDeath `json:"neutralDeaths,omitempty"`
 	// Medals (document_medals.go), ScoreActions (document_score_actions.go), Hits, Damage et ShotStats (document_hits.go, document_damage.go) : les medailles gagnees,
 	// le score personnel par action, les touches (ESTIMATION) et le bilan de tirs par joueur. Datees sur l axe ; absents si rien n est pose.
-	Medals       []Medal       `json:"medals,omitempty"`
-	ScoreActions []ScoreAction `json:"scoreActions,omitempty"`
-	Hits         []Hit         `json:"hits,omitempty"`
-	Damage       []Damage      `json:"damage,omitempty"`
-	ShotStats    []ShotStat    `json:"shotStats,omitempty"`
+	Medals []Medal `json:"medals,omitempty"`
+	// MedalLabels nomme et dessine les médailles de `Medals` — REMPLI À LA REQUÊTE par l'hôte, jamais
+	// écrit dans l'artefact (même règle que `vehicleLabels` ; cf. document_medal_labels.go).
+	MedalLabels  map[string]MedalLabel `json:"medalLabels,omitempty"`
+	ScoreActions []ScoreAction         `json:"scoreActions,omitempty"`
+	Hits         []Hit                 `json:"hits,omitempty"`
+	Damage       []Damage              `json:"damage,omitempty"`
+	ShotStats    []ShotStat            `json:"shotStats,omitempty"`
 	// Roster est la liste des joueurs du film : leur identité et leur index de film.
 	//
 	// CE QU'IL SERT : le client y trouve l'ensemble des joueurs du match, y compris ceux dont

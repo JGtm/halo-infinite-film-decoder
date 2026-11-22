@@ -1,8 +1,8 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 125
-empreinte-stockee 8d17e625ce2e53c8
-empreinte-servie 8d17e625ce2e53c8
+empreinte-stockee f81ff61f648808bb
+empreinte-servie f81ff61f648808bb
 empreinte-cuite 9254aadd381c8b1f
 empreinte-cuite-regle 4
 
@@ -822,6 +822,20 @@ MedalCoverage
   NoOrigin json:"noOrigin" int
   Published json:"published" int
   UnknownName json:"unknownName" int
+MedalDescription
+  Text json:"i18n_text,omitempty" map[string]string
+MedalLabel
+  Description json:"description,omitempty" *MedalDescription
+  Difficulty json:"difficulty,omitempty" string
+  Img json:"img,omitempty" string
+  Sprite json:"sprite,omitempty" *MedalSprite
+  Text json:"i18n_text,omitempty" map[string]string
+MedalSprite
+  Height json:"height" int
+  Left json:"left" int
+  Sheet json:"sheet" string
+  Top json:"top" int
+  Width json:"width" int
 NeutralDeath
   FeedMs json:"feedMs" int
   Img json:"img,omitempty" string
@@ -1007,6 +1021,7 @@ ReplayDocument
   MapObjectives json:"mapObjectives,omitempty" *MapObjectives
   MapWeaponPads json:"mapWeaponPads,omitempty" *MapWeaponPads
   MatchID json:"matchId" string
+  MedalLabels json:"medalLabels,omitempty" map[string]MedalLabel
   Medals json:"medals,omitempty" []Medal
   NeutralDeaths json:"neutralDeaths,omitempty" []NeutralDeath
   ObjectiveObjects json:"objectiveObjects,omitempty" []ObjectiveObjectLife

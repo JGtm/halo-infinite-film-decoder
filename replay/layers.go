@@ -77,9 +77,10 @@ package replay
 // exactement la distinction que `coverage` tient aujourd hui a coups de blocs `omitempty`, et
 // qu un tableau vide seul ne sait pas dire.
 //
-// # LES SIX CALQUES A LA REQUETE N Y ENTRENT JAMAIS
+// # LES SEPT CALQUES A LA REQUETE N Y ENTRENT JAMAIS
 //
-// `mapObjectives`, `mapWeaponPads`, `weaponTiers`, `vehicleLabels`, — depuis le schema 69 —
+// `mapObjectives`, `mapWeaponPads`, `weaponTiers`, `vehicleLabels`, `medalLabels` (libelles et visuels des
+// medailles, remplis par l hote d apres le referentiel du titre), — depuis le schema 69 —
 // `vehicleWeapons` (registre des armes de vehicule) et `vehicleScenery` (decor hors de la zone
 // jouable, lot M7 du 2026-09-24) sont resolus PAR LE SERVICE,
 // a la requete : la cuisson ne les ecrit pas (garde

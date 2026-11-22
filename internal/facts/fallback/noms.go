@@ -330,11 +330,13 @@ const (
 	NomIndiceEnCollisionJete Nom = "repli_indice_en_collision_jete"
 	// NomPremiereOccurrenceSansConcordance : `killcollector/shots.go`.
 	NomPremiereOccurrenceSansConcordance Nom = "repli_premiere_occurrence_sans_concordance"
-	// NomPrecisionParArmePasseSautee : `killcollector/hits.go`.
+	// NomPrecisionParArmePasseSautee : nom du repli que l hote compte (passe de precision par arme sautee) ; SANS entree
+	// de registre ni site dans ce depot. Conserve parce que `decfilm` l exporte.
 	NomPrecisionParArmePasseSautee Nom = "repli_precision_par_arme_passe_sautee"
 	// NomCoequipiersPartisConstanteNulle : `killcollector/isolation_facts.go`.
 	NomCoequipiersPartisConstanteNulle Nom = "repli_coequipiers_partis_constante_nulle"
-	// NomDistancesDeToucheDesactivees : `killcollector/hits.go`.
+	// NomDistancesDeToucheDesactivees : nom du repli que l hote compte (distances de touche desactivees) ; SANS entree
+	// de registre ni site dans ce depot. Conserve parce que `decfilm` l exporte.
 	NomDistancesDeToucheDesactivees Nom = "repli_distances_de_touche_desactivees"
 	// NomCartePremierNomResolu : `killcollector/map_identity.go` (et `hits.go`).
 	NomCartePremierNomResolu Nom = "repli_carte_premier_nom_resolu"

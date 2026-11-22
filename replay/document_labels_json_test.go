@@ -175,7 +175,7 @@ const membreTexteDuContrat = "i18n_text"
 // TestLibellesParLangue_ChampTextSousLeNomDuContrat : le champ Text de chaque type du document porte
 // le nom JSON [membreTexteDuContrat], et le type sait se relire (un type qui oublierait ses méthodes JSON écrirait ce nom sur le fil).
 func TestLibellesParLangue_ChampTextSousLeNomDuContrat(t *testing.T) {
-	for _, v := range []any{Label{}, WeaponLabel{}, VehicleLabel{}, CalloutZone{}, ObjectiveObjectLife{}, VehicleWeapon{}} {
+	for _, v := range []any{Label{}, WeaponLabel{}, VehicleLabel{}, CalloutZone{}, ObjectiveObjectLife{}, VehicleWeapon{}, MedalLabel{}, MedalDescription{}} {
 		typ := reflect.TypeOf(v)
 		var found int
 		for f := range typ.Fields() {
@@ -211,6 +211,8 @@ func TestLibellesParLangue_LaBriqueEcritLesLanguesDuTexte(t *testing.T) {
 		{"aucune", Label{}, `{}`},
 		{"trois langues, ordre alphabétique", Label{Text: Text{"zz": "c", codeTestFR: "b", codeTestEN: "a"}}, `{"en":"a","fr":"b","zz":"c"}`},
 		{"fin, vide omise", VehicleLabel{Kind: "k", Text: Text{codeTestEN: "", codeTestFR: "f"}}, `{"kind":"k","fr":"f"}`},
+		{"médaille : fin, vide omise", MedalLabel{Img: "m.png", Difficulty: "Heroic", Text: Text{codeTestEN: "", codeTestFR: "f"}}, `{"img":"m.png","difficulty":"Heroic","fr":"f"}`},
+		{"description : vide omise", MedalDescription{Text: Text{codeTestEN: "a", codeTestFR: ""}}, `{"en":"a"}`},
 	}
 	for _, c := range cas {
 		if got := marshalOrFatal(t, c.v); got != c.want {
