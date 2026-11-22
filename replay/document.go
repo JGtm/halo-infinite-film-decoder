@@ -293,6 +293,9 @@ type ReplayDocument struct {
 	Hits         []Hit                 `json:"hits,omitempty"`
 	Damage       []Damage              `json:"damage,omitempty"`
 	ShotStats    []ShotStat            `json:"shotStats,omitempty"`
+	// Eliminations est une ligne par élimination du tableau des scores : tueur, image, victime quand le film la donne, marques
+	// de tir à la tête et de frag parfait à trois états (document_eliminations.go). Absente sans tableau des scores.
+	Eliminations []Elimination `json:"eliminations,omitempty"`
 	// Roster est la liste des joueurs du film : leur identité et leur index de film.
 	//
 	// CE QU'IL SERT : le client y trouve l'ensemble des joueurs du match, y compris ceux dont

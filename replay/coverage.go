@@ -178,6 +178,8 @@ type Coverage struct {
 	Medals *MedalCoverage `json:"medals,omitempty"`
 	// ScoreActions dit ce que le calque du score par action a lu, publie et ecarte ; absent quand la marche des trames n a pas lu les messages de jeu.
 	ScoreActions *ScoreActionCoverage `json:"scoreActions,omitempty"`
+	// Eliminations dit ce que le calque des éliminations a posé et sait marquer (tirs à la tête, frags parfaits) ; absent sans tableau des scores.
+	Eliminations *EliminationCoverage `json:"eliminations,omitempty"`
 	// Hits dit ce que le calque des touches a lu, pose et ecarte ; absent quand les messages de degat n ont pas ete lus.
 	Hits *HitCoverage `json:"hits,omitempty"`
 	// PadDating dit ce que l'événement natif a pu dater parmi les occupations de socle : les
