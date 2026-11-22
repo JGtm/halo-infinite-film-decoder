@@ -277,11 +277,16 @@ A `%pe` (the enemy killed) or `%pa` (the player betrayed) in the response's labe
 `scoreActions[]`, on the frame `(TS - origin) / step` of the positions, with `coverage.scoreActions` counting what was read, published and
 left out: messages that are not score (announcements, medals, kill-feed lines), score responses the game pays zero, ranks outside the tree,
 ranks the message does not confirm, and the actions not placed. `coverage.scoreActions.complete` says the reading is whole (no stopped
-frame, a readable view A, a known script group, no unconfirmed rank, every action with points placed). It is necessary, not sufficient, for
+frame, a readable view A, a known script group, no unconfirmed rank, every action with points placed, no player whose scoreboard score is above the sum of their published positive points). It is necessary, not sufficient, for
 a player's sum of points to equal the personal score: the points come from the response table, which can differ from the game (vehicle
 actions on older builds) or know nothing of a mode written outside the tree. False, the consumer shows "insufficient data"; a consumer
 that holds the official score compares the sum to it. A mode written without a point scale (Assault, a custom mode) has no response that
-gives points: nothing is invented.
+gives points: nothing is invented. `coverage.scoreActions.scoreboardCompared` counts the players compared with the scoreboard (one with a
+published action or a line in `scoreTimeline.players`); `scoreboardMissing` those whose last scoreboard `score` is above the sum of their
+published actions with POSITIVE points (the scoreboard shows points the layer does not publish), and `scoreboardBehind` those for whom it is
+below (the scoreboard lags the published points). The scoreboard never goes down, so penalties (negative points) do not enter it; a player
+with no total counts zero; the three are zero when the film publishes no scoreboard player, and nothing is compared. `complete` is false when
+`scoreboardMissing` is above zero; `scoreboardBehind` does not change it.
 
 **Eliminations, headshots and perfect kills.** The scoreboard writes a player's elimination counter and headshot counter in the same entity
 record: on the 1,455 films of the corpus, 36,839 of the 36,847 rises of the headshot counter (99.98 %) fall on the same frame as exactly one
