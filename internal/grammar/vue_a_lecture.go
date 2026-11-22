@@ -94,6 +94,8 @@ type FluxVueA struct {
 	// Rechargements : les messages de rechargement d arme (genre 38) lus, dans l ordre
 	// ([messageDeRechargement]).
 	Rechargements []lecture.MessageDeRechargement
+	// Tirs : les messages `action_weapon_fire` (genre 36) lus, a tout rang, dans l ordre.
+	Tirs []lecture.MessageDeTir
 }
 
 // refDeMessage est une reference d entite d un message de vue A : sa porte, son index et sa
@@ -178,6 +180,10 @@ func recueillirLeMessage(br *Lecteur, out *FluxVueA, genre, debut int) {
 		out.Detonations = append(out.Detonations, messageDeDetonation(br, genre, debut))
 	case genre == GenreRechargement:
 		out.Rechargements = append(out.Rechargements, messageDeRechargement(br, debut))
+	case genre == TypeTirArme:
+		t := br.tirLu
+		t.Rang = uint16(len(out.Genres) - 1) //nolint:gosec // rang dans la vue A d un payload
+		out.Tirs = append(out.Tirs, t)
 	}
 }
 

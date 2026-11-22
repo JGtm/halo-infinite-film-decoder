@@ -82,7 +82,7 @@ func poserLesDegats(msgs []messageEtPoints, r resolveurDeTouches, armes armesDes
 		}
 		attaquant := ""
 		if d.Joueur >= 0 {
-			if x, res := xuidALaFrame(r.humains, int(d.Joueur), t); res == destinataireResolu {
+			if x, res := r.auteurDuMessage(d, t); res == destinataireResolu {
 				attaquant = x
 			}
 		}

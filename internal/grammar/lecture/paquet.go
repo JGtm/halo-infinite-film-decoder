@@ -226,6 +226,9 @@ type VueA struct {
 	// Rechargements sont les messages de rechargement d'arme lus (genre 38, [MessageDeRechargement]),
 	// dans l'ordre.
 	Rechargements []MessageDeRechargement
+	// Tirs sont TOUS les messages `action_weapon_fire` (genre 36) lus, à n'importe quel rang
+	// ([MessageDeTir]), dans l'ordre.
+	Tirs []MessageDeTir
 }
 
 // MessageDePoussee est un message de poussée d'équipement de la vue A, avec ses deux premières
