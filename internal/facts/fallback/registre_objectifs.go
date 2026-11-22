@@ -46,7 +46,7 @@ var registreObjectifsEtConstruction = []Repli{
 		Mecanisme: "un composant non decodable arrete la boucle : les suivants du MEME enregistrement sont perdus sans trace",
 		Condition: CondLectureNonPortee,
 		Ordre:     OrdreApresLecture,
-		Sites: []Site{{Fichier: pkgSignaux + "statborg.go", Ancre: "return out, h1, true"}, {Fichier: pkgSignaux + "statborg.go", Ancre: "c.ComposantsArretes += arretes"}, {Fichier: pkgObjectiveEvents + "statborg.go", Ancre: "ComposantsArretes:         l.ComposantsArretes,"}, siteDeVersement("NomComposantsStatborgArretes"), {
+		Sites: []Site{{Fichier: pkgSignaux + "statborg.go", Ancre: "return out, figees, h1, true"}, {Fichier: pkgSignaux + "statborg.go", Ancre: "c.ComposantsArretes += arretes"}, {Fichier: pkgObjectiveEvents + "statborg.go", Ancre: "ComposantsArretes:         l.ComposantsArretes,"}, siteDeVersement("NomComposantsStatborgArretes"), {
 			Fichier: pkgSignaux + "statborg.go",
 			Ancre:   "v, w, ok := decodeStatComponent(pay, q)",
 		}},

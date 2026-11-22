@@ -27,14 +27,20 @@ func entryResolverOf(opt Options) *objectives.EntryResolver {
 // buildPlayerScoresOf rend les compteurs vivants des joueurs : nommes par les entrees quand elles se lisent et prouvent la
 // disposition du tableau, par le pont d'identite des slots sinon. Le second retour compte les joueurs que ce pont prive de compteurs nommes (film a
 // plusieurs manches) ; il est nul quand les entrees nomment, et chaque joueur y est une seule entree, ses lignes successives
-// mises bout a bout.
+// mises bout a bout. Les manches figees ne se posent que quand les entrees nomment : elles suivent le joueur de la ligne a
+// l'instant de leur emission, que le pont ne nomme pas ; le troisieme retour compte les couples (joueur, manche) ecartes
+// ([frozenRoundsOf]).
 func buildPlayerScoresOf(recs []types.StatRecord, flat map[int]string, lines []types.PlayerLine,
-	deaths []types.Death, entries *objectives.EntryResolver, c scoreClock) ([]PlayerScore, int) {
+	deaths []types.Death, entries *objectives.EntryResolver, c scoreClock) ([]PlayerScore, int, int) {
 	if entries == nil {
-		return buildPlayerScores(recs, flat, lines, deaths, c)
+		players, withheld := buildPlayerScores(recs, flat, lines, deaths, c)
+		return players, withheld, 0
 	}
 	named, identity := entries.Split(recs)
-	return buildPlayerScoresByRound(named, func(_, slot int) string { return identity[slot] }, c, true)
+	players, withheld := buildPlayerScoresByRound(named, func(_, slot int) string { return identity[slot] }, c, true)
+	frozen, ecartes := frozenRoundsOf(named, identity)
+	attachFrozenRounds(players, frozen)
+	return players, withheld, ecartes
 }
 
 // scoreInputOfPlayedRounds rend l'entree du calque de score dont les enregistrements des manches que le film n'a pas jouees

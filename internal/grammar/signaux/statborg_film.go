@@ -29,8 +29,8 @@ type LectureDuStatborg struct {
 	// « ce film ne porte rien », et le second se repare (le manifeste se retelecharge).
 	ChunksDatables int
 	// EnregistrementsAbandonnes : `repli_enregistrement_statborg_abandonne` — en-tetes
-	// d enregistrement reconnus dont aucun composant ne se decode ou dont un compteur sort du
-	// domaine, abandonnes ([scanFrameAvecReplis]).
+	// d enregistrement reconnus qui ne rendent aucun compteur de la manche, dont un compteur ou une
+	// valeur figee ne se decode pas, ou dont un compteur sort du domaine, abandonnes ([scanFrameAvecReplis]).
 	EnregistrementsAbandonnes int
 	// ComposantsArretes : `repli_composants_statborg_arretes` — enregistrements GARDES dont la
 	// lecture des composants s est arretee avant le dernier annonce ([decodeComponentsAvecArret]).
