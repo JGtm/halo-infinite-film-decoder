@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 126
-empreinte-stockee 9e97988bfbdb7d22
-empreinte-servie 9e97988bfbdb7d22
-empreinte-cuite 6e45d9c629eec4f8
+empreinte-stockee 29dad47ad3118f0f
+empreinte-servie 29dad47ad3118f0f
+empreinte-cuite 4c79e259c50adab1
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -308,6 +308,7 @@ Coverage
   ContinuousFire json:"continuousFire,omitempty" *ContinuousFireCoverage
   DeathsPaths json:"deathsPaths,omitempty" *DeathsPathsCoverage
   Decoder json:"decoder,omitempty" *DecoderCoverage
+  Eliminations json:"eliminations,omitempty" *EliminationCoverage
   Equipment json:"equipment,omitempty" *EquipmentCoverage
   EquipmentChanges json:"equipmentChanges,omitempty" *EquipmentChangeCoverage
   Fallbacks json:"fallbacks,omitempty" []FallbackHit
@@ -382,6 +383,26 @@ DecoderCoverage
   ProfileRev json:"profileRev" string
   Registry json:"registry,omitempty" *RegistryCoverage
   SourceRev json:"sourceRev" string
+Elimination
+  Headshot json:"headshot,omitempty" *bool
+  Perfect json:"perfect,omitempty" *bool
+  T json:"t" int
+  Victim json:"victim,omitempty" string
+  XUID json:"xuid" string
+EliminationCoverage
+  Eliminations json:"eliminations" int
+  HeadAmbiguous json:"headAmbiguous" int
+  HeadGuarded json:"headGuarded" int
+  HeadNo json:"headNo" int
+  HeadNoCounter json:"headNoCounter" int
+  HeadOrphanRises json:"headOrphanRises" int
+  HeadUnknown json:"headUnknown" int
+  HeadYes json:"headYes" int
+  PerfectAmbiguous json:"perfectAmbiguous" int
+  PerfectOrphans json:"perfectOrphans" int
+  PerfectUnknown json:"perfectUnknown" int
+  PerfectYes json:"perfectYes" int
+  WithVictim json:"withVictim" int
 EquipmentChange
   From json:"from" int
   Gap json:"gap,omitempty" int
@@ -553,6 +574,14 @@ FlagSpan
   X json:"x" float32
   XUID json:"xuid" *string
   Y json:"y" float32
+FrozenRound
+  Round json:"round" int
+  Values json:"values" map[string]int
+FrozenRoundsCoverage
+  Discarded json:"discarded,omitempty" int
+  Expected json:"expected" int
+  PlayersWithout json:"playersWithout" int
+  Read json:"read" int
 GaugePoint
   T json:"t" int
   V json:"v" float32
@@ -942,6 +971,7 @@ PickupCoverage
 PlayerScore
   Assists json:"assists" ScoreSeries
   Deaths json:"deaths" ScoreSeries
+  FrozenRounds json:"frozenRounds,omitempty" []FrozenRound
   Kills json:"kills" ScoreSeries
   Score json:"score" ScoreSeries
   Stats json:"stats,omitempty" map[string]ScoreSeries
@@ -997,6 +1027,7 @@ ReplayDocument
   Coverage json:"coverage,omitempty" *Coverage
   Damage json:"damage,omitempty" []Damage
   DurationMS json:"durationMs,omitempty" int
+  Eliminations json:"eliminations,omitempty" []Elimination
   EquipmentChanges json:"equipmentChanges,omitempty" []EquipmentChange
   EquipmentEpisodes json:"equipmentEpisodes,omitempty" []EquipmentEpisode
   EquipmentPlacements json:"equipmentPlacements,omitempty" []EquipmentPlacement
@@ -1115,6 +1146,7 @@ ScoreActionCoverage
   Unrelated json:"unrelated" int
   ViewAUnreadable json:"viewAUnreadable" bool
 ScoreCoverage
+  FrozenRounds json:"frozenRounds,omitempty" *FrozenRoundsCoverage
   ModeSupported json:"modeSupported" bool
   Oracle json:"oracle" string
   Points json:"points" int

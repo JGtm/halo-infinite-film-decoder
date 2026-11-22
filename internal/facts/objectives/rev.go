@@ -308,12 +308,17 @@ package objectives
 // Les enregistrements, les entrees et les plages ne changent pas ; les faits persistes de la couche et les calques dates `objectives-2026-11-15.2` deviennent `redecoder`. Aucun backlog
 // killsource ne s'ouvre.
 
-// ENTREE `objectives-2026-11-22` (2026-11-22, un compteur nomme du tableau ne depasse pas les eliminations du joueur dans la manche) : LA SORTIE CHANGE. Quand le film porte
+// ENTREE `objectives-2026-11-22` (2026-11-22, un compteur nomme du tableau ne depasse pas les eliminations du joueur dans la manche ; huit compteurs de mode nommes ; les valeurs figees par manche) : LA SORTIE CHANGE. Quand le film porte
 // deux emissions d un meme composant, une emission mal alignee pouvait gagner la selection de la suite avec une valeur impossible. Une emission dont un compteur d eliminations
 // nomme (tete, corps a corps, grenades, armes lourdes) ou la plus longue serie depasse les eliminations du joueur dans la manche est ecartee avant la selection, comptee et publiee
 // (`coverage.score.statsGuarded`, [named_kill_bound.go]) ; un compteur dont toutes les emissions sont ecartees est absent, jamais remis a zero. `scoreTimeline.players[].stats` des
-// joueurs concernes change ; les enregistrements, les entrees et les plages ne changent pas. Les faits persistes de la couche et les calques dates `objectives-2026-11-15.3`
+// joueurs concernes change ; les entrees et les plages ne changent pas. Les faits persistes de la couche et les calques dates `objectives-2026-11-15.3`
 // deviennent `redecoder`. Aucun backlog killsource ne s'ouvre.
+// A LA MEME VALEUR (la version n est pas publiee) : (1) HUIT COMPTEURS DE MODE sont nommes ([namedStatSlots]) : `flag_returners_killed` (`22 B`), `flag_kills_as_returner` (`25 A`), `flag_kills_as_carrier` (`24 B`,
+// prouve par la seule definition du film), `zone_offensive_kills` (`21 B`), `zone_defensive_kills` (`22 A`), `vip_kills` (`20 B`), `vip_assists` (`21 A`), `vip_kills_as_vip` (`21 B`) ; `objectives[]` gagne ces
+// actions sur les films de Drapeau et de zones (un film VIP n en publie rien tant que l appelant ne passe pas la famille). (2) LES VALEURS FIGEES : [FrozenRoundsByOwner] rend, par joueur et par manche terminee,
+// les valeurs que le film a figees (`frozen_rounds.go`, publiees par le document en `scoreTimeline.players[].frozenRounds[]`) ; `types.StatRecord` gagne `Frozen`. (3) Le calque `eliminations[]` du document
+// derive du tableau des scores et se date par cette revision (`couchesDesCalques`). Les totaux publies du tableau ne changent pas.
 
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune

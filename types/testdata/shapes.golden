@@ -679,6 +679,7 @@ TimeMS	int	-
 Slot	int	-
 Round	int	-
 Comps	map[int]types.StatValue	-
+Frozen	map[int][]types.StatFrozen	,omitempty
 
 ## StatValue (facts/objectives)
 A	int64	-
@@ -687,3 +688,8 @@ C	int64	-
 D	int64	-
 HasC	bool	-
 HasD	bool	-
+
+## StatFrozen (facts/objectives)
+Round	int	-
+A	int64	-
+B	int64	-

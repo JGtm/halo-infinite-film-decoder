@@ -4525,9 +4525,10 @@ package replay
 // LE PARC         un artefact 124 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une decision de
 //                 l utilisateur.
 
-// v126 (2026-11-22, cinq apports en une version : un trajet de vehicule porte le joueur du corps qui monte, le coup d envoi se lit sur l horloge de manche du
-// jeu, les compteurs nommes du tableau ne depassent plus les eliminations du joueur, les faux enregistrements du tableau sont abandonnes, `medalLabels` est declare).
-// Les cinq commits ont ete integres sur une seule branche : une version, une revision de grammaire, une revision des objectifs. Les mesures de chaque apport
+// v126 (2026-11-22, huit apports en une version : un trajet de vehicule porte le joueur du corps qui monte, le coup d envoi se lit sur l horloge de manche du
+// jeu, les compteurs nommes du tableau ne depassent plus les eliminations du joueur, les faux enregistrements du tableau sont abandonnes, `medalLabels` est declare, huit compteurs
+// de mode sont nommes, le calque des eliminations porte la marque a la tete et le frag parfait, les valeurs figees par manche sont publiees).
+// Les neuf commits ont ete integres sur une seule branche, en deux integrations : une version, une revision de grammaire, une revision des objectifs. Les mesures de chaque apport
 // sont gardees telles qu elles ont ete prises, avant l integration.
 //
 // PREMIER APPORT : UN TRAJET DE VEHICULE PORTE LE JOUEUR DU CORPS QUI MONTE :
@@ -4600,13 +4601,104 @@ package replay
 // change, seule l empreinte de la forme stockee bouge. Le registre des replis passe a 127 declarations (deux replis tenus par l hote en sortent ; leurs constantes
 // restent exportees, marquees obsoletes).
 //
-// POURQUOI LA VERSION MONTE. Le premier, le troisieme et le quatrieme apport changent le contenu cuit a forme egale ou presque (la pratique du depot, v21, v51, v108 et
-// v125, monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`) ; le second change une valeur de chaque rejeu et deux champs de
-// couverture.
 //
-// CE QUI MONTE    `SchemaVersion` 125 -> 126, et avec lui `publication-126`. `grammar.Rev` -> `grammar-2026-11-22` (l abandon des faux enregistrements du tableau).
-// AVEC ELLE       `objectives.Rev` -> `objectives-2026-11-22` (les valeurs impossibles ecartees). `SchemaDesFaits` reste 29 : le format des faits ne change pas, leur
-//                 fraicheur se juge sur les revisions.
+//
+// SIXIEME APPORT : HUIT COMPTEURS DE MODE NOMMES :
+// Le tableau des scores porte, aux composants 20 a 25, des compteurs dont le sens depend de la famille de mode ; le film nomme chaque emplacement dans la definition
+// de la variante de jeu (lecture des definitions : libfilmshell, credit dans `NOTICE.md`), et le decodeur tient une table par famille (`internal/facts/objectives/named.go`).
+// Un compteur qui monte d une unite par evenement se publie comme une action nommee par unite, comme les compteurs de capture.
+//
+//	`objectives[]`   gagne huit noms d action (champ `stat`) : Drapeau, `flag_returners_killed` (`22 B`, les victimes ramenaient le drapeau), `flag_kills_as_returner` (`25 A`) et
+//	                `flag_kills_as_carrier` (`24 B`) ; zones (Bases, Controle total), `zone_offensive_kills` (`21 B`) et `zone_defensive_kills` (`22 A`) ; VIP, `vip_kills` (`20 B`),
+//	                `vip_assists` (`21 A`) et `vip_kills_as_vip` (`21 B`). Un film sans ces compteurs n en publie aucun.
+//	table figee       huit lignes de plus dans `TABLE_STATS_STATBORG.tsv`, que `TestTableStatborgConcordeAvecNamedStatSlots` confronte a `namedStatSlots` (la table est tenue par LevelUp).
+//
+// LA PREUVE, SEPT NOMS SUR HUIT : l accord, joueur par joueur, avec la colonne de l API (`flag_returners_killed`, `kills_as_flag_returner`, `zone_offensive_kills`, `zone_defensive_kills`,
+// `vip_kills`, `vip_assists`, `kills_as_vip`) sur deux moities de films disjointes (rang pair et rang impair), plus le nom que la definition de la variante donne a l emplacement.
+// Joueurs a valeur non nulle, moitie paire et moitie impaire : `22 B` 9 et 7, `25 A` 8 et 6, `21 B` 28 et 47 (sur 48), `22 A` 28 et 33 (sur 34), `20 B` 6 et 8, `21 A` 6 et 7, `21 B` du VIP
+// 6 et 6 ; zero desaccord en Drapeau, un joueur par emplacement de zone ou le film depasse l API ; les deux compteurs de zone ensemble ne depassent jamais les eliminations du joueur.
+// `flag_kills_as_carrier` (`24 B`) N EST PROUVE QUE PAR LA DEFINITION DU FILM (`KillsAsFlagCarrier`) : un seul joueur du parc porte une valeur non nulle, le controle sur deux moities
+// ne s y applique pas, et le commentaire de `named.go` le dit. Hors de la publication : les durees et les maximums du VIP (`TimeAsVip`, `LongestTimeAsVip`,
+// `BestKillingSpreeAsVip`, qui ne sont pas un evenement par unite ; au backlog), les tics de score des Bases (toujours nuls) et les compteurs d Extraction (noms non prouves).
+//
+// LA LIMITE DU VIP : un film VIP n a pas de famille propre dans `ObjectiveTypeOf` ; ses trois actions ne se lisent que si l appelant passe la famille `vip`, et l hote ne la passe pas
+// LE CORPUS D EQUIVALENCE (20 films) : six films de Drapeau et de zones gagnent des actions nommees (14 `flag_returners_killed`, 9 `flag_kills_as_returner`, 51 `zone_offensive_kills`, 51 `zone_defensive_kills` ; aucune
+// `flag_kills_as_carrier`, aucun film VIP) ; `coverage.objectives` (`available`, `attached`, `refusedByRoster`) change sur dix films, le verdict des objectifs de deux films passe de « aucune donnee » a
+// « partiel » (leurs actions se comptent, le roster les refuse), et le repli `repli_emission_hors_domaine_jetee` compte une a deux emissions de plus sur quatre films (la borne par pas de `named_series.go` s applique aux noms neufs).
+// encore : tant qu il ne la passe pas, `objectives[]` n en publie rien sur un film VIP. La sortie change donc sur les films de Drapeau et de zones. `objectives.Rev` monte avec la version.
+//
+//
+//
+// SEPTIEME APPORT : LE CALQUE DES ELIMINATIONS, AVEC LA MARQUE A LA TETE ET LE FRAG PARFAIT :
+// Le document ne portait aucune marque par elimination. Il publie desormais `eliminations[]`, une ligne par unite de chaque montee de `scoreTimeline.players[].kills.total`, sur tout
+// film qui a un tableau des scores. Rien n est estime : les deux marques viennent des compteurs et des medailles que le jeu ecrit lui-meme.
+//
+//	`eliminations[]`   {t, xuid, victim, headshot, perfect} : l image de la montee, le tueur (xuid decimal), la victime quand l action de score `killPersonalScore` du tueur la donne a une image
+//	                pres (absente sinon : le jeu ne l ecrit pas pour toutes les eliminations, 86 % du corpus, aucune sur plusieurs builds 1.8 a 1.10), et deux marques a TROIS ETATS (vrai, faux, absent
+//	                pour inconnu ; un inconnu ne se lit jamais comme un faux). Un pas de n unites donne n lignes a la meme image.
+//	`headshot`      LA REGLE DE LA MARQUE A LA TETE : le tableau ecrit le compteur d eliminations et celui de tirs a la tete d un joueur dans le meme enregistrement d entite ; la marque est la
+//	                montee du compteur `stats.headshots` du meme joueur DANS LA MEME IMAGE que le pas d eliminations. Vrai quand le compteur monte d autant d unites que le pas ; faux quand le joueur a
+//	                un compteur publie qui ne monte pas a cette image ; INCONNU sans compteur pour ce joueur (une courbe absente n est pas un compteur reste a zero), pour un pas dont le nombre de montees
+//	                n est pas celui des eliminations (on ne sait pas lesquelles sont a la tete), et quand la garde des compteurs a ecarte des emissions du film (`coverage.score.statsGuarded` : le faux
+//	                n est plus prouve, une montee conservee prouve encore un vrai).
+//	`perfect`       LA REGLE DU FRAG PARFAIT : la medaille `Perfect` du joueur (pas `Perfection`) se rattache a l unique pas d eliminations du joueur a deux images au plus ; le pas se marque quand il
+//	                porte autant de medailles que d eliminations. Vrai ou inconnu, JAMAIS faux : l absence d une medaille ne prouve pas que les temps forts les listent toutes.
+//	`coverage.eliminations`   {eliminations, withVictim, headYes, headNo, headUnknown, headNoCounter, headAmbiguous, headGuarded, headOrphanRises, perfectYes, perfectUnknown, perfectAmbiguous,
+//	                perfectOrphans} ; `headUnknown` = `headNoCounter` + `headAmbiguous` + `headGuarded`. Absent sans tableau des scores. Entree `eliminations` de `layers`, sous `objectives-...`, gardee sur
+//	                le meme calque que le tableau (`opt.Score`).
+//
+// LA MESURE d appariement (annexe hors depot, `appariement_tete_parfait.md`, 1 455 rejeux, sans decodage) : 36 839 montees du compteur de tirs a la tete sur 36 847 (99,98 %) ont exactement un pas
+// d eliminations du meme joueur dans la meme image ; 1 897 medailles `Perfect` sur 1 897 se rattachent a un seul pas a deux images pres ; indecidables par le document : trois cas de deux eliminations
+// dans une image avec une seule montee. LA MESURE du calque (1 449 rejeux a tableau, 143 639 eliminations) : 36 845 a la tete, 75 265 non, 31 529 inconnues (31 522 faute de compteur, 7 pas
+// ambigus) ; 1 897 frags parfaits ; 45 montees du compteur qu aucune elimination ne porte ; pour un joueur a compteur, les lignes marquees a la tete valent la valeur finale du compteur sur 9 570
+// joueurs sur 9 585. Cle de jointure pour un consommateur qui a ses propres eliminations : le tueur, la victime et l image a une image pres, ou le tueur et l image sans victime.
+// LE CORPUS D EQUIVALENCE (20 films) : 2 648 eliminations sur 17 films (665 a la tete, 1 426 non, 557 inconnues faute de compteur ; 54 frags parfaits ; 1 764 victimes donnees) ; trois films portent la
+// couverture a zero, sans ligne (pas de courbe d eliminations), dont deux avec des medailles `Perfect` sans pas (`perfectOrphans`). La lecture des valeurs figees (huitieme apport) retire le compteur de tirs a la tete de deux
+// films : leurs marques `headshot` passent de faux a inconnu (`headNoCounter`), la regle du compteur absent.
+//
+//
+//
+// HUITIEME APPORT : LES VALEURS FIGEES PAR MANCHE TERMINEE :
+// Le composant `28 + k` d une entite du tableau porte, pour chaque manche terminee, la paire de valeurs du composant `k` a la fin de cette manche (lecteur du jeu `FUN_142ed3c50`, deja
+// porte pour la marche ; format etabli avec l aide de libfilmshell, credit dans `NOTICE.md`). Le decodeur ne les lisait pas : son lecteur des enregistrements s arretait sur le composant 28.
+//
+//	LE FORMAT       un masque de 32 bits des manches terminees (le bit r est la manche r), puis, pour chaque bit pose dans l ordre des manches, un bit « defaut » et la valeur A, un bit « defaut » et la
+//	                valeur B, de largeur variable (celle des compteurs : selecteur de 2 bits, `8 << selecteur` bits, signee ; un selecteur de 64 bits est refuse). Une valeur par defaut vaut 0.
+//	                Un composant fige illisible, une valeur hors du domaine des compteurs ou un bit de masque au-dela de la manche 7 abandonne l enregistrement en entier, comme pour un compteur, et le
+//	                compte (`repli_enregistrement_statborg_abandonne`). Un enregistrement sans compteur de la manche n a pas de numero de manche et n est pas rendu.
+//	`scoreTimeline.players[].frozenRounds[]`   {round, values} : la manche terminee (0-based) et, par nom, 21 valeurs entieres dans l unite du film : `modeScore`, `roundsWon`, `personalScore`,
+//	                `kills`, `deaths`, `assists`, `kda` (centiemes), `suicides`, `betrayals`, `averageLifeDuration` (dixiemes de seconde), `maxSpree`, `headshots`, `shotsFired`, `shotsHit`,
+//	                `accuracy` (centiemes de pour cent, touches sur tirs, tronque), `meleeKills`, `grenadeKills`, `powerWeaponKills`, `damageDealt`, `damageTaken`, `spawns`. Les tirs tires, les tirs
+//	                au but, la precision et les degats sont ce que le direct n ecrit pas. Les emplacements de mode (20 a 27), les doublons et ceux que le film n ecrit jamais ne sont pas publies.
+//	                La valeur d une manche est la derniere emission non nulle ; une manche aux valeurs toutes nulles n est pas une manche figee. Publie seulement quand les entrees du tableau nomment
+//	                les lignes (le pont d identite des slots n atteint pas le niveau d une manche).
+//	`coverage.score.frozenRounds`   {read, expected, playersWithout, discarded}, absent sur un match a une manche.
+//	LA DERNIERE MANCHE N EST JAMAIS FIGEE : les valeurs de la manche r s ecrivent environ 50 ms apres le debut de la manche r + 1, et le masque d un enregistrement de la manche r porte les manches
+//	                0 a r - 1 ; un match d une manche n en a aucune, un match de n manches en a au plus n - 1. Les valeurs suivent le joueur, pas le slot.
+//	LES TOTAUX NE CHANGENT PAS : les courbes en direct et leurs totaux publies sont inchanges (les totaux d eliminations, morts, assistances, score, tirs a la tete, corps a corps, grenades et armes
+//	                lourdes egalent deja l API pour 94 joueurs sur 94 sur les neuf films mesures) ; les valeurs figees ne s ajoutent a aucune courbe.
+//	`coverage.score.roundsUnplayed`, `statsGuarded`, replis   quelques entrees fortuites de `roundsUnplayed` disparaissent, `statsGuarded` peut disparaitre sur un film dont l emission ecartee
+//	                venait d un faux enregistrement, et les compteurs de replis du tableau changent (un enregistrement a valeur figee illisible est abandonne et compte).
+//
+// LA MESURE (neuf films de deux ou trois manches, quatre d une manche) : 12 236 composants figes lus, aucun zero ecrit comme valeur ; apres les composants 28 a 55 et les 64 bits du composant 56, le composant 57
+// lit une entree de joueur valide ou une entree effacee dans 280 enregistrements sur 280 ; contre les valeurs en direct du meme joueur et de la meme manche, les valeurs figees de morts, eliminations,
+// assistances, score personnel, tirs a la tete, corps a corps, grenades, armes lourdes, plus longue serie, suicides et trahisons concordent 131 fois sur 131, les reapparitions 130 sur 131 ; dans une manche,
+// la precision est les touches sur les tirs tires (131 sur 131) et le KDA est eliminations - morts + assistances / 3 (131 sur 131). Les manches figees plus la derniere manche en direct donnent les memes
+// totaux pour les 82 joueurs dont les manches terminees sont toutes figees.
+// LE CORPUS D EQUIVALENCE (20 films) : cinq films a manches portent `frozenRounds[]` (58 joueurs, 152 couples joueur-manche, 21 valeurs chacun) ; `coverage.score.frozenRounds` les couvre. Sur les vingt films le compteur
+// `repli_enregistrement_statborg_abandonne` monte (par exemple 1 671 -> 1 680 sur `000d5950`) et `repli_composants_statborg_arretes` change sur dix-huit ; `roundsUnplayed` ou `roundsWritten` change sur onze films ;
+// `coverage.score.points` change sur quatre ; deux films dont le tableau ne nomme aucun joueur perdent un faux enregistrement (une equipe en trop, une ligne d identite non resolue). Aucun total publie ne change.
+//
+// POURQUOI LA VERSION MONTE. Le premier, le troisieme, le quatrieme et le sixieme apport changent le contenu cuit a forme egale ou presque (la pratique du depot, v21, v51, v108 et
+// v125, monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`) ; le second change une valeur de chaque rejeu et deux champs de
+// couverture ; le septieme et le huitieme ajoutent des calques et des champs optionnels (`eliminations[]`, `frozenRounds[]`, leurs couvertures), et la version monte pour la raison des montees v3..v24.
+//
+// CE QUI MONTE    `SchemaVersion` 125 -> 126, et avec lui `publication-126`. `grammar.Rev` -> `grammar-2026-11-22` (l abandon des faux enregistrements du tableau, et la lecture des valeurs
+// AVEC ELLE       figees des composants 28 a 55). `objectives.Rev` -> `objectives-2026-11-22` (les valeurs impossibles ecartees, les huit compteurs de mode, les valeurs figees par manche
+//                 et le calque des eliminations, dont l entree de `layers` est datee par elle). `SchemaDesFaits` reste 29 : le champ `StatRecord.Frozen` voyage dans la charge des enregistrements
+//                 par `encoding/json`, omis quand il est vide, et leur fraicheur se juge sur les revisions. Les revisions `grammar-2026-11-22` et `objectives-2026-11-22` ne sont pas
+//                 publiees : les trois derniers apports se sont ajoutes a la meme valeur, le golden de chaque couche est refige a revision constante (`source` et `killsource` aussi : le type
+//                 `types.StatFrozen` entre dans leur fermeture sans qu aucune lecture d octets ni aucune ligne de kill change).
 //
 // LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire et celle des objectifs). La recuisson est une
 //                 decision de l utilisateur.

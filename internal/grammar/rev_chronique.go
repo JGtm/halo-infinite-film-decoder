@@ -326,10 +326,16 @@ package grammar
 // morts, et les verse au meme repli `repli_localisation_largeur_libre` du rapport du contexte ([MarcheDesTrames.verserLesReplisDesVitalites]). Aucun bit n est lu
 // autrement : seul le compte du repli change.
 
-// ENTREE `grammar-2026-11-22` (2026-11-22, un enregistrement du tableau dont un compteur de la manche ne se decode pas est abandonne en entier). LA LECTURE
+// ENTREE `grammar-2026-11-22` (2026-11-22, un enregistrement du tableau dont un compteur de la manche ne se decode pas est abandonne en entier ; les valeurs figees des manches terminees se lisent). LA LECTURE
 // DU TABLEAU DES SCORES CHANGE : le balayage ancrait de faux enregistrements du tableau dans une liste repetitive d une autre structure ; leur lecture s arretait en
 // route apres un premier composant de valeurs (corps a corps 0, grenades 16), et ce faux pouvait gagner la selection de la suite. Les composants 0 a 27 sont relus en
 // entier par toute emission du moteur : un arret sur l un d eux prouve un ancrage fortuit, et l enregistrement n est plus rendu ([signaux], `statborg.go`). Un arret sur
 // un composant d un autre lecteur (valeurs figees, issues, entree) garde ce qui precede. Sortie changee : `scoreTimeline` (compteurs nommes, assistances, quelques points
-// de courbe faux) et `roundsUnplayed` sur certains films. Les rejeux et les faits cuits avant se refusent sur cette revision (`replay.SchemaVersion` 126) : la recuisson est
+// de courbe faux) et `roundsUnplayed` sur certains films.
+// LES VALEURS FIGEES SE LISENT (meme valeur de revision, la version n etant pas publiee) : le composant `28 + k` porte, pour chaque manche terminee, la paire de valeurs du composant `k` (un masque de 32 bits des manches
+// terminees, puis par bit pose un bit de defaut et une valeur de largeur variable, deux fois). Le lecteur des enregistrements ([signaux], `statborg_figees.go`) les range par composant dans `types.StatRecord.Frozen`
+// (type `types.StatFrozen`) ; un composant fige illisible, une valeur hors du domaine ou un bit de masque au-dela de la manche 7 abandonne l enregistrement en entier, comme un compteur, et le compte ; un enregistrement
+// sans compteur de la manche n a pas de numero de manche et n est pas rendu. Les composants 56 et 57 ne sont toujours pas lus par ce lecteur. Sortie changee en plus : les valeurs figees de chaque enregistrement, les
+// compteurs de replis du tableau (`repli_enregistrement_statborg_abandonne`, `repli_composants_statborg_arretes`), et quelques entrees fortuites de `roundsUnplayed` en moins. Les compteurs de la manche, leur ordre et
+// leur largeur ne changent pas. Les rejeux et les faits cuits avant se refusent sur cette revision (`replay.SchemaVersion` 126) : la recuisson est
 // une decision de l utilisateur.
