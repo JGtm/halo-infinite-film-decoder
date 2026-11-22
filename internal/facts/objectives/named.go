@@ -125,11 +125,14 @@ var namedStatSlots = map[string]map[statSlotKey]statSlot{
 		// Chaque unite se date a une elimination (100 % des montees co-datees avec un frag). Noms lus
 		// dans la definition d'emplacement des films recents, confrontes aux colonnes de l'API :
 		// exacts joueur par joueur sur les moities de films de rang pair et impair (9 et 7 joueurs
-		// a valeur non nulle pour `22 B`, 8 et 6 pour `25 A`, 0 desaccord en CTF). `24 B`
-		// (`KillsAsFlagCarrier`) n'y est pas : un seul joueur du parc a une valeur non nulle, aucune
-		// moitie ne le prouve.
+		// a valeur non nulle pour `22 B`, 8 et 6 pour `25 A`, 0 desaccord en CTF).
 		{22, sideB}: {Stat: StatFlagReturnersKilled},
 		{25, sideA}: {Stat: StatFlagKillsAsReturner},
+		// `24 B` = `flag_kills_as_carrier` (`KillsAsFlagCarrier`) : eliminations faites PENDANT que le joueur porte le
+		// drapeau. Preuve d'une autre nature que ses voisins : le nom vient de la definition que la variante de
+		// jeu donne a l'emplacement ; un seul joueur du parc mesure porte une valeur non nulle, donc le controle
+		// sur deux moities de films ne s'applique pas.
+		{24, sideB}: {Stat: StatFlagKillsAsCarrier},
 		{24, sideA}: {Stat: StatFlagSteals},
 		{2, sideA}:  {Stat: StatKills},
 		{12, sideA}: {Stat: StatKills, Redundant: true},
@@ -224,6 +227,7 @@ const (
 
 	StatFlagReturnersKilled = "flag_returners_killed"
 	StatFlagKillsAsReturner = "flag_kills_as_returner"
+	StatFlagKillsAsCarrier  = "flag_kills_as_carrier"
 	StatZoneOffensiveKills  = "zone_offensive_kills"
 	StatZoneDefensiveKills  = "zone_defensive_kills"
 	StatVipKills            = "vip_kills"

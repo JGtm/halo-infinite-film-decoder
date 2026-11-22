@@ -21,6 +21,7 @@ type emplacementDeMode struct {
 var emplacementsDeMode = []emplacementDeMode{
 	{ObjectiveTypeFlag, 22, sideB, StatFlagReturnersKilled},
 	{ObjectiveTypeFlag, 25, sideA, StatFlagKillsAsReturner},
+	{ObjectiveTypeFlag, 24, sideB, StatFlagKillsAsCarrier},
 	{ObjectiveTypeZone, 21, sideB, StatZoneOffensiveKills},
 	{ObjectiveTypeZone, 22, sideA, StatZoneDefensiveKills},
 	{ObjectiveTypeVip, 20, sideB, StatVipKills},
