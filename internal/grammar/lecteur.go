@@ -84,6 +84,8 @@ type Lecteur struct {
 	refsDuMessage [3]refDeMessage
 	pousseeLue    lecture.MessageDePoussee
 	detonationLue lecture.MessageDeDetonation
+	// rechargementLu : la charge du dernier message de rechargement ([chargeRechargement]).
+	rechargementLu lecture.MessageDeRechargement
 	// etatComplet : le record en cours est un ETAT COMPLET d image-cle (`FUN_142e2c690`), lu sans
 	// masque de presence. Pose par [walkKeyframeFullState] seul ; faux pour tout record dont un
 	// masque est lu (record NEW, DELTA). Les composants dont la lecture depend d une loi du masque

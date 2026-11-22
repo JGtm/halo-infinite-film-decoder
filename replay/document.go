@@ -293,6 +293,8 @@ type ReplayDocument struct {
 	Hits         []Hit                 `json:"hits,omitempty"`
 	Damage       []Damage              `json:"damage,omitempty"`
 	ShotStats    []ShotStat            `json:"shotStats,omitempty"`
+	// Reloads : les rechargements d arme lus dans le film, une ligne par (trame, joueur, unite) (document_reloads.go).
+	Reloads []Reload `json:"reloads,omitempty"`
 	// Eliminations est une ligne par élimination du tableau des scores : tueur, image, victime quand le film la donne, marques
 	// de tir à la tête et de frag parfait à trois états (document_eliminations.go). Absente sans tableau des scores.
 	Eliminations []Elimination `json:"eliminations,omitempty"`

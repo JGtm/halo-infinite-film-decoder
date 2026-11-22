@@ -58,11 +58,13 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.Fallbacks.DeclencheN(fallback.NomDebutDeListeFermeAuBit, m.DebutsDeListeParRepliFermeAuBit)
 	s.in.MovementStates, s.in.MovementStateStats = m.MovementStates, st
 	s.in.ContinuousFire, s.in.ContinuousFireStats = m.ContinuousFire, tc
+	s.in.ControlHolds, s.in.ControlHoldStats = m.ControlHolds, m.ControlHoldStats
 	s.in.UnitControls, s.in.UnitControlStats = m.UnitControls, m.UnitControlStats
 	s.in.BipedDeletions, s.in.BipedDeletionStats = m.BipedDeletions, m.BipedDeletionStats
 	s.in.Horloges = m.Horloges
 	s.in.GameEvents, s.in.GameEventStats, s.in.GameEventsRead = m.EvenementsDeJeu, m.EvenementsDeJeuStats, err == nil
 	s.in.Damages, s.in.DamageStats, s.in.DamagesRead = m.Degats, m.DegatsStats, err == nil
+	s.in.Reloads, s.in.ReloadStats = m.Reloads, m.ReloadStats
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
 	s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
@@ -75,6 +77,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "movementStates.stats", st)
 	s.opt.observe(s.ctx, "continuousFire", s.in.ContinuousFire)
 	s.opt.observe(s.ctx, "continuousFire.stats", tc)
+	s.opt.observe(s.ctx, "controlHolds", s.in.ControlHolds)
+	s.opt.observe(s.ctx, "controlHolds.stats", s.in.ControlHoldStats)
 	s.opt.observe(s.ctx, "unitControls", s.in.UnitControls)
 	s.opt.observe(s.ctx, "unitControls.stats", s.in.UnitControlStats)
 	s.opt.observe(s.ctx, "bipedDeletions", s.in.BipedDeletions)
@@ -84,6 +88,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "gameEvents.stats", s.in.GameEventStats)
 	s.opt.observe(s.ctx, "damages", s.in.Damages)
 	s.opt.observe(s.ctx, "damages.stats", s.in.DamageStats)
+	s.opt.observe(s.ctx, "reloads", s.in.Reloads)
+	s.opt.observe(s.ctx, "reloads.stats", s.in.ReloadStats)
 	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)

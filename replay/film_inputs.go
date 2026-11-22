@@ -186,6 +186,14 @@ type FilmInputs struct {
 	// bipedes (`calculerLesPointsDeDegats`) : la vie elle-meme n est pas persistee.
 	DamagePoints []PointsDeDegat
 	DamageStats  grammar.StatsDegats
+	// ControlHolds sont les commandes de deplacement tenues de la vue de controle et ControlHoldStats leurs
+	// denominateurs.
+	ControlHolds     []types.ControlHold
+	ControlHoldStats types.ControlHoldStats
+	// Reloads sont les rechargements d arme des trames delta (genre 38 de la vue A) et ReloadStats ce que leur
+	// canal a vu.
+	Reloads     []types.ReloadRead
+	ReloadStats types.ReloadStats
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -298,6 +306,8 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Medals = MedalInput{Read: in.MedalsRead, Awards: in.Medals}
 	opt.ScoreActions = ScoreActionInput{Read: in.GameEventsRead, Events: in.GameEvents, Stats: in.GameEventStats, Scripts: in.Scripts}
 	opt.Damages = HitInput{Read: in.DamagesRead, Messages: in.Damages, Points: in.DamagePoints, Stats: in.DamageStats}
+	opt.Reloads, opt.ReloadStats = in.Reloads, in.ReloadStats
+	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable
 	opt.PlayerTeams, opt.TeamScan = in.PlayerTeams, in.TeamScan
