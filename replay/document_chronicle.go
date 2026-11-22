@@ -4223,8 +4223,8 @@ package replay
 //	                l ennemi tue, `%pa` le joueur trahi), le xuid de celui-ci. Triees par frame, xuid, nom, points, cible. Absent : messages non lus,
 //	                mode inconnu de la table, ou aucune reponse a points. Une reponse de score que le jeu paie zero n est pas publiee.
 //	`coverage.scoreActions`    {complete, group, groupMissing, frames, closedFrames, stoppedFrames, viewAUnreadable, messages, copies, scoreMessages,
-//	                unrelated, namedWithoutPoints, outsideTree, unconfirmedRank, scored, published, noRecipient, notPresent, noOrigin, beforeOrigin,
-//	                afterEnd, noTarget} : ce que le calque a lu, publie et ecarte ; absent quand la marche des trames n a pas lu les messages. Entree
+//	                unrelated, namedWithoutPoints, outsideTree, unconfirmedRank, treeShift, scored, published, noRecipient, notPresent, noOrigin, beforeOrigin,
+//	                afterEnd, noTarget, scoreboardCompared, scoreboardMissing, scoreboardBehind} : ce que le calque a lu, publie et ecarte ; absent quand la marche des trames n a pas lu les messages. Entree
 //	                `scoreActions` de `layers`, sous `grammar-...`, gardee sur cette lecture.
 //
 // LE MESSAGE NE NOMME RIEN. Il porte un rang (la position de sa reponse dans l arbre des evenements des scripts du mode) : le meme rang designe
@@ -4516,6 +4516,41 @@ package replay
 // meme index (un remplacant) n ajoutent plus jusqu a 255 tirs fantomes au remplacant. Les valeurs de `shotStats[]` et de `hits[].w` changent sur ces films ;
 // aucun champ ne change de forme.
 //
+// QUATORZIEME APPORT : L ARBRE DES REPONSES DE HI_1_11_0 EST DECALE EN GRANDE BATAILLE :
+// Sur HI_1_11_0, dans le groupe de scripts de la Grande bataille en Slayer (`bigteambattle.lua+btbslayerevents.lua`), le rang qu un message porte designe la reponse que la table place un ou deux rangs plus loin : rangs 179 a 263 d un cran, rangs 447 a 460
+// de deux. Les points sont ceux de la table, aucun ne change ; c est la reponse designee qui change (le rang 231 etait lu « Falcon detruit, 75 » et est « Ghost detruit, 50 » ; le rang 227, lu comme une medaille, est l aide par IEM ; le rang 263, lu « Wraith
+// detourne, 25 », est hors de l arbre). Les decalages sont declares par build, par groupe et par intervalle de rangs (`reponsesdejeu/decalages.go`, `GroupeDuFilm`), chacun avec sa preuve : hors des intervalles declares et pour tout autre build, un rang se
+// lit tel quel et aucun n est devine.
+//
+//	`coverage.scoreActions.treeShift`   le nombre de messages dont le rang a ete traduit par un decalage, quelle que soit leur issue ; zero hors des builds et des intervalles declares. Ecrit sur les 20 films du corpus.
+//
+// LA MESURE (23 films Grande bataille de HI_1_11_0 du parc, 592 joueurs, le tableau du film contre les actions publiees) : messages non confirmes 278 -> 0 ; `treeShift` 2 786 ; actions publiees 6 214 -> 6 149 ; joueurs dont la somme des actions egale le total du
+// tableau 402 -> 583 ; joueurs au-dessus de leurs points publies (`scoreboardMissing`) 41 -> 0 ; joueurs en dessous (`scoreboardBehind`) 175 -> 49 ; verdict `complete` vrai sur 12 -> 18 films de 23. Les 5 films de HI_1_12_0 et HI_1_13_0 ne changent pas.
+// LE CORPUS D EQUIVALENCE (20 films) : un seul film est de ce build en Grande bataille, `e5adf7b2` : `scoreActions` 268 -> 261 actions publiees, `treeShift` 101, `scoreboardBehind` 9 -> 1, `outsideTree` 6 190 -> 6 212, soit 562 octets de moins ; les 19 autres
+// films gagnent le seul champ `treeShift` a zero (14 octets). Seule l etape `artifact` de l equivalence change, sur les 20 films ; `eliminations` et `scoreTimeline` ne changent pas.
+//
+//
+//
+// QUINZIEME APPORT : UNE EMISSION EST JETEE EN ENTIER QUAND LA TABLE DU MODE NOMME SES DEUX CANAUX COMME COMPTEURS ET QU UN DES DEUX SORT DU DOMAINE :
+// Les deux canaux d un composant du tableau des scores sortent de la meme emission. Quand la table de la famille du mode (`namedStatSlots`) nomme l emplacement lu et son frere comme compteurs (les emplacements redondants `12 A` et `12 B` comptent), un canal
+// negatif ou au-dela de 250 sur l un des deux denonce une emission mal alignee, et l autre canal ne vaut rien non plus : elle est jetee en entier (`repli_emission_hors_domaine_jetee`), sur les deux emplacements. Un canal que la table ne nomme pas n est jamais
+// juge : en zones `22 B` est une duree (470 a 3 670 sur `696a9d7c`) et `22 A` (`zone_defensive_kills`) reste intact ; en VIP `23 B` n est pas nomme. Une lecture hors de toute famille (frags, morts, assistances du pont d identite et du tableau des scores)
+// n a pas de table : seule la valeur negative du canal lu est jugee, comme avant. Une premiere forme de la regle (une liste de composants, sans la table du mode) jetait aussi les emissions saines de `22 A` en zones : elle a ete remplacee avant la publication.
+//
+//	`coverage.fallbacks[]`   `repli_emission_hors_domaine_jetee` : son compte monte sur les films dont une emission est jetee. La passe du drapeau lit la table du Drapeau sur TOUT film (c est elle qui donne le verdict de mode) : le compte monte donc aussi sur des films
+//	                         d un autre mode, sans qu aucune sortie publiee ne change.
+//	`coverage.objectives`    `available` (et `refusedByRoster` sur les films sans roster) baisse des evenements du Drapeau que cette passe ne lit plus sur ces films.
+//
+// LA MESURE (le corpus d equivalence, 20 films, un passage par etat) : 9 films changent, l etape `objectives` de l equivalence ne change sur aucun, `flag` (1 film) et `skull` (2 films) changent de digest sans que le document change hors de ses compteurs de
+// couverture ; aucun compteur d objectif, aucune courbe du tableau, aucun calque ne bouge (compare aux colonnes de l API la ou elles existent : 0 compteur plus loin, 0 plus proche). Compte des emissions jetees avant -> apres : `01e1f945` 11 -> 515, `1c4c63c2` 9 -> 10,
+// `50247b26` 22 -> 44, `60ae07c4` 0 -> 1 952, `696a9d7c` 0 -> 38, `7344d24f` 0 -> 36, `a349fea8` 38 -> 104, `a521164d` 17 -> 34, `d9781168` 0 -> 1 838 ; `coverage.objectives.available` 100 -> 76 sur `a349fea8` et 104 -> 83 sur `a521164d`.
+// SUR LES FILMS A ZONES `696a9d7c` ET `7344d24f`, `zone_defensive_kills` de chacun des joueurs reste egal a l API. SUR `390b1de5` (parc, instrument de recherche, lecture seule), le faux portage de 94,3 s du joueur de rang 7, qui n a jamais touche le drapeau
+// (API : 0 s), disparait : 25 portages -> 24, temps de porteur 94,31 s -> 0 s. Les deux autres films du parc que la regle d une premiere forme corrigeait (`70a1c6c6`, `6a711138`) ne changent pas avec la table du mode.
+//
+// `objectives.Rev` passe a `objectives-2026-11-22.2` (le calque `eliminations`, la serie des objectifs et le drapeau sont dates par elle) ; `SchemaDesFaits` ne bouge pas : les faits portent les enregistrements bruts.
+//
+//
+//
 // POURQUOI LA VERSION MONTE. Le premier apport change le contenu a forme egale (la pratique du depot, v21, v51 et v108, monte la version, parce que la reprise
 // des rejeux de l hote se decide sur `SchemaVersion`) ; les deux autres ajoutent des champs optionnels, et la version monte pour la raison des montees v3..v24.
 //
@@ -4694,7 +4729,7 @@ package replay
 // NEUVIEME APPORT : LE VERDICT DU SCORE SE COMPARE AU TABLEAU DU FILM :
 // `coverage.scoreActions.complete` disait que la lecture etait entiere (aucune trame arretee, une vue A lisible, un groupe de script connu, aucun rang non confirme, chaque action a points placee) ; il ne disait pas si la somme
 // des points publies d un joueur pouvait egaler son score. Le tableau des scores du film porte, pour chaque joueur qu il nomme, son score personnel (`scoreTimeline.players[].score`) : la somme des `scoreActions[].points` positifs
-// d un joueur est comparee a son dernier total du tableau. Le tableau ne recule jamais, donc les penalites (points negatifs) n y entrent pas. Un joueur sans total au tableau vaut zero ; sans joueur au tableau, rien n est compare
+// d un joueur est comparee a son dernier total du tableau. Le jeu retire bien une penalite du score, mais la courbe publiee du tableau (la plus longue suite non decroissante des releves) ne recule jamais : ses releves restent dans la somme des points positifs. Un joueur sans total au tableau vaut zero ; sans joueur au tableau, rien n est compare
 // et les trois comptes restent a zero.
 //
 //	`coverage.scoreActions.scoreboardCompared`   les joueurs compares : ceux qui ont une action publiee ou une ligne dans `scoreTimeline.players`.
@@ -4770,13 +4805,13 @@ package replay
 // POURQUOI LA VERSION MONTE. Le premier, le troisieme, le quatrieme et le sixieme apport changent le contenu cuit a forme egale ou presque (la pratique du depot, v21, v51, v108 et
 // v125, monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`) ; le second change une valeur de chaque rejeu et deux champs de
 // couverture ; le septieme et le huitieme ajoutent des calques et des champs optionnels (`eliminations[]`, `frozenRounds[]`, leurs couvertures) ; le neuvieme, le onzieme, le douzieme et le treizieme ajoutent des champs de couverture, deux calques
-// (`reloads[]`, `stances[]` de genre `moveCommand`) et changent le nombre et l auteur des tirs et des touches ; le dixieme ne change aucune sortie du document. La version monte pour la raison des montees v3..v24.
+// (`reloads[]`, `stances[]` de genre `moveCommand`) et changent le nombre et l auteur des tirs et des touches ; le dixieme ne change aucune sortie du document ; le quatorzieme et le quinzieme ajoutent un champ de couverture et changent la lecture des actions de score et des series du tableau. La version monte pour la raison des montees v3..v24.
 //
 // CE QUI MONTE    `SchemaVersion` 125 -> 126, et avec lui `publication-126`. `grammar.Rev` -> `grammar-2026-11-22.2` : les rechargements, la commande de deplacement tenue, les tirs a tout rang et le parent des
 // AVEC ELLE       pieces montees changent la lecture (elle avait deja pris `grammar-2026-11-22` pour l abandon des faux enregistrements du tableau et la lecture des valeurs figees des composants 28 a 55, valeur
 //                 jamais publiee). `SchemaDesFaits` 29 -> 30 : le complement de la section 1 porte les deux canaux neufs et la creation d equipement porte son parent ; les faits cuits avant se refusent sur ce numero et sur
-//                 la revision. `UsageSummaryRev` `us7` -> `us8` (le dixieme apport). `objectives.Rev` reste `objectives-2026-11-22` (les valeurs impossibles ecartees, les huit compteurs de mode, les valeurs figees par
-//                 manche et le calque des eliminations, dont l entree de `layers` est datee par elle) : aucune source de cette couche ne change aux trois derniers apports. `source.Rev`, `profile.Rev` et `killsource.Rev`
+//                 la revision. `UsageSummaryRev` `us7` -> `us8` (le dixieme apport). `objectives.Rev` -> `objectives-2026-11-22.2` (les valeurs impossibles ecartees, les huit compteurs de mode, les valeurs figees par
+//                 manche et le calque des eliminations, dont l entree de `layers` est datee par elle, puis, au quinzieme apport, l emission jetee en entier par la table du mode) : aucune source de cette couche ne change aux trois apports du milieu (rechargements, tirs, parent des pieces montees). Le quatorzieme apport (arbre des reponses de HI_1_11_0) ne monte aucune revision de couche : `scoreActions` est date par `grammar.Rev`, mais `reponsesdejeu` n est dans la fermeture d aucune couche, et `grammar-2026-11-22.2` n est pas publiee. `source.Rev`, `profile.Rev` et `killsource.Rev`
 //                 ne bougent pas non plus : les types `types.StatFrozen`, `types.ControlHold`, `types.ReloadRead` et deux champs de `types.EquipmentCreation` entrent dans leur fermeture sans qu aucune lecture d octets ni aucune
 //                 ligne de kill change, et leurs goldens sont refiges a revision constante. La revision `grammar-2026-11-22.2` n est pas publiee non plus : elle se donne a la version.
 //

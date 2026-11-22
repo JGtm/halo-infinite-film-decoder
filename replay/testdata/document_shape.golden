@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 126
-empreinte-stockee ecae02c3415aa58e
-empreinte-servie ecae02c3415aa58e
-empreinte-cuite c2d9ffee21cc794d
+empreinte-stockee dffaa24b27dbdad1
+empreinte-servie dffaa24b27dbdad1
+empreinte-cuite a0cc165ccb657c4f
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -1160,6 +1160,7 @@ ScoreActionCoverage
   ScoreboardMissing json:"scoreboardMissing" int
   Scored json:"scored" int
   StoppedFrames json:"stoppedFrames" int
+  TreeShift json:"treeShift" int
   UnconfirmedRank json:"unconfirmedRank" int
   Unrelated json:"unrelated" int
   ViewAUnreadable json:"viewAUnreadable" bool

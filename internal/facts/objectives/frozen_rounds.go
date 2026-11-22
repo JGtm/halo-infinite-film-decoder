@@ -1,7 +1,8 @@
 package objectives
 
 import (
-	"sort"
+	"cmp"
+	"slices"
 
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
@@ -157,7 +158,8 @@ func (l *lectureFigee) manches(real map[int]bool) (map[string][]FrozenRound, int
 			}
 			out[o] = append(out[o], fr)
 		}
-		sort.Slice(out[o], func(i, j int) bool { return out[o][i].Round < out[o][j].Round })
+		// La manche est unique par joueur (cle de la table `ecrites`) : le comparateur est total.
+		slices.SortFunc(out[o], func(a, b FrozenRound) int { return cmp.Compare(a.Round, b.Round) })
 		if len(out[o]) == 0 {
 			delete(out, o)
 		}

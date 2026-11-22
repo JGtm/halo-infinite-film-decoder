@@ -22,15 +22,15 @@ func presenceDesActions(from, to int) []PresenceInterval {
 	return []PresenceInterval{{From: from, To: to}}
 }
 
-// Xuids fictifs du registre des identifiants de test (testdata/IDENTITES.tsv).
+// Xuids fictifs evidents (9990...), dans l ordre des lettres : les tests trient par xuid.
 const (
-	xuidA = "2533491259474651"
-	xuidB = "2534026679052315"
-	xuidC = "2534144863254370"
-	xuidD = "2534999957182692"
-	xuidE = "2535676564474216"
-	xuidF = "2537361602648043"
-	xuidG = "2538106996528547"
+	xuidA = "9990000000000001"
+	xuidB = "9990000000000002"
+	xuidC = "9990000000000003"
+	xuidD = "9990000000000004"
+	xuidE = "9990000000000005"
+	xuidF = "9990000000000006"
+	xuidG = "9990000000000007"
 )
 
 // rosterDesActions : trois humains présents tout le film aux index 0, 1 et 2, un bot à l'index 3, un humain D

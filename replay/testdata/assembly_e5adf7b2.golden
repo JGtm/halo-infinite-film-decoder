@@ -21,7 +21,7 @@ jamais une categorie de donnee (decision produit du 2026-09-07)
 134904 point(s) portent un cap de visee · 134904 une elevation de visee · 40086 un bouclier · 1172 une fraction de vie
 
 ### ROSTER — le xuid IDENTIFIE, l index ORDONNE ; ils ne sont pas interchangeables
-27 joueur(s)
+28 joueur(s)
   2572310721014643  idx=0  equipe=1  "Joueur00079"
   2630528554874783  idx=1  equipe=1  "Joueur 0197"
   2748989142252344  idx=2  equipe=1  "Joueur000152"
@@ -48,12 +48,13 @@ jamais une categorie de donnee (decision produit du 2026-09-07)
   2731375663477898  idx=23  equipe=0  "Joueur0000111"
   2683967007359382  idx=24  equipe=1  "Jou eur00000015"
   2813424593400726  idx=25  equipe=1  "Joueur000049"
+  2538292281346464  idx=26  equipe=0  ""
   2662488457019503  idx=27  equipe=0  "Joueur00168"
 
 ### EQUIPES — lues dans le film (ti=9 i0), JAMAIS dans la base (decision utilisateur V4)
 lue=true refus="" · 687 record(s) ti=9, 0 rejete(s), 0 divergence(s)
-roster : 27 joueur(s) dont le film donne l equipe (0 sans equipe) · 0 non lu(s)
-controle (feuille de match) : accord=0 contradiction=0 silence=27
+roster : 28 joueur(s) dont le film donne l equipe (0 sans equipe) · 0 non lu(s)
+controle (feuille de match) : accord=0 contradiction=0 silence=28
 vies : 216/216 portent une equipe du film
 repartition des vies par designateur : 0 x110 · 1 x106
 
@@ -1011,15 +1012,15 @@ refus des fermetures : 0 contestee(s) (l unicite manque : deux corps, deux joueu
 verdict : nominal
 
 ## REGISTRE D IDENTITE — la PROVENANCE de chaque lien, et ce que la table du film couvre
-index de joueur : 27 direct · 0 externe · 0 deduit · 0 non resolu
+index de joueur : 28 direct · 0 externe · 0 deduit · 0 non resolu
 slot de bipede : 216 direct (dont 0 propages) · 0 deduit · 0 non resolu (index hors table=0 · sans record=0 · lectures divergentes=0)
-table du film : lue=true refus="" · 23 siege(s) · 23 lien(s) direct(s) · 4 par repli
-controle (lecture des chunks) : 22 accord · 0 contradiction · 1 silence — la table du film fait foi, l ecart se compte
-voies des liens d index : PlayerIndexTable=4 · film_table=23
+table du film : lue=true refus="" · 23 siege(s) · 23 lien(s) direct(s) · 5 par repli
+controle (lecture des chunks) : 23 accord · 0 contradiction · 0 silence — la table du film fait foi, l ecart se compte
+voies des liens d index : PlayerIndexTable=5 · film_table=23
 
 ## SIEGES — la fiche d un occupant, et la part qui vient d un appariement
-entrees 27 · sieges 24 · lus 23 · tirs 1 · apparies 2 · ouvertes 1 · sans place 0 · reprises ecrites 0 · presences film
-arrivants 4 · presences closes 5 · sans presence 0 · occupants au plus 24 · depassements 0 · relais bornes 0 · sans table false
+entrees 28 · sieges 24 · lus 23 · tirs 1 · apparies 3 · ouvertes 1 · sans place 0 · reprises ecrites 0 · presences film
+arrivants 5 · presences closes 6 · sans presence 0 · occupants au plus 24 · depassements 0 · relais bornes 0 · sans table false
 
 ## REPLIS DECLENCHES — la part de ce document qui ne vient PAS d une lecture du film
 repli_cap_vehicule_vitesse_insuffisante          6639
@@ -1029,7 +1030,7 @@ repli_identite_premier_occupant_du_siege         112
 repli_impulsion_fusionnee_dans_le_geste          30
 repli_lien_prise_arme_abandonne                  2
 repli_origine_au_sol_lachee_par_fenetre          363
-repli_place_du_remplacant_par_chainage_d_equipe  2
+repli_place_du_remplacant_par_chainage_d_equipe  3
 repli_place_ouverte_sous_la_capacite_estimee     1
 repli_visee_du_tir_lue_dans_le_record            1
 

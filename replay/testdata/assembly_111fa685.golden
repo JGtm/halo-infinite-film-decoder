@@ -1020,7 +1020,7 @@ verdict : nominal
 index de joueur : 25 direct · 0 externe · 0 deduit · 0 non resolu
 slot de bipede : 212 direct (dont 0 propages) · 0 deduit · 0 non resolu (index hors table=0 · sans record=0 · lectures divergentes=0)
 table du film : lue=true refus="" · 24 siege(s) · 24 lien(s) direct(s) · 1 par repli
-controle (lecture des chunks) : 23 accord · 0 contradiction · 1 silence — la table du film fait foi, l ecart se compte
+controle (lecture des chunks) : 24 accord · 0 contradiction · 0 silence — la table du film fait foi, l ecart se compte
 voies des liens d index : PlayerIndexTable=1 · film_table=24
 
 ## SIEGES — la fiche d un occupant, et la part qui vient d un appariement

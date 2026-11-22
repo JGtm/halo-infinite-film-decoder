@@ -9,8 +9,7 @@ package fallback
 // LA DEGRADATION DES DISTANCES DE TOUCHE N'Y EST PLUS DECLAREE. Une carte hors catalogue, ou des
 // positions de bipedes illisibles, privent les touches de leur distance (elles restent comptees) :
 // ce refus est decide et compte par l'hote (trois compteurs expvar, un par cause), sans aucun
-// site dans ce depot. Le nom `NomDistancesDeToucheDesactivees` reste exporte par `decfilm`, marque
-// obsolete.
+// site dans ce depot, et son nom n'existe plus ici.
 
 var registreKillsourceCarte = []Repli{
 	// `repli_carte_absente_largeurs_par_defaut` (pose au lot 3.4.1) EST RETIRE LE 2026-09-27 : son

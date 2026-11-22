@@ -12,18 +12,30 @@ import (
 )
 
 // Noms et fenêtres du calque. Les deux fenêtres sont des écarts d'horloge entre deux écritures du même fait, pas des
-// seuils de décision : une action de score et un pas de compteur tombent à une image près l'un de l'autre, une médaille
-// à deux images près d'un pas.
+// seuils de décision : une action de score et un pas de compteur tombent à une image de la grille par défaut près l'un
+// de l'autre, une médaille à deux images près d'un pas. Elles s'écrivent en millisecondes et se convertissent avec le
+// pas du document ([windowFrames]) : changer la cadence ne change pas la durée.
 const (
 	// killScoreActionName est le nom de la réponse de score que le jeu envoie au tueur ; sa cible est la victime.
 	killScoreActionName = "killPersonalScore"
 	// medalPerfectName est le nom de la médaille du frag parfait (la voisine `Perfection` n'en est pas un).
 	medalPerfectName = "Perfect"
-	// victimWindowFrames est l'écart maximal, en images, entre un pas d'éliminations et l'action de score de sa victime.
-	victimWindowFrames = 1
-	// perfectWindowFrames est l'écart maximal, en images, entre une médaille `Perfect` et son pas d'éliminations.
-	perfectWindowFrames = 2
+	// victimWindowMS est l'écart maximal, en millisecondes, entre un pas d'éliminations et l'action de score de sa victime :
+	// une image de la grille par défaut.
+	victimWindowMS = DefaultFrameIntervalMS
+	// perfectWindowMS est l'écart maximal, en millisecondes, entre une médaille `Perfect` et son pas d'éliminations : deux
+	// images de la grille par défaut.
+	perfectWindowMS = 2 * DefaultFrameIntervalMS
 )
+
+// windowFrames convertit une fenêtre en millisecondes en nombre d'images du pas `stepMS` (0 : la grille par défaut),
+// arrondi vers le haut : une fenêtre ne tombe jamais à zéro image.
+func windowFrames(windowMS, stepMS int) int {
+	if stepMS <= 0 {
+		stepMS = DefaultFrameIntervalMS
+	}
+	return (windowMS + stepMS - 1) / stepMS
+}
 
 // eliminationInput est ce que le calque lit : les trois calques publiés dont il dérive et le témoin de la garde.
 type eliminationInput struct {
@@ -33,6 +45,8 @@ type eliminationInput struct {
 	// HeadshotsGuarded dit que la garde des compteurs a écarté des émissions du compteur de tirs à la tête
 	// (`coverage.score.statsGuarded`).
 	HeadshotsGuarded bool
+	// StepMS est le pas de temps du document (`frameIntervalMs`) ; 0 : la grille par défaut.
+	StepMS int
 }
 
 // elimStep est un pas d'une courbe cumulée : à l'image t, la valeur monte de n unités.
@@ -100,14 +114,14 @@ func headVerdictsOf(steps []elimStep, counter *ScoreSeries, guarded bool) ([]hea
 }
 
 // perfectStepsOf rattache chaque médaille `Perfect` (donnée par son image) au pas du joueur situé à deux images au
-// plus, quand il est unique, et rend en premier les pas marqués. Rend ensuite le nombre de médailles ambiguës (plusieurs
+// plus (`window`), quand il est unique, et rend en premier les pas marqués. Rend ensuite le nombre de médailles ambiguës (plusieurs
 // pas candidats, ou un pas qui porte un autre nombre de médailles que d'éliminations) et celui des médailles sans pas.
-func perfectStepsOf(steps []elimStep, medalFrames []int) (marked []bool, ambiguous, orphans int) {
+func perfectStepsOf(steps []elimStep, medalFrames []int, window int) (marked []bool, ambiguous, orphans int) {
 	attached := make([]int, len(steps))
 	for _, tm := range medalFrames {
 		candidate, n := 0, 0
 		for i, s := range steps {
-			if abs(s.t-tm) <= perfectWindowFrames {
+			if abs(s.t-tm) <= window {
 				candidate = i
 				n++
 			}
@@ -145,11 +159,11 @@ func abs(v int) int {
 // victimsOf rend, pour chaque élimination (frames croissantes), la victime de l'action de score du joueur qui lui
 // correspond, "" sans action. Les actions sont triées par image. Deux passes : d'abord la même image, dans l'ordre, puis
 // l'image voisine pour ce qui reste ; une action ne sert qu'une fois.
-func victimsOf(frames []int, actions []ScoreAction) []string {
+func victimsOf(frames []int, actions []ScoreAction, maxWindow int) []string {
 	out := make([]string, len(frames))
 	taken := make([]bool, len(frames))
 	used := make([]bool, len(actions))
-	for window := 0; window <= victimWindowFrames; window++ {
+	for window := 0; window <= maxWindow; window++ {
 		for i, f := range frames {
 			if taken[i] {
 				continue
@@ -188,7 +202,7 @@ func markHead(e *Elimination, v headVerdict, cov *EliminationCoverage) {
 }
 
 // eliminationsOfPlayer rend les éliminations d'un joueur et compte dans cov ce qu'elles valent. Rend nil sans pas.
-func eliminationsOfPlayer(p PlayerScore, actions []ScoreAction, medalFrames []int, guarded bool, cov *EliminationCoverage) []Elimination {
+func eliminationsOfPlayer(p PlayerScore, actions []ScoreAction, medalFrames []int, in eliminationInput, cov *EliminationCoverage) []Elimination {
 	steps := stepsOfTotal(p.Kills.Total)
 	if len(steps) == 0 {
 		cov.PerfectOrphans += len(medalFrames)
@@ -198,9 +212,9 @@ func eliminationsOfPlayer(p PlayerScore, actions []ScoreAction, medalFrames []in
 	if s, ok := p.Stats[objectives.StatHeadshots]; ok {
 		counter = &s
 	}
-	heads, orphanRises := headVerdictsOf(steps, counter, guarded)
+	heads, orphanRises := headVerdictsOf(steps, counter, in.HeadshotsGuarded)
 	cov.HeadOrphanRises += orphanRises
-	perfect, ambiguous, orphans := perfectStepsOf(steps, medalFrames)
+	perfect, ambiguous, orphans := perfectStepsOf(steps, medalFrames, windowFrames(perfectWindowMS, in.StepMS))
 	cov.PerfectAmbiguous += ambiguous
 	cov.PerfectOrphans += orphans
 
@@ -218,7 +232,7 @@ func eliminationsOfPlayer(p PlayerScore, actions []ScoreAction, medalFrames []in
 			frames = append(frames, s.t)
 		}
 	}
-	for i, v := range victimsOf(frames, actions) {
+	for i, v := range victimsOf(frames, actions, windowFrames(victimWindowMS, in.StepMS)) {
 		if v != "" {
 			out[i].Victim = v
 			cov.WithVictim++
@@ -244,7 +258,7 @@ func buildEliminations(in eliminationInput) ([]Elimination, EliminationCoverage)
 	}
 	var out []Elimination
 	for _, p := range in.Players {
-		out = append(out, eliminationsOfPlayer(p, actionsBy[p.XUID], medalsBy[p.XUID], in.HeadshotsGuarded, &cov)...)
+		out = append(out, eliminationsOfPlayer(p, actionsBy[p.XUID], medalsBy[p.XUID], in, &cov)...)
 		delete(medalsBy, p.XUID)
 	}
 	for _, frames := range medalsBy {
@@ -266,7 +280,7 @@ func (a *assemblage) poserLesEliminations() {
 	if tl == nil {
 		return
 	}
-	in := eliminationInput{Players: tl.Players, Actions: a.doc.ScoreActions, Medals: a.doc.Medals}
+	in := eliminationInput{Players: tl.Players, Actions: a.doc.ScoreActions, Medals: a.doc.Medals, StepMS: a.doc.FrameIntervalMS}
 	if sc := a.doc.Coverage.Score; sc != nil {
 		in.HeadshotsGuarded = sc.StatsGuarded[objectives.StatHeadshots] > 0
 	}

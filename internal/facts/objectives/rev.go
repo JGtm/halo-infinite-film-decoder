@@ -320,6 +320,15 @@ package objectives
 // les valeurs que le film a figees (`frozen_rounds.go`, publiees par le document en `scoreTimeline.players[].frozenRounds[]`) ; `types.StatRecord` gagne `Frozen`. (3) Le calque `eliminations[]` du document
 // derive du tableau des scores et se date par cette revision (`couchesDesCalques`). Les totaux publies du tableau ne changent pas.
 
+// ENTREE `objectives-2026-11-22.2` (2026-11-22, une emission est jetee en entier quand la table du mode nomme ses deux canaux comme compteurs et qu un des deux sort du domaine d un compteur) : LA SORTIE CHANGE. Les deux canaux d un composant sortent de la
+// meme emission : quand [namedStatSlots] (la table de la famille du mode) nomme l emplacement lu ET son frere (meme composant, autre cote, redondants compris), un canal negatif ou au-dela de [statMaxModeScore] sur l un des deux prouve que
+// l emission est mal alignee, et la valeur de l autre ne vaut rien non plus : [emissionHorsDomaine] la jette en entier, sur les deux emplacements, dans les deux marches des series, par le meme enregistreur que le composant du score de mode.
+// Avant, chaque canal n etait juge que seul : le canal lu d une emission dont le canal frere etait aberrant (`12` d un cote, `7034` de l autre en Drapeau, `24 A` et `24 B`) entrait dans la serie comme un saut de compteur, et le deroulage en
+// faisait douze vols au meme instant. UN CANAL QUE LA TABLE NE NOMME PAS N EST JAMAIS JUGE : en zones `22 B` est une duree (470, 555, ... 3670) et `22 A` (`zone_defensive_kills`) reste intact ; en VIP `23 B` n est pas nomme. Une lecture
+// hors de toute famille (frags, morts et assistances du pont d identite et du tableau des scores, series des composants publies) ne nomme aucun frere : seule la valeur negative du canal lu est jugee, comme avant. Les enregistrements, les entrees et
+// les plages ne changent pas : les faits persistes portent les enregistrements bruts, la regle s applique a la lecture des series, donc `replay.SchemaDesFaits` ne bouge pas ; les faits persistes de la couche et les calques dates
+// `objectives-2026-11-22` deviennent `redecoder`. Aucun backlog killsource ne s ouvre. LA MESURE est a l entree de chronique de `replay.SchemaVersion` 126 (quinzieme apport).
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
@@ -337,4 +346,4 @@ package objectives
 // A REVISION CONSTANTE (rechargements, commande de deplacement, tirs a tout rang, parent des pieces montees, 2026-11-22) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-22.2`) ; aucune source de cette couche
 // ne change, et ni les enregistrements, ni les entrees, ni les plages, ni les actions d objectif non plus (`types.ControlHold`, `types.ReloadRead` et les champs neufs de `types.EquipmentCreation` entrent dans sa
 // fermeture). Les etapes `score`, `objectives`, `scoreTimeline` et `eliminations` de l equivalence ne changent sur aucun des 20 films. L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-11-22"
+const Rev = "objectives-2026-11-22.2"

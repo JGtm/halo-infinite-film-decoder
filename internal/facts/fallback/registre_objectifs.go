@@ -109,7 +109,7 @@ var registreObjectifsEtConstruction = []Repli{
 	{
 		Nom:       "repli_emission_hors_domaine_jetee",
 		Fait:      "quelles emissions d'un compteur nomme entrent dans la serie, ET depuis le lot J8.5 (2026-09-27) dans la progression du compteur de morts que le pont par instants de mort deroule",
-		Mecanisme: "valeur negative, canal B hors domaine du score de mode, canal B non nul sur un slot d EQUIPE (E8.2, 2026-10-17), ou canal negatif ou au-dela de la borne d un compteur sur l un des deux canaux d un composant a deux compteurs (`pairedCounterComps`) : l emission est jetee par un `continue`, dans les DEUX marches des series (par emplacement `rawSeriesByRound`, par table `rawSeriesByKey`, meme filtre `emissionHorsDomaine`) ; compte = emissions DISTINCTES (serie, instant) consultees par le document, quel que soit le nombre de lectures (lot J8.7-bis, 2026-09-28)",
+		Mecanisme: "valeur negative, canal B hors domaine du score de mode, canal B non nul sur un slot d EQUIPE (E8.2, 2026-10-17), ou canal negatif ou au-dela de la borne d un compteur sur l un des deux canaux d un composant dont la TABLE DU MODE ([namedStatSlots]) nomme les deux emplacements (le canal frere qu elle ne nomme pas n est jamais juge ; hors de toute famille, seule la valeur negative du canal lu l est) : l emission est jetee par un `continue`, dans les DEUX marches des series (par emplacement `rawSeriesByRound`, par table `rawSeriesByKey`, meme filtre `emissionHorsDomaine`) ; compte = emissions DISTINCTES (serie, instant) consultees par le document, quel que soit le nombre de lectures (lot J8.7-bis, 2026-09-28)",
 		Condition: CondNonResolu,
 		Ordre:     OrdreApresLecture,
 		Sites: []Site{{

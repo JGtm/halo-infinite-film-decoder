@@ -360,6 +360,7 @@ func ObjectiveTypeOf(gameVariantName string) string {
 
 const ObjectiveTypeSkull = objectives.ObjectiveTypeSkull
 const ObjectiveTypeZone = objectives.ObjectiveTypeZone
+const ObjectiveTypeVip = objectives.ObjectiveTypeVip
 const OriginRoundResidue = objectives.OriginRoundResidue
 
 type PlayerLine = types.PlayerLine

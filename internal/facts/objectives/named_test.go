@@ -74,7 +74,7 @@ var oracle8 = map[string][]playerStat{
 		{types.PlayerLine{XUID: "2623439693412443", Kills: 11, Deaths: 12, Assists: 13}, map[string]int{ // Joueur90002
 			StatFlagCaptures: 0, StatFlagReturns: 0, StatFlagSteals: 2,
 			StatFlagCaptureAssists: 2, StatFlagCarriersKilled: 1, StatFlagGrabs: 16}},
-		{types.PlayerLine{XUID: "2535676564474216", Kills: 10, Deaths: 18, Assists: 5}, map[string]int{
+		{types.PlayerLine{XUID: "9990000000000005", Kills: 10, Deaths: 18, Assists: 5}, map[string]int{
 			StatFlagCaptures: 0, StatFlagReturns: 1, StatFlagSteals: 3,
 			StatFlagCaptureAssists: 1, StatFlagCarriersKilled: 1, StatFlagGrabs: 1}},
 		{types.PlayerLine{XUID: "2678025997824377", Kills: 6, Deaths: 17, Assists: 4}, map[string]int{

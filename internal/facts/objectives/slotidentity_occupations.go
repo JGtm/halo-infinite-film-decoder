@@ -126,11 +126,8 @@ func coreEmissionOf(r types.StatRecord) (coreEmission, bool) {
 		if !ok {
 			continue
 		}
-		val := v.A
-		if k.Side == sideB {
-			val = v.B
-		}
-		if emissionHorsDomaine(k, r.Slot, v, val) {
+		val := canalDe(v, k.Side)
+		if emissionHorsDomaine(k, r.Slot, v, nil) {
 			continue
 		}
 		e.vals[i], e.has[i], lu = val, true, true

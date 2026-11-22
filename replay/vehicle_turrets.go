@@ -173,13 +173,13 @@ func poseTurretsOnCarriers(
 		tally.turrets++
 		tracks[i].Part = VehiclePartTurret
 		found := search.carrierOfTurret(i, spec)
-		tally.birthMismatch += unSiVehicule(found.birthMismatch)
-		tally.parentUnknown += unSiVehicule(found.parentUnknown)
+		tally.birthMismatch += unSiVrai(found.birthMismatch)
+		tally.parentUnknown += unSiVrai(found.parentUnknown)
 		if !found.ok {
 			continue
 		}
 		tally.onCarrier++
-		tally.byRead += unSiVehicule(found.byRead)
+		tally.byRead += unSiVrai(found.byRead)
 		carrier := &tracks[found.index]
 		tracks[i].Carrier = &VehicleLifeRef{Slot: carrier.Slot, Gen: carrier.Gen}
 		if spec.variant != "" && carrier.Variant == "" {
@@ -209,14 +209,6 @@ func vehicleTracksByLife(tracks []VehicleTrack) map[VehicleLifeRef]int {
 		out[VehicleLifeRef{Slot: tr.Slot, Gen: tr.Gen}] = i
 	}
 	return out
-}
-
-// unSiVehicule rend 1 pour vrai, 0 pour faux (compteurs de la couverture).
-func unSiVehicule(b bool) int {
-	if b {
-		return 1
-	}
-	return 0
 }
 
 // turretSearch porte ce que la recherche d un porteur lit : les vies, leur index par slot et par vie, et le
@@ -318,7 +310,7 @@ func memePointDeNaissance(dx, dy float64) bool {
 // autre piece, nee avec elle. Le troisieme retour dit que la decision est le repli.
 func porteurDUnePiece(creationA func(uint32) (types.EquipmentCreation, bool), piece types.EquipmentCreation,
 	spec vehicleTurret,
-) (porteur types.EquipmentCreation, ok, parRepli bool) {
+) (porteur types.EquipmentCreation, ok, parVoisinage bool) {
 	if piece.HasParent {
 		cand, ok := creationA(piece.Parent.Slot)
 		if !ok || cand.Gen != piece.Parent.Gen {
