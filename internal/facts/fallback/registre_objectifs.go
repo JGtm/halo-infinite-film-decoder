@@ -41,18 +41,15 @@ var registreObjectifsEtConstruction = []Repli{
 		CompteurBranche:   true,
 	},
 	{
-		Nom:       "repli_composants_statborg_arretes",
-		Fait:      "quels composants d'un enregistrement statborg sont lus",
-		Mecanisme: "un composant non decodable arrete la boucle : les suivants du MEME enregistrement sont perdus sans trace",
-		Condition: CondLectureNonPortee,
-		Ordre:     OrdreApresLecture,
-		Sites: []Site{{Fichier: pkgSignaux + "statborg.go", Ancre: "return out, figees, h1, true"}, {Fichier: pkgSignaux + "statborg.go", Ancre: "c.ComposantsArretes += arretes"}, {Fichier: pkgObjectiveEvents + "statborg.go", Ancre: "ComposantsArretes:         l.ComposantsArretes,"}, siteDeVersement("NomComposantsStatborgArretes"), {
-			Fichier: pkgSignaux + "statborg.go",
-			Ancre:   "v, w, ok := decodeStatComponent(pay, q)",
-		}},
+		Nom:             "repli_composants_statborg_arretes",
+		Fait:            "quels composants d'un enregistrement statborg sont lus",
+		Mecanisme:       "un composant 0 a 55 (compteurs de la manche, valeurs figees) qui ne se decode pas abandonne l'enregistrement entier (compte par `repli_enregistrement_statborg_abandonne`) ; la boucle ne s'arrete que sur un composant d'index 56 ou plus (issues des manches, entree de la ligne), que le paquet ne lit pas : les composants lus avant lui sont gardes, les suivants du MEME enregistrement sont perdus sans trace",
+		Condition:       CondLectureNonPortee,
+		Ordre:           OrdreApresLecture,
+		Sites:           []Site{{Fichier: pkgSignaux + "statborg.go", Ancre: "return out, figees, h1, true"}, {Fichier: pkgSignaux + "statborg.go", Ancre: "c.ComposantsArretes += arretes"}, {Fichier: pkgObjectiveEvents + "statborg.go", Ancre: "ComposantsArretes:         l.ComposantsArretes,"}, siteDeVersement("NomComposantsStatborgArretes")},
 		DatePose:        dateAudit0E,
-		CibleRetrait:    "les composants manquants portes, archetype par archetype ; a defaut, " + retraitRegle4,
-		CritereRetrait:  "0 arret en milieu d'enregistrement sur les 8 builds",
+		CibleRetrait:    "les composants d'index 56 et plus portes (issues des manches, entree de la ligne) ; a defaut, " + retraitRegle4,
+		CritereRetrait:  "0 arret sur un composant d'index 56 ou plus en milieu d'enregistrement sur les 8 builds",
 		CompteurBranche: true,
 	},
 	{
@@ -109,12 +106,12 @@ var registreObjectifsEtConstruction = []Repli{
 	{
 		Nom:       "repli_emission_hors_domaine_jetee",
 		Fait:      "quelles emissions d'un compteur nomme entrent dans la serie, ET depuis le lot J8.5 (2026-09-27) dans la progression du compteur de morts que le pont par instants de mort deroule",
-		Mecanisme: "valeur negative, canal B hors domaine du score de mode, canal B non nul sur un slot d EQUIPE (E8.2, 2026-10-17), ou canal negatif ou au-dela de la borne d un compteur sur l un des deux canaux d un composant dont la TABLE DU MODE ([namedStatSlots]) nomme les deux emplacements (le canal frere qu elle ne nomme pas n est jamais juge ; hors de toute famille, seule la valeur negative du canal lu l est) : l emission est jetee par un `continue`, dans les DEUX marches des series (par emplacement `rawSeriesByRound`, par table `rawSeriesByKey`, meme filtre `emissionHorsDomaine`) ; compte = emissions DISTINCTES (serie, instant) consultees par le document, quel que soit le nombre de lectures (lot J8.7-bis, 2026-09-28)",
+		Mecanisme: "valeur negative, canal B hors domaine du score de mode, canal B non nul sur un slot d EQUIPE (E8.2, 2026-10-17), ou canal negatif ou au-dela de la borne d un compteur sur l un des deux canaux d un composant dont la TABLE DU MODE ([namedStatSlots]) nomme les DEUX emplacements (un composant dont elle ne nomme qu un cote n est juge que sur la valeur negative du canal lu, comme hors de toute famille ; un canal qu elle ne nomme pas n est jamais juge) : l emission est jetee par un `continue`, dans les DEUX marches des series (par emplacement `rawSeriesByRound`, par table `rawSeriesByKey`, meme filtre `emissionHorsDomaine`) ; compte = emissions DISTINCTES (serie, instant) consultees par le document, quel que soit le nombre de lectures (lot J8.7-bis, 2026-09-28)",
 		Condition: CondNonResolu,
 		Ordre:     OrdreApresLecture,
 		Sites: []Site{{
 			Fichier: pkgObjectiveEvents + "named_series.go",
-			Ancre:   "func emissionHorsDomaine(key statSlotKey, slot int, v types.StatValue, val int64) bool {",
+			Ancre:   "func emissionHorsDomaine(key statSlotKey, slot int, v types.StatValue, table map[statSlotKey]statSlot) bool {",
 		}, {
 			// LES DEUX MARCHES (`rawSeriesByRound`, `rawSeriesByKey`) notent la meme ligne.
 			Fichier: pkgObjectiveEvents + "named_series.go",

@@ -14,7 +14,7 @@ import (
 // Noms et fenêtres du calque. Les deux fenêtres sont des écarts d'horloge entre deux écritures du même fait, pas des
 // seuils de décision : une action de score et un pas de compteur tombent à une image de la grille par défaut près l'un
 // de l'autre, une médaille à deux images près d'un pas. Elles s'écrivent en millisecondes et se convertissent avec le
-// pas du document ([windowFrames]) : changer la cadence ne change pas la durée.
+// pas du document ([windowFrames]) : la fenêtre en images est la durée arrondie vers le haut au pas, donc elle couvre au moins la durée déclarée, jamais zéro image, et dépasse d'au plus une image moins une milliseconde.
 const (
 	// killScoreActionName est le nom de la réponse de score que le jeu envoie au tueur ; sa cible est la victime.
 	killScoreActionName = "killPersonalScore"
@@ -137,9 +137,9 @@ func perfectStepsOf(steps []elimStep, medalFrames []int, window int) (marked []b
 	}
 	marked = make([]bool, len(steps))
 	for i, k := range attached {
-		switch {
-		case k == 0:
-		case k == steps[i].n:
+		switch k {
+		case 0:
+		case steps[i].n:
 			marked[i] = true
 		default:
 			ambiguous += k
@@ -256,7 +256,7 @@ func buildEliminations(in eliminationInput) ([]Elimination, EliminationCoverage)
 			medalsBy[m.XUID] = append(medalsBy[m.XUID], m.T)
 		}
 	}
-	var out []Elimination
+	var out []Elimination //nolint:prealloc // nil sans élimination : l'empreinte d'étape distingue nil d'une tranche vide, et la taille se connaît au pas près seulement
 	for _, p := range in.Players {
 		out = append(out, eliminationsOfPlayer(p, actionsBy[p.XUID], medalsBy[p.XUID], in, &cov)...)
 		delete(medalsBy, p.XUID)

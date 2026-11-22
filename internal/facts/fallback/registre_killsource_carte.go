@@ -6,10 +6,10 @@ package fallback
 // essayees dans l'ordre et la premiere qui resout gagne. Son site, `killcollector/map_identity.go`,
 // est partage par les DEUX passes du collecteur (les positions et les distances de touche).
 //
-// LA DEGRADATION DES DISTANCES DE TOUCHE N'Y EST PLUS DECLAREE. Une carte hors catalogue, ou des
-// positions de bipedes illisibles, privent les touches de leur distance (elles restent comptees) :
-// ce refus est decide et compte par l'hote (trois compteurs expvar, un par cause), sans aucun
-// site dans ce depot, et son nom n'existe plus ici.
+// LA DEGRADATION DES DISTANCES DE TOUCHE N'A PLUS DE SITE DANS LA BRIQUE. Une carte hors catalogue,
+// ou des positions de bipedes illisibles, privent les touches de leur distance (elles restent
+// comptees) : ce refus est decide et compte par l'hote (trois compteurs expvar, un par cause).
+// L'entree reste au registre pour qu'un `Declenche` de l'hote se rattache a un nom connu.
 
 var registreKillsourceCarte = []Repli{
 	// `repli_carte_absente_largeurs_par_defaut` (pose au lot 3.4.1) EST RETIRE LE 2026-09-27 : son
@@ -20,6 +20,19 @@ var registreKillsourceCarte = []Repli{
 	// dedies), la cuisson refusait deja une carte hors catalogue, `cmd/killsource` exige `-carte`,
 	// et les instruments de recherche le DECLARENT (`Options.RechercheSansCarte`, interdit en
 	// production par `archlint/killsource_recherche_sans_carte_test.go`).
+	{
+		// SANS SITE DANS LA BRIQUE : voir l'en-tete du fichier.
+		Nom:               "repli_distances_de_touche_desactivees",
+		Fait:              "la distance tireur -> victime de chaque touche",
+		Mecanisme:         "carte hors catalogue, ou positions de bipedes indisponibles : les distances sont desactivees, les touches restent comptees",
+		Condition:         CondSectionAbsente,
+		Ordre:             OrdreApresLecture,
+		CompleteeParLHote: true,
+		DatePose:          dateAudit0E,
+		CibleRetrait:      "le lot qui rallume la precision par arme : tant que la passe ne tourne pas, ses trois compteurs restent a zero par construction et ne prouvent rien",
+		CritereRetrait:    "passe rallumee, puis 0 match a distances desactivees sur le parc pour les trois causes",
+		CompteurBranche:   true,
+	},
 	{
 		Nom:       "repli_carte_premier_nom_resolu",
 		Fait:      "quelle carte du catalogue decrit CE match",

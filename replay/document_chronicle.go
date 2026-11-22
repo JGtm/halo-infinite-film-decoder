@@ -4533,7 +4533,7 @@ package replay
 //
 // QUINZIEME APPORT : UNE EMISSION EST JETEE EN ENTIER QUAND LA TABLE DU MODE NOMME SES DEUX CANAUX COMME COMPTEURS ET QU UN DES DEUX SORT DU DOMAINE :
 // Les deux canaux d un composant du tableau des scores sortent de la meme emission. Quand la table de la famille du mode (`namedStatSlots`) nomme l emplacement lu et son frere comme compteurs (les emplacements redondants `12 A` et `12 B` comptent), un canal
-// negatif ou au-dela de 250 sur l un des deux denonce une emission mal alignee, et l autre canal ne vaut rien non plus : elle est jetee en entier (`repli_emission_hors_domaine_jetee`), sur les deux emplacements. Un canal que la table ne nomme pas n est jamais
+// negatif ou au-dela de 250 sur l un des deux denonce une emission mal alignee, et l autre canal ne vaut rien non plus : elle est jetee en entier (`repli_emission_hors_domaine_jetee`), sur les deux emplacements. Un composant dont la table ne nomme qu un cote (`2 A`, `22 A` en zones) n est juge que sur la valeur negative du canal lu, et un canal que la table ne nomme pas n est jamais
 // juge : en zones `22 B` est une duree (470 a 3 670 sur `696a9d7c`) et `22 A` (`zone_defensive_kills`) reste intact ; en VIP `23 B` n est pas nomme. Une lecture hors de toute famille (frags, morts, assistances du pont d identite et du tableau des scores)
 // n a pas de table : seule la valeur negative du canal lu est jugee, comme avant. Une premiere forme de la regle (une liste de composants, sans la table du mode) jetait aussi les emissions saines de `22 A` en zones : elle a ete remplacee avant la publication.
 //

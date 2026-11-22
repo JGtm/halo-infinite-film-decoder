@@ -33,7 +33,7 @@ type LectureDuStatborg struct {
 	// valeur figee ne se decode pas, ou dont un compteur sort du domaine, abandonnes ([scanFrameAvecReplis]).
 	EnregistrementsAbandonnes int
 	// ComposantsArretes : `repli_composants_statborg_arretes` — enregistrements GARDES dont la
-	// lecture des composants s est arretee avant le dernier annonce ([decodeComponentsAvecArret]).
+	// lecture s est arretee sur un composant d index 56 ou plus, que le paquet ne lit pas, avant le dernier annonce ([lireLesComposants]).
 	ComposantsArretes int
 	// BandeParDefaut : `repli_bande_statborg_par_defaut` — aucune table de datums ne portait la
 	// bande des joueurs, la lecture s'est arretee au slot [StatborgSlotBandeSure] ([BandeDuStatborg]).

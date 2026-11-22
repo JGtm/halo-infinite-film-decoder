@@ -24,6 +24,9 @@ type decalage struct {
 // groupeGrandeBataille est le groupe de la Grande bataille en Slayer.
 const groupeGrandeBataille = "bigteambattle.lua+btbslayerevents.lua"
 
+// buildDecale est le build dont la table porte des décalages déclarés.
+const buildDecale = "HI_1_11_0"
+
 // decalages sont les décalages déclarés.
 //
 // HI_1_11_0, Grande bataille, rangs 179 à 263 : un cran. La preuve est double et indépendante. Les réponses qui
@@ -38,8 +41,8 @@ const groupeGrandeBataille = "bigteambattle.lua+btbslayerevents.lua"
 // HI_1_11_0, Grande bataille, rangs 447 à 460 : deux crans. Les médailles à mot texte de ces rangs ne se confirment
 // qu'au rang de la table plus deux ; aucun film du build n'a de message non confirmé une fois le cran appliqué.
 var decalages = []decalage{
-	{build: "HI_1_11_0", groupe: groupeGrandeBataille, premier: 179, dernier: 263, cran: 1},
-	{build: "HI_1_11_0", groupe: groupeGrandeBataille, premier: 447, dernier: 460, cran: 2},
+	{build: buildDecale, groupe: groupeGrandeBataille, premier: 179, dernier: 263, cran: 1},
+	{build: buildDecale, groupe: groupeGrandeBataille, premier: 447, dernier: 460, cran: 2},
 }
 
 // decalagesDe rend les lignes déclarées pour ce build et ce groupe.

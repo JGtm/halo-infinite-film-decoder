@@ -5,8 +5,10 @@ package objectives
 //
 // Un canal frere que la table ne nomme pas n'est jamais juge : en zones `22 B` est une duree (470, 555, ... 3670), et
 // l'ecarter ferait perdre les valeurs justes de `22 A` (`zone_defensive_kills`). Le composant `0` garde sa regle
-// propre. Chaque test est un garde-fou : retirer la boucle sur les canaux nommes de [emissionHorsDomaine] fait rougir
-// les cas « jetee » ; juger les deux canaux d'office, sans la table, fait rougir les cas « gardee ».
+// propre. Le controle de borne ne s'applique que si la table nomme les DEUX canaux du composant : un composant dont
+// la table ne nomme qu'un canal (`2 A`, `22 A`) n'est juge que sur la valeur negative du canal lu. Chaque test est un
+// garde-fou : retirer le controle des deux canaux nommes de [emissionHorsDomaine] fait rougir les cas « jetee » ;
+// juger les canaux d'office, ou un canal nomme sans son frere, fait rougir les cas « gardee ».
 
 import (
 	"testing"
@@ -36,6 +38,9 @@ func TestEmissionJeteeSelonLaTableDuMode(t *testing.T) {
 		{"Drapeau 25, canal B non nomme", ObjectiveTypeFlag, 25, types.StatValue{A: 4, B: 7034}, joueur, false},
 		{"Drapeau 12, emplacements redondants nommes", ObjectiveTypeFlag, 12, types.StatValue{A: 5, B: 9000}, joueur, true},
 		{"Drapeau 2, canal des morts non nomme", ObjectiveTypeFlag, 2, types.StatValue{A: 5, B: 9000}, joueur, false},
+		{"Drapeau 2, A nomme seul au-dela de la borne : garde", ObjectiveTypeFlag, 2, types.StatValue{A: statMaxModeScore + 1, B: 0}, joueur, false},
+		{"zones 2, A nomme seul au-dela de la borne : garde", ObjectiveTypeZone, 2, types.StatValue{A: statMaxModeScore + 1, B: 0}, joueur, false},
+		{"zones 22, A nomme seul, B grand : garde", ObjectiveTypeZone, 22, types.StatValue{A: 1, B: 7034}, joueur, false},
 		{"zones 22, duree au canal B : gardee", ObjectiveTypeZone, 22, types.StatValue{A: 1, B: 3670}, joueur, false},
 		{"zones 21, deux canaux nommes", ObjectiveTypeZone, 21, types.StatValue{A: 5, B: 9000}, joueur, true},
 		{"zones 20, canal A non nomme", ObjectiveTypeZone, 20, types.StatValue{A: 9000, B: 2}, joueur, false},

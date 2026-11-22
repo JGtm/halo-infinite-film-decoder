@@ -154,9 +154,10 @@ func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 //
 // LA TABLE DU MODE DIT QUEL CANAL FRERE EST UN COMPTEUR. Les deux canaux d'un composant sortent de la meme emission :
 // quand la table du mode ([namedStatSlots], `table`) nomme comme compteur l'emplacement lu ET son frere (meme composant,
-// autre cote, redondants compris), un canal negatif ou au-dela de [statMaxModeScore] sur l'un des deux prouve que
+// autre cote, redondants compris : les DEUX cotes du composant), un canal negatif ou au-dela de [statMaxModeScore] sur l'un des deux prouve que
 // l'emission est mal alignee, et la valeur de l'autre ne vaut rien non plus : elle est jetee en entier, sur les deux
-// emplacements. En Drapeau `24 A` et `24 B` sont nommes tous les deux, donc le releve (12, 7034) est jete. Un canal que la
+// emplacements. En Drapeau `24 A` et `24 B` sont nommes tous les deux, donc le releve (12, 7034) est jete. Un composant dont la
+// table ne nomme qu'un cote (`2 A`, `22 A` en zones, `20 B`) n'est juge que sur la valeur negative du canal lu, et un canal que la
 // table ne nomme pas (une duree comme `22 B` en zones, une lecture, un inconnu) n'est JAMAIS juge : il depasse la borne
 // de facon reguliere sur des emissions saines, et jeter l'emission retirerait des valeurs justes de son frere. `table`
 // nil — une lecture hors de toute famille (morts, frags, assistances du pont d'identite et du tableau des scores) — ne
@@ -168,10 +169,12 @@ func emissionHorsDomaine(key statSlotKey, slot int, v types.StatValue, table map
 	if key.Comp == modeScoreComp {
 		return !modeScoreInDomain(v) || (IsTeamSlot(slot) && v.B != 0)
 	}
+	_, aNomme := table[statSlotKey{Comp: key.Comp, Side: sideA}]
+	_, bNomme := table[statSlotKey{Comp: key.Comp, Side: sideB}]
+	if !aNomme || !bNomme {
+		return false
+	}
 	for _, cote := range [...]string{sideA, sideB} {
-		if _, nomme := table[statSlotKey{Comp: key.Comp, Side: cote}]; !nomme {
-			continue
-		}
 		if x := canalDe(v, cote); x < 0 || x > statMaxModeScore {
 			return true
 		}
