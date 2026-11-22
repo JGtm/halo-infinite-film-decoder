@@ -23,11 +23,12 @@ package replay
 //     réponse, rang incertain sans son texte). Le score qu'il porte, s'il en porte, est perdu.
 //
 // `complete` EST LE VERDICT : la somme des points d'un joueur ne vaut son score personnel que s'il est vrai, c'est-à-dire
-// si aucune trame n'est arrêtée, si la vue A se lit, si le groupe de scripts est connu, si aucun rang n'est non confirmé
-// et si chaque action à points a été posée. Faux, le consommateur n'affiche pas de score par action (« données
+// si aucune trame n'est arrêtée, si la vue A se lit, si le groupe de scripts est connu, si aucun rang n'est non confirmé,
+// si chaque action à points a été posée et si le tableau du film ne montre aucun point que le calque ne publie pas (le
+// tableau ne recule pas : les pénalités n'y entrent pas ; un tableau en dessous n'accuse pas la lecture). Faux, le consommateur n'affiche pas de score par action (« données
 // insuffisantes »). Vrai est NECESSAIRE et pas SUFFISANT : la table ne dit pas ce qu'un mode écrit par ses auteurs
-// (Assaut) paie hors de son arbre, et les points de ses réponses sont ceux du jeu actuel (les véhicules d'un BTB de
-// HI_1_11_0 se paient autrement) ; la mesure de la chronique donne le taux où le verdict a tenu.
+// (Assaut) paie hors de son arbre, et ses points sont ceux du jeu actuel (les véhicules d'un BTB de HI_1_11_0 se paient
+// autrement), ce que le tableau ne révèle pas toujours (points de véhicule que ni le tableau ni le score personnel ne comptent).
 //
 // L'HORLOGE. L'instant d'un message est celui de sa trame sur l'horloge du film, la même que celle des
 // positions : la frame est `(TS - origine) / pas`, l'origine étant le premier paquet de position. Une action
@@ -85,14 +86,24 @@ type ScoreActionInput struct {
 type ScoreActionCoverage struct {
 	// Complete : la lecture des actions à points est entière. Vrai seulement si aucune trame n'est arrêtée, la
 	// vue A se lit, le groupe de scripts est connu, aucun rang n'est non confirmé et chaque action à points est
-	// publiée. Nécessaire et non suffisant pour que la somme des points d'un joueur vaille son score personnel :
-	// les points viennent de la table des réponses, qui peut différer du jeu (actions de véhicule des builds
-	// anciens) ou ne rien savoir d'un mode écrit hors de l'arbre (cf. l'en-tête du fichier).
+	// publiée et aucun joueur n'a un manque (ScoreboardMissing) : le tableau du film ne recule pas, donc les pénalités n'y
+	// entrent pas, et un tableau en dessous des points publiés (ScoreboardBehind) n'accuse pas la lecture. Nécessaire et non
+	// suffisant pour que la somme des points d'un joueur vaille son score personnel : les points viennent de la table des
+	// réponses, qui peut différer du jeu (actions de véhicule des builds anciens) ou ne rien savoir d'un mode écrit hors de
+	// l'arbre (cf. l'en-tête du fichier).
 	Complete bool `json:"complete"`
 	// Group est le groupe de scripts du film dans la table des réponses ; vide quand GroupMissing.
 	Group string `json:"group,omitempty"`
 	// GroupMissing : aucun groupe de la table ne correspond aux scripts du film.
 	GroupMissing bool `json:"groupMissing"`
+	// ScoreboardCompared est le nombre de joueurs comparés au tableau du film (une action publiée ou une ligne du
+	// tableau). ScoreboardMissing : ceux dont le dernier score du tableau dépasse la somme de leurs actions à points
+	// POSITIFS publiées (le tableau montre des points que le calque ne publie pas) ; ScoreboardBehind : ceux dont il est
+	// en dessous (le tableau est en retard sur les points publiés). Un joueur sans total au tableau y vaut zéro. Les
+	// trois valent zéro quand le film ne publie aucun joueur du tableau (`scoreTimeline.players` absent).
+	ScoreboardCompared int `json:"scoreboardCompared"`
+	ScoreboardMissing  int `json:"scoreboardMissing"`
+	ScoreboardBehind   int `json:"scoreboardBehind"`
 	// Frames, ClosedFrames, StoppedFrames : les trames delta du film et ce que la lecture de leur vue A en a
 	// fait, lue jusqu'au terminateur ou arrêtée par un message non lu (ceux qui suivent l'arrêt sont perdus).
 	Frames        int `json:"frames"`
@@ -282,7 +293,7 @@ func destinatairesDuMessage(e grammar.EvenementDeJeuLu, r reponsesdejeu.Reponse,
 
 // buildScoreActions pose les réponses de score du film sur l'axe de frames. Les actions rendues sont triées
 // par frame, joueur, nom, points et cible.
-func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrames) ([]ScoreAction, ScoreActionCoverage) {
+func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrames, tableau *ScoreTimeline) ([]ScoreAction, ScoreActionCoverage) {
 	cov := ScoreActionCoverage{
 		Frames: in.Stats.Trames, ClosedFrames: in.Stats.Terminees, StoppedFrames: in.Stats.Arretees,
 		Messages: in.Stats.Messages, Copies: in.Stats.Copies,
@@ -303,8 +314,9 @@ func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrame
 		}
 	}
 	cov.Published = len(out)
+	comparerAuTableau(out, scoreFinalDuTableau(tableau), &cov)
 	cov.Complete = cov.Frames > 0 && cov.StoppedFrames == 0 && !cov.ViewAUnreadable && cov.UnconfirmedRank == 0 &&
-		cov.Published == cov.Scored
+		cov.Published == cov.Scored && cov.ScoreboardMissing == 0
 	slices.SortStableFunc(out, func(a, b ScoreAction) int {
 		return cmp.Or(cmp.Compare(a.T, b.T), strings.Compare(a.XUID, b.XUID), strings.Compare(a.Name, b.Name),
 			cmp.Compare(a.Points, b.Points), strings.Compare(a.Target, b.Target))
@@ -330,7 +342,7 @@ func (a *assemblage) poserLesScoresParAction() {
 	if !a.opt.ScoreActions.Read {
 		return
 	}
-	actions, cov := buildScoreActions(a.opt.ScoreActions, a.doc.Roster, axeDeFrames{a.origin, a.step, a.doc.FrameCount})
+	actions, cov := buildScoreActions(a.opt.ScoreActions, a.doc.Roster, axeDeFrames{a.origin, a.step, a.doc.FrameCount}, a.doc.ScoreTimeline)
 	a.doc.ScoreActions = actions
 	a.doc.Coverage.ScoreActions = &cov
 }
