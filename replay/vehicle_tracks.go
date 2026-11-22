@@ -272,6 +272,9 @@ func vehicleTrackOf(
 	tr := VehicleTrack{Slot: l.key.Slot, Gen: l.key.Gen}
 	tr.End, tr.TEnd = vehicleEndOf(l, clock)
 	tr.bornUS = vehicleBornUS(l, spawn)
+	if spawn.HasParent {
+		tr.parent = &VehicleLifeRef{Slot: spawn.Parent.Slot, Gen: spawn.Parent.Gen}
+	}
 	if l.deathUS > 0 {
 		d := l.death
 		tr.mort = &d

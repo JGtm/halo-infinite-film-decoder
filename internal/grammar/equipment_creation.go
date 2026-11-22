@@ -219,6 +219,9 @@ type equipCreationWalk struct {
 	// seul dont la sémantique des champs soit prouvée (ground_weapon_ammo.go). La lecture se
 	// fait avec son PROPRE curseur : elle ne change aucun bit du chemin existant.
 	ammoArch *Archetype
+	// parentArch, non nil, demande la lecture du PARENT du record (composant i10), sur le même principe que
+	// ammoArch : seul le véhicule la demande ([readCreationParent]).
+	parentArch *Archetype
 }
 
 // archetype et defaultState rendent les réglages effectifs de la marche (défauts `ti=37`).
@@ -394,6 +397,9 @@ func (w equipCreationWalk) readCreation(
 	cre.X, cre.Y, cre.Z = v[0], v[1], v[2]
 	cre.Mask, cre.MaskFull, cre.MaskHasI0 = idx, full, idx[0] == 0
 	cre.AfterBit = br.BitPos() + w.posAdvance()
+	if w.parentArch != nil {
+		cre.Parent, cre.HasParent = readCreationParent(pay, compStart, idx, *w.parentArch, w.prof)
+	}
 	return cre, true
 }
 

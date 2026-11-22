@@ -133,6 +133,7 @@ type VehicleTrack struct {
 	Variant     string              `json:"variant,omitempty"`
 	Destruction *VehicleDestruction `json:"destruction,omitempty"` // destructeur, cause, occupants : vehicle_destruction.go ; instant = `TEnd`
 	mort        *vehicleDeath       // le dead-state de la fin `destroyed`, porte jusqu a `Destruction`
+	parent      *VehicleLifeRef     // le parent que le record de creation nomme par i10 (piece montee), nil sans lecture
 	bornUS      uint64              // instant exact (us) dont T0 est la frame ; la fin ecrite exacte est `mort.TimestampUS`
 }
 
@@ -449,17 +450,14 @@ type VehicleCoverage struct {
 	ShotsVehicleWeapon int `json:"shotsVehicleWeapon"`
 	// LES PIECES MONTEES (schema 69, lot M4a, cf. `vehicle_turrets.go`).
 	//
-	//	Turrets           vies publiees que la table des pieces montees NOMME (tourelles
-	//	                  enfants). Elles ne comptent plus dans `familyUnknown` : leur chassis
-	//	                  n est pas inconnu, il n est pas un vehicule.
-	//	TurretsOnCarrier  parmi elles, celles dont le porteur est trouve — par le REPLI
-	//	                  `repli_tourelle_porteur_voisin_de_slot` : `Turrets - TurretsOnCarrier`
-	//	                  est le reste sans porteur, publie et non dessine.
-	//	TurretCarrierBirthMismatch  pieces dont un voisin de slot de la bonne famille, present
-	//	                  au meme moment, a ete REFUSE parce qu il n est pas NE AVEC la piece
-	//	                  (meme instant, meme point). C est le temoin independant du repli : 0 au
-	//	                  parc du 2026-09-23 ; un chiffre non nul sur un film neuf dit que le
-	//	                  voisinage de slot a cesse de designer le porteur.
+	//	Turrets           vies publiees que la table des pieces montees NOMME. Elles ne comptent
+	//	                  plus dans `familyUnknown` : leur chassis n est pas un vehicule.
+	//	TurretsOnCarrier  parmi elles, celles dont le porteur est trouve ; le reste est publie, non dessine.
+	//	TurretsByRead     parmi `TurretsOnCarrier`, celles dont le porteur est LU (handle d `i10` a la
+	//	                  creation) ; les autres sont celles du REPLI du voisinage de slot.
+	//	TurretParentUnknown  pieces dont le handle lu ne designe aucun chassis connu : sans porteur.
+	//	TurretCarrierBirthMismatch  pieces SANS parent lu dont le voisin de slot de la bonne famille a
+	//	                  ete REFUSE par le repli : pas NE AVEC la piece (meme instant, meme point).
 	//	TurretRides       episodes d artilleur REPORTES de la tourelle sur son porteur ;
 	//	                  TurretRidesDropped ceux qui sont GARDES sur la piece, somme des DEUX
 	//	                  refus ventiles : TurretRidesOutOfWindow (l episode tombe hors de la
@@ -477,6 +475,8 @@ type VehicleCoverage struct {
 	//	                  son arme.
 	Turrets                    int `json:"turrets"`
 	TurretsOnCarrier           int `json:"turretsOnCarrier"`
+	TurretsByRead              int `json:"turretsByRead"`
+	TurretParentUnknown        int `json:"turretParentUnknown"`
 	TurretCarrierBirthMismatch int `json:"turretCarrierBirthMismatch"`
 	TurretRides                int `json:"turretRides"`
 	TurretRidesDropped         int `json:"turretRidesDropped"`
