@@ -4525,11 +4525,12 @@ package replay
 // LE PARC         un artefact 124 : verdict `a redecoder` (les faits cuits se refusent sur le schema des faits et la revision). La recuisson est une decision de
 //                 l utilisateur.
 
-// v126 (2026-11-22, huit apports en une version : un trajet de vehicule porte le joueur du corps qui monte, le coup d envoi se lit sur l horloge de manche du
+// v126 (2026-11-22, treize apports en une version : un trajet de vehicule porte le joueur du corps qui monte, le coup d envoi se lit sur l horloge de manche du
 // jeu, les compteurs nommes du tableau ne depassent plus les eliminations du joueur, les faux enregistrements du tableau sont abandonnes, `medalLabels` est declare, huit compteurs
-// de mode sont nommes, le calque des eliminations porte la marque a la tete et le frag parfait, les valeurs figees par manche sont publiees).
-// Les neuf commits ont ete integres sur une seule branche, en deux integrations : une version, une revision de grammaire, une revision des objectifs. Les mesures de chaque apport
-// sont gardees telles qu elles ont ete prises, avant l integration.
+// de mode sont nommes, le calque des eliminations porte la marque a la tete et le frag parfait, les valeurs figees par manche sont publiees, le verdict du score se compare au tableau, un objet
+// lache a la mort est credite a la vie qui s acheve, les rechargements et la commande de deplacement tenue sont publies, les tirs se lisent a tout rang, le porteur d une piece montee se lit a sa creation).
+// Les commits ont ete integres sur une seule branche, en trois integrations : une version, une revision de grammaire, une revision des objectifs. Les mesures des huit premiers apports sont gardees telles qu
+// elles ont ete prises, avant l integration ; celles des cinq derniers se lisent sur le corpus d equivalence de 20 films, un passage par fusion.
 //
 // PREMIER APPORT : UN TRAJET DE VEHICULE PORTE LE JOUEUR DU CORPS QUI MONTE :
 // Un occupant qui monte a bord ne replique plus : aucune vie ne couvre l instant de la
@@ -4689,16 +4690,95 @@ package replay
 // `repli_enregistrement_statborg_abandonne` monte (par exemple 1 671 -> 1 680 sur `000d5950`) et `repli_composants_statborg_arretes` change sur dix-huit ; `roundsUnplayed` ou `roundsWritten` change sur onze films ;
 // `coverage.score.points` change sur quatre ; deux films dont le tableau ne nomme aucun joueur perdent un faux enregistrement (une equipe en trop, une ligne d identite non resolue). Aucun total publie ne change.
 //
+//
+// NEUVIEME APPORT : LE VERDICT DU SCORE SE COMPARE AU TABLEAU DU FILM :
+// `coverage.scoreActions.complete` disait que la lecture etait entiere (aucune trame arretee, une vue A lisible, un groupe de script connu, aucun rang non confirme, chaque action a points placee) ; il ne disait pas si la somme
+// des points publies d un joueur pouvait egaler son score. Le tableau des scores du film porte, pour chaque joueur qu il nomme, son score personnel (`scoreTimeline.players[].score`) : la somme des `scoreActions[].points` positifs
+// d un joueur est comparee a son dernier total du tableau. Le tableau ne recule jamais, donc les penalites (points negatifs) n y entrent pas. Un joueur sans total au tableau vaut zero ; sans joueur au tableau, rien n est compare
+// et les trois comptes restent a zero.
+//
+//	`coverage.scoreActions.scoreboardCompared`   les joueurs compares : ceux qui ont une action publiee ou une ligne dans `scoreTimeline.players`.
+//	`coverage.scoreActions.scoreboardMissing`    parmi eux, ceux dont le score du tableau est AU-DESSUS de la somme des points positifs publies (des points que le calque ne publie pas).
+//	`coverage.scoreActions.scoreboardBehind`     ceux chez qui il est EN DESSOUS (le tableau est en retard sur les points publies).
+//	`coverage.scoreActions.complete`             devient faux quand `scoreboardMissing` est non nul ; `scoreboardBehind` ne le change pas.
+//
+// LE CORPUS D EQUIVALENCE (20 films) : les trois champs sont ecrits sur les 20 films ; 202 joueurs compares sur 16 films (les 4 autres n ont aucun joueur au tableau), 71 joueurs `scoreboardMissing` sur 5 films, 26
+// `scoreboardBehind` sur 10 films ; `complete` passe de vrai a faux sur un film (`9f57c612` : 6 joueurs au tableau au-dessus de leurs points publies, sur 10 compares). Aucune autre sortie ne change a cette fusion.
+//
+//
+//
+// DIXIEME APPORT : UN OBJET LACHE A LA MORT EST CREDITE A LA VIE QUI S ACHEVE, PAS AU REPRENEUR DE LA PLACE :
+// Un objet lache a la mort nait a `finVie + 1`, l image ou le repreneur du slot peut naitre ; la pose `dropped` se datait sous la vie du repreneur et creditait le lacher a un autre joueur. Le resume d usage
+// (`UsageSummaryRev`) l attribue desormais a la vie qui s acheve a l image precedente ; sans vie achevee a cette image, la regle est celle d avant. Ce n est pas le document qui change : AUCUN CHAMP DU DOCUMENT NE CHANGE, et
+// le document des 20 films du corpus d equivalence est identique a cette fusion. `UsageSummaryRev` monte (`us7` -> `us8`) : les resumes d usage se reprennent par `levelup backfill-usage-summary`, sans recuisson des rejeux.
+//
+//
+//
+// ONZIEME APPORT : LES RECHARGEMENTS ET LA COMMANDE DE DEPLACEMENT TENUE :
+// Deux canaux de la marche des trames, lus dans la vue A (genre 38, `weapon_reload`) et dans la vue de controle (l entree de controle de chaque participant). Les deux sont rendus par la grammaire (`grammar-2026-11-22.2`) et
+// voyagent dans le complement de la section 1 des faits (`SchemaDesFaits` 30).
+//
+//	`reloads[]`                     {t, place} : l image de la trame qui ecrit le message, et l index de joueur de l auteur tel que le message l ecrit (le meme espace que l index du tireur d un tir et que `roster[].filmIndex`).
+//	                                Un rechargement par (trame, auteur, references) ; les copies que le jeu ecrit dans la meme trame ne sont pas publiees. Aucune arme n est nommee : le message ne la nomme pas.
+//	`coverage.reloads`              {frames, closedFrames, stoppedFrames, read, copies, withoutPlayer, beforeOrigin, afterEnd, published} ; `read` = `copies` + `withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`. Les trames
+//	                                arretees perdent les messages qui les suivent : sur un film qui en porte, le compte est un plancher. Sur les builds dont la vue A s arrete tot, aucun message n est lu et `reloads` est vide : la couverture le dit.
+//	`layers.reloads`                le calque est date par la revision de la grammaire, sa garde est « la marche a lu au moins une trame ».
+//	`stances[]`, genre `moveCommand`   la commande de deplacement tenue (jamais la serie de valeurs) : de la premiere entree lue dont un des deux scalaires analogiques n est pas au zero exact a la premiere dont les deux le sont, les
+//	                                trous (paquets dont la vue de controle n est pas lue) portes sans etre combles, decoupee aux bornes de chaque vie publiee du joueur qui tient le siege a cet instant et muette sur les images qu un trou couvre entierement.
+//	`coverage.stances.control`      {holds, withHole, innerHoles, entries, published, intervals, noTrack, noPlayer} ; `holds` = `published` + `noTrack` + `noPlayer`. `coverage.stances.byKind.moveCommand` compte les intervalles.
+//
+// CE QUI N EST PAS PUBLIE, ET C EST DIT : le champ de cinq bits de l entree de controle (son bit de poids 4 ressemble au bouton de saut mais ne s accorde qu a 63 % avec le saut derive de la vitesse verticale, sous les 90 %
+// que la publication exige : aucun bouton de saut n est publie) ; les quatre booleens du message de rechargement (leur sens n est pas etabli) ; l accroupissement et la glissade (`i29`, `i62`), que le film n annonce pas sur les
+// versions recentes (versions de film 37 et plus) : zero intervalle publie n y dit pas que personne ne s est accroupi.
+//
+// LE CORPUS D EQUIVALENCE (20 films) : 9 026 rechargements publies sur 16 films (12 708 messages lus, dont 3 653 copies, 16 sans joueur et 13 apres la fin) ; les 4 films dont la vue A s arrete tot n en lisent aucun
+// (`50247b26`, `60ae07c4`, `a349fea8`, `a521164d`) ; 35 856 trames arretees sur 10 films. 27 325 commandes tenues lues sur 18 films, 27 166 publiees en 30 541 intervalles sur 17 films (`stances[]` passe de 35 836 a 66 377
+// lignes), 159 sans joueur sur 10 films, aucune sans piste, 9 566 commandes a trou sur 6 films ; `coverage.stances.lives` gagne une vie sur 11 films. Aucune autre sortie ne change a cette fusion.
+//
+//
+//
+// DOUZIEME APPORT : LES TIRS A TOUT RANG D UNE TRAME, L AUTEUR D UNE TOUCHE PAR L UNITE, LE NUMERO DE TIR EN RETARD :
+// Un evenement de tir etait le seul record de tir en tete de la liste d une trame ; c est desormais tout message de tir (genre 36) de la vue A, a tout rang (un tir de rang 1 et plus n a pas de record modal : sans visee).
+// Trois consequences dans le document :
+//
+//	`shots[]`, `coverage.shots`     les tirs lus a tout rang s ajoutent ; `available`, `attached`, `byUnit` et les comptes de visee suivent.
+//	`hits[]`, `damage[]`            l auteur d un degat est le joueur de l UNITE que le message nomme comme responsable, a defaut l index de joueur qu il ecrit ; l arme d une touche est celle du joueur a l instant, par
+//	                                l index pour un bot. `coverage.hits.noShooter` baisse, `coverage.hits.published` monte.
+//	`shotStats[].shots`             la numerotation des tirs d un joueur (modulo 256, a chaque tir ecrit ou non) compte les tirs sautes, jamais un retard : un numero qui remplit un trou que l unite de ce tir a elle-meme
+//	                                saute n ajoute rien et ne deplace pas la tete (un numero 117 ecrit apres le 121 ajoutait 252 tirs qui n existent pas). Une regle de structure, jamais du temps.
+//
+// LE CORPUS D EQUIVALENCE (20 films) : l etape `fire` passe de 44 837 a 59 249 evenements de tir sur 16 films (les 4 films dont la vue A s arrete tot ne changent pas) ; `shots[]` publies 52 348 -> 66 406, `coverage.shots.available`
+// 54 006 -> 68 418 ; `hits[]` 18 632 -> 19 266 (7 films), `coverage.hits.noShooter` 800 -> 36 ; `coverage.projectiles.shotLinked` 1 567 -> 2 052 ; le nombre de tirs compte par `shotStats[].shots` change sur 16 films
+// (`01e1f945` : 22 683 -> 2 973 par la regle du numero en retard ; `000d5950` : 1 456 -> 1 458). Les calques qui se lient aux tirs suivent : `projectiles[].shot` et `coverage.projectiles.shotLinked` (1 567 -> 2 052), `coverage.vehicles.shots*`, `coverage.seats.tirsParPlace`
+// (1 306 -> 1 866 sur 7 films). Aucune autre sortie ne change a cette fusion.
+//
+//
+//
+// TREIZIEME APPORT : LE PORTEUR D UNE PIECE MONTEE EST LU A SA CREATION :
+// Une piece montee (les tourelles du Warthog, du Falcon, du Wraith et du Scorpion) est creee comme une entite a part entiere sans echantillon de position : son chassis bouge. Quand le film nomme le chassis, le record de
+// creation de la piece annonce `object-parent-state` (`i10`) et son handle designe la vie du chassis, meme cree apres la piece (225 ms mesures). Le porteur est alors une LECTURE ; le voisinage de slot et son temoin de naissance
+// a 100 ms ne servent plus qu aux pieces dont le film ne nomme aucun parent (le plus ancien format, 31). `types.EquipmentCreation` gagne `HasParent` et `Parent` : le codec des faits change (`SchemaDesFaits` 30).
+//
+//	`vehicles[].carrier`                    les pieces dont le porteur n etait pas trouve en ont un.
+//	`coverage.vehicles.turretsByRead`       les pieces dont le porteur est lu ; `turretParentUnknown` celles dont le handle lu ne designe aucun chassis connu (sans porteur, le repli ne prend pas le relais).
+//	`coverage.vehicles.turretCarrierBirthMismatch`   ne compte plus que les pieces SANS parent lu. `repli_tourelle_porteur_voisin_de_slot` ne se declenche qu aux pieces sans parent lu.
+//
+// LE CORPUS D EQUIVALENCE (20 films) : 142 pieces montees sur 9 films, toutes lues (`turretsByRead` 142, `turretParentUnknown` 0) ; 139 avaient deja un porteur par le voisinage de slot et le meme est lu, 3 en gagnent un (un film,
+// `turretsOnCarrier` 48 -> 51, trois `vehicles[].carrier` de plus) ; le repli du voisinage passe de 139 declenchements a zero. Aucune autre sortie ne change a cette fusion, hors les etapes `pads` (20 films) et `vehicles` (9 films) de
+// l equivalence, dont le digest change parce que la creation porte deux champs de plus.
+//
 // POURQUOI LA VERSION MONTE. Le premier, le troisieme, le quatrieme et le sixieme apport changent le contenu cuit a forme egale ou presque (la pratique du depot, v21, v51, v108 et
 // v125, monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`) ; le second change une valeur de chaque rejeu et deux champs de
-// couverture ; le septieme et le huitieme ajoutent des calques et des champs optionnels (`eliminations[]`, `frozenRounds[]`, leurs couvertures), et la version monte pour la raison des montees v3..v24.
+// couverture ; le septieme et le huitieme ajoutent des calques et des champs optionnels (`eliminations[]`, `frozenRounds[]`, leurs couvertures) ; le neuvieme, le onzieme, le douzieme et le treizieme ajoutent des champs de couverture, deux calques
+// (`reloads[]`, `stances[]` de genre `moveCommand`) et changent le nombre et l auteur des tirs et des touches ; le dixieme ne change aucune sortie du document. La version monte pour la raison des montees v3..v24.
 //
-// CE QUI MONTE    `SchemaVersion` 125 -> 126, et avec lui `publication-126`. `grammar.Rev` -> `grammar-2026-11-22` (l abandon des faux enregistrements du tableau, et la lecture des valeurs
-// AVEC ELLE       figees des composants 28 a 55). `objectives.Rev` -> `objectives-2026-11-22` (les valeurs impossibles ecartees, les huit compteurs de mode, les valeurs figees par manche
-//                 et le calque des eliminations, dont l entree de `layers` est datee par elle). `SchemaDesFaits` reste 29 : le champ `StatRecord.Frozen` voyage dans la charge des enregistrements
-//                 par `encoding/json`, omis quand il est vide, et leur fraicheur se juge sur les revisions. Les revisions `grammar-2026-11-22` et `objectives-2026-11-22` ne sont pas
-//                 publiees : les trois derniers apports se sont ajoutes a la meme valeur, le golden de chaque couche est refige a revision constante (`source` et `killsource` aussi : le type
-//                 `types.StatFrozen` entre dans leur fermeture sans qu aucune lecture d octets ni aucune ligne de kill change).
+// CE QUI MONTE    `SchemaVersion` 125 -> 126, et avec lui `publication-126`. `grammar.Rev` -> `grammar-2026-11-22.2` : les rechargements, la commande de deplacement tenue, les tirs a tout rang et le parent des
+// AVEC ELLE       pieces montees changent la lecture (elle avait deja pris `grammar-2026-11-22` pour l abandon des faux enregistrements du tableau et la lecture des valeurs figees des composants 28 a 55, valeur
+//                 jamais publiee). `SchemaDesFaits` 29 -> 30 : le complement de la section 1 porte les deux canaux neufs et la creation d equipement porte son parent ; les faits cuits avant se refusent sur ce numero et sur
+//                 la revision. `UsageSummaryRev` `us7` -> `us8` (le dixieme apport). `objectives.Rev` reste `objectives-2026-11-22` (les valeurs impossibles ecartees, les huit compteurs de mode, les valeurs figees par
+//                 manche et le calque des eliminations, dont l entree de `layers` est datee par elle) : aucune source de cette couche ne change aux trois derniers apports. `source.Rev`, `profile.Rev` et `killsource.Rev`
+//                 ne bougent pas non plus : les types `types.StatFrozen`, `types.ControlHold`, `types.ReloadRead` et deux champs de `types.EquipmentCreation` entrent dans leur fermeture sans qu aucune lecture d octets ni aucune
+//                 ligne de kill change, et leurs goldens sont refiges a revision constante. La revision `grammar-2026-11-22.2` n est pas publiee non plus : elle se donne a la version.
 //
-// LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire et celle des objectifs). La recuisson est une
+// LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire, celle des objectifs et le numero des faits ; les resumes d usage sont a reprendre sur `us8`). La recuisson est une
 //                 decision de l utilisateur.

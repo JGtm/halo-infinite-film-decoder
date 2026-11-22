@@ -25,7 +25,7 @@
 #
 #   LEVELUP_UPDATE_TYPES_SHAPES=1 go test ./internal/games/halo_infinite/film/types/ \
 #     -run TestFormesDesTypesEgalentLeGolden -update-types-shapes
-revisions	source=source-2026-09-16.2	grammar=grammar-2026-11-22	killsource=killsource-2026-11-10	objectives=objectives-2026-11-22
+revisions	source=source-2026-09-16.2	grammar=grammar-2026-11-22.2	killsource=killsource-2026-11-10	objectives=objectives-2026-11-22
 
 ## ChunkMeta (source)
 Index	int	-
@@ -199,6 +199,21 @@ BurstsWithHole	int	-
 InnerHoles	int	-
 HeldHoleMS	int64	-
 
+## ControlHold (grammar)
+FilmIndex	int	-
+StartUS	uint64	-
+EndUS	uint64	-
+StartBound	string	-
+EndBound	string	-
+Entries	int	-
+Holes	[]types.ContinuousFireHole	-
+
+## ControlHoldStats (grammar)
+Holds	int	-
+WithHole	int	-
+InnerHoles	int	-
+Entries	int	-
+
 ## DeadState (grammar)
 Mort	bool	-
 EnumA	int32	-
@@ -264,6 +279,8 @@ MaskHasI0	bool	-
 DefaultStateBits	int	-
 HasAmmo	bool	-
 Ammo	types.GroundWeaponAmmo	-
+HasParent	bool	-
+Parent	types.LifeKey	-
 AfterBit	int	-
 
 ## EquipmentCreationStats (grammar)
@@ -542,6 +559,17 @@ AtRest	bool	-
 Slot	uint32	-
 Gen	uint32	-
 Pts	[]types.ProjectileSample	-
+
+## ReloadRead (grammar)
+TimestampUS	uint64	-
+Player	int8	-
+
+## ReloadStats (grammar)
+Frames	int	-
+Closed	int	-
+Stopped	int	-
+Messages	int	-
+Copies	int	-
 
 ## RosterListing (grammar)
 XUID	uint64	-

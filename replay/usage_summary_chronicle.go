@@ -41,3 +41,7 @@ package replay
 // fil des morts du match (`match_kill_events_latest`), lu par l'appelant. AUCUNE RECUISSON : le
 // bouclier (`Point.Sh`) est publié par les artefacts du parc ; la seule bascule de révision fait
 // reprendre les résumés par `levelup backfill-usage-summary` (sans `--force`).
+// us8 (2026-11-22, schema 126) — UN OBJET LACHE A LA MORT EST CREDITE A LA VIE QUI S'ACHEVE, PAS AU REPRENEUR DE LA PLACE. Un objet lache a la mort naît a `finVie + 1`, l'image ou le repreneur du slot peut naitre : la pose
+// `dropped` se datait alors sous la vie du repreneur et creditait le lacher a un autre joueur. Elle est desormais attribuee a la vie qui s'acheve a l'image precedente (`usageOwners.atLacher`) ; sans vie achevee a l'image
+// precedente, la regle est celle de `atOrJustBefore`. EFFET SUR LE CORPUS D'EQUIVALENCE : AUCUN (le document des 20 films est inchange a cette fusion) ; la bascule de revision fait reprendre les resumes par
+// `levelup backfill-usage-summary` (sans `--force`), parce que la regle d'attribution a change pour les matchs ou un repreneur nait a l'image qui suit la mort.

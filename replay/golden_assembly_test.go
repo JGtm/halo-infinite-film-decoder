@@ -45,15 +45,15 @@ const (
 	// (4 desaccords entre sources) ; 483 vient d une DEDUCTION qui s abstient des qu il reste
 	// deux candidats, et dont les refus sont comptes et publies.
 	//
-	// 504/519 = 97,1 % DEPUIS LE 2026-09-14 (lot 1.0), ET CE N EST PAS UN ELARGISSEMENT. Le
+	// 589/605 = 97,4 % DEPUIS LE 2026-11-22 (les tirs se lisent a tout rang) ; 504/519 = 97,1 % DEPUIS LE 2026-09-14 (lot 1.0), ET CE N EST PAS UN ELARGISSEMENT. Le
 	// fixture d entrees ne portait PAS les records de creation de bipede — le lien DIRECT
 	// corps -> joueur que le film ECRIT (lot E2) — parce que son chemin recopiait la sequence de
 	// balayages de `BuildFromFilm` et que ce canal n y figurait pas (decouverte D7). Le golden
 	// decrivait donc un pont bati SANS sa source premiere. La production, elle, le lit depuis le
 	// 2026-09-08 : ce fixture rattrape le document servi, il ne change pas de regle. Mesure du
 	// meme geste : les rejets « slot introuvable » passent de 36 a 15.
-	wantShotsAttached  = 504
-	wantShotsAvailable = 519
+	wantShotsAttached  = 589
+	wantShotsAvailable = 605
 	// wantClosedByShot / wantClosedByRespawn : ce que les fermetures ajoutent sur ce film.
 	// La fermeture A n y ferme RIEN (ses candidates sont contestees) ; B en portait 3 — 5 avant
 	// la ronde de correction du 2026-08-09, dont DEUX revendiquaient la meme mort qu une autre
@@ -195,11 +195,11 @@ func ligneAssembly(ls []string, i int) string {
 // Les tests NOMMES : un chiffre du chantier, une phrase, un test.
 // ---------------------------------------------------------------------------
 
-// TestShotsCoverageIsFiveHundredFourOfFiveNineteen : LE CHIFFRE CENTRAL DU CHANTIER.
+// TestShotsCoverageIsFiveHundredEightyNineOfSixHundredFive : LE CHIFFRE CENTRAL DU CHANTIER.
 //
-// 504 tirs rattaches sur 519 disponibles. Le denominateur compte autant que le numerateur :
-// publier 504 sans dire 519 laisserait croire a l exhaustivite. Le rapport et la ventilation
-// des rejets sont donc verifies ensemble. (483/519 jusqu au lot 1.0 du 2026-09-14, qui fait
+// 589 tirs rattaches sur 605 disponibles. Le denominateur compte autant que le numerateur :
+// publier 589 sans dire 605 laisserait croire a l exhaustivite. Le rapport et la ventilation
+// des rejets sont donc verifies ensemble. (483/519 jusqu au lot 1.0 du 2026-09-14, puis 504/519 jusqu au 2026-11-22 ; il fait
 // entrer au fixture le lien direct corps -> joueur : cf. wantShotsAttached.)
 func TestShotsCoverageIsFiveHundredFourOfFiveNineteen(t *testing.T) {
 	doc := buildGolden(t)

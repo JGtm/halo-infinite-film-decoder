@@ -492,3 +492,6 @@ package killsource
 // proprietes reseau lues par la marche, les messages de degat, la vie des bipedes, les vitalites relues sur les listes non localisees) ; le fil des
 // couples et les kills que ce paquet en tire ne changent pas. Le siege d un occupant de la table du film se lit aux listes de la session (`grammar.ScanFilmPlayerTableAuxListages`,
 // aussi pour `readFilmTable`) : les gamertags epingles aux index suivent les sieges de la liste. Golden regenere a revision constante.
+//
+// A REVISION CONSTANTE (rechargements, commande de deplacement, tirs a tout rang, parent des pieces montees, 2026-11-22) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-22.2`) ; le fil des couples et les kills
+// que ce paquet en tire ne changent pas (`types.ControlHold`, `types.ReloadRead` et les champs neufs de `types.EquipmentCreation` entrent dans sa fermeture sans qu une ligne de kill change). Golden regenere a revision constante.

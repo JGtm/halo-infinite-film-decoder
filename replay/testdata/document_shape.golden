@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 126
-empreinte-stockee 29dad47ad3118f0f
-empreinte-servie 29dad47ad3118f0f
-empreinte-cuite 4c79e259c50adab1
+empreinte-stockee ecae02c3415aa58e
+empreinte-servie ecae02c3415aa58e
+empreinte-cuite c2d9ffee21cc794d
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -331,6 +331,7 @@ Coverage
   Pickups json:"pickups,omitempty" *PickupCoverage
   Placements json:"placements,omitempty" *EquipmentPlacementCoverage
   Projectiles json:"projectiles,omitempty" *ProjectileCoverage
+  Reloads json:"reloads,omitempty" *ReloadCoverage
   Score json:"score,omitempty" *ScoreCoverage
   ScoreActions json:"scoreActions,omitempty" *ScoreActionCoverage
   Seats json:"seats,omitempty" *SeatCoverage
@@ -1012,6 +1013,19 @@ RegistryCoverage
   Fingerprint json:"fingerprint" string
   NamedSlots json:"namedSlots" int
   Status json:"status" string
+Reload
+  Place json:"place" int
+  T json:"t" int
+ReloadCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  ClosedFrames json:"closedFrames" int
+  Copies json:"copies" int
+  Frames json:"frames" int
+  Published json:"published" int
+  Read json:"read" int
+  StoppedFrames json:"stoppedFrames" int
+  WithoutPlayer json:"withoutPlayer" int
 ReplayDocument
   Abilities json:"abilities,omitempty" []AbilityRead
   AbilityCharges json:"abilityCharges,omitempty" []AbilityCharge
@@ -1061,6 +1075,7 @@ ReplayDocument
   PadPickups json:"padPickups,omitempty" []PadPickup
   Pickups json:"pickups,omitempty" []Pickup
   Projectiles json:"projectiles,omitempty" []Projectile
+  Reloads json:"reloads,omitempty" []Reload
   RespawnCountdowns json:"respawnCountdowns,omitempty" []RespawnCountdown
   RiftPoses json:"riftPoses,omitempty" []RiftPose
   Roster json:"roster,omitempty" []RosterEntry
@@ -1140,6 +1155,9 @@ ScoreActionCoverage
   OutsideTree json:"outsideTree" int
   Published json:"published" int
   ScoreMessages json:"scoreMessages" int
+  ScoreboardBehind json:"scoreboardBehind" int
+  ScoreboardCompared json:"scoreboardCompared" int
+  ScoreboardMissing json:"scoreboardMissing" int
   Scored json:"scored" int
   StoppedFrames json:"stoppedFrames" int
   UnconfirmedRank json:"unconfirmedRank" int
@@ -1259,9 +1277,19 @@ Stance
   Slot json:"slot" uint32
   T0 json:"t0" int
   T1 json:"t1" int
+StanceControlCoverage
+  Entries json:"entries" int
+  Holds json:"holds" int
+  InnerHoles json:"innerHoles" int
+  Intervals json:"intervals" int
+  NoPlayer json:"noPlayer" int
+  NoTrack json:"noTrack" int
+  Published json:"published" int
+  WithHole json:"withHole" int
 StanceCoverage
   Absent json:"absent,omitempty" bool
   ByKind json:"byKind,omitempty" map[string]int
+  Control json:"control,omitempty" *StanceControlCoverage
   Desyncs json:"desyncs" int
   Dropped json:"dropped,omitempty" int
   EventPacketsUnlocated json:"eventPacketsUnlocated,omitempty" int
@@ -1413,11 +1441,13 @@ VehicleCoverage
   SilencesNonTranches json:"silencesNonTranches" int
   SpawnsHorsEmprise json:"spawnsHorsEmprise" int
   TurretCarrierBirthMismatch json:"turretCarrierBirthMismatch" int
+  TurretParentUnknown json:"turretParentUnknown" int
   TurretRides json:"turretRides" int
   TurretRidesAlreadyAboard json:"turretRidesAlreadyAboard" int
   TurretRidesDropped json:"turretRidesDropped" int
   TurretRidesOutOfWindow json:"turretRidesOutOfWindow" int
   Turrets json:"turrets" int
+  TurretsByRead json:"turretsByRead" int
   TurretsOnCarrier json:"turretsOnCarrier" int
   UnknownChassis json:"unknownChassis,omitempty" map[string]int
   Variants json:"variants" int

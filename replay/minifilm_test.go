@@ -395,9 +395,9 @@ func TestMiniFilmDecodesTheFireEvents(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ScanFilmFireEvents : %v", err)
 	}
-	if len(ev) != wantShotsAvailable {
-		t.Errorf("%d evenements de tir decodes, attendu %d — le decodeur du record type 36 a bouge",
-			len(ev), wantShotsAvailable)
+	if len(ev) != 519 {
+		t.Errorf("%d evenements de tir decodes, attendu 519 — le decodeur du record type 36 a bouge",
+			len(ev))
 	}
 	withWeapon, withAim := 0, 0
 	idx := map[int]int{}

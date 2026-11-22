@@ -259,7 +259,8 @@ const VersionCodecFaits = 2
 // SCHEMA 27 : le complement de la section 1 porte aussi les entrees des entites du tableau des scores (de qui est chaque ligne) ; `grammar.Rev` monte.
 // SCHEMA 28 : le complement de la section 1 porte aussi les suppressions de bipede (`FilmInputs.BipedDeletions`, les records DEL des bipedes lus par la marche des trames) et leurs comptes ; `grammar.Rev` monte.
 // SCHEMA 29 : le complement de la section 1 porte aussi la jauge de retour lue par la marche (`FilmInputs.FlagGaugeWalk`), les messages `damage_aftermath` (`FilmInputs.Damages`) leurs points (`DamagePoints`) et le compte des trames de vitalites non lues ; `grammar.Rev` monte.
-const SchemaDesFaits = 29
+// SCHEMA 30 : le complement de la section 1 porte aussi les rechargements d arme (`FilmInputs.Reloads`, genre 38 de la vue A) et les commandes de deplacement tenues (`FilmInputs.ControlHolds`, vue C), deux canaux de la marche qui suivent les degats ; chaque creation d equipement porte son parent (`EquipmentCreation.HasParent`, `Parent`), le chassis qu une piece montee annonce a sa creation. `grammar.Rev` monte.
+const SchemaDesFaits = 30
 
 // Identifiants de section. Ils ne se reutilisent JAMAIS : un identifiant retire reste retire, sinon
 // un vieux fichier se relit comme une section qui n est pas la sienne.

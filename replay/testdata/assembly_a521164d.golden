@@ -12,16 +12,16 @@ origine de la frame 0 sur l horloge du fil : 27811 ms
 coup d envoi lu par l horloge de manche : 44335 ms · source roundClock · depart lu false · marge depuis la frame 0 : 16524 ms
 
 ## TRACES PUBLIEES — une trace est UNE VIE, pas un joueur (le slot migre a chaque reapparition)
-128 trace(s) · 133708 point(s) de grille
+128 trace(s) · 133712 point(s) de grille
 seuil de publication 1 point(s) : 0 vie(s) REFUSEE(S) portant 0 point(s) — si le film ecrit une position, elle se publie
 55 lacune(s) de replication DANS une vie, 755913 ms au total — un trou n'est pas une fin de vie, la piste ne s'y interpole simplement pas
 128 trace(s) NOMMEE(S) par le pont (fil des morts, fermetures, sieges de bot, relais, puis
 occupation du slot dans le TEMPS) · 0 sans identite — un DEFAUT de nommage a instruire,
 jamais une categorie de donnee (decision produit du 2026-09-07)
-79234 point(s) portent un cap de visee · 79234 une elevation de visee · 17880 un bouclier · 433 une fraction de vie
+79237 point(s) portent un cap de visee · 79237 une elevation de visee · 17882 un bouclier · 433 une fraction de vie
 
 ### ROSTER — le xuid IDENTIFIE, l index ORDONNE ; ils ne sont pas interchangeables
-28 joueur(s)
+27 joueur(s)
   2553767541407218  idx=0  equipe=0  "Joueur000000040"
   2567874819165741  idx=1  equipe=0  "Jou eur0 073"
   2545011568713395  idx=2  equipe=0  "Joueur00148"
@@ -49,12 +49,11 @@ jamais une categorie de donnee (decision produit du 2026-09-07)
   2689621548730715  idx=24  equipe=1  "Joueur000101"
   2574978515246889  idx=25  equipe=0  "Joueur0089"
   2593111530586421  idx=26  equipe=1  "Jo ueu r00200"
-  2609026105754906  idx=27  equipe=1  ""
 
 ### EQUIPES — lues dans le film (ti=9 i0), JAMAIS dans la base (decision utilisateur V4)
 lue=true refus="" · 449 record(s) ti=9, 0 rejete(s), 0 divergence(s)
-roster : 28 joueur(s) dont le film donne l equipe (0 sans equipe) · 0 non lu(s)
-controle (feuille de match) : accord=0 contradiction=0 silence=28
+roster : 27 joueur(s) dont le film donne l equipe (0 sans equipe) · 0 non lu(s)
+controle (feuille de match) : accord=0 contradiction=0 silence=27
 vies : 128/128 portent une equipe du film
 repartition des vies par designateur : 0 x55 · 1 x73
 
@@ -70,13 +69,13 @@ verdict : nominal
 rejets : slot introuvable=5 · slot ambigu=0 · hors fenetre=0 · sans trace publiee=0
 somme de controle : rattaches + rejets = disponibles -> 105 = 105 (equilibre : true)
 verdict : nominal
-par source : projectile=81 (aucun pont) · biped=19 (le pont a servi)
+par source : projectile=82 (aucun pont) · biped=18 (le pont a servi)
 par type : Dynamo=5 · Frag=76 · Plasma=16 · Spike=3
 
 ## PROJECTILES — le dernier point est la DERNIERE POSITION REPLIQUEE, jamais un impact
-172 trajectoire(s) · 5715 point(s) de grille
+175 trajectoire(s) · 5844 point(s) de grille
 14 se terminent sur `projectile-at-rest-state` — le SEUL champ qui certifie une fin de vol
-couverture : 175 piste(s) decodee(s) · 172 publiee(s) · 10 coupee(s) a un pas impossible
+couverture : 178 piste(s) decodee(s) · 175 publiee(s) · 10 coupee(s) a un pas impossible
 
 ## INVENTAIRE — lu aux images-cles, jamais interpole entre deux
 395 etat(s) publie(s) · 322 avec grenades lues · 322 avec munitions lues
@@ -478,7 +477,7 @@ provenance : 0 evenement(s) 103 lu(s) sur 4956 liste(s) d evenements non vides
   grenade_frag unknown 0xbcabbe43 t=[10022, 10111] pos=(5.72, 21.52, 3.43) poseur=-1 cap=aucun
 
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
-balaye=true · bande 1426 slot(s) · 601 ancre(s) -> 597 acceptee(s) -> 398 retenue(s) par l IDENTITE (199 ecartee(s))
+balaye=true · bande 1426 slot(s) · 600 ancre(s) -> 597 acceptee(s) -> 398 retenue(s) par l IDENTITE (199 ecartee(s))
 161 lachee(s) a une mort · 237 apparue(s) sans mort a proximite, dont 110 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
 58 grappe(s) -> 31 socle(s) publie(s) · 94 occupation(s) : 59 datee(s) · 10 sans passage · 25 jamais videe(s)
 8 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
@@ -625,31 +624,31 @@ refus des fermetures : 0 contestee(s) (l unicite manque : deux corps, deux joueu
 verdict : nominal
 
 ## REGISTRE D IDENTITE — la PROVENANCE de chaque lien, et ce que la table du film couvre
-index de joueur : 28 direct · 0 externe · 0 deduit · 0 non resolu
-slot de bipede : 128 direct (dont 0 propages) · 0 deduit · 0 non resolu (index hors table=0 · sans record=0 · lectures divergentes=0)
-table du film : lue=true refus="" · 24 siege(s) · 24 lien(s) direct(s) · 4 par repli
+index de joueur : 27 direct · 0 externe · 0 deduit · 0 non resolu
+slot de bipede : 127 direct (dont 0 propages) · 1 deduit · 0 non resolu (index hors table=0 · sans record=0 · lectures divergentes=0)
+table du film : lue=true refus="" · 24 siege(s) · 24 lien(s) direct(s) · 3 par repli
 controle (lecture des chunks) : 23 accord · 0 contradiction · 1 silence — la table du film fait foi, l ecart se compte
-voies des liens d index : PlayerIndexTable=4 · film_table=24
+voies des liens d index : PlayerIndexTable=3 · film_table=24
 
 ## SIEGES — la fiche d un occupant, et la part qui vient d un appariement
-entrees 28 · sieges 24 · lus 24 · tirs 0 · apparies 4 · ouvertes 0 · sans place 0 · reprises ecrites 0 · presences film
-arrivants 4 · presences closes 5 · sans presence 1 · occupants au plus 24 · depassements 0 · relais bornes 0 · sans table false
+entrees 27 · sieges 25 · lus 24 · tirs 0 · apparies 2 · ouvertes 0 · sans place 1 · reprises ecrites 0 · presences film
+arrivants 3 · presences closes 5 · sans presence 0 · occupants au plus 25 · depassements 5447 · relais bornes 0 · sans table false
 
 ## REPLIS DECLENCHES — la part de ce document qui ne vient PAS d une lecture du film
-repli_cap_vehicule_vitesse_insuffisante          7416
+repli_cap_vehicule_vitesse_insuffisante          7423
 repli_chassis_vehicule_marqueur_neutre           4
-repli_detonation_derniere_position_connue        172
-repli_episode_borne_par_la_vie_suivante          1
+repli_detonation_derniere_position_connue        175
 repli_episode_occupation_par_trou_de_position    2
 repli_fin_de_vie_sans_tableau_api                17
 repli_identite_premier_occupant_du_siege         68
 repli_index_de_tireur_hors_place                 896
+repli_lien_prise_arme_abandonne                  1
 repli_origine_au_sol_lachee_par_fenetre          161
 repli_piece_engendree_sans_evenement             2
-repli_place_du_remplacant_par_chainage_d_equipe  4
+repli_place_du_remplacant_par_chainage_d_equipe  2
 repli_position_hors_emprise_ecartee              36
+repli_presence_d_une_entree_par_ses_vies         1
 repli_prise_de_socle_premiere_du_cycle           13
-repli_tourelle_porteur_voisin_de_slot            23
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place
 17 identifiant(s) nomme(s) ; un identifiant absent garde son hexadecimal a l ecran et

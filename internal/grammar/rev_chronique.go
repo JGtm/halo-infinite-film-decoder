@@ -339,3 +339,36 @@ package grammar
 // compteurs de replis du tableau (`repli_enregistrement_statborg_abandonne`, `repli_composants_statborg_arretes`), et quelques entrees fortuites de `roundsUnplayed` en moins. Les compteurs de la manche, leur ordre et
 // leur largeur ne changent pas. Les rejeux et les faits cuits avant se refusent sur cette revision (`replay.SchemaVersion` 126) : la recuisson est
 // une decision de l utilisateur.
+
+// ENTREE `grammar-2026-11-22.2` (2026-11-22, les rechargements et la commande de deplacement tenue se lisent ; les tirs se lisent a tout rang d une trame ; le parent d une piece montee se lit a sa creation). LA LECTURE GAGNE DEUX
+// CANAUX ET EN CHANGE DEUX, et ces trois apports se rangent sous une seule revision : aucun bit deja lu ne change d interpretation, mais la marche rend des faits qu elle ne rendait pas, et les tirs qu elle rendait augmentent.
+// Les rejeux et les faits cuits avant se refusent sur cette revision et sur `replay.SchemaDesFaits` 30 : la recuisson est une decision de l utilisateur.
+//
+// PREMIER APPORT : LES RECHARGEMENTS D ARME (genre 38 de la vue A). Un message `weapon_reload` porte trois references d en-tete (un `R(1)` de garde puis une reference de domaine chacune), quatre booleens `R(1)` et
+// l index de joueur de l auteur (`R(1)`, puis `R(5)` s il est a zero) : [chargeRechargement]. Seule la premiere reference est presente sur les films mesures, c est l unite qui recharge ; aucun champ ne nomme l arme, et le sens des
+// quatre booleens n est pas etabli : ils sont lus et ne sont pas publies. Un canal de la marche ([canalDesRechargements]) rend un rechargement par (trame, auteur, references) : le jeu ecrit le meme message deux fois dans la meme
+// trame pour environ trois sur dix, et ces copies se comptent ([types.ReloadStats.Copies]) sans devenir des rechargements ; deux messages d une trame qui ne different que par leurs booleens sont un seul rechargement. Les trames
+// dont la vue A s arrete sur un message non lu perdent les messages qui les suivent : elles se comptent ([types.ReloadStats.Stopped]), et le compte d un film qui en porte est un plancher. Etape observee `reloads` (et `reloads.stats`),
+// calque `reloads` de `layers` (garde : le canal a lu au moins une trame).
+//
+// SECOND APPORT : LA COMMANDE DE DEPLACEMENT TENUE. L entree de controle d un participant (genre 0, bloc de 0x68 octets) porte, hors de son bloc d action, le couple analogique du deplacement (`R(6) R(6)`, le code `0x1f` est le zero
+// exact) et un champ facultatif de cinq bits que ni l un ni l autre ne publie. Le meme collecteur que le tir continu ([collecteurTirContinu], [commandes_de_controle.go]) plie l etat de la commande comme celui d une gachette : tenue de la
+// premiere entree lue dont un scalaire n est pas nul a la premiere dont les deux le sont, un paquet dont la vue de controle n est pas lue etant un trou que l on porte sans le combler. Etapes observees `controlHolds` et
+// `controlHolds.stats`. Le champ de cinq bits est lu, son bit de poids 4 ressemble au bouton de saut, mais il ne s accorde qu a 63 % avec le saut derive de la vitesse verticale (le seuil de publication est 90 %) : il n est pas publie.
+// L accroupissement (`i29`) et la glissade (`i62`) ne se lisent que sur les films dont la version les annonce : aucun film de version 37 et plus ne les annonce, et leur absence n est pas une mesure de ce que les joueurs ont fait.
+//
+// TROISIEME APPORT : LES TIRS A TOUT RANG D UNE TRAME. Un evenement de tir etait le seul record de tir en tete de la liste d une trame delta ; c est desormais tout message de tir (genre 36) de la vue A, a tout rang
+// ([canalDesTirs.tirsApresLaTete], [lecture.MessageDeTir]) : tireur, numero de tir, drapeaux, unite et arme du message. Un tir de rang 1 et plus n a pas de record modal de visee : `HasAim` y reste faux. L etape `fire` rend plus d evenements.
+//
+// QUATRIEME APPORT : LE PARENT D UNE PIECE MONTEE SE LIT A SA CREATION. Le record de creation d une piece montee (tourelle du Warthog, du Falcon, du Wraith, du Scorpion) annonce `i10` (`object-parent-state`) quand le film rattache la
+// piece a son chassis, et son handle (categorie 1 de `FUN_1406d3140`, base `0x200`, les deux bits de queue etant la generation) designe la vie du chassis, y compris quand le chassis est cree apres la piece (225 ms mesures).
+// [readCreationParent] relit le record par la boucle de composants de production avec son propre curseur : aucun bit du chemin de creation ne change. `types.EquipmentCreation` gagne `HasParent` et `Parent` ; une lecture absente
+// n est pas une lecture « sans parent ». Le plus ancien format (31) ne rattache pas ses pieces par `i10`.
+//
+// CE QUI MONTE AVEC ELLE : `replay.SchemaDesFaits` 29 -> 30 (le complement de la section 1 porte les deux canaux, la creation d equipement porte son parent), `grammar.Rev` seule des revisions de couche. `source.Rev`, `profile.Rev`,
+// `killsource.Rev` et `objectives.Rev` gardent leur valeur : les types `ControlHold`, `ReloadRead` et les champs neufs de `EquipmentCreation` entrent dans leur fermeture sans qu aucune lecture d octets, aucune ligne de kill et
+// aucun objectif ne change ; leurs goldens sont refiges a revision constante.
+//
+// LA MESURE (le corpus d equivalence, 20 films, un passage par fusion) : l etape `reloads` rend 9 055 lectures sur les 20 films (12 708 messages lus, 3 653 copies, 9 026 rechargements publies sur 16 films ; les 4 films dont la vue A
+// s arrete tot n en lisent aucun) ; l etape `controlHolds` rend 27 325 commandes tenues ; l etape `fire` passe de 44 837 a 59 249 evenements de tir sur 16 films, les 4 autres (builds dont la vue A s arrete tot) ne changent pas ;
+// la lecture du parent ne change aucune etape de la marche : les etapes `pads` (20 films) et `vehicles` (9 films) changent de digest parce que la creation d equipement porte deux champs de plus, dont, pour les 142 pieces montees de 9 films, le parent lu.

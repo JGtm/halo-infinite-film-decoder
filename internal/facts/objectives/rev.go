@@ -333,4 +333,8 @@ package objectives
 // A REVISION CONSTANTE (quatre lectures de la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte quatre fois, jusqu a `grammar-2026-11-15.4` (la
 // suppression d un bipede, les valeurs des proprietes reseau lues par la marche, les messages de degat, la vie des bipedes) ; sa seule source neuve est [SiegesAuDelaDeLaBandeSure] ; les enregistrements qu elle rend ne changent pas. [SiegesAuDelaDeLaBandeSure] compte les sieges que le calque du drapeau ne lit pas.
 // L empreinte du golden est recopiee au meme rang.
+//
+// A REVISION CONSTANTE (rechargements, commande de deplacement, tirs a tout rang, parent des pieces montees, 2026-11-22) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-22.2`) ; aucune source de cette couche
+// ne change, et ni les enregistrements, ni les entrees, ni les plages, ni les actions d objectif non plus (`types.ControlHold`, `types.ReloadRead` et les champs neufs de `types.EquipmentCreation` entrent dans sa
+// fermeture). Les etapes `score`, `objectives`, `scoreTimeline` et `eliminations` de l equivalence ne changent sur aucun des 20 films. L empreinte du golden est recopiee au meme rang.
 const Rev = "objectives-2026-11-22"
