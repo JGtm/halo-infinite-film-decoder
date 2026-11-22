@@ -1,6 +1,9 @@
 package grammar
 
-import "github.com/JGtm/halo-infinite-film-decoder/internal/source"
+import (
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/lecture"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
+)
 
 // vue_a_charges_tir.go — LA CHARGE DU TIR `action_weapon_fire` (genre 36), PORTEE DEPUIS SON
 // LECTEUR `FUN_14080c1f8` (lot LN de la campagne de grammaire).
@@ -32,14 +35,34 @@ const (
 	largeurQueueHorodatage    = 4
 )
 
-// chargeTirArme porte `FUN_14080c1f8` (`action_weapon_fire`).
+// chargeTirArme porte `FUN_14080c1f8` (`action_weapon_fire`) et range sa tete sur `br.tirLu` : le tireur, le
+// numero de tir et l arme, que [recueillirLeMessage] recueille avec la position du message. Les bits lus sont
+// ceux de [lireEnteteTir36Sous], champ pour champ.
 func chargeTirArme(br *Lecteur) bool {
 	court, bloc := br.ReadBit(), br.ReadBit() // [0], [0x1c]
-	br.Skip(largeurNumeroDeTir + 1)           // FUN_141fcf670 : R(7) puis R(1)
-	consumeGate0R(br, 5)                      // FUN_1407f2034 -> FUN_1407f2058
-	consumeID2(br)                            // FUN_1406d00ec
-	consumeGateR(br, 32)                      // FUN_14080d69c
-	br.Skip(32 + 1 + 1)                       // FUN_14080dec4 « variant_name », [0x1d], [2]
+	t := lecture.MessageDeTir{Tireur: lecture.RefAbsente}
+	bas := br.ReadBits(largeurNumeroDeTir)                     // FUN_141fcf670 : R(7) puis R(1)
+	t.Numero = uint8(bas | br.ReadBits(1)<<bitPoidsFortNumero) //nolint:gosec // huit bits
+	if !br.ReadBit() {                                         // FUN_1407f2034 -> FUN_1407f2058, polarite inversee
+		t.Tireur = int8(br.ReadBits(largeurTireur)) //nolint:gosec // cinq bits
+	}
+	consumeID2(br) // FUN_1406d00ec
+	var haute uint64
+	if br.ReadBit() { // FUN_14080d69c
+		haute = br.ReadBits(largeurMotArme)
+	}
+	t.Arme = haute<<largeurMotArme | br.ReadBits(largeurMotArme) // FUN_14080dec4 « variant_name »
+	br.Skip(1 + 1)                                               // [0x1d], [2]
+	if r := br.refsDuMessage[0]; r.presente {
+		t.Unite, t.Gen, t.Drapeaux = uint16(r.index), uint8(r.gen), lecture.TirUnite //nolint:gosec // index de 13 bits, generation de 2
+	}
+	if court {
+		t.Drapeaux |= lecture.TirCourt
+	}
+	if bloc {
+		t.Drapeaux |= lecture.TirBloc
+	}
+	br.tirLu = t
 	horodatage := false
 	if bloc {
 		br.Skip(1)                // [0x2dc]

@@ -35,8 +35,9 @@ package replay
 // (`coverage.seats.tirsIndexNonPlace`), aucun tir ne s'attribue par l'index : ni tir écrit, ni numérotation, ni arme, et aucun joueur n'est suffisant.
 // La numérotation se suit par joueur résolu, pas par index : un remplaçant sur le même index a la sienne.
 //
-// L'IDENTITÉ. L'auteur est l'index de joueur que le message écrit, résolu à la frame du message parmi les humains
-// du roster présents (cf. [xuidALaFrame]) ; la victime est l'unité blessée, dont la piste (slot = index d'unité
+// L'IDENTITÉ. L'auteur est le joueur de l'unité que le message nomme comme responsable, ou à défaut l'index de joueur
+// que le message écrit, résolu à la frame du message parmi les humains du roster présents (cf. [auteurDuMessage],
+// [xuidALaFrame]) ; la victime est l'unité blessée, dont la piste (slot = index d'unité
 // + 512) porte le xuid à cette frame. UNE TOUCHE SUR SOI (la victime est l'auteur : une arme à zone) n'est pas une touche : elle
 // est comptée à part (`coverage.hits.selfHits`), comme le dégât qu'un joueur se fait à lui-même (`selfDamages`) n'est pas du dégât
 // infligé. Une touche dont l'un des deux ne se résout pas est comptée au bilan de
@@ -237,6 +238,20 @@ func (r resolveurDeTouches) victime(unite uint16, t int) (xuid string, piste boo
 	return "", piste
 }
 
+// auteurDuMessage rend le joueur auteur du message de dégât `d` à la frame `t` : le joueur de l'unité que le message nomme
+// comme responsable (sa piste, comme la victime), et, quand cette unité n'a pas de piste à cette frame ou celle d'un
+// bot, le joueur que l'index du corps nomme parmi les humains présents ([xuidALaFrame]). L'unité survit à la présence
+// publiée d'un joueur (une présence close avant la fin de son jeu) que l'index ne résout plus ; les deux désignent le
+// même humain chaque fois qu'ils résolvent tous deux.
+func (r resolveurDeTouches) auteurDuMessage(d grammar.DegatLu, t int) (string, issueDuDestinataire) {
+	if d.AResponsable {
+		if xuid, _ := r.victime(d.Responsable, t); xuid != "" {
+			return xuid, destinataireResolu
+		}
+	}
+	return xuidALaFrame(r.humains, int(d.Joueur), t)
+}
+
 // bilanDesTirs compte, par joueur résolu, les tirs écrits, la numérotation des tirs et les messages et touches.
 type bilanDesTirs map[string]*ShotStat
 
@@ -251,7 +266,7 @@ func (b bilanDesTirs) de(xuid string) *ShotStat {
 func compterLesTirs(fire []grammar.FireEvent, r resolveurDeTouches, bilan bilanDesTirs) {
 	// LA NUMEROTATION EST CELLE D UN JOUEUR, pas celle d un index : deux humains successifs sur le meme index (un remplacant) ont chacun la leur,
 	// et le saut du premier numero du remplacant ne se compte pas contre le dernier du partant.
-	derniers := map[string]int{}
+	numeros := map[string]*numerotationDuTireur{}
 	tries := slices.Clone(fire)
 	slices.SortStableFunc(tries, func(a, b grammar.FireEvent) int { return cmp.Compare(a.TimestampUS, b.TimestampUS) })
 	for _, e := range tries {
@@ -262,14 +277,12 @@ func compterLesTirs(fire []grammar.FireEvent, r resolveurDeTouches, bilan bilanD
 		if res != destinataireResolu {
 			continue
 		}
-		saut := 1
-		if dernier, vu := derniers[xuid]; vu {
-			saut = (int(e.FireNumber) - dernier + 256) % 256
+		if numeros[xuid] == nil {
+			numeros[xuid] = &numerotationDuTireur{}
 		}
-		derniers[xuid] = int(e.FireNumber)
 		s := bilan.de(xuid)
 		s.ShotEvents++
-		s.Shots += saut
+		s.Shots += numeros[xuid].saut(int(e.FireNumber), e.Unit.Slot)
 	}
 }
 
@@ -299,7 +312,7 @@ func buildHits(in HitInput, fire []grammar.FireEvent, roster []RosterEntry, trac
 		}
 		cov.WeaponMessages++
 		t := r.frameBornee(d.TS)
-		tireur, res := xuidALaFrame(r.humains, int(d.Joueur), t)
+		tireur, res := r.auteurDuMessage(d, t)
 		cle := cleDeTouche{int(d.Joueur), d.Victime, d.TS}
 		if victime, _ := r.victime(d.Victime, t); res == destinataireResolu && victime == tireur {
 			if !vues[cle] {

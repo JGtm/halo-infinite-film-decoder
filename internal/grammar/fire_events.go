@@ -128,7 +128,8 @@ func ScanFilmFireEvents(dir string) ([]FireEvent, error) {
 }
 
 // ScanFireEvents décode les événements de tir d'un film DEJA CHARGE : le record type 36 EN TÊTE
-// de la liste d'un paquet delta, lu dans la passe des têtes ([canalDesTirs]). Les chunks
+// de la liste d'un paquet delta, lu dans la passe des têtes ([canalDesTirs]), et chaque message de tir qui suit un autre
+// message de la même liste ([canalDesTirs.tirsApresLaTete]). Les chunks
 // illisibles sont ignorés (le film peut être partiel).
 func ScanFireEvents(fc *FilmContext) ([]FireEvent, error) {
 	c := &canalDesTirs{}
@@ -139,7 +140,7 @@ func ScanFireEvents(fc *FilmContext) ([]FireEvent, error) {
 	return c.out, nil
 }
 
-// canalDesTirs lit le record de tir de tête de chaque trame delta.
+// canalDesTirs lit le record de tir de tête de chaque trame delta, et les messages de tir de sa vue A qui le suivent.
 type canalDesTirs struct {
 	out []FireEvent
 	// lus : les chunks que la passe a pu lire.
@@ -149,13 +150,29 @@ type canalDesTirs struct {
 func (*canalDesTirs) Interets() []Interet { return nil }
 
 func (c *canalDesTirs) Tete(p *lecture.Paquet) {
-	h, ok := lireEnteteTir36Sous(p.Payload, teteDe(p))
-	if !ok {
-		return // autre type d'événement de tête, ou record tronqué
+	if h, ok := lireEnteteTir36Sous(p.Payload, teteDe(p)); ok { // sinon : autre type d'événement de tête, ou record tronqué
+		e := evenementDeTir(p.Payload, h)
+		e.Chunk, e.PacketIndex, e.TimestampUS = p.Chunk, p.Index, p.TS
+		c.out = append(c.out, e)
 	}
-	e := evenementDeTir(p.Payload, h)
-	e.Chunk, e.PacketIndex, e.TimestampUS = p.Chunk, p.Index, p.TS
-	c.out = append(c.out, e)
+	c.tirsApresLaTete(p)
+}
+
+// tirsApresLaTete ajoute les evenements de tir que la vue A de la trame `p` porte APRES son message de tete : un
+// tir est tout message de genre 36 de la liste, a tout rang (le tir de tete se lit par [lireEnteteTir36Sous],
+// avec sa visee modale). Un tir de rang 1 et plus n a pas de record modal : HasAim reste faux.
+func (c *canalDesTirs) tirsApresLaTete(p *lecture.Paquet) {
+	for _, t := range p.VueA.Tirs {
+		if t.Rang == 0 {
+			continue
+		}
+		e := FireEvent{Chunk: p.Chunk, PacketIndex: p.Index, TimestampUS: p.TS, FilmIndex: int(t.Tireur), HasShooter: t.Tireur >= 0,
+			FireNumber: t.Numero, Short: t.Drapeaux&lecture.TirCourt != 0, Bloc: t.Drapeaux&lecture.TirBloc != 0, WeaponID: t.Arme}
+		if t.Drapeaux&lecture.TirUnite != 0 {
+			e.Unit = UnitRef{Present: true, Slot: parentHandleBase + uint32(t.Unite), Gen: uint32(t.Gen)}
+		}
+		c.out = append(c.out, e)
+	}
 }
 
 func (c *canalDesTirs) Clore(b BilanDeMarche) { c.lus = b.ChunksLus }

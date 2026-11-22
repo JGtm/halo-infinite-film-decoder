@@ -84,6 +84,8 @@ type Lecteur struct {
 	refsDuMessage [3]refDeMessage
 	pousseeLue    lecture.MessageDePoussee
 	detonationLue lecture.MessageDeDetonation
+	// tirLu : la tete du dernier message de tir (genre 36) que sa charge a lu ([chargeTirArme]).
+	tirLu lecture.MessageDeTir
 	// etatComplet : le record en cours est un ETAT COMPLET d image-cle (`FUN_142e2c690`), lu sans
 	// masque de presence. Pose par [walkKeyframeFullState] seul ; faux pour tout record dont un
 	// masque est lu (record NEW, DELTA). Les composants dont la lecture depend d une loi du masque
