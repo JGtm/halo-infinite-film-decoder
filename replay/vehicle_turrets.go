@@ -15,10 +15,15 @@ package replay
 //
 //  1. il NOMME chaque piece montee par son chassis (`vehicleTurretByChassis`, table de pieces
 //     ecrites, une source chacune) et la publie `part = turret` — le client ne la dessine plus ;
-//  2. il cherche son PORTEUR — REPLI NOMME ET COMPTE `repli_tourelle_porteur_voisin_de_slot` :
-//     le lien parent n est pas lu dans le film (sonde P1-S2, 2026-09-23) ; la piece est creee
-//     juste AVANT son chassis, qui prend le slot suivant (+1) ou le surlendemain quand une autre
-//     piece s intercale (+2), et la famille du voisin doit etre celle que la piece attend ; un
+//  2. il cherche son PORTEUR. QUAND LE FILM LE NOMME, C EST UNE LECTURE : le composant `i10`
+//     (`object-parent-state`) de son record de creation, branche « attache », donne le handle du
+//     chassis (`vehicle_creation_parent.go`) ; le porteur est la vie que ce handle designe, de la
+//     famille que la piece attend. Un handle qui ne designe aucune vie de chassis connue ne pose
+//     aucun porteur et se compte (`turretParentUnknown`) : le voisinage ne reprend pas la main sur
+//     une lecture. QUAND LE FILM NE LE NOMME PAS (aucune lecture d `i10` attache : les films du plus
+//     ancien format), REPLI NOMME ET COMPTE `repli_tourelle_porteur_voisin_de_slot` : la piece est
+//     creee juste AVANT son chassis, qui prend le slot suivant (+1) ou le surlendemain quand une
+//     autre piece s intercale (+2), et la famille du voisin doit etre celle que la piece attend ; un
 //     voisin qui n est pas NE AVEC la piece (meme instant, meme point) est refuse et COMPTE
 //     (`turretCarrierBirthMismatch`) : c est le temoin INDEPENDANT du voisinage de slot ;
 //  3. il REPORTE les episodes d occupation de la piece sur le porteur (l artilleur est a bord du
@@ -119,6 +124,9 @@ func vehicleTurretOf(tr VehicleTrack) (vehicleTurret, bool) {
 // turretTally est le bilan de la pose des pieces montees, verse a la couverture.
 type turretTally struct {
 	turrets, onCarrier, birthMismatch, rides, variants int
+	// byRead : les pieces dont le porteur est LU (`i10`) ; parentUnknown : celles dont le handle lu ne designe
+	// aucun chassis connu.
+	byRead, parentUnknown int
 	// kept ventile les episodes GARDES sur la piece par raison ; `dropped()` est leur somme.
 	kept turretRidesKept
 }
@@ -140,6 +148,7 @@ func (k *turretRidesKept) add(o turretRidesKept) {
 func (t turretTally) applyTo(cov *VehicleCoverage) {
 	cov.Turrets, cov.TurretsOnCarrier = t.turrets, t.onCarrier
 	cov.TurretCarrierBirthMismatch = t.birthMismatch
+	cov.TurretsByRead, cov.TurretParentUnknown = t.byRead, t.parentUnknown
 	cov.TurretRides, cov.Variants = t.rides, t.variants
 	cov.TurretRidesDropped = t.kept.total()
 	cov.TurretRidesOutOfWindow = t.kept.outOfWindow
@@ -154,7 +163,7 @@ func poseTurretsOnCarriers(
 ) turretTally {
 	var tally turretTally
 	search := turretSearch{
-		tracks: tracks, bySlot: vehicleTracksBySlot(tracks), fb: fb,
+		tracks: tracks, bySlot: vehicleTracksBySlot(tracks), byLife: vehicleTracksByLife(tracks), fb: fb,
 	}
 	for i := range tracks {
 		spec, ok := vehicleTurretOf(tracks[i])
@@ -163,15 +172,15 @@ func poseTurretsOnCarriers(
 		}
 		tally.turrets++
 		tracks[i].Part = VehiclePartTurret
-		c, ok, mismatch := search.carrierOfTurret(i, spec)
-		if mismatch {
-			tally.birthMismatch++
-		}
-		if !ok {
+		found := search.carrierOfTurret(i, spec)
+		tally.birthMismatch += unSiVehicule(found.birthMismatch)
+		tally.parentUnknown += unSiVehicule(found.parentUnknown)
+		if !found.ok {
 			continue
 		}
 		tally.onCarrier++
-		carrier := &tracks[c]
+		tally.byRead += unSiVehicule(found.byRead)
+		carrier := &tracks[found.index]
 		tracks[i].Carrier = &VehicleLifeRef{Slot: carrier.Slot, Gen: carrier.Gen}
 		if spec.variant != "" && carrier.Variant == "" {
 			carrier.Variant = spec.variant
@@ -193,24 +202,73 @@ func vehicleTracksBySlot(tracks []VehicleTrack) map[uint32][]int {
 	return out
 }
 
-// turretSearch porte ce que la recherche d un porteur lit : les vies, leur index par slot et le
+// vehicleTracksByLife indexe les vies par (slot, generation) : la cle d une vie, celle qu un handle designe.
+func vehicleTracksByLife(tracks []VehicleTrack) map[VehicleLifeRef]int {
+	out := make(map[VehicleLifeRef]int, len(tracks))
+	for i, tr := range tracks {
+		out[VehicleLifeRef{Slot: tr.Slot, Gen: tr.Gen}] = i
+	}
+	return out
+}
+
+// unSiVehicule rend 1 pour vrai, 0 pour faux (compteurs de la couverture).
+func unSiVehicule(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+// turretSearch porte ce que la recherche d un porteur lit : les vies, leur index par slot et par vie, et le
 // compteur de replis.
 type turretSearch struct {
 	tracks []VehicleTrack
 	bySlot map[uint32][]int
+	byLife map[VehicleLifeRef]int
 	fb     *fallback.Compteur
 }
 
-// carrierOfTurret rend le rang du porteur de la piece `i`, par le REPLI du voisin de slot. Le
-// troisieme retour dit qu un voisin de la bonne famille, present au meme moment, a ete REFUSE
-// parce qu il n est pas ne avec la piece (`vehicleBornTogether`).
+// turretCarrier est le verdict de la recherche du porteur d une piece : le rang du porteur (`ok`), s il est
+// LU (`byRead`) ou trouve par le repli du voisinage, le voisin refuse par le temoin de naissance
+// (`birthMismatch`, repli seulement) et le handle lu qui ne designe aucun chassis connu (`parentUnknown`).
+type turretCarrier struct {
+	index                                    int
+	ok, byRead, birthMismatch, parentUnknown bool
+}
+
+// carrierOfTurret rend le porteur de la piece `i` : la vie que son parent LU designe quand le film en nomme un
+// ([VehicleTrack.parent]), sinon, SEULEMENT sans lecture, le REPLI du voisin de slot.
+//
+// UNE LECTURE DECIDE : son handle designe une vie publiee, qui n est pas elle-meme une piece, de la famille
+// que la piece attend et dont la fenetre recouvre celle de la piece ; sinon la piece reste sans porteur et le
+// handle est compte, sans que le voisinage de slot reprenne la main.
+func (s turretSearch) carrierOfTurret(i int, spec vehicleTurret) turretCarrier {
+	t := s.tracks[i]
+	if t.parent == nil {
+		return s.carrierByNeighbour(i, spec)
+	}
+	c, ok := s.byLife[*t.parent]
+	if !ok {
+		return turretCarrier{parentUnknown: true}
+	}
+	cand := s.tracks[c]
+	if cand.Part != "" || cand.Family != spec.carrier || !vehicleWindowsOverlap(t, cand) {
+		return turretCarrier{parentUnknown: true}
+	}
+	return turretCarrier{index: c, ok: true, byRead: true}
+}
+
+// carrierByNeighbour est le REPLI du voisin de slot (+1 puis +2) pour une piece sans parent lu.
 //
 // LE REPLI SE COMPTE A CHAQUE PORTEUR QU IL DECIDE : c est lui, et non une lecture, qui dit
 // « ce vehicule porte cette tourelle ». Une piece sans candidat n est pas un declenchement : le
-// repli n a rien decide, et la couverture la compte a part (`turrets - turretsOnCarrier`).
-func (s turretSearch) carrierOfTurret(i int, spec vehicleTurret) (carrier int, found, birthMismatch bool) {
+// repli n a rien decide, et la couverture la compte a part (`turrets - turretsOnCarrier`). Un voisin de la
+// bonne famille, present au meme moment, REFUSE parce qu il n est pas ne avec la piece
+// ([vehicleBornTogether]) se compte `birthMismatch`.
+func (s turretSearch) carrierByNeighbour(i int, spec vehicleTurret) turretCarrier {
 	tracks, bySlot, fb := s.tracks, s.bySlot, s.fb
 	t := tracks[i]
+	var out turretCarrier
 	for d := uint32(1); d <= vehicleTurretSlotReach; d++ {
 		for _, c := range bySlot[t.Slot+d] {
 			cand := tracks[c]
@@ -218,14 +276,15 @@ func (s turretSearch) carrierOfTurret(i int, spec vehicleTurret) (carrier int, f
 				continue
 			}
 			if !vehicleBornTogether(t, cand) {
-				birthMismatch = true
+				out.birthMismatch = true
 				continue
 			}
 			fb.Declenche(fallback.NomTourellePorteurVoisinDeSlot)
-			return c, true, birthMismatch
+			out.index, out.ok = c, true
+			return out
 		}
 	}
-	return 0, false, birthMismatch
+	return out
 }
 
 // vehicleBornTogether dit si deux vies sont nees ensemble : a [vehicleTurretBirthMS] au plus l une de l autre,
@@ -249,13 +308,29 @@ func memePointDeNaissance(dx, dy float64) bool {
 	return dx*dx+dy*dy <= vehicleTurretBirthMeters*vehicleTurretBirthMeters
 }
 
-// porteurDUnePiece trouve, parmi les records de creation qui tiennent les slots voisins, le chassis qui
-// porte la piece montee `piece` : meme regle que [turretSearch.carrierOfTurret] sur les records de la passe des
-// positions (qui n'a pas de document) — slot +1 puis +2 ([vehicleTurretSlotReach]), famille attendue,
-// jamais une autre piece, nee avec elle. `creationA` rend le record qui tient un slot a l'instant demande.
+// porteurDUnePiece rend le chassis qui porte la piece montee `piece`, sur les records de creation de la passe
+// des positions (qui n'a pas de document). `creationA` rend le record qui tient un slot a l'instant demande.
+//
+// QUAND LE RECORD DE LA PIECE NOMME SON PARENT (`HasParent`, `i10`), c'est une LECTURE : le record qui tient le
+// slot du handle, a sa generation, d'un chassis de la famille attendue, jamais une autre piece ; sinon aucun
+// porteur, et le voisinage ne reprend pas la main. SANS PARENT LU, le repli du voisin de slot, comme
+// [turretSearch.carrierOfTurret] — slot +1 puis +2 ([vehicleTurretSlotReach]), famille attendue, jamais une
+// autre piece, nee avec elle. Le troisieme retour dit que la decision est le repli.
 func porteurDUnePiece(creationA func(uint32) (types.EquipmentCreation, bool), piece types.EquipmentCreation,
 	spec vehicleTurret,
-) (types.EquipmentCreation, bool) {
+) (porteur types.EquipmentCreation, ok, parRepli bool) {
+	if piece.HasParent {
+		cand, ok := creationA(piece.Parent.Slot)
+		if !ok || cand.Gen != piece.Parent.Gen {
+			return types.EquipmentCreation{}, false, false
+		}
+		chassis, lu := gwPadsIdentity(cand)
+		_, autrePiece := vehicleTurretByChassis[chassis]
+		if !lu || autrePiece || vehicleFamilyOf(chassis) != spec.carrier {
+			return types.EquipmentCreation{}, false, false
+		}
+		return cand, true, false
+	}
 	for d := uint32(1); d <= vehicleTurretSlotReach; d++ {
 		cand, ok := creationA(piece.Slot + d)
 		if !ok {
@@ -266,9 +341,9 @@ func porteurDUnePiece(creationA func(uint32) (types.EquipmentCreation, bool), pi
 		if !lu || autrePiece || vehicleFamilyOf(chassis) != spec.carrier || !creationsNeesEnsemble(piece, cand) {
 			continue
 		}
-		return cand, true
+		return cand, true, true
 	}
-	return types.EquipmentCreation{}, false
+	return types.EquipmentCreation{}, false, false
 }
 
 // creationsNeesEnsemble dit si deux records de creation sont nes ensemble : a [vehicleTurretBirthUS] et au

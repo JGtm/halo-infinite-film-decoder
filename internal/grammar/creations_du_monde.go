@@ -101,6 +101,7 @@ func (c *FilmContext) marcheDeCreation(ti uint32, wr *profile.Vec3Range, band ma
 			return w, err
 		}
 		w.comps, w.ti, w.deser, w.posBits = len(arch.Components), VehicleTypeIndex, consumeDefaultStateTI40, lay.TotalBits()
+		w.parentArch = &arch
 		w.posDecode = func(pay []byte, at int) ([3]float32, bool) { return decodeBipedI0Pos(pay, at, lay, wr) }
 	default:
 		arch, err := c.EquipmentArchetype()

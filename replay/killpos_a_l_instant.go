@@ -388,7 +388,7 @@ func creationsVehiculesParSlot(creations []types.EquipmentCreation) map[uint32][
 // tolerance : le voisin de slot n est qu un repli, nomme, compte a chaque lieu qu il decide.
 func (b bordDuFilm) positionDuPorteur(piece types.EquipmentCreation, spec vehicleTurret, tUS uint64) (*Vec3, bool) {
 	creationA := func(slot uint32) (types.EquipmentCreation, bool) { return b.creationA(slot, tUS) }
-	porteur, ok := porteurDUnePiece(creationA, piece, spec)
+	porteur, ok, parRepli := porteurDUnePiece(creationA, piece, spec)
 	if !ok {
 		return nil, false
 	}
@@ -396,6 +396,8 @@ func (b bordDuFilm) positionDuPorteur(piece types.EquipmentCreation, spec vehicl
 	if !ok {
 		return nil, false
 	}
-	b.fb.Declenche(fallback.NomTourellePorteurVoisinDeSlot)
+	if parRepli {
+		b.fb.Declenche(fallback.NomTourellePorteurVoisinDeSlot)
+	}
 	return v, true
 }

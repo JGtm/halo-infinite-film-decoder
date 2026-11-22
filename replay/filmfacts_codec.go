@@ -335,12 +335,15 @@ func encodeCreations(w *gwriter, creations []types.EquipmentCreation) {
 		w.bool8(c.HasAmmo)
 		w.u(uint64(c.Ammo.Mag))
 		w.u(uint64(c.Ammo.Res))
+		w.bool8(c.HasParent)
+		w.u(uint64(c.Parent.Slot))
+		w.u(uint64(c.Parent.Gen))
 		w.i(int64(c.AfterBit))
 	}
 }
 
 func decodeCreations(r *greader) []types.EquipmentCreation {
-	n := r.compte(20) // vingt champs, un octet au minimum chacun
+	n := r.compte(23) // vingt-trois champs, un octet au minimum chacun
 	out := make([]types.EquipmentCreation, 0, n)
 	var lastTS uint64
 	for k := 0; k < n && r.err == nil; k++ {
@@ -365,6 +368,7 @@ func decodeCreations(r *greader) []types.EquipmentCreation {
 		c.DefaultStateBits = int(r.i())
 		c.HasAmmo = r.bool8()
 		c.Ammo.Mag, c.Ammo.Res = uint32(r.u()), uint32(r.u())
+		c.HasParent, c.Parent.Slot, c.Parent.Gen = r.bool8(), uint32(r.u()), uint32(r.u())
 		c.AfterBit = int(r.i())
 		out = append(out, c)
 	}

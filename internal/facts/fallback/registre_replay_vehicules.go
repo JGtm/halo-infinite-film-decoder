@@ -26,7 +26,7 @@ var registreReplayVehicules = []Repli{
 	{
 		Nom:  "repli_tourelle_porteur_voisin_de_slot",
 		Fait: "le vehicule qui PORTE une tourelle (piece montee `ti=40` sans aucun echantillon de position)",
-		Mecanisme: "la premiere vie du slot +1 puis +2 de la tourelle, de la famille de chassis que " +
+		Mecanisme: "SANS PARENT LU : le parent d une piece est lu dans son record de creation (`i10`) quand le film le nomme, et le repli ne s applique qu aux pieces dont le film n en nomme aucun (plus ancien format). La premiere vie du slot +1 puis +2 de la tourelle, de la famille de chassis que " +
 			"la table des pieces montees attend pour elle, dont la fenetre d affichage recouvre la " +
 			"sienne, NEE AVEC elle (meme instant a 1 frame, meme point a 1 m quand les deux naissances " +
 			"sont lues ; un voisin refuse est compte `turretCarrierBirthMismatch`) ; aucune candidate = " +

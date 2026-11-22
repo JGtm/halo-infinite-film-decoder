@@ -129,6 +129,11 @@ type EquipmentCreation struct {
 	// aucun autre archétype de cette marche ne demande la lecture.
 	HasAmmo bool
 	Ammo    GroundWeaponAmmo
+	// HasParent / Parent : le PARENT que le composant i10 `object-parent-state` du MÊME record nomme quand
+	// sa porte « attaché » est ouverte (véhicule `ti=40` seulement — cf. vehicle_creation_parent.go). Faux
+	// quand le record n'annonce pas i10, ne l'atteint pas, ou le lit détaché.
+	HasParent bool
+	Parent    LifeKey
 	// AfterBit est la position du premier bit après le composant i0 (traçabilité du balayage).
 	AfterBit int
 }
