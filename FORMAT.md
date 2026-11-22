@@ -404,6 +404,23 @@ reproduces (`FUN_140C18794`): an emission always decodes all of them in its pack
 not decode is not an emission and is dropped whole, the components read before it included. A stop on a component of another reader
 (frozen round values 28 to 55, outcomes 56, entry 57) keeps what was read before it.
 
+**Mode counters (components 20 to 25).** The meaning of a slot in this band depends on the mode family: the film declares the name of each
+slot in its slot definitions (libfilmshell reads them on builds 1.12 and later), and the decoder keeps one table per family
+(`internal/facts/objectives/named.go`), so `22 A` is `flag_grabs` in capture the flag and a defensive kill in Strongholds and Total Control.
+A counter that moves one unit per event is published as one named action per unit (`objectives[].stat`), the same way as the capture
+counters. Written, live (rewritten at every event) and in agreement with the API per player, on films split in two disjoint halves (even and
+odd rank): capture the flag `22 B` `flag_returners_killed` (the victims were returning the flag) and `25 A` `flag_kills_as_returner` (kills made
+while returning it); Strongholds and Total Control `21 B` `zone_offensive_kills` and `22 A` `zone_defensive_kills`, which together never exceed a
+player's kills; VIP `20 B` `vip_kills`, `21 A` `vip_assists` and `21 B` `vip_kills_as_vip`. A VIP film has no family of its own in
+`ObjectiveTypeOf`: its named actions are read only when the caller asks for the `vip` family. Read but not published as actions, because they
+are not one event per unit: `TimeAsVip` and `LongestTimeAsVip` (VIP `23 B` and `23 A`, tenths of a second, rewritten every 100 ms),
+`BestKillingSpreeAsVip` (`22 B`, a maximum), and the Strongholds scoring ticks (`23 A`, always zero in Strongholds and Total Control; in
+King of the Hill the same slot is the hold ticks read by the hill reader). Not proven and not published: `24 B` `KillsAsFlagCarrier` (one
+player of the corpus has a non-zero value) and the Extraction counters (no mode family in the decoder, two films of build 1.11 whose slot
+definitions are unreadable). Slots that the film writes only when their twin moves (shots fired, damage dealt and taken, KDA, average life,
+flag carry time), that it never writes live (shots hit, accuracy, rounds won), or that duplicate another slot (loadout experience, the
+`Spartan` row) are not mode counters and are not read.
+
 **Whose row it is.** Each statborg entity carries its own entry, component 57 (`statborg-entry-index-and-type`): a 32-bit value and an
 8-bit kind, written at creation and read at the keyframes (`internal/grammar/statborg_entries.go`, one record per entity and keyframe).
 Kind 0 is a player's row, and the top 16 bits of the value are the player's engine id, the seat that the type-8 session listings give
