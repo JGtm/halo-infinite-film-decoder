@@ -61,8 +61,8 @@ type StanceCoverage struct {
 	// Scanned dit que le balayage a eu lieu. Faux = il a refuse, et tout le reste est sans
 	// valeur.
 	Scanned bool `json:"scanned"`
-	// Absent dit que l archetype bipede du film ne declare AUCUN des trois composants — un fait
-	// mesure, distinct d un film ou personne ne bouge.
+	// Absent dit que l archetype bipede du film ne declare AUCUN des quatre composants lus (accroupi,
+	// glissade, escalade, sprint) — un fait mesure, distinct d un film ou personne ne bouge.
 	Absent bool `json:"absent,omitempty"`
 	// Records est le nombre de records `ti=35` que la marche a traverses, Desyncs ceux qu elle
 	// n a pas pu finir. Mesure de reference : 3 desyncs sur 97 447 records (`bfecd02b`).

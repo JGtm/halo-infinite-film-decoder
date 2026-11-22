@@ -227,15 +227,13 @@ func vehicleRideOf(
 	// LA VISEE SE LIT SUR LES BORNES AFFINEES, pas sur celles du trou : quand un evenement a
 	// resserre une borne, la serie doit suivre le meme intervalle que `T0`/`T1`.
 	r.Aim = vehicleRideAimOf(in.aimBySlot[g.slot], startUS, endUS, in.clock)
-	// L OCCUPANT EST CELUI DE L INSTANT, PAS LE PREMIER DU SLOT (correctif du 2026-09-06,
-	// constat P1-7). `SlotXUID` est une identite UNIQUE par slot pour tout le match : sur un
-	// slot de biped recycle entre deux joueurs, l episode sortait avec le xuid du PREMIER quel
-	// que soit l instant. Or `VehicleRide.XUID` est ce qui donne sa COULEUR au vehicule (le
-	// client joint xuid -> equipe -> couleur) : le sprite prenait l equipe du mauvais joueur et
-	// la fiche creditait le mauvais conducteur. `xuidAt` lit la vie qui couvre l instant, et ne
-	// retombe sur le pont par slot qu a defaut — vide quand ni l une ni l autre ne nomme, ce
-	// que le contrat prevoit explicitement (l episode reste publie, son occupant est inconnu).
-	r.XUID = in.reg.XUIDAt(g.slot, startUS)
+	// L OCCUPANT EST LE JOUEUR DU CORPS QUI MONTE, PAS LE PREMIER DU SLOT. `VehicleRide.XUID` donne sa
+	// COULEUR au vehicule (le client joint xuid -> equipe -> couleur) et le conducteur a la fiche : un
+	// slot que deux joueurs se partagent ne doit jamais servir le nom de l un au trajet de l autre, ni
+	// celui d un humain au trajet d un bot du meme siege. Le corps que les records de creation placent
+	// sur le slot a l instant du silence porte le nom ([IdentityRegistry.XUIDDuTrajetA]) ; vide quand
+	// rien ne le nomme, ce que le contrat prevoit (l episode reste publie, son occupant est inconnu).
+	r.XUID = in.reg.XUIDDuTrajetA(g.slot, startUS)
 	return r
 }
 
