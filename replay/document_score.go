@@ -234,6 +234,11 @@ type ScoreCoverage struct {
 	// d'une manche. Absent (zero) sur un film d'une manche, et sur tout film dont les entrees du tableau prouvent
 	// leur disposition et dont les plages de listage se lisent.
 	StatsWithheld int `json:"statsWithheld,omitempty"`
+	// StatsGuarded compte, par compteur nomme (`headshots`, `meleeKills`, `grenadeKills`, `powerWeaponKills`, `maxSpree`), les emissions du
+	// tableau que la garde a ecartees parce qu'elles portaient plus d'eliminations (ou une plus longue serie) que le joueur
+	// n'en a dans la manche : une valeur impossible, jamais publiee et jamais remise a zero en silence. Un compteur dont toutes
+	// les emissions sont ecartees est absent de `players[].stats`. Absent (nil) quand la garde n'a rien ecarte.
+	StatsGuarded map[string]int `json:"statsGuarded,omitempty"`
 	// Rounds est le nombre de manches RETENUES par le decodeur (les manches fantomes,
 	// ancrages fortuits, sont ecartees). 1 sur un match sans manches multiples.
 	Rounds int `json:"rounds"`

@@ -218,6 +218,7 @@ func assembleScoreTimeline(in *ScoreInput, deaths []types.Death, entries *object
 		Oracle:        ScoreOracleDisplayed,
 		Points:        countScorePoints(tl),
 		StatsWithheld: withheld,
+		StatsGuarded:  c.cons.EmissionsGardees(),
 	}
 	attachRoundsCoverage(cov, objectives.ResolveRounds(recs), fb)
 	if len(tl.Teams) == 0 && len(tl.Players) == 0 {

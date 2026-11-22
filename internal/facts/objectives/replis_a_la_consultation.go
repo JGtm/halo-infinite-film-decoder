@@ -42,6 +42,8 @@ import (
 type ReplisALaConsultation struct {
 	mu        sync.Mutex
 	emissions map[cleDEmission]struct{}
+	// gardees : les emissions que la garde des compteurs nommes ecarte ([withinKillBound]), par serie et instant.
+	gardees map[cleDEmission]struct{}
 	// diag : les DIAGNOSTICS des lectures faites sous cet enregistreur (bornes de deroulage, serie
 	// non chronologique — lot J12.3, ADR 0034 D-4). L assemblage qui le porte les releve.
 	diag constat.Diagnostics
@@ -75,6 +77,44 @@ func (r *ReplisALaConsultation) noterEmissionJetee(key statSlotKey, rec types.St
 		r.emissions = map[cleDEmission]struct{}{}
 	}
 	r.emissions[cleDEmission{key: key, slot: rec.Slot, round: rec.Round, timeMS: rec.TimeMS}] = struct{}{}
+}
+
+// noterEmissionGardee note une emission que la garde des compteurs nommes ecarte ([withinKillBound]). Ce n'est pas un repli :
+// l'emission ne remplace rien, elle est retiree, et le compte ne se verse pas au registre des replis.
+func (r *ReplisALaConsultation) noterEmissionGardee(key statSlotKey, slot, round, timeMS int) {
+	if r == nil {
+		return
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.gardees == nil {
+		r.gardees = map[cleDEmission]struct{}{}
+	}
+	r.gardees[cleDEmission{key: key, slot: slot, round: round, timeMS: timeMS}] = struct{}{}
+}
+
+// EmissionsGardees rend, par nom de compteur nomme ([ScoreboardStat.Name]), le nombre d'emissions DISTINCTES que la garde
+// des compteurs nommes a ecartees, ou nil quand elle n'en a ecarte aucune. Comme les replis a la consultation, le compte
+// ne depend ni du nombre ni de l'ordre des lectures qui rencontrent la meme emission.
+func (r *ReplisALaConsultation) EmissionsGardees() map[string]int {
+	if r == nil {
+		return nil
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	var out map[string]int
+	for cle := range r.gardees {
+		for _, st := range ScoreboardStats() {
+			if st.Component.key() != cle.key {
+				continue
+			}
+			if out == nil {
+				out = map[string]int{}
+			}
+			out[st.Name]++
+		}
+	}
+	return out
 }
 
 // ComptesDesReplis rend le nombre d evenements DISTINCTS notes. Nil : zero.
