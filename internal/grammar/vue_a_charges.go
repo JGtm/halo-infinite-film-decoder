@@ -52,7 +52,7 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 		return chargeSortieDeVehicule
 	case TypeTirArme:
 		return chargeTirArme
-	case 38:
+	case GenreRechargement:
 		return chargeRechargement
 	case 39:
 		return chargeLancerInitie
@@ -199,10 +199,19 @@ func chargeSortieDeVehicule(br *Lecteur) bool {
 	return true
 }
 
-// chargeRechargement porte `FUN_1407f0ff8` (`weapon_reload`).
+// chargeRechargement porte `FUN_1407f0ff8` (`weapon_reload`) : quatre R(1), puis l'index de joueur de
+// l'auteur (`FUN_1407f2058` : R(1) ; si 0 : R(5)), rangés sur le lecteur.
 func chargeRechargement(br *Lecteur) bool {
-	br.Skip(4)           // FUN_1406cf008 x 4
-	consumeGate0R(br, 5) // FUN_1407f2058
+	m := lecture.MessageDeRechargement{Joueur: lecture.RefAbsente}
+	for k := range 4 {
+		if br.ReadBit() { // FUN_1406cf008
+			m.Booleens |= 1 << k
+		}
+	}
+	if !br.ReadBit() { // FUN_1407f2058
+		m.Joueur = int8(br.ReadBits(5)) //nolint:gosec // R(5)
+	}
+	br.rechargementLu = m
 	return true
 }
 

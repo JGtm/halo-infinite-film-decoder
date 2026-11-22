@@ -57,12 +57,22 @@ import (
 // joueursDeControle est la plage de l index de controle : R(5).
 const joueursDeControle = 1 << largeurIndexControle
 
-// cleBitDeTir designe UN bit de tir d un joueur : sa main, sa nature (gachette ou barillet) et
-// son rang.
+// natureDeBit dit de quelle lecture de l entree de controle un bit tenu vient : un bit de tir, ou la commande
+// de deplacement tenue ([types.ControlHold]) que le meme pliage des entrees et des trous rend.
+type natureDeBit uint8
+
+const (
+	natureTir natureDeBit = iota
+	natureDeplacement
+)
+
+// cleBitDeTir designe UN bit tenu d un joueur : sa nature, et pour un bit de tir sa main, sa nature
+// (gachette ou barillet) et son rang.
 type cleBitDeTir struct {
 	joueur, main int
 	barillet     bool
 	rang         int
+	nature       natureDeBit
 }
 
 // etatBitDeTir est l etat courant d un bit tenu : la rafale en cours, et le trou ouvert s il y
@@ -82,6 +92,9 @@ type etatBitDeTir struct {
 type collecteurTirContinu struct {
 	st  *types.ContinuousFireStats
 	out []types.ContinuousFireBurst
+	// commandes : les commandes de deplacement tenues, pliees des memes entrees, et leurs compteurs.
+	commandes     []types.ControlHold
+	commandeStats types.ControlHoldStats
 	// ts : l instant de la trame en cours ; recu / lecture : son verdict, quand la marche l a publie
 	// pendant sa marche — effaces a sa cloture.
 	ts      uint64
@@ -151,6 +164,7 @@ func (c *collecteurTirContinu) fermer(nonLocalise bool) {
 		if e.Action.Tire() {
 			c.st.Firing++
 		}
+		c.commande(e) // AVANT `entree`, qui leve l inconnu du joueur : une commande posee apres un trou y commence
 		c.entree(e)
 	}
 }
@@ -226,13 +240,13 @@ func (c *collecteurTirContinu) bit(k cleBitDeTir, pose bool, arme int) {
 		return
 	case pose && s.troue: // tenu avant ET apres le trou : un passage interieur, muet
 		s.trous = append(s.trous, types.ContinuousFireHole{StartUS: s.trou, EndUS: c.ts})
-		c.st.HeldHoleMS += msEntre(s.trou, c.ts)
+		c.tenirLeTrou(k, s.trou, c.ts)
 		s.troue = false
 		s.entrees++
 	case pose:
 		s.entrees++
 	case s.troue: // lache DANS le trou : la rafale finit a son debut
-		c.st.HeldHoleMS += msEntre(s.trou, c.ts)
+		c.tenirLeTrou(k, s.trou, c.ts)
 		c.clore(k, s, s.trou, types.ContinuousFireBoundHole)
 	default:
 		c.clore(k, s, c.ts, types.ContinuousFireBoundReleased)
@@ -247,8 +261,21 @@ func msEntre(a, b uint64) int64 {
 	return int64((b - a) / 1000) //nolint:gosec // duree d un film, bien sous 2^63 µs
 }
 
-// clore rend la rafale d un bit, finie a `fin` pour la cause `borne`, et libere le bit.
+// tenirLeTrou compte la duree d un trou tombe pendant qu un bit de tir etait tenu ; les commandes ne la
+// comptent pas, leur compte de trous est celui de leurs intervalles.
+func (c *collecteurTirContinu) tenirLeTrou(k cleBitDeTir, de, a uint64) {
+	if k.nature == natureTir {
+		c.st.HeldHoleMS += msEntre(de, a)
+	}
+}
+
+// clore rend la rafale d un bit, finie a `fin` pour la cause `borne`, et libere le bit. Un bit de commande
+// rend une commande tenue ([collecteurTirContinu.clorerLaCommande]).
 func (c *collecteurTirContinu) clore(k cleBitDeTir, s *etatBitDeTir, fin uint64, borne string) {
+	if k.nature != natureTir {
+		c.clorerLaCommande(k, s, fin, borne)
+		return
+	}
 	r := types.ContinuousFireBurst{FilmIndex: k.joueur, Hand: k.main, Barrel: k.barillet,
 		Input: k.rang, Weapon: s.arme, StartUS: s.debut, EndUS: fin, StartBound: s.debutBorne,
 		EndBound: borne, Entries: s.entrees, Holes: s.trous}
@@ -268,13 +295,14 @@ func (c *collecteurTirContinu) clore(k cleBitDeTir, s *etatBitDeTir, fin uint64,
 func (c *collecteurTirContinu) Clore(BilanDeMarche) {
 	for k, s := range c.tenus {
 		if s.troue {
-			c.st.HeldHoleMS += msEntre(s.trou, c.dernier)
+			c.tenirLeTrou(k, s.trou, c.dernier)
 			c.clore(k, s, s.trou, types.ContinuousFireBoundHole)
 			continue
 		}
 		c.clore(k, s, c.dernier, types.ContinuousFireBoundFilmEnd)
 	}
 	sortContinuousFire(c.out)
+	sortControlHolds(c.commandes)
 }
 
 // sortContinuousFire ordonne les rafales sur un ordre TOTAL (debut, joueur, main, nature, rang) :

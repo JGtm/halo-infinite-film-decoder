@@ -288,6 +288,24 @@ below (the scoreboard lags the published points). The scoreboard never goes down
 with no total counts zero; the three are zero when the film publishes no scoreboard player, and nothing is compared. `complete` is false when
 `scoreboardMissing` is above zero; `scoreboardBehind` does not change it.
 
+**Reloads.** A genre-38 message (`weapon_reload`, reader `FUN_1407f0ff8`) of view A is three entity references (the header's gated
+`R(1)` then a domain reference each), four `R(1)` booleans, then the author's player index (`R(1)`; if 0, `R(5)`). Only reference 0 is
+ever present on the films measured: it is the unit that reloads (its index changes with each life of the player), and no field names the
+weapon. The meaning of the four booleans is not established (the values 2, 3 and 11 make nearly all of them, bit 1 always set); they are
+read and not published. The game writes the same message twice in the same frame for about three in ten: 26 to 32 % of the messages read on the 16 films
+of the 20-film equivalence set that carry any. The decoder
+keeps one reload per (frame, author, references) and counts the others as copies; two messages of one frame that differ only by their
+booleans are one reload, since nothing in the film says which copy to trust. The same message in two neighbouring frames (one tick
+apart) is kept: nothing marks it as a repeat. The replay document publishes `reloads[]` (`t` frame of the packet that writes the
+message, `place` the author's player index as the message writes it, the same index space as the shooter index of a shot and as
+`roster[].filmIndex`; 9,025 of the 9,026 places published on the 20 films of the equivalence set are the `filmIndex` of a roster entry), with
+`coverage.reloads`: `frames`, `closedFrames` and `stoppedFrames` (the delta frames of the film, and what the
+reading of their event list did: read to its terminator, or stopped at an unread message, which loses the messages behind it, so that on
+a film with stopped frames the count is a floor), `read`, `copies`, `withoutPlayer` (no player index in the message), `beforeOrigin` and
+`afterEnd` (outside the frame axis), `published`; `read` = `copies` + `withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`. On
+builds whose view A stops early (the 1.4.1 and 1.8 builds and the film versions 31 and 33 of the 20-film set) no message is read and
+`reloads` is empty: the coverage says why.
+
 **Eliminations, headshots and perfect kills.** The scoreboard writes a player's elimination counter and headshot counter in the same entity
 record: on the 1,455 films of the corpus, 36,839 of the 36,847 rises of the headshot counter (99.98 %) fall on the same frame as exactly one
 step of the same player's elimination counter. The replay document publishes `eliminations[]`, one line per unit of each rise of
@@ -352,6 +370,23 @@ kind 0 (a participant): R(1) [R(7)]   R(5) control index (0..31)
     b:R(1) [block of 0xbc bytes]
 kinds 1 and 2: a body that depends on run-time state        kind 3: no handler, zero bits read, the loop goes on
 ```
+
+**Held commands.** A kind-0 entry with its block of 0x68 bytes carries, besides the action block, the analog pair of the movement command
+(`R(6) R(6)`: two scalars, code `0x1f` is the exact zero, `0` and `0x3e` the bounds) and an optional 5-bit field (the `+0x14` flags). The game
+copies the entry into the player's case: a state persists until the player's next entry read, as for a trigger. The decoder folds the
+movement command like a continuous-fire burst: held from the first entry read with a scalar off zero to the first entry read with both at
+zero (an entry without the block says nothing), a packet whose view C is not read being a hole that is carried, never filled; a command
+held before and after a hole carries the hole, and one released after it ends at the hole's start. The replay document publishes the
+held command as `stances[]` of kind `moveCommand` (never the series of values), cut at the limits of each published life of the player
+who holds the seat at that frame and silent over the frames a hole covers entirely; `coverage.stances.control` counts `holds` read
+(`withHole`, `innerHoles`), the `entries` read, those `published` (`intervals` published), and those that no published life covers
+(`noTrack`) or that no life of the seat's occupant covers (`noPlayer`); `holds` = `published` + `noTrack` + `noPlayer`.
+The 5-bit field is not published. Its bit of value 4 looks like the jump button (libfilmshell calls the field `stance` and names its bit
+`0x10` the jump button; the bit that agrees here is the one of value 4): on the 20 films of the equivalence set, the rising edge of that bit
+falls within 100 ms of 87.6 to 97.2 % of the derived jumps (`jumpDerived`) on 12 films (builds 1.8, 1.12 and 1.13, and one film of 1.10), of
+50 to 61 % on 4 films (builds 1.9 to 1.11), and of none on the 3 films where view C is almost never read (film versions 31 and 33, build
+1.4.1). The pooled agreement is 63 % (the same edges shifted by 5 s: 5 %), under the 90 % the publication requires; the reverse, a rising
+edge within 100 ms of a derived jump, is 57 %.
 
 **Closure.** View C is the last rank, so a correct reading ends on its terminator with 0 to 7 zero bits left. A packet is *closed*
 when it ends so and no rule of the game's writer is contradicted; a reading that reaches a terminator without closing the packet

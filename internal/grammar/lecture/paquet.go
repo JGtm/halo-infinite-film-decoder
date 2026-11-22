@@ -223,6 +223,9 @@ type VueA struct {
 	// Detonations sont les messages de détonation/impact de projectile lus (genres 5 et 6,
 	// [MessageDeDetonation]), dans l'ordre.
 	Detonations []MessageDeDetonation
+	// Rechargements sont les messages de rechargement d'arme lus (genre 38, [MessageDeRechargement]),
+	// dans l'ordre.
+	Rechargements []MessageDeRechargement
 }
 
 // MessageDePoussee est un message de poussée d'équipement de la vue A, avec ses deux premières

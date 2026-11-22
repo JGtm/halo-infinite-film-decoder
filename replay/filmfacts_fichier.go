@@ -479,8 +479,7 @@ func encodeComplementDesEntrees(w *gwriter, g *FilmFacts) {
 	encodeEquipementPorte(w, g.CarriedEquipment, g.CarriedEquipmentStats)
 	encodeMedailles(w, g.MedalsRead, g.Medals)
 	encodePresenceEtEntrees(w, g)
-	encodeJeu(w, g)
-	encodeDegats(w, g)
+	encodeCanauxDeLaMarche(w, g)
 	encodeVerdictDuFilDesMorts(w, g.DeathsFeed)
 }
 
@@ -494,7 +493,6 @@ func decodeComplementDesEntrees(r *greader, g *FilmFacts) {
 	g.CarriedEquipment, g.CarriedEquipmentStats = decodeEquipementPorte(r)
 	g.MedalsRead, g.Medals = decodeMedailles(r)
 	decodePresenceEtEntrees(r, g)
-	decodeJeu(r, g)
-	decodeDegats(r, g)
+	decodeCanauxDeLaMarche(r, g)
 	g.DeathsFeed = decodeVerdictDuFilDesMorts(r)
 }
