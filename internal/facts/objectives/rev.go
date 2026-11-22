@@ -346,4 +346,10 @@ package objectives
 // A REVISION CONSTANTE (rechargements, commande de deplacement, tirs a tout rang, parent des pieces montees, 2026-11-22) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-22.2`) ; aucune source de cette couche
 // ne change, et ni les enregistrements, ni les entrees, ni les plages, ni les actions d objectif non plus (`types.ControlHold`, `types.ReloadRead` et les champs neufs de `types.EquipmentCreation` entrent dans sa
 // fermeture). Les etapes `score`, `objectives`, `scoreTimeline` et `eliminations` de l equivalence ne changent sur aucun des 20 films. L empreinte du golden est recopiee au meme rang.
+//
+// A REVISION CONSTANTE (la table du Drapeau lue par le verdict de mode, 2026-11-22 ; serie nee sur cette branche, jamais publiee) : la lecture du verdict de mode applique la table du Drapeau a tout film, et la regle des deux canaux de `objectives-2026-11-22.2`
+// jugeait aussi les emissions saines d'un film d'un autre mode (`22 B` d'un film de zones est une duree) : elles se comptaient comme jetees (`repli_emission_hors_domaine_jetee` : 0 -> 1 838 sur un film de crane, 0 -> 846 sur un film de colline). Une emission jetee par la table
+// du Drapeau ne se compte plus que sur un film que cette table reconnait. [NamedEventsFromAutreFamille] lit les seuls emplacements que le verdict compte, sans jugement par la table, et [ReplisALaConsultation.Essai] ouvre l'enregistreur a part ; les lectures
+// d'une famille par sa propre table ([NamedEventsFrom]) ne changent pas, aucune serie, aucun evenement, aucun calque ne change : la sortie qui bouge est le compte des replis de six films du corpus (`01e1f945` 515 -> 11, `d9781168` 1 838 -> 0, `60ae07c4` 1 952 -> 0,
+// `696a9d7c` 38 -> 0, `7344d24f` 36 -> 0, `50247b26` 44 -> 4), et il revient en dessous ou au niveau de celui d'avant les deux canaux. Les faits persistes portent les enregistrements bruts : ils ne sont pas perimes. L empreinte du golden est recopiee au meme rang.
 const Rev = "objectives-2026-11-22.2"

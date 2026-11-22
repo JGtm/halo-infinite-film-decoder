@@ -140,9 +140,28 @@ func decodeFilmCarrierMarks(ctx context.Context, marks grammar.CarrierMarkScan, 
 }
 
 // flagFilmSignalsOf rend le verdict de mode a partir des SEULES lectures deja faites. Pur.
+//
+// LA TABLE DU DRAPEAU EST LUE SUR TOUT FILM, c'est elle qui donne le verdict ; elle n'est la table de la famille du film que
+// si elle le reconnait. UNE EMISSION JETEE PAR CETTE TABLE NE SE COMPTE AU DOCUMENT QUE SUR UN FILM QU'ELLE RECONNAIT :
+//
+//	film reconnu     la table du Drapeau juge les emissions (les deux canaux nommes d'un composant), les signaux sont ceux de
+//	                 la famille du film ; le compte se fait dans les lectures du calque ([attachFlagCarries]), sur un
+//	                 enregistreur d'essai ici ;
+//	film non reconnu la table n'est pas la sienne : le verdict se relit sans la juger, sur les seuls emplacements qu'il
+//	                 compte (seules les valeurs negatives sont jetees, comme avant la garde des deux canaux), et ne
+//	                 verse rien au compte. Les emissions saines de son propre mode (`22 B` d'un film de zones est une
+//	                 duree) ne sont pas des replis.
 func flagFilmSignalsOf(in FlagInput, cons *objectives.ReplisALaConsultation) objectives.FlagFilmSignals {
+	essai := cons.Essai()
+	propres := objectives.FlagFilmSignalsFrom(in.Bursts,
+		objectives.NamedEventsFrom(in.Records, objectives.ObjectiveTypeFlag, essai))
+	if propres.IsFlagFilm() {
+		cons.AdopterLesDiagnostics(essai)
+		return propres
+	}
 	return objectives.FlagFilmSignalsFrom(in.Bursts,
-		objectives.NamedEventsFrom(in.Records, objectives.ObjectiveTypeFlag, cons))
+		objectives.NamedEventsFromAutreFamille(in.Records, objectives.ObjectiveTypeFlag,
+			objectives.FlagFilmStats(), cons))
 }
 
 // attachFlagCarries pose la vie des drapeaux sur le document, avec sa couverture et son journal.
@@ -158,7 +177,6 @@ func attachFlagCarries(ctx context.Context, doc *ReplayDocument, opt Options, re
 	scan := FlagCarryScan{
 		Scanned: in.Scanned,
 		Signals: signals,
-		Events:  objectives.NamedEventsFrom(in.Records, objectives.ObjectiveTypeFlag, opt.consultations()),
 		Spawns:  in.Spawns,
 		// L'EQUIPE DU PORTEUR VIENT DU FILM (lot 1.7, decision utilisateur V4) : elle ne descend
 		// plus de l'appelant, donc l'invariant « jamais son propre drapeau » tient sur une
@@ -187,6 +205,9 @@ func attachFlagCarries(ctx context.Context, doc *ReplayDocument, opt Options, re
 		attachFlagLayer(ctx, doc, vide, cov)
 		return
 	}
+	// LES EVENEMENTS NOMMES SE LISENT ICI ET PAS PLUS HAUT : hors CTF le calque est vide, et la table du Drapeau n'est
+	// pas celle du film (cf. [flagFilmSignalsOf]) ; sur un film de CTF elle juge ses emissions et les compte.
+	scan.Events = objectives.NamedEventsFrom(in.Records, objectives.ObjectiveTypeFlag, opt.consultations())
 	scan.Identity = flagIdentityOf(in, opt)
 	scan.Marks = in.Marks
 	// LES VIES LIBRES ne se lisent que sur un film de CTF, pour la meme raison : hors CTF,

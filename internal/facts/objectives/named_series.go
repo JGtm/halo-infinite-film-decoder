@@ -31,7 +31,17 @@ import (
 // SITE DE `repli_emission_hors_domaine_jetee` (lot J8.7-bis, 2026-09-28) : meme filtre
 // ([emissionHorsDomaine]), meme repli, meme enregistreur que [rawSeriesByRound] — une emission que
 // les deux marches jettent compte une fois.
+//
+// La table de la famille JUGE les emissions : c'est la lecture d'un film dont la famille est celle de `table`.
 func rawSeriesByKey(recs []types.StatRecord, table map[statSlotKey]statSlot,
+	cons *ReplisALaConsultation) map[statSlotKey]map[int]map[int][]types.ScorePoint {
+	return rawSeriesJugees(recs, table, table, cons)
+}
+
+// rawSeriesJugees est [rawSeriesByKey] quand la table des emplacements lus (`table`) n'est pas forcement celle qui
+// juge les emissions (`juge`). `juge` nil : la table lue n'est pas celle de la famille du film, aucun canal frere
+// n'est juge et seules les valeurs negatives (et le score de mode) sont jetees, comme une lecture hors de toute famille.
+func rawSeriesJugees(recs []types.StatRecord, table, juge map[statSlotKey]statSlot,
 	cons *ReplisALaConsultation) map[statSlotKey]map[int]map[int][]types.ScorePoint {
 	bornes := ResolveRoundBounds(recs)
 	out := make(map[statSlotKey]map[int]map[int][]types.ScorePoint, len(table))
@@ -56,7 +66,7 @@ func rawSeriesByKey(recs []types.StatRecord, table map[statSlotKey]statSlot,
 			// Memes rejets que [rawSeriesByRound], et pour les memes raisons : une
 			// emission negative est un ancrage parasite, et un canal hors domaine que la table
 			// du mode nomme comme compteur denonce une emission mal alignee sur ses deux canaux.
-			if emissionHorsDomaine(key, r.Slot, v, table) {
+			if emissionHorsDomaine(key, r.Slot, v, juge) {
 				cons.noterEmissionJetee(key, r)
 				continue
 			}

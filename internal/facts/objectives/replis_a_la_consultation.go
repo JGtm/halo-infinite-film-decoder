@@ -66,6 +66,26 @@ func (r *ReplisALaConsultation) Diagnostics() *constat.Diagnostics {
 	return &r.diag
 }
 
+// Essai ouvre un enregistreur A PART, dont le compte d'emissions ne rejoint jamais celui de r : la lecture du verdict de mode juge
+// les emissions par la table du Drapeau, qui n'est celle du film que si le verdict la reconnait, et le compte du film se
+// fait alors dans les lectures du calque du Drapeau. Seuls les diagnostics se versent ([ReplisALaConsultation.AdopterLesDiagnostics]).
+// Nil sur un enregistreur nil : rien ne se compte.
+func (r *ReplisALaConsultation) Essai() *ReplisALaConsultation {
+	if r == nil {
+		return nil
+	}
+	return &ReplisALaConsultation{}
+}
+
+// AdopterLesDiagnostics verse dans r les seuls diagnostics de `essai` (un diagnostic se journalise une fois : `essai` est
+// vide apres).
+func (r *ReplisALaConsultation) AdopterLesDiagnostics(essai *ReplisALaConsultation) {
+	if r == nil || essai == nil {
+		return
+	}
+	essai.diag.Verser(&r.diag)
+}
+
 // noterEmissionJetee note une emission que le filtre de domaine jette (`repli_emission_hors_domaine_jetee`).
 func (r *ReplisALaConsultation) noterEmissionJetee(key statSlotKey, rec types.StatRecord) {
 	if r == nil {
