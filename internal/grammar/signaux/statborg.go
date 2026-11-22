@@ -129,6 +129,11 @@ const (
 	statDenseMaskBits = 64
 	// statMaxComp borne les index de composant de l'archetype (58 composants).
 	statMaxComp = 58
+	// statCompteursDeManche est le nombre de composants de tete de l'archetype qui portent les valeurs
+	// de la manche en cours (`statborg-current-round-value-stat-component`, index 0 a 27) : ce sont
+	// eux, et eux seuls, que le lecteur du jeu FUN_140C18794 lit, et que [decodeStatComponent]
+	// reproduit. Les suivants (valeurs figees des manches, issues, entree) ont d'autres lecteurs.
+	statCompteursDeManche = 28
 	// statCompIndexBits est la largeur d'un index de composant dans la liste creuse.
 	statCompIndexBits = 6
 	// statMaxCompPerRecord : un enregistrement porte de 1 a 7 composants (compte sur
@@ -281,7 +286,8 @@ func denseComponentList(pay []byte, p int) ([]int, bool) {
 // valeur, un couple depareille est un faux positif.
 //
 // Les composants suivants ne sont pas re-contraints — leurs largeurs sont chainees, une lecture
-// qui derape s'arrete d'elle-meme.
+// qui derape s'arrete d'elle-meme, et l'enregistrement est abandonne quand elle s'arrete sur un
+// compteur de la manche ([decodeComponentsAvecArret]).
 func decodeComponents(pay []byte, at int, idx []int) (map[int]types.StatValue, int) {
 	out, round, _ := decodeComponentsAvecArret(pay, at, idx)
 	return out, round
@@ -289,6 +295,13 @@ func decodeComponents(pay []byte, at int, idx []int) (map[int]types.StatValue, i
 
 // decodeComponentsAvecArret est [decodeComponents], plus `arrete` : un composant non decodable a
 // ARRETE la boucle avant le dernier annonce — le verdict de `repli_composants_statborg_arretes`.
+//
+// UN COMPTEUR DE LA MANCHE QUI NE SE DECODE PAS PROUVE UN ANCRAGE FORTUIT. Le lecteur du jeu de ces
+// composants ([statCompteursDeManche]) est celui que [decodeStatComponent] reproduit : une emission du
+// moteur le relit toujours en entier, dans son paquet. S'il echoue sur l'un d'eux, les bits lus ne sont
+// pas un enregistrement, et ses composants deja lus sont du bruit au meme titre : rien n'est rendu, et
+// l'enregistrement est abandonne. Seul l'arret sur un composant d'un autre lecteur (valeurs figees,
+// issues, entree) garde les composants lus avant lui.
 func decodeComponentsAvecArret(pay []byte, at int, idx []int) (map[int]types.StatValue, int, bool) {
 	h1 := int(source.BitsTronques(pay, at, statHdrBits))
 	h2 := int(source.BitsTronques(pay, at+statHdrBits, statHdrBits))
@@ -299,6 +312,9 @@ func decodeComponentsAvecArret(pay []byte, at int, idx []int) (map[int]types.Sta
 	q := at
 	for _, i := range idx {
 		v, w, ok := decodeStatComponent(pay, q)
+		if !ok && i < statCompteursDeManche {
+			return nil, 0, false
+		}
 		if !ok {
 			return out, h1, true
 		}

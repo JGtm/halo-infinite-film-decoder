@@ -399,7 +399,10 @@ a match is read from the datum tables of the film (`internal/grammar/signaux/sta
 slot, 58 on a 25-seat match. A row is a list of components of two values (A, B): component `c` side A or B is libfilmshell's
 slot `2c` or `2c+1`. Named and measured: 0A mode score, 1B personal score, 2A kills, 2B deaths, 3A assists, 4A suicides, 4B
 betrayals, 5B longest kill spree, 6A headshot kills, 8A melee kills, 8B grenade kills, 9A power weapon kills, 10B spawns. A row
-is cleared to zero when its player leaves.
+is cleared to zero when its player leaves. Components 0 to 27 (current-round values) are the ones the reader of the decoder
+reproduces (`FUN_140C18794`): an emission always decodes all of them in its packet, so an anchored record on which one of them does
+not decode is not an emission and is dropped whole, the components read before it included. A stop on a component of another reader
+(frozen round values 28 to 55, outcomes 56, entry 57) keeps what was read before it.
 
 **Whose row it is.** Each statborg entity carries its own entry, component 57 (`statborg-entry-index-and-type`): a 32-bit value and an
 8-bit kind, written at creation and read at the keyframes (`internal/grammar/statborg_entries.go`, one record per entity and keyframe).

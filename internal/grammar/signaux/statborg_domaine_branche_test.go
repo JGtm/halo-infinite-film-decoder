@@ -120,7 +120,7 @@ func TestLeBalayageDuStatborgCompteSesAbandons(t *testing.T) {
 	if comps, _, arrete := decodeComponentsAvecArret(pay, at, idx); len(comps) == 0 || arrete {
 		t.Errorf("vecteur sain : %d composant(s), arret %v — attendu une lecture complete", len(comps), arrete)
 	}
-	if _, _, arrete := decodeComponentsAvecArret(make([]byte, 2), 0, []int{0, 1}); !arrete { // tampon trop court : le premier composant deborde
+	if _, _, arrete := decodeComponentsAvecArret(make([]byte, 2), 0, []int{57}); !arrete { // tampon trop court : l entree deborde
 		t.Error("un composant non decodable doit arreter la boucle ET le dire")
 	}
 }
