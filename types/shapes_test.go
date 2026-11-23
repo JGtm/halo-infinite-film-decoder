@@ -101,6 +101,7 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.ContinuousFireHole{}},
 	{"grammar", types.ContinuousFireStats{}},
 	{"grammar", types.ControlHold{}},
+	{"grammar", types.ControlHoldCount{}},
 	{"grammar", types.ControlHoldStats{}},
 	{"grammar", types.DeadState{}},
 	{"grammar", types.Death{}},

@@ -57,13 +57,16 @@ import (
 // joueursDeControle est la plage de l index de controle : R(5).
 const joueursDeControle = 1 << largeurIndexControle
 
-// natureDeBit dit de quelle lecture de l entree de controle un bit tenu vient : un bit de tir, ou la commande
-// de deplacement tenue ([types.ControlHold]) que le meme pliage des entrees et des trous rend.
+// natureDeBit dit de quelle lecture de l entree de controle un bit tenu vient : un bit de tir, ou l une des trois
+// commandes tenues ([types.ControlHold] : deplacement, accroupi, saut) que le meme pliage des entrees et des trous
+// rend.
 type natureDeBit uint8
 
 const (
 	natureTir natureDeBit = iota
 	natureDeplacement
+	natureAccroupi
+	natureSaut
 )
 
 // cleBitDeTir designe UN bit tenu d un joueur : sa nature, et pour un bit de tir sa main, sa nature
@@ -95,6 +98,8 @@ type collecteurTirContinu struct {
 	// commandes : les commandes de deplacement tenues, pliees des memes entrees, et leurs compteurs.
 	commandes     []types.ControlHold
 	commandeStats types.ControlHoldStats
+	// pas : les ecarts entre entrees lues, dont le pas des commandes ([pasDesEntrees]).
+	pas pasDesEntrees
 	// ts : l instant de la trame en cours ; recu / lecture : son verdict, quand la marche l a publie
 	// pendant sa marche — effaces a sa cloture.
 	ts      uint64
@@ -197,6 +202,7 @@ func (c *collecteurTirContinu) trou() {
 		c.st.HoleRuns++
 		c.enTrou = true
 	}
+	c.pas.rompre()
 	for _, s := range c.tenus {
 		if !s.troue {
 			s.troue, s.trou = true, c.ts
@@ -303,6 +309,7 @@ func (c *collecteurTirContinu) Clore(BilanDeMarche) {
 	}
 	sortContinuousFire(c.out)
 	sortControlHolds(c.commandes)
+	c.pas.mesurer(&c.commandeStats)
 }
 
 // sortContinuousFire ordonne les rafales sur un ordre TOTAL (debut, joueur, main, nature, rang) :
