@@ -187,13 +187,14 @@ func seriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 	cons *ReplisALaConsultation, cuts seatCuts) map[int]map[int][]types.ScorePoint {
 	real := RealRounds(recs)
 	out := map[int]map[int][]types.ScorePoint{}
-	for slot, byRound := range rawSeries(recs, c, teams, cons) {
+	pens := c.penalties(recs)
+	for slot, byRound := range rawSeriesWithMarks(recs, c, teams, cons, pens) {
 		for round, pts := range byRound {
 			if !real[round] {
 				continue
 			}
 			slices.SortStableFunc(pts, func(a, b types.ScorePoint) int { return cmp.Compare(a.TimeMS, b.TimeMS) })
-			kept := longestRunBySeat(pts, cuts.of(round, slot), c.Strict)
+			kept := longestRunBySeat(pts, cuts.of(round, slot), c.Strict, pens.at(round, slot))
 			if c.Unitary {
 				kept = boundedSeries(kept)
 			}
@@ -222,7 +223,8 @@ func seriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 // `cons` : l enregistreur des replis a la consultation du document ([ReplisALaConsultation], lot
 // J8.7-bis) ; nil hors production.
 func SeriesTotal(recs []types.StatRecord, c StatComponent, teams bool, cons *ReplisALaConsultation) map[int][]types.ScorePoint {
-	out := cumulateRounds(rawSeries(recs, c, teams, cons), RealRounds(recs), nil, cons.Diagnostics())
+	pens := c.penalties(recs)
+	out := cumulateRounds(rawSeriesWithMarks(recs, c, teams, cons, pens), RealRounds(recs), nil, pens, cons.Diagnostics())
 	for slot, pts := range out {
 		if c.Unitary {
 			pts = boundedSeries(pts)
@@ -244,6 +246,19 @@ func SeriesTotal(recs []types.StatRecord, c StatComponent, teams bool, cons *Rep
 //     il est reemis des que l'UNE des deux bouge, donc la meme valeur revient
 //     legitimement. Exiger la stricte croissance y jetterait des emissions reelles.
 func longestRun(pts []types.ScorePoint, strict bool) []types.ScorePoint {
+	idx := longestRunIndexes(pts, strict)
+	if len(idx) == 0 {
+		return nil
+	}
+	out := make([]types.ScorePoint, len(idx))
+	for i, k := range idx {
+		out[i] = pts[k]
+	}
+	return out
+}
+
+// longestRunIndexes rend les indices des points de [longestRun] (a longueur egale, la suite qui finit le plus tard).
+func longestRunIndexes(pts []types.ScorePoint, strict bool) []int {
 	if len(pts) == 0 {
 		return nil
 	}
@@ -273,9 +288,9 @@ func longestRun(pts []types.ScorePoint, strict bool) []types.ScorePoint {
 			tailIdx[lo] = i
 		}
 	}
-	out := make([]types.ScorePoint, len(tailIdx))
+	out := make([]int, len(tailIdx))
 	for i, k := len(tailIdx)-1, tailIdx[len(tailIdx)-1]; i >= 0; i, k = i-1, prev[k] {
-		out[i] = pts[k]
+		out[i] = k
 	}
 	return out
 }

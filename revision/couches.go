@@ -16,6 +16,9 @@ package revision
 // racineDesCouches : le dossier commun des couches revisees, sous son nom historique (cf. `cadre.go`).
 const racineDesCouches = "internal/games/halo_infinite/film/internal/"
 
+// racineHistorique : le dossier des paquets de premier niveau de la brique, sous son nom historique (cf. `cadre.go`).
+const racineHistorique = "internal/games/halo_infinite/film/"
+
 // CouchesRevisees rend les couches dont la revision est une constante hachee, dans l ORDRE DU
 // SENS UNIQUE (ADR 0034 D-1) — l ordre dans lequel une fermeture hache les valeurs amont qu elle
 // rencontre.
@@ -23,7 +26,9 @@ func CouchesRevisees() []Couche {
 	return []Couche{
 		{Nom: "source", Racine: racineDesCouches + "source"},
 		{Nom: "profile", Racine: racineDesCouches + "profile"},
-		{Nom: "grammar", Racine: racineDesCouches + "grammar"},
+		// La table des reponses de jeu nomme et chiffre les actions de score que `grammar` fait lire (calque
+		// `scoreActions`, attribue a `grammar.Rev`) : ses lignes decident la sortie sans que `grammar` l'importe.
+		{Nom: "grammar", Racine: racineDesCouches + "grammar", Associes: []string{racineHistorique + "reponsesdejeu"}},
 		{Nom: "killsource", Racine: racineDesCouches + "facts/killsource"},
 		{Nom: "objectives", Racine: racineDesCouches + "facts/objectives"},
 	}

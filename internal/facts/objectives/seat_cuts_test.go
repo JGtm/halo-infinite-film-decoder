@@ -139,10 +139,10 @@ func TestLongestRunBySeatSansFrontiereEstLongestRun(t *testing.T) {
 		{TimeMS: 1, Slot: 12, Value: 1}, {TimeMS: 2, Slot: 12, Value: 2},
 		{TimeMS: 3, Slot: 12, Value: 0}, {TimeMS: 4, Slot: 12, Value: 1},
 	}
-	if got, want := longestRunBySeat(pts, nil, false), longestRun(pts, false); !slices.Equal(got, want) {
+	if got, want := longestRunBySeat(pts, nil, false, nil), longestRun(pts, false); !slices.Equal(got, want) {
 		t.Errorf("sans frontiere : %v, attendu %v", got, want)
 	}
-	got := longestRunBySeat(pts, []int{3}, false)
+	got := longestRunBySeat(pts, []int{3}, false, nil)
 	want := []types.ScorePoint{
 		{TimeMS: 1, Slot: 12, Value: 1}, {TimeMS: 2, Slot: 12, Value: 2},
 		{TimeMS: 3, Slot: 12, Value: 2}, {TimeMS: 4, Slot: 12, Value: 3},

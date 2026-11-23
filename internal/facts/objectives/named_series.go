@@ -96,7 +96,7 @@ func rawSeriesJugees(recs []types.StatRecord, table, juge map[statSlotKey]statSl
 // manches precedentes : la suite rendue est croissante sur tout le match et son dernier point
 // est le total du match. Mesure : les frags d'un Oddball passent de 48 a 87 sur 88 attendus.
 func seriesBySlot(recs []types.StatRecord, key statSlotKey, cons *ReplisALaConsultation) map[int][]types.ScorePoint {
-	return cumulateRounds(rawSeriesByRound(recs, key, false, cons), RealRounds(recs), nil, cons.Diagnostics())
+	return cumulateRounds(rawSeriesByRound(recs, key, false, cons), RealRounds(recs), nil, nil, cons.Diagnostics())
 }
 
 // rawSeriesByRound groupe les emissions par slot puis par manche, en jetant les ancrages
@@ -112,6 +112,14 @@ func seriesBySlot(recs []types.StatRecord, key statSlotKey, cons *ReplisALaConsu
 // (`repli_emission_hors_domaine_jetee`, lot J8.7-bis) ; nil ne note rien.
 func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
+	return rawSeriesByRoundMarked(recs, key, teams, cons, nil)
+}
+
+// rawSeriesByRoundMarked est [rawSeriesByRound] pour un emplacement dont les penalites sont lues ([penaltyMarks]) : une
+// emission negative qui porte une penalite confirmee est une valeur du score, pas un ancrage parasite. `marks` nil :
+// exactement [rawSeriesByRound].
+func rawSeriesByRoundMarked(recs []types.StatRecord, key statSlotKey, teams bool,
+	cons *ReplisALaConsultation, marks penaltyMarks) map[int]map[int][]types.ScorePoint {
 	bornes := ResolveRoundBounds(recs)
 	raw := map[int]map[int][]types.ScorePoint{}
 	for _, r := range recs {
@@ -123,7 +131,7 @@ func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
 			continue
 		}
 		val := canalDe(v, key.Side)
-		if emissionHorsDomaine(key, r.Slot, v, nil) {
+		if emissionHorsDomaine(key, r.Slot, v, nil) && !marks.confirms(r.Round, r.Slot, r.TimeMS) {
 			cons.noterEmissionJetee(key, r)
 			continue
 		}
@@ -210,7 +218,7 @@ func canalDe(v types.StatValue, cote string) int64 {
 //
 // La suite assemblee passe par [ChronologicalTotal] : le cumul suppose que l'ordre des MANCHES
 // est l'ordre du TEMPS, et cette supposition doit etre verifiee, pas presumee.
-func cumulateRounds(raw map[int]map[int][]types.ScorePoint, real map[int]bool, cuts seatCuts,
+func cumulateRounds(raw map[int]map[int][]types.ScorePoint, real map[int]bool, cuts seatCuts, pens penaltyMarks,
 	diag *constat.Diagnostics) map[int][]types.ScorePoint {
 	out := make(map[int][]types.ScorePoint, len(raw))
 	for slot, byRound := range raw {
@@ -222,7 +230,7 @@ func cumulateRounds(raw map[int]map[int][]types.ScorePoint, real map[int]bool, c
 			}
 			pts := byRound[round]
 			slices.SortStableFunc(pts, func(a, b types.ScorePoint) int { return cmp.Compare(a.TimeMS, b.TimeMS) })
-			kept := longestRunBySeat(pts, cuts.of(round, slot), false)
+			kept := longestRunBySeat(pts, cuts.of(round, slot), false, pens.at(round, slot))
 			// `kept` N EST JAMAIS VIDE : `pts` porte au moins l emission qui a cree sa manche, et
 			// [longestRun] rend au moins un point d une suite non vide. La branche « manche sautee »
 			// qui le testait etait morte (constat FO-4, retiree au lot J8.6, 2026-09-27).

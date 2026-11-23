@@ -66,10 +66,14 @@ func (s seatCuts) of(round, slot int) []int { return s[round][slot] }
 // reste croissante, que ses increments sont ceux des deux occupants, et que son dernier point est le total
 // du siege (partant et arrivant). Une occupation sans emission n'ajoute rien.
 //
-// Sans frontiere (`cuts` vide), c'est exactement [longestRun] : un siege qui garde son occupant ne change pas.
-func longestRunBySeat(pts []types.ScorePoint, cuts []int, strict bool) []types.ScorePoint {
+// `pens` : les penalites confirmees du siege dans la manche ([penaltyMarks.at]), lues dans chaque occupation sans
+// jamais la franchir : une penalite subie par le partant ne se reporte pas sur l'arrivant ([penalisedRun]).
+//
+// Sans frontiere (`cuts` vide), c'est [penalisedRun] sur toute la suite, et sans penalite exactement [longestRun] : un
+// siege qui garde son occupant ne change pas.
+func longestRunBySeat(pts []types.ScorePoint, cuts []int, strict bool, pens map[int]int) []types.ScorePoint {
 	if len(cuts) == 0 {
-		return longestRun(pts, strict)
+		return penalisedRun(pts, strict, pens)
 	}
 	var out []types.ScorePoint
 	var offset int64
@@ -83,7 +87,7 @@ func longestRunBySeat(pts []types.ScorePoint, cuts []int, strict bool) []types.S
 			}
 		}
 		if from < to {
-			kept := longestRun(pts[from:to], strict)
+			kept := penalisedRun(pts[from:to], strict, pens)
 			for _, p := range kept {
 				out = append(out, types.ScorePoint{TimeMS: p.TimeMS, Slot: p.Slot, Value: p.Value + offset})
 			}
