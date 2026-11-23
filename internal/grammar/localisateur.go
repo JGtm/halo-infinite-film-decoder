@@ -157,6 +157,13 @@ func LocaliserBoucleDeRecords(pay []byte, w *World, cfg FrameConfig, ordre Ordre
 	return s, s >= 0
 }
 
+// debutApresLaStricte est [LocaliserBoucleDeRecords] en ordre [SignaturePuisLargeurLibre] pour un
+// paquet dont la signature stricte est connue absente : il ne reste que le repli a largeur libre.
+func debutApresLaStricte(pay []byte, w *World, cfg FrameConfig) (int, bool) {
+	s := marchLocateFallback(pay, w, cfg)
+	return s, s >= 0
+}
+
 // marchSignature123 : un delta du slot de signature decode-t-il en `s`, finit-il exactement
 // `largeur` plus loin ([largeurDeSignature]), avec un composant unique ?
 func marchSignature123(pay []byte, s, largeur int, w *World, cfg FrameConfig) bool {
