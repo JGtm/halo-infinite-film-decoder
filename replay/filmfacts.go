@@ -255,8 +255,9 @@ import (
 //
 // v31 (2026-11-23) : chaque delta d inventaire se termine par ses MUNITIONS (`types.InventoryDeltaAmmo` : chargeur, fraction R(12)
 // brute, reserve ; [encodeMunitionsDelta]/[decodeMunitionsDelta]), dans l ordre du film. Elles etaient sorties du fichier faute
-// de lecteur (v15 et v18 les citent comme retirees) : elles y rentrent de nouveau, sans que l assemblage les lise encore, son
-// lecteur arrivant avec un item suivant ; un fichier ecrit avant ne se relit pas (`SchemaDesFaits` 31 les refuse aussi).
+// de lecteur (v15 et v18 les citent comme retirees) : elles y rentrent de nouveau, et l assemblage les lit
+// (`ammoReads[]`, `ammo_reads.go`) ; un fichier ecrit avant ne se relit pas (`SchemaDesFaits` 31 les refuse aussi). Le meme numero porte, au complement, le jeu d armes desire (`filmfacts_arme_tiree.go`) et, dans la section des lancers, le
+// handle du projectile de chaque lancer (`GrenadeThrow.HasLife`, `Life` : `bool8 has_life`, puis `slot` et `gen` s il est present).
 const filmFactsMagic = "REPLAYINPUTS31\n"
 
 // ---------------------------------------------------------------------------

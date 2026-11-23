@@ -171,6 +171,7 @@ var couchesDesCalques = map[string]string{
 	"damage":              grammar.Rev, // document_damage.go <- FilmInputs.Damages + DamagePoints + Fire
 	"weaponPads":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (ti=42 et ti=37)
 	"padPickups":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads
+	"padCandidates":       grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (grappes a une seule apparition, ti=42 et ti=37)
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
 	"objectiveObjects":    grammar.Rev, // build_objective_objects.go <- FilmInputs.Pads.Weapons SEUL : son en-tete mesure « aucune lecture de film ajoutee », ni statborg ni morts
 	"vehicles":            grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles

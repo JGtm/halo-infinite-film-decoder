@@ -372,8 +372,13 @@ against the API's `shots_hit`, the hits of those players are within 10 % for abo
 four in five (chronicle v125). When they are not sufficient the consumer shows "insufficient data", never a count. A film whose messages the view
 A cannot read to the end has no hit: all its players are insufficient.
 
-**Damage in points.** Each damage message that removes points from a unit with a track becomes a `damage[]` row (frame, attacker, victim, effect,
-weapon, points taken from the shield and from the body, tenths of a point). The points come from the amounts table of libfilmshell
+**Damage in points.** Each damage message that lands on a unit with a track becomes a `damage[]` row (frame, attacker, victim, effect,
+weapon, points taken from the shield and from the body, tenths of a point, and `slot` / `by`, the track slots of the victim and of the responsible unit).
+A message that removes no points is a row whose `shield` and `body` are zero: the film writes them for damage a unit does to itself, for a duplicate
+of a message with points in the same frame, for a victim already dead. They are neither damage nor hits: no total of `shotStats[]` and no
+`coverage.hits` damage count sees them (they have their own counters `damagesZero`, `damagesZeroOffUnit`, `damagesZeroOutOfAxis`), and a
+reader that counts damage from `damage[]` skips the rows whose two values are zero. `slot` is the slot of the victim's track (a bot has no
+`victim` xuid but has a `slot`); `by` is the slot of the responsible unit's track when the message names a unit with a track at that frame. The points come from the amounts table of libfilmshell
 (`damageeffects`, MIT, credited in `NOTICE.md`) applied to the unit's real life, which the film writes in the biped's two vitality components
 (`object-body-vitality`, health from -1 to 1; `object-shield-vitality`, shield from 0 to 4, 1 being full): the messages of one unit at one instant are
 computed together from the life read just before that instant; a direct hit of a fixed-amount effect at full scale (15) removes its amount from the
@@ -381,8 +386,36 @@ shield, then the body (multipliers and flags of the table); a known effect that 
 unknown effect) is *measured* from what the life loses, shared between the measured hits and never beyond what remains. A shield rises only when
 the film writes it, never by an assumed delay. A Spartan has 90 body points and 140 shield points. `shotStats[]` adds `damageDealt` and `damageTaken`
 (a player's damage to himself is not counted as dealt; taken counts players only), under the same `sufficient` verdict as the hits. A message whose
-unit has no track (a vehicle, an object) is neither published nor counted. Estimates: against the API's `damage_dealt` and `damage_taken`, for the `sufficient` players the median
+unit has no track (a vehicle, an object) is neither published nor counted (a zero-point message on such a unit is counted in `damagesZeroOffUnit`). Estimates: against the API's `damage_dealt` and `damage_taken`, for the `sufficient` players the median
 ratio is 1.01 and 1.02 and about three players in four are within 10 % (chronicle v125).
+
+**Shot offset.** `shots[].o` is the offset of the shot inside its frame, in whole milliseconds (the remainder of the shot's time, counted from the axis
+origin, by the grid step); absent at zero, and absent when the shot's frame is clamped to the last of the axis. `t` and `o` together date a shot to the
+millisecond. It is a pure reading of the film's timestamp: the order of `shots[]` does not change. 97 to 98 % of the shots of three recent films carry an `o`.
+
+**Drawn weapon.** `drawnWeapons[]` is the weapon slot the player holds, at each change. `d` is the weapon slot desired in the main hand (0 and 1 carry a
+weapon, 2 is bare hands or an objective item), `d2` the one of the second hand (absent outside dual wielding). The film writes it in component `i42` of the
+biped's delta frames; it is the same quantity as `inventory[].d`, which is only read at keyframes. `d` precedes the weapon actually in hand. A client takes,
+for a slot, the last row whose `t` is at most the frame, and falls back on `inventory[].d` before the first. To name the weapon: `loadouts[].k` and
+`weaponChanges[].k` give the weapon of each slot. `coverage.drawnWeapons`: `read` = `noTrack` + `beforeOrigin` + `afterEnd` + `published` (`componentAbsent`,
+`slotUnbound` and `duplicates` say what the reading dropped).
+
+**Ammunition carried.** `ammoReads[]` are the ammunition values the film writes, at keyframes (about every 20 s) and in delta frames (at each change): `w`
+is the slot rank (0 or 1, as `inventory[].am[]`), not a weapon family; `mag` and `res` the magazine and the reserve; `gauge` the fraction CONSUMED (from 0 to 1,
+the quantum over 4095: the complement of a remaining charge); `src` is `kf` or `delta`. A row carries only the fields the film writes: an absent field is "not
+transmitted", never zero. A client takes, for a life and a slot, the last value of each field up to the frame; the two channels can differ, the most recent
+reading is the one to trust. `coverage.ammoReads`: `read` = `beforeOrigin` + `afterEnd` + `noTrack` + `unchanged` + `fromKeyframe` + `fromDelta`; a film whose
+scanner refuses the ammunition channel publishes no delta reading (`deltaRefused`).
+
+**Pad candidates and equipment pads.** A ground-weapon pad is a recurrence: a spawn point that the film shows more than once at rest. `padCandidates[]` publishes the
+clusters seen a single time at rest, which that rule keeps out of `weaponPads[]` (weapons first, then equipment): the same shape as a pad (one line in `spawns` and
+in `presence`), never a `cycle`, and not a pad; absent when there are none, counted by `coverage.groundWeapons.candidates` and `powerupCandidates`. The `ti=37` way of the pads keeps
+every equipment family of the manifest except `grenade_*` and the deployed forms the host names (`LabelCatalog.DeployedEquipment`): `weaponPads[]`, and through it `padPickups[]` and the
+shared counters, include equipment pads. The translocator beacon is not left out: the film shows that these are real pad objects.
+
+**Detonation of a throw.** `grenades[].deto` (`t`, `x`, `y`, `z`) is the explosion (the genre-5 message `projectile_detonate`) of the projectile of a throw that has no `proj`, tied by
+the projectile handle (the message's reference + 0x400, same generation) within 8 s after the throw (the window is validated on the film). The record that creates the throw writes the
+handle at its header (`GrenadeThrow.HasLife`, `Life`), and the facts file keeps it. Absent when the throw has a `proj`.
 The totals of `shotStats[]` cover the whole film, while `damage[]` holds only the messages whose instant falls inside the frame axis (before frame 0
 or after the last frame a message counts in the totals and has no row). A weapon hit on the shooter himself (an area weapon) is neither a hit nor
 damage dealt: it is counted apart (`coverage.hits.selfHits`, `selfDamages`). The biped's vitality records are re-read on the lists the walk does not
