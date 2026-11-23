@@ -129,6 +129,9 @@ type Options struct {
 	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
+	// Repliques : les repliques des Spartans et les annonces de la marche des trames, avec ce que leur canal a vu
+	// (document_repliques.go).
+	Repliques grammar.RepliquesLues
 	// ControlHolds / ControlHoldStats : les commandes de deplacement tenues de la vue de controle, publiees
 	// en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
