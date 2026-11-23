@@ -160,6 +160,22 @@ func logFlagAmbiguousSlots(ctx context.Context, slots []uint32) {
 // temps de ne rien repliquer sans aller chercher la position d'un autre instant du match.
 const flagCarrierPointToleranceMS = 200
 
+// flagCarrierHoldMaxGapMS est la duree maximale, en millisecondes, d un trou de lecture a travers lequel un
+// corps IMMOBILE garde sa position (cf. `heldPointAt`).
+//
+// 2000 ms : le trou mesure qui motive la regle dure 957 ms (porteur immobile sur son socle) ; la borne laisse
+// le double de cette marge, et pas plus : un trou de plusieurs secondes entre deux points voisins peut cacher un
+// aller-retour du joueur, que seule la proximite des deux points ne distingue pas.
+const flagCarrierHoldMaxGapMS = 2000
+
+// flagCarrierHoldMaxDistM est l ecart maximal, en metres (3D), entre le point d avant et le point d apres un
+// trou pour que le corps soit tenu pour immobile.
+//
+// 0,15 m : un joueur immobile n emet pas de position (le film ne replique que ce qui change), donc deux points
+// separes par un trou ne different que du bruit de quantification ; au-dela, le corps a bouge et sa position
+// pendant le trou serait inventee.
+const flagCarrierHoldMaxDistM = 0.15
+
 // pointOfXUIDAt rend le point PUBLIE qui localise un joueur a l'instant `atUS` (microsecondes du
 // film) : le point le plus proche en temps EXACT, a au plus [flagCarrierPointToleranceMS], et a
 // egalite celui d'avant — un corps immobile reste ou son dernier point le met. Il vient de la MEME
@@ -167,6 +183,9 @@ const flagCarrierPointToleranceMS = 200
 // premier point plus pres de l'instant que lui, donc c'est elle qui l'emporte (mort puis reapparition dans
 // la fenetre). Rend (_, false) quand aucun point ne convient : le drapeau n'aurait pas de position a
 // dessiner, et on prefere ne rien poser.
+//
+// SEULE EXCEPTION : quand aucun point ne tombe dans la tolerance, `heldPointAt` tient la position d un corps
+// immobile a travers un trou de lecture.
 func pointOfXUIDAt(tracks []Track, atUS uint64) (Point, bool) {
 	const tolUS = uint64(flagCarrierPointToleranceMS) * 1000
 	var best Point
@@ -182,6 +201,34 @@ func pointOfXUIDAt(tracks []Track, atUS uint64) (Point, bool) {
 				continue
 			}
 			best, bestD, bestBefore, found = p, d, before, true
+		}
+	}
+	if !found {
+		return heldPointAt(tracks, atUS)
+	}
+	return best, found
+}
+
+// heldPointAt tient la position d un corps IMMOBILE a travers un trou de lecture : quand, dans UNE MEME piste
+// (une vie), le point d avant `atUS` et le point d apres sont separes d au plus [flagCarrierHoldMaxGapMS] et
+// distants d au plus [flagCarrierHoldMaxDistM], le joueur n a pas bouge et le point d avant fait foi. Sinon rend
+// (_, false) : aucune position n est inventee. Le plus proche en temps des points d avant l emporte.
+func heldPointAt(tracks []Track, atUS uint64) (Point, bool) {
+	const maxGapUS = uint64(flagCarrierHoldMaxGapMS) * 1000
+	var best Point
+	var found bool
+	for _, tr := range tracks {
+		for i := 1; i < len(tr.Points); i++ {
+			a, b := tr.Points[i-1], tr.Points[i]
+			if a.us > atUS || b.us <= atUS || b.us-a.us > maxGapUS {
+				continue
+			}
+			if dist3([3]float32{a.X, a.Y, a.Z}, [3]float32{b.X, b.Y, b.Z}) > flagCarrierHoldMaxDistM {
+				continue
+			}
+			if !found || a.us > best.us {
+				best, found = a, true
+			}
 		}
 	}
 	return best, found
