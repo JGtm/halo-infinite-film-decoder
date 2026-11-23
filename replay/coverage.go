@@ -187,6 +187,8 @@ type Coverage struct {
 	Gestures *GestureCoverage `json:"gestures,omitempty"`
 	// DrawnWeapons dit ce que le calque de l arme tiree a lu, publie et ecarte ; absent quand la marche des trames n a pas ete jouee.
 	DrawnWeapons *DrawnWeaponCoverage `json:"drawnWeapons,omitempty"`
+	// Vitals dit ce que le calque de la sante et du bouclier a lu, publie et ecarte ; absent quand la marche des trames n a pas ete jouee.
+	Vitals *VitalCoverage `json:"vitals,omitempty"`
 	// Eliminations dit ce que le calque des éliminations a posé et sait marquer (tirs à la tête, frags parfaits) ; absent sans tableau des scores.
 	Eliminations *EliminationCoverage `json:"eliminations,omitempty"`
 	// Hits dit ce que le calque des touches a lu, pose et ecarte ; absent quand les messages de degat n ont pas ete lus.

@@ -205,6 +205,11 @@ type FilmInputs struct {
 	// DrawnWeaponStats ce que leur canal a vu.
 	DrawnWeapons     []types.DrawnWeaponRead
 	DrawnWeaponStats types.DrawnWeaponStats
+	// Vitals sont les changements de sante et de bouclier par vie, reduits des lectures du canal des vitalites
+	// ([reduireLesVitalites]) : les lectures entieres ne sont pas persistees, les points de degat qu elles chiffrent le sont.
+	// VitalStats ce que le canal a lu.
+	Vitals     []VitalRead
+	VitalStats VitalStats
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -321,6 +326,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Repliques = in.Repliques
 	opt.Gestures = GestureInput{Reads: in.Gestures, Stats: in.GestureStats}
 	opt.DrawnWeapons = DrawnWeaponInput{Reads: in.DrawnWeapons, Stats: in.DrawnWeaponStats}
+	opt.Vitals = VitalsInput{Reads: in.Vitals, Stats: in.VitalStats}
 	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable

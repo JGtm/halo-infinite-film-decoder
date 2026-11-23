@@ -128,11 +128,11 @@ type Options struct {
 	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
-	// Repliques, Gestures et DrawnWeapons : les repliques, les annonces et les gestes de la vue A, et les changements
-	// d arme tiree des trames, avec ce que leur canal a vu (document_repliques.go, document_gestes.go, document_arme_tiree.go).
+	// Repliques, Gestures, DrawnWeapons, Vitals : repliques, gestes, arme tiree, vitalites de la marche des trames et ce que leur canal a vu.
 	Repliques    grammar.RepliquesLues
 	Gestures     GestureInput
 	DrawnWeapons DrawnWeaponInput
+	Vitals       VitalsInput
 	// ControlHolds / ControlHoldStats : les commandes tenues de la vue de controle, en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
 	ControlHoldStats types.ControlHoldStats

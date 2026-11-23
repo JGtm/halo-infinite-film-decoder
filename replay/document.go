@@ -312,6 +312,8 @@ type ReplayDocument struct {
 	Gestures []Gesture `json:"gestures,omitempty"`
 	// DrawnWeapons : l arme tiree en main a chaque changement, une ligne par (trame, slot) (document_arme_tiree.go).
 	DrawnWeapons []DrawnWeapon `json:"drawnWeapons,omitempty"`
+	// Vitals : la sante et le bouclier de chaque vie a chaque changement, une ligne par (instant, slot) (vitals_reads.go).
+	Vitals []Vital `json:"vitals,omitempty"`
 	// Eliminations est une ligne par élimination du tableau des scores : tueur, image, victime quand le film la donne, marques
 	// de tir à la tête et de frag parfait à trois états (document_eliminations.go). Absente sans tableau des scores.
 	Eliminations []Elimination `json:"eliminations,omitempty"`

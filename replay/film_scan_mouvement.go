@@ -70,6 +70,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.DrawnWeapons, s.in.DrawnWeaponStats = m.DrawnWeapons, m.DrawnWeaponStats
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
+	s.in.Vitals, s.in.VitalStats = reduireLesVitalites(m.Vitalites.Lectures)
 	// LES SCRIPTS NE DEPENDENT QUE DU FILM : la tache de fond les a lus d'avance quand il y en a une
 	// (film_scan_fond.go), sinon ils se lisent ici.
 	if scripts, lus := s.fond.lesScripts(); lus {
