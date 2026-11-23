@@ -25,7 +25,7 @@
 #
 #   LEVELUP_UPDATE_TYPES_SHAPES=1 go test ./internal/games/halo_infinite/film/types/ \
 #     -run TestFormesDesTypesEgalentLeGolden -update-types-shapes
-revisions	source=source-2026-09-16.2	grammar=grammar-2026-11-22.2	killsource=killsource-2026-11-10	objectives=objectives-2026-11-22.2
+revisions	source=source-2026-09-16.2	grammar=grammar-2026-11-23	killsource=killsource-2026-11-10	objectives=objectives-2026-11-23
 
 ## ChunkMeta (source)
 Index	int	-
@@ -200,6 +200,7 @@ InnerHoles	int	-
 HeldHoleMS	int64	-
 
 ## ControlHold (grammar)
+Kind	string	-
 FilmIndex	int	-
 StartUS	uint64	-
 EndUS	uint64	-
@@ -208,11 +209,19 @@ EndBound	string	-
 Entries	int	-
 Holes	[]types.ContinuousFireHole	-
 
-## ControlHoldStats (grammar)
+## ControlHoldCount (grammar)
 Holds	int	-
 WithHole	int	-
 InnerHoles	int	-
+
+## ControlHoldStats (grammar)
+Move	types.ControlHoldCount	-
+Crouch	types.ControlHoldCount	-
+Jump	types.ControlHoldCount	-
 Entries	int	-
+Gaps	int	-
+StepGaps	int	-
+StepUS	int64	-
 
 ## DeadState (grammar)
 Mort	bool	-
@@ -341,6 +350,22 @@ PosQ	[3]uint32	-
 ## GroundWeaponAmmo (grammar)
 Mag	uint32	-
 Res	uint32	-
+
+## GestureCounts (grammar)
+Messages	int	-
+Copies	int	-
+
+## GestureRead (grammar)
+TimestampUS	uint64	-
+Player	int8	-
+Kind	types.GestureKind	-
+
+## GestureStats (grammar)
+Frames	int	-
+Closed	int	-
+Stopped	int	-
+Melee	types.GestureCounts	-
+Throw	types.GestureCounts	-
 
 ## HeldWeaponChange (grammar)
 TimestampUS	uint64	-
@@ -563,6 +588,7 @@ Pts	[]types.ProjectileSample	-
 ## ReloadRead (grammar)
 TimestampUS	uint64	-
 Player	int8	-
+Copies	int	-
 
 ## ReloadStats (grammar)
 Frames	int	-

@@ -115,6 +115,9 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.EquipmentSpawnStats{}},
 	{"grammar", types.GrappleRead{}},
 	{"grammar", types.GroundWeaponAmmo{}},
+	{"grammar", types.GestureCounts{}},
+	{"grammar", types.GestureRead{}},
+	{"grammar", types.GestureStats{}},
 	{"grammar", types.HeldWeaponChange{}},
 	{"grammar", types.InventoryDelta{}},
 	{"grammar", types.InventoryDeltaAmmo{}},
@@ -178,6 +181,7 @@ var typesSansForme = map[string]string{
 	"EquipmentChangeKind":  "enumeration de chaines (taken / spent / spawned) — pas de champs",
 	"HeldWeaponChangeKind": "enumeration de chaines (taken / dropped / swapped / restated)",
 	"CarriedReadKind":      "enumeration de chaines (new / delta / del)",
+	"GestureKind":          "enumeration d entiers (coup de melee / lancer amorce)",
 }
 
 // ligneDesRevisions : la premiere ligne de donnees du golden.

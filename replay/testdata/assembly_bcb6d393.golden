@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10500 frames · intervalle 33 ms · duree 346500 ms
-schema 126 · titre halo_infinite
+schema 127 · titre halo_infinite
 version majeure du film : 40
 origine de la frame 0 sur l horloge du fil : 12904 ms
 coup d envoi lu par l horloge de manche : 35220 ms · source roundClock · depart lu true · marge depuis la frame 0 : 22316 ms
@@ -395,7 +395,7 @@ premiere : t=1967 ms=77839 xuid=2713751699127665 id=135 · derniere : t=10271 ms
 ## SCORE PAR ACTION — réponses du jeu (genre 82), posées par (TS - origine) / pas ; absentes si les messages n'ont pas été lus
 groupe "arenaflagevents.lua+flageventstubs.lua" (absent : false) · trames 21864 (lues 21864, arrêtées 0, vue A illisible : false) · complet : true
 2998 message(s) : 80 à points · 818 sans rapport avec le score · 0 nommé(s) sans points · 2100 hors de l'arbre · 0 non confirmé(s) · 0 copie(s) retirée(s)
-80 (message, destinataire) à points · 80 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 1 sans cible résolue
+80 (message, destinataire) à points · 80 publié(s) · 0 sans humain au roster · 0 absent(s) à l'instant · 0 sans origine · 0 avant la frame 0 · 0 après la fin · 0 sans cible résolue
   assistPersonalScore (50) x11
   flagCaptureAssist (100) x2
   flagCaptureScore (300) x3
