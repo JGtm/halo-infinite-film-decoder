@@ -52,7 +52,7 @@ func TestLaCommandeDeDeplacementEstNonNulleHorsDuZeroExact(t *testing.T) {
 		hs[0].StartBound != types.ContinuousFireBoundPressed || hs[0].EndBound != types.ContinuousFireBoundReleased {
 		t.Fatalf("commandes %+v, attendu une commande du joueur 1 sur [20, 40), 2 entrees, posee puis relachee", hs)
 	}
-	if st.Entries != 4 || st.Holds != 1 {
+	if st.Entries != 4 || st.Move.Holds != 1 {
 		t.Errorf("compteurs %+v", st)
 	}
 	if (ChampsDeControle{Analogique: [2]int{ChampDeControleAbsent, ChampDeControleAbsent}}).deplacementNonNul() {
@@ -74,7 +74,7 @@ func TestLesTrousDeLaCommandeSontPortesSansToucherAuTirContinu(t *testing.T) {
 	if len(hs) != 1 || len(hs[0].Holes) != 1 || hs[0].Holes[0].StartUS != 2_000 || hs[0].Holes[0].EndUS != 4_000 {
 		t.Fatalf("commandes %+v, attendu un passage interieur [2000, 4000)", hs)
 	}
-	if st.WithHole != 1 || st.InnerHoles != 1 {
+	if st.Move.WithHole != 1 || st.Move.InnerHoles != 1 {
 		t.Errorf("compteurs %+v", st)
 	}
 	if tir.HeldHoleMS != 0 || tir.Bursts != 0 {

@@ -43,14 +43,20 @@ type Stance struct {
 	// calques : le slot migre aux reapparitions).
 	Slot uint32 `json:"slot"`
 	// Kind est le genre d etat : `crouch`, `slide`, `clamber`, `sprint` (LUS dans les composants du bipede),
-	// `moveCommand` (LU dans la vue de controle, cf. document_stances_commandes.go) ou
-	// `jumpDerived` (DERIVE — cf. `types.MovementJumpDerived`). Un genre inconnu du client ne doit recevoir
-	// AUCUN libelle — jamais celui d un voisin.
+	// `moveCommand`, `crouchCommand`, `jumpCommand` (LUS dans la vue de controle : ce que le joueur commande, cf.
+	// document_stances_commandes.go) ou `jumpDerived` (DERIVE — cf. `types.MovementJumpDerived`). Un genre inconnu
+	// du client ne doit recevoir AUCUN libelle — jamais celui d un voisin.
 	Kind string `json:"kind"`
 	// T0 / T1 bornent l intervalle sur le meme axe que `Point.T`. T1 est soit la transition
 	// MESUREE de fin, soit la fin de la vie.
 	T0 int `json:"t0"`
 	T1 int `json:"t1"`
+	// Ms0 / Ms1 bornent l intervalle a la MILLISECONDE, depuis la frame 0 du document : seules les commandes
+	// d accroupi et de saut (`crouchCommand`, `jumpCommand`) les portent. Ils ne debordent ni l intervalle lu dans
+	// la vue de controle ni les frames T0 a T1 ; un saut d un tick, plus court qu une frame, n est date que par
+	// eux. Absents : l intervalle n est connu qu a la frame.
+	Ms0 *int64 `json:"ms0,omitempty"`
+	Ms1 *int64 `json:"ms1,omitempty"`
 }
 
 // StanceCoverage dit ce que la marche a lu et ce qu elle a jete — les denominateurs sans
@@ -60,7 +66,9 @@ type Stance struct {
 // la valeur lue. Les composants d accroupissement (`i29`) et de glissade (`i62`) ne se lisent sur aucun film
 // de version de film 37 et plus : ces versions ne les annoncent pas dans les deltas du bipede. Leurs intervalles
 // manquent parce que le film ne les ecrit pas, et zero accroupissement publie ne dit pas que personne ne s est
-// accroupi.
+// accroupi. Ce que ces composants ne disent plus, la vue de controle le dit autrement : le bouton d accroupi
+// tenu (`crouchCommand`), sur les films dont les commandes sont enregistrees a pleine cadence
+// (`control.fullCadence`).
 type StanceCoverage struct {
 	// Scanned dit que le balayage a eu lieu. Faux = il a refuse, et tout le reste est sans
 	// valeur.
