@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee c90bb6fbfc2ae2c5
-empreinte-servie c90bb6fbfc2ae2c5
-empreinte-cuite 5956f1b0680884e1
+empreinte-stockee 37733693de7b63cc
+empreinte-servie 37733693de7b63cc
+empreinte-cuite bc707dc73ef3c757
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -514,6 +514,7 @@ EliminationCoverage
   PerfectOrphans json:"perfectOrphans" int
   PerfectUnknown json:"perfectUnknown" int
   PerfectYes json:"perfectYes" int
+  VictimAmbiguous json:"victimAmbiguous,omitempty" int
   VictimPlaces json:"victimPlaces,omitempty" int
   WithVictim json:"withVictim" int
 EquipmentChange
