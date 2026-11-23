@@ -22,6 +22,9 @@ type memoDesRecuperations struct {
 	equipementPorte *equipementPorteLu
 	// tables : la table d entites de chaque payload d image-cle deja lu ([FilmContext.tableDeDatumsDe]).
 	tables map[*byte]tableDeDatumsMemo
+	// entetes : les slots d en-tete exact de joueur gere de chaque payload d image-cle, poses par le
+	// pre-passage a plusieurs fils seulement ([FilmContext.entetesExactsDe]) ; jamais ecrits par un lecteur.
+	entetes map[clePayload]map[int]bool
 	// marche : la marche des trames gardee pour la cuisson ([LireLaMarcheCommune]).
 	marche *marcheGardee
 }

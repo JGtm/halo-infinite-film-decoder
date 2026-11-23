@@ -268,6 +268,22 @@ func (c *FilmContext) tableDeDatumsDe(pay []byte) (map[uint32]EnteteDeTable, int
 	return table, ambigus
 }
 
+// poserTableDeDatumsSiAbsente range dans le memo la table `table` du payload `pay` (cle et champs de
+// [FilmContext.tableDeDatumsDe]) si le payload n'y est pas deja ; l'appelant cede la table. Depuis le fil
+// appelant seulement : le memo n'a pas de verrou.
+func (c *FilmContext) poserTableDeDatumsSiAbsente(pay []byte, table map[uint32]EnteteDeTable, ambigus int) {
+	if c == nil || len(pay) == 0 {
+		return
+	}
+	if m, ok := c.recup.tables[&pay[0]]; ok && m.bits == len(pay) {
+		return
+	}
+	if c.recup.tables == nil {
+		c.recup.tables = map[*byte]tableDeDatumsMemo{}
+	}
+	c.recup.tables[&pay[0]] = tableDeDatumsMemo{table: table, ambigus: ambigus, bits: len(pay)}
+}
+
 // LierTableDeDatums pose dans `w` les liaisons de la table d entites des paquets d image-cle d un chunk. Rend le
 // nombre de liaisons posees et le nombre d emplacements ecartes (cf. [EntetesDeTable]).
 //

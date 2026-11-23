@@ -37,6 +37,31 @@ type tacheDePredecodage func(e entreesDuPredecodage, pay []byte) (ranger func(c 
 func tachesDePredecodage() []tacheDePredecodage {
 	return []tacheDePredecodage{
 		tacheDesAncres,
+		tacheDesDatums,
+		tacheDesEntetesExacts,
+	}
+}
+
+// tacheDesDatums calcule la table des datums du payload ([TableDeDatums]) ; son rangement la pose dans
+// le memo des tables ([FilmContext.tableDeDatumsDe]) si le payload n'y est pas deja.
+func tacheDesDatums(_ entreesDuPredecodage, pay []byte) func(c *FilmContext) {
+	table, ambigus := TableDeDatums(pay)
+	return func(c *FilmContext) { c.poserTableDeDatumsSiAbsente(pay, table, ambigus) }
+}
+
+// tacheDesEntetesExacts calcule les slots d'en-tete exact de joueur gere du payload
+// ([slotsDEntetesExacts]) ; son rangement les pose dans le memo des en-tetes si le payload n'y est pas deja.
+func tacheDesEntetesExacts(_ entreesDuPredecodage, pay []byte) func(c *FilmContext) {
+	slots := slotsDEntetesExacts(pay)
+	return func(c *FilmContext) {
+		cle := clePayload{debut: &pay[0], n: len(pay)}
+		if _, ok := c.recup.entetes[cle]; ok {
+			return
+		}
+		if c.recup.entetes == nil {
+			c.recup.entetes = map[clePayload]map[int]bool{}
+		}
+		c.recup.entetes[cle] = slots
 	}
 }
 
