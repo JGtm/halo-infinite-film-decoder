@@ -6,7 +6,6 @@ package replay
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
@@ -25,29 +24,7 @@ import (
 func decodeFilmPlacements(ctx context.Context,
 	fc *grammar.FilmContext, matchID string, worldRange *profile.Vec3Range,
 ) ([]types.EquipmentPlacement, grammar.EquipmentPlacementStats) {
-	pl, st, err := grammar.ScanEquipmentPlacements(fc, worldRange)
-	if st.FormatSansProfil {
-		// SITE 1 DU REPLI `repli_largeurs_mpp_calibrees_sur_le_film` : le compteur, pas le
-		// journal — l avertissement est emis UNE FOIS PAR FILM par `avertirFormatSansProfil`.
-		publierFormatSansProfil(st.FormatVersion)
-	}
-	switch {
-	case err != nil:
-		slog.WarnContext(ctx, "poses d'equipement illisibles — rejeu sans equipement pose",
-			"err", err, "match_id", matchID)
-		return nil, st
-	case !st.Calibration.Widths.Valid():
-		slog.WarnContext(ctx, "poses d'equipement : le decoupage du bloc de replication n'a pas ete tranche"+
-			" sur ce film — AUCUNE pose publiee plutot que du bruit",
-			"match_id", matchID, "ancres", st.Calibration.Anchors,
-			"vies", st.Calibration.Lives, "chunksLus", st.Calibration.Chunks)
-	default:
-		slog.InfoContext(ctx, "poses d'equipement : records de creation ti=37",
-			"decoupage", st.Calibration.Widths.String(), "accords", st.Calibration.Agree,
-			"ancres", st.Anchors, "acceptes", st.Accepted,
-			"confirmes", st.Confirmed, "poses", st.Placements)
-	}
-	return pl, st
+	return journaliserPoses(ctx, matchID, decodeFilmPlacementsLecture(fc, worldRange))
 }
 
 // decodeFilmSpawnEvents lit les evenements 103 « une PIECE a ete engendree » et JOURNALISE ce
@@ -63,15 +40,5 @@ func decodeFilmPlacements(ctx context.Context,
 func decodeFilmSpawnEvents(ctx context.Context,
 	fc *grammar.FilmContext, matchID string,
 ) ([]types.EquipmentSpawnEvent, types.EquipmentSpawnStats) {
-	ev, st, err := grammar.ScanEquipmentSpawnEvents(fc)
-	if err != nil {
-		slog.WarnContext(ctx, "evenements de piece engendree illisibles — l'origine des poses retombe sur ses replis",
-			"err", err, "match_id", matchID)
-		return nil, st
-	}
-	slog.InfoContext(ctx, "poses d'equipement : evenements 103 (piece engendree)",
-		"match_id", matchID, "chunks", st.Chunks, "paquetsDelta", st.Packets,
-		"listesNonVides", st.Lists, "evenements", st.Events,
-		"refSource", st.WithSource, "refEngendree", st.WithSpawned, "ref2", st.Ref2)
-	return ev, st
+	return journaliserEvenementsPiece(ctx, matchID, decodeFilmSpawnEventsLecture(fc))
 }

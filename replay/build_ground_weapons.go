@@ -23,7 +23,6 @@ package replay
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
@@ -97,30 +96,7 @@ func decodeFilmPadScan(ctx context.Context,
 	fc *grammar.FilmContext, matchID string, wr *profile.Vec3Range, mpp profile.MPPWidths,
 	arch padArchetype,
 ) WorldObjectScan {
-	defer gwInstallMPPWidths(fc, gwWidthsForFilm(fc, mpp))()
-	kf := grammar.ScanWorldObjectKeyframes(fc, arch.ti)
-	if len(kf.Band) == 0 {
-		slog.WarnContext(ctx, "socles : aucun slot de l archetype aux images-cles — rejeu sans ce calque",
-			"archetype", arch.label, "match_id", matchID, "imagesCles", len(kf.TimesUS))
-		return WorldObjectScan{}
-	}
-	cre, st, err := arch.scan(fc, wr, kf.Band)
-	if err != nil {
-		slog.WarnContext(ctx, "socles : records de creation illisibles — rejeu sans ce calque",
-			"archetype", arch.label, "err", err, "match_id", matchID)
-		return WorldObjectScan{}
-	}
-	tracks, err := grammar.ScanWorldObjectsForBand(fc, wr, arch.ti, kf.Band)
-	if err != nil {
-		slog.WarnContext(ctx, "socles : pistes delta illisibles — AUCUN socle publie (sans elles, toute"+
-			" apparition passerait pour un objet apparu au repos)",
-			"archetype", arch.label, "err", err, "match_id", matchID)
-		return WorldObjectScan{}
-	}
-	slog.InfoContext(ctx, "socles : balayage d archetype",
-		"archetype", arch.label, "slots", st.Slots, "ancres", st.Anchors, "acceptees", st.Accepted,
-		"imagesCles", len(kf.TimesUS), "viesRecensees", len(kf.SeenUS), "pistesDelta", len(tracks))
-	return WorldObjectScan{Scanned: true, Creations: cre, Stats: st, Keyframes: kf, Tracks: tracks}
+	return journaliserSocle(ctx, fc, matchID, lireUnSocle(fc, wr, mpp, arch))
 }
 
 // gwWidthsForFilm rend les largeurs MPP a INSTALLER pour ce film : celles que la grammaire porte
@@ -133,22 +109,26 @@ func decodeFilmPadScan(ctx context.Context,
 // d equipement passent par la MEME porte : dans une cuisson, socles, vehicules et poses se
 // decoupent aux memes largeurs.
 func gwWidthsForFilm(fc *grammar.FilmContext, calibrees profile.MPPWidths) profile.MPPWidths {
+	w, verse := gwReglageMPP(fc, calibrees)
+	verse.parDefaut = false
+	verse.verser(fc)
+	return w
+}
+
+// gwReglageMPP decide les largeurs MPP a installer pour ce film SANS rien verser : les largeurs, et
+// les replis que la decision a pris ([versementMPP.verser] les compte). C est la decision de
+// [gwWidthsForFilm] ; le repli sur les largeurs par defaut (calibration refusee) y est porte aussi,
+// pour que la lecture qui installe les largeurs ne verse rien.
+func gwReglageMPP(fc *grammar.FilmContext, calibrees profile.MPPWidths) (profile.MPPWidths, versementMPP) {
 	res := fc.ResolutionMPP()
 	if res.Decide() {
-		return res.Widths
+		return res.Widths, versementMPP{parDefaut: !res.Widths.Valid()}
 	}
 	// SITE 2 DU REPLI `repli_largeurs_mpp_calibrees_sur_le_film`, et il sert DEUX chemins de
 	// cuisson (armes au sol et vehicules). Le compteur seul : l avertissement est emis une fois
 	// par film par `avertirFormatSansProfil`.
-	if res.FormatInconnu {
-		publierFormatSansProfil(res.FormatVersion)
-	}
-	if calibrees.Valid() {
-		// La calibration DECIDE les largeurs installees : `repli_largeurs_mpp_calibrees_sur_le_film`
-		// (lot J8.7), au rapport du contexte.
-		fc.NoterReplis(grammar.ComptesDesReplis{LargeursMPPCalibrees: 1})
-	}
-	return calibrees
+	return calibrees, versementMPP{formatInconnu: res.FormatInconnu, version: res.FormatVersion,
+		calibrees: calibrees.Valid(), parDefaut: !calibrees.Valid()}
 }
 
 // gwInstallMPPWidths installe les largeurs du bloc MPP MESURÉES sur ce film SUR LE CONTEXTE, et
@@ -159,6 +139,14 @@ func gwInstallMPPWidths(fc *grammar.FilmContext, w profile.MPPWidths) func() {
 		// Ni relue ni calibree : le balayage se fait aux largeurs de l INVARIANT (9/5), repli
 		// `repli_largeurs_mpp_par_defaut` (lot J8.7), au rapport du contexte.
 		fc.NoterReplis(grammar.ComptesDesReplis{LargeursMPPParDefaut: 1})
+	}
+	return gwPoserLargeurs(fc, w)
+}
+
+// gwPoserLargeurs pose les largeurs du bloc MPP sur le contexte et rend leur restauration ; largeurs
+// non renseignees : rien n est pose, la restauration ne fait rien. Aucun repli n est verse.
+func gwPoserLargeurs(fc *grammar.FilmContext, w profile.MPPWidths) func() {
+	if !w.Valid() {
 		return func() {}
 	}
 	prev := fc.PoserMPP(w)

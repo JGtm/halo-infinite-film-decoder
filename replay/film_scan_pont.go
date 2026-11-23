@@ -110,27 +110,9 @@ func lireSiegesEtOccupants(ctx context.Context, film *source.Film, fc *grammar.F
 // balayerPont lit les lancers, les projectiles, et LE PONT D'IDENTITE : le fil des morts, la
 // table d'index de joueur et l'origine d'horloge.
 func (s *filmScan) balayerPont() {
-	// Lancers de grenade : décodés des paquets delta du MÊME film, sur la MÊME horloge.
-	// Absence non fatale, comme les tirs et les armes portées.
-	grenades, err := grammar.ScanGrenadeThrows(s.fc)
-	if err != nil {
-		slog.WarnContext(s.ctx, "paquets delta illisibles — rejeu sans lancers de grenade", "err", err, "match_id", s.matchID)
-		grenades = nil
-	}
-	s.in.Grenades = grenades
-	s.opt.observe(s.ctx, "grenades", s.in.Grenades)
-	// Trajectoires de projectile : memes chunks, meme horloge. Absence non fatale.
-	proj, err := grammar.ScanProjectiles(s.fc, &s.world)
-	if err != nil {
-		slog.WarnContext(s.ctx, "projectiles illisibles — rejeu sans trajectoires", "err", err, "match_id", s.matchID)
-		proj = nil
-	}
-	s.in.Projectiles = proj
-	s.opt.observe(s.ctx, "projectiles", s.in.Projectiles)
-	// Detonations/impacts de projectile (genres 5/6 de la vue A) : lecture seule, sans chunk
-	// supplementaire — jamais d'erreur, juste moins de couverture sur un film qui ne les ecrit pas.
-	s.in.Detonations, _ = grammar.ScanProjectileDetonations(s.fc)
-	s.opt.observe(s.ctx, "detonations", s.in.Detonations)
+	s.publierGrenades(s.lireGrenades())
+	s.publierProjectiles(s.lireProjectiles())
+	s.publierDetonations(s.lireDetonations())
 	// Le fil des morts NOMME les vies par le pont par morts, cale l'horloge des morts et ouvre la
 	// lecture de la table d index (cf. [filmScan.poserLeFilDesMorts]). Il a ete LU par l etage du pont.
 	s.poserLeFilDesMorts(s.pont.Morts, s.pont.ErrMorts)
@@ -189,6 +171,67 @@ func (s *filmScan) balayerPont() {
 	}
 	s.in.FilmClockOriginUS = clockUS
 	s.opt.observe(s.ctx, "clockOrigin", s.in.FilmClockOriginUS)
+}
+
+// lireGrenades lit les lancers de grenade : décodés des paquets delta du MÊME film, sur la MÊME
+// horloge. Absence non fatale, comme les tirs et les armes portées.
+func (s *filmScan) lireGrenades() lectureGrenades {
+	g, err := grammar.ScanGrenadeThrows(s.fc)
+	return lectureGrenades{lancers: g, err: err}
+}
+
+// publierGrenades journalise la lecture des lancers, les pose et observe l'etape `grenades`.
+func (s *filmScan) publierGrenades(lu lectureGrenades) {
+	grenades := lu.lancers
+	if lu.err != nil {
+		slog.WarnContext(s.ctx, "paquets delta illisibles — rejeu sans lancers de grenade", "err", lu.err, "match_id", s.matchID)
+		grenades = nil
+	}
+	s.in.Grenades = grenades
+	s.opt.observe(s.ctx, "grenades", s.in.Grenades)
+}
+
+// lireProjectiles lit les trajectoires de projectile : memes chunks, meme horloge. Absence non fatale.
+func (s *filmScan) lireProjectiles() lectureProjectiles {
+	p, err := grammar.ScanProjectiles(s.fc, &s.world)
+	return lectureProjectiles{pistes: p, err: err}
+}
+
+// publierProjectiles journalise la lecture des projectiles, les pose et observe l'etape `projectiles`.
+func (s *filmScan) publierProjectiles(lu lectureProjectiles) {
+	proj := lu.pistes
+	if lu.err != nil {
+		slog.WarnContext(s.ctx, "projectiles illisibles — rejeu sans trajectoires", "err", lu.err, "match_id", s.matchID)
+		proj = nil
+	}
+	s.in.Projectiles = proj
+	s.opt.observe(s.ctx, "projectiles", s.in.Projectiles)
+}
+
+// lireDetonations lit les detonations et impacts de projectile (genres 5/6 de la vue A) : lecture
+// seule, sans chunk supplementaire — jamais d'erreur, juste moins de couverture sur un film qui ne les
+// ecrit pas.
+func (s *filmScan) lireDetonations() []types.ProjectileDetonation {
+	d, _ := grammar.ScanProjectileDetonations(s.fc)
+	return d
+}
+
+// publierDetonations pose les detonations et observe l'etape `detonations`.
+func (s *filmScan) publierDetonations(d []types.ProjectileDetonation) {
+	s.in.Detonations = d
+	s.opt.observe(s.ctx, "detonations", s.in.Detonations)
+}
+
+// lectureGrenades est ce que la lecture des lancers de grenade a rendu.
+type lectureGrenades struct {
+	lancers []grammar.GrenadeThrow
+	err     error
+}
+
+// lectureProjectiles est ce que la lecture des trajectoires de projectile a rendu.
+type lectureProjectiles struct {
+	pistes []types.ProjectileTrack
+	err    error
 }
 
 // poserLeFilDesMorts pose le fil des morts LU par l etage du pont (lot J4.3), son VERDICT

@@ -55,7 +55,8 @@ import (
 // `film_scan_equipement_porte.go` Y EST ENTRE LE 2026-10-14 (lot « equipement porte ») : `film_scan.go`
 // atteignait 513 lignes avec `balayerEquipementPorte`, qui vit a part.
 var fichiersDuBalayage = []string{"build_from_film.go", "film_scan.go", "film_scan_pont.go", "film_scan_mouvement.go",
-	"film_scan_naissances.go", "film_scan_ti13.go", "film_scan_images_cles.go", "film_scan_equipement_porte.go"}
+	"film_scan_naissances.go", "film_scan_ti13.go", "film_scan_images_cles.go", "film_scan_equipement_porte.go",
+	"film_scan_monde.go"}
 
 // racineDuBalayage : la fonction par laquelle l'etage commence.
 const racineDuBalayage = "scanFilmInputs"
