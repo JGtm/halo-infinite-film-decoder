@@ -4,10 +4,14 @@ package replay
 //
 // Toute option de vitesse (nombre de fils, plus tard le choix des canaux) vit dans OptionsVitesse :
 // aucune piste de vitesse ne cree son propre reglage. Ce fichier ne fait que PORTER et NORMALISER
-// la valeur demandee ; rien ne la lit encore dans la marche du film, donc le document produit ne
+// la valeur demandee et la transmettre au contexte du film ; le document produit ne
 // depend pas d'elle.
 
-import "runtime"
+import (
+	"runtime"
+
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+)
 
 // MaxFils est la borne ecrite dans la brique du nombre de fils : aucune option ne depasse cette
 // valeur, quelle que soit la machine.
@@ -43,4 +47,13 @@ func filsEffectifs(demande, gomaxprocs int) int {
 		return 1
 	}
 	return n
+}
+
+// poserLesFils transmet au contexte du film le nombre de fils que l'hote demande. Une demande a 0
+// (ou negative) ne touche pas le contexte : un contexte partage que l'hote a deja regle garde son
+// reglage. Une demande positive est normalisee par [OptionsVitesse.FilsEffectifs].
+func poserLesFils(fc *grammar.FilmContext, v OptionsVitesse) {
+	if v.Fils > 0 {
+		fc.PoserFils(v.FilsEffectifs())
+	}
 }

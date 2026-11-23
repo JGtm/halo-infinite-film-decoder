@@ -441,6 +441,9 @@ type Options struct {
 	// Contexte : le contexte que l appelant PARTAGE avec la source de degat (`killsource.Options.Contexte`)
 	// apres un decodage reussi ; il garde la marche faite pour les deux et ne se reprend qu UNE fois.
 	Contexte *grammar.FilmContext
+	// Vitesse regle la vitesse du decodage sans en changer le resultat (cf. options_vitesse.go).
+	// Fils a 0 : le contexte n'est pas touche, un contexte partage deja regle garde son reglage.
+	Vitesse OptionsVitesse
 	// Labels : le catalogue de libellés DU TITRE (armes, grenades, capacités), chargé
 	// depuis config/titles/{slug}/mappings/ par l'appelant hors ligne (cf. catalog.go).
 	// Absent = document sans table de libellés : le client affiche les identifiants

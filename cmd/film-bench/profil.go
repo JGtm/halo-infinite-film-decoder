@@ -138,7 +138,7 @@ func profilerPasse(ctx context.Context, opt options, cible Cible, stdout io.Writ
 	}
 	debut := time.Now()
 	survolEtape = func(etape string) { dire(stdout, "etape %-28s +%d ms\n", etape, time.Since(debut).Milliseconds()) }
-	res, errP := executer(ctx, cible)
+	res, errP := executer(ctx, cible, ConfigPasse{Vitesse: opt.vitesse()})
 	survolEtape = nil
 	if opt.profilCPU != "" {
 		pprof.StopCPUProfile()

@@ -71,7 +71,7 @@ func executerEnfant(ctx context.Context, opt options, stdout, stderr io.Writer) 
 		os.Exit(sortiePlafond)
 	})
 	defer garde.Disarm()
-	res, err := executer(ctx, cible)
+	res, err := executer(ctx, cible, ConfigPasse{Vitesse: opt.vitesse()})
 	pic := garde.Peak() // lu AVANT les empreintes : elles ne font pas partie du pic mesure
 	if err != nil {
 		dire(stderr, "film-bench (fils) : %v\n", err)
@@ -118,7 +118,7 @@ func lancerEnfant(ctx context.Context, opt options, nom string) (RapportEnfant, 
 	}
 	cmd := exec.CommandContext(ctx, exe, "-enfant", "-seulement", nom,
 		"-correspondance", opt.correspondance, "-catalogue", opt.catalogue,
-		"-plafond-gio", strconv.Itoa(opt.plafondGiB))
+		"-plafond-gio", strconv.Itoa(opt.plafondGiB), "-fils", strconv.Itoa(opt.fils))
 	var sortie, erreurs bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &sortie, &erreurs
 	runErr := cmd.Run()

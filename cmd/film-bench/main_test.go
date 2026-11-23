@@ -20,7 +20,7 @@ func TestLireOptionsDefautsEtRefus(t *testing.T) {
 		"zero passe":          {"-correspondance", "c", "-catalogue", "k", "-passes", "0"},
 		"plafond nul":         {"-correspondance", "c", "-catalogue", "k", "-plafond-gio", "0"},
 		"fils multi-films":    {"-correspondance", "c", "-catalogue", "k", "-enfant", "-seulement", "a,b"},
-		"drapeau inconnu":     {"-correspondance", "c", "-catalogue", "k", "-fils", "4"},
+		"drapeau inconnu":     {"-correspondance", "c", "-catalogue", "k", "-threads", "4"},
 	}
 	for nom, args := range refus {
 		if _, err := lireOptions(args, io.Discard); err == nil {

@@ -29,9 +29,12 @@ GOWORK=off go run ./cmd/film-bench \
 | `-sortie` | releve TSV a ecrire ; sans cette option, seul le resume s'affiche ; un chemin sous un dossier `data` est refuse |
 | `-seulement` | noms de films a mesurer, separes par des virgules (par exemple `film05,film02`) |
 | `-plafond-gio` | plafond de memoire d'un film pour la mesure du pic, defaut 2 Gio ; un film qui le franchit arrete le releve |
+| `-fils` | nombre de fils que le decodeur peut employer, defaut 1 (comportement actuel) ; le nombre employe est plafonne par `GOMAXPROCS` et par `replay.MaxFils`, et c'est lui que la colonne `fils` porte ; s'applique a toutes les passes, y compris celle du pic |
+| `-etapes` | fichier TSV de la suite ordonnee des etapes observees (voir plus bas) ; un chemin sous un dossier `data` est refuse ; incompatible avec `-enfant` et les profils |
 
-L'outil n'emploie que des entrees publiques du decodeur et aucune option d'une version ulterieure :
-il se copie tel quel dans un arbre d'une version anterieure pour en relever la reference.
+L'outil n'emploie que des entrees publiques du decodeur. Les options `-fils` et `-etapes` s'appuient sur
+`replay.Options.Vitesse`, qui n'existe qu'a partir de la version qui la porte : pour relever une version
+anterieure, copier l'outil dans son arbre apres avoir retire ces deux options.
 
 ## Le jeu fixe et la correspondance
 
@@ -90,7 +93,7 @@ Les colonnes du TSV :
 | Colonne | Sens |
 |---|---|
 | `film`, `mode`, `version`, `joueurs`, `morceaux` | le film, comme dans `bench/films.tsv` |
-| `fils` | niveau de fils de la version relevee ; toujours 1 tant qu'une version n'a pas d'option de fils |
+| `fils` | nombre de fils employes par le decodeur pour ce releve (`-fils`, plafonne par `GOMAXPROCS`) ; 1 pour une version sans option de fils |
 | `phase` | une des cinq phases ci-dessus |
 | `mediane_ms`, `min_ms`, `max_ms`, `passes` | mediane, minimum et maximum de la phase sur les passes chronometrees, et leur nombre |
 | `pic_mio` | pic de memoire en Mio, pris dans un processus neuf (voir plus bas) ; repete sur chaque ligne du film |
@@ -132,3 +135,14 @@ Le releve d'une version se range dans `bench/releves/vX.Y.Z.tsv`, commite avec l
 | Version | Total median (ms) par film | Pic (Mio) |
 |---|---|---|
 | a remplir avec le releve de reference | | |
+
+## La suite des etapes (`-etapes`)
+
+`-etapes <fichier>` prouve que le parallelisme ne change ni le contenu ni l'ordre de ce que le decodeur
+publie. Apres les mesures, l'outil refait UNE passe par film, hors de tout chronometre (ses durees sont
+jetees, aucune colonne du releve n'en vient), avec le meme `-fils`. Le fichier porte une ligne par etape
+observee (`Options.Observe`), dans l'ordre ou le decodeur la publie : `film`, `rang`, `etape`, `empreinte`
+(SHA-256 hexadecimal de la valeur de l'etape serialisee en JSON). Une valeur que JSON ne sait pas ecrire
+porte une empreinte prefixee `erreur:` : elle reste comparable d'un releve a l'autre mais ne prouve que
+l'echec de serialisation. Deux fichiers produits a des nombres de fils differents doivent etre
+identiques, a l'en-tete pres (la ligne `# fils`).

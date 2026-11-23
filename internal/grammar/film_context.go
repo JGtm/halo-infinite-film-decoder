@@ -144,10 +144,8 @@ type FilmContext struct {
 	duFilm grammaireDuFilm
 	// vies : les CREATIONS de bipede et les GENERATIONS VIVANTES du handle (generations_vivantes.go).
 	vies memoDesVies
-	// obs est l OBSERVATEUR de ce contexte (lot 2.3) : jamais nil, tous ses champs nuls en
-	// production. Un balayage qui publie y installe ses crochets ; un instrument aussi, et
-	// c est la seule surface qui lui reste depuis que les vingt-huit reglages publics ont
-	// disparu. Il ne change AUCUNE consommation de bits.
+	// obs est l OBSERVATEUR de ce contexte : jamais nil, tous ses champs nuls en production. Un
+	// balayage qui publie ou un instrument y installe ses crochets ; aucune consommation de bits.
 	obs *Observation
 	// replis : le RAPPORT des replis de `grammar` et `profile` sur ce film (replis_du_film.go, lot J8.7).
 	replis replisDuContexte
@@ -158,6 +156,8 @@ type FilmContext struct {
 	// diag : les DIAGNOSTICS de ce film (diagnostic.go, lot J12.3) — ce que la couche journalisait,
 	// rendu a l orchestrateur qui l a ouvert ([FilmContext.Diagnostics]).
 	diag constat.Diagnostics
+	// fils : nombre de fils permis a ce decodage, au moins 1 ([FilmContext.PoserFils]).
+	fils int
 }
 
 // Observation rend l observateur de ce contexte. Jamais nil.
@@ -254,7 +254,7 @@ func (c *FilmContext) NouveauLecteur(buf []byte) *Lecteur {
 // sont illisibles (`replaybuild.chargerFilm`), et chaque balayage rend alors son
 // [ErrNoFilmChunk] a sa place — exactement comme un repertoire vide avant le lot 1.
 func NewFilmContext(film *source.Film) *FilmContext {
-	return &FilmContext{film: film, bal: ProfilDeBalayageParDefaut()}
+	return &FilmContext{film: film, bal: ProfilDeBalayageParDefaut(), fils: 1}
 }
 
 // NewFilmContextForMap ouvre le contexte d'un film DEJA CHARGE sous LA REGLE DU CATALOGUE (cf.
@@ -267,7 +267,7 @@ func NewFilmContext(film *source.Film) *FilmContext {
 // contexte aux six canaux delta et aux ramassages natifs — un seul decoupage pour tout le film.
 func NewFilmContextForMap(film *source.Film, entry *profile.MapQuantEntry, forced *profile.I0Layout) *FilmContext {
 	c := &FilmContext{film: film, impose: resolveI0Layout(forced, entry),
-		bal: ProfilDeBalayageParDefaut()}
+		bal: ProfilDeBalayageParDefaut(), fils: 1}
 	// LA CARTE DECIDE D UNE BASCULE DE GRAMMAIRE, ET D UNE SEULE : cf. [grammaireSousCarte].
 	// Le decoupage impose est le temoin exact de la PRESENCE des largeurs (il est nil quand ni
 	// l appelant ni le catalogue n en fournit — `resolveI0Layout`).

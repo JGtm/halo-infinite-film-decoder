@@ -19,6 +19,7 @@ type Entete struct {
 // ResultatFilm est le releve d'un film : ses statistiques par phase, son pic et ses empreintes.
 type ResultatFilm struct {
 	Film           Film
+	Fils           int // fils employes par le decodeur (apres plafonnement par GOMAXPROCS)
 	Stats          map[Phase]Stat
 	PicMio         float64
 	EmpreinteDoc   string
@@ -58,7 +59,7 @@ func ecrireReleve(w io.Writer, e Entete, resultats []ResultatFilm) error {
 		for _, ph := range ordreDesPhases {
 			s := r.Stats[ph]
 			_, err := fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%d\t%.0f\t%s\t%s\n",
-				r.Film.Nom, r.Film.Mode, r.Film.Version, r.Film.Joueurs, r.Film.Morceaux, filsDeCetteVersion,
+				r.Film.Nom, r.Film.Mode, r.Film.Version, r.Film.Joueurs, r.Film.Morceaux, r.Fils,
 				ph, ms(s.Mediane), ms(s.Min), ms(s.Max), s.Passes, r.PicMio, r.EmpreinteDoc, r.EmpreinteFaits)
 			if err != nil {
 				return err

@@ -19,9 +19,15 @@ const (
 	// etapeFinDuBalayage est la derniere etape de `replay.BuildFromFilmSteps` : elle separe le
 	// decodage (film vers faits) de la publication (faits vers document).
 	etapeFinDuBalayage = "clockOrigin"
-	// filsDeCetteVersion : la colonne `fils` du releve ; une version qui n a pas l option de fils est a 1.
-	filsDeCetteVersion = 1
 )
+
+// ConfigPasse regle une passe de mesure : la vitesse demandee au decodeur et, hors chronometre
+// seulement, un crochet qui recoit chaque etape observee avec sa valeur (jamais pose dans une passe
+// chronometree, ni dans celle du pic de memoire).
+type ConfigPasse struct {
+	Vitesse replay.OptionsVitesse
+	Etape   func(etape string, v any)
+}
 
 // Cible est un film pret a mesurer : ses fichiers, ses metadonnees de manifeste et l'entree de
 // carte sous laquelle il se decode.
@@ -140,9 +146,9 @@ func chronometrerDecompression(brut [][]byte) (time.Duration, int) {
 
 // executer fait UNE passe de mesure d'un film : decompression a part, puis chargement, decodage et
 // publication, avec un total d'un seul tenant. Les options sont minimales (carte seule : ni source
-// de degat, ni tableau, ni objectifs, ni zones). Le nombre de fils d'une version qui en aura
-// l'option se branche sur `opt`, ci-dessous, et nulle part ailleurs.
-func executer(ctx context.Context, c Cible) (Resultat, error) {
+// de degat, ni tableau, ni objectifs, ni zones) ; le nombre de fils vient de `cfg` et se pose sur
+// `opt`, ci-dessous, et nulle part ailleurs.
+func executer(ctx context.Context, c Cible, cfg ConfigPasse) (Resultat, error) {
 	chemins, err := fichiersDesMorceaux(c.Dossier)
 	if err != nil {
 		return Resultat{}, fmt.Errorf("film %s : %w", c.Nom, err)
@@ -167,11 +173,13 @@ func executer(ctx context.Context, c Cible) (Resultat, error) {
 	r.Passe.Chargement = time.Since(debutTotal)
 
 	var finBalayage time.Time
-	// EMPLACEMENT DU NOMBRE DE FILS : l option d une version qui en porte une se pose ici, sur `opt`.
-	opt := replay.Options{MapQuant: &c.Entree}
-	opt.Observe = func(etape string, _ any) {
+	opt := replay.Options{MapQuant: &c.Entree, Vitesse: cfg.Vitesse}
+	opt.Observe = func(etape string, v any) {
 		if survolEtape != nil {
 			survolEtape(etape)
+		}
+		if cfg.Etape != nil {
+			cfg.Etape(etape, v)
 		}
 		if etape == etapeFinDuBalayage && finBalayage.IsZero() {
 			finBalayage = time.Now()
@@ -195,7 +203,7 @@ func executer(ctx context.Context, c Cible) (Resultat, error) {
 
 // passeChronometree fait une passe et n'en garde que les durees : le document et les faits sont
 // abandonnes au retour, donc liberables avant que l appelant ne rende la memoire a l OS.
-func passeChronometree(ctx context.Context, c Cible) (Passe, error) {
-	r, err := executer(ctx, c)
+func passeChronometree(ctx context.Context, c Cible, v replay.OptionsVitesse) (Passe, error) {
+	r, err := executer(ctx, c, ConfigPasse{Vitesse: v})
 	return r.Passe, err
 }

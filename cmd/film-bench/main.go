@@ -8,9 +8,15 @@
 // empreintes. Le protocole et le sens de chaque colonne sont dans `bench/README.md`. Le total de
 // ce releve N'EST PAS celui d'une generation complete de rejeu (qui lit aussi une base).
 //
+// `-fils N` demande N fils au decodeur (colonne `fils` du releve ; le nombre employe est plafonne par
+// GOMAXPROCS). `-etapes <fichier>` ecrit, apres les mesures et hors de tout chronometre, la suite
+// ordonnee des etapes observees de chaque film avec le SHA-256 de chaque valeur : c'est la preuve de
+// l'ordre dans lequel le decodeur les publie.
+//
 // L'outil n'emploie que des entrees publiques du decodeur (`decfilm`, `replay`, `filmcache`,
-// `memguard`) et aucune option qu'une version ulterieure ajoute : il se copie tel quel dans un
-// arbre d'une version anterieure pour en relever la reference.
+// `memguard`). Les deux options de fils (`replay.Options.Vitesse`) n'existent qu'a partir de la
+// version qui les porte : pour relever une version anterieure, l'outil se copie dans son arbre apres
+// retrait de ces deux options.
 package main
 
 import (
@@ -27,6 +33,7 @@ import (
 	"time"
 
 	"github.com/JGtm/halo-infinite-film-decoder/decfilm"
+	"github.com/JGtm/halo-infinite-film-decoder/replay"
 )
 
 // options est la ligne de commande.
@@ -41,6 +48,8 @@ type options struct {
 	enfant         bool
 	profilCPU      string
 	profilTas      string
+	fils           int
+	etapes         string
 }
 
 func main() {
@@ -62,6 +71,8 @@ func lireOptions(args []string, stderr io.Writer) (options, error) {
 	fs.BoolVar(&o.enfant, "enfant", false, "usage interne : une passe d'un film, sous sentinelle, pour son pic de memoire")
 	fs.StringVar(&o.profilCPU, "profil-cpu", "", "profil CPU pprof d une passe d un seul film (avec -seulement)")
 	fs.StringVar(&o.profilTas, "profil-tas", "", "profil du tas pprof d une passe d un seul film (avec -seulement) ; <fichier>.pic = plus haut tas")
+	fs.IntVar(&o.fils, "fils", 1, "fils que le decodeur peut employer (plafonne par GOMAXPROCS et par replay.MaxFils) ; 1 = comportement actuel")
+	fs.StringVar(&o.etapes, "etapes", "", "TSV de la suite ordonnee des etapes observees, avec le SHA-256 de chaque valeur, d'une passe hors chronometre par film")
 	if err := fs.Parse(args); err != nil {
 		return o, err
 	}
@@ -76,12 +87,19 @@ func lireOptions(args []string, stderr io.Writer) (options, error) {
 		return o, errors.New("-plafond-gio doit etre au moins 1")
 	case o.enfant && strings.Contains(o.seulement, ","):
 		return o, errors.New("-enfant mesure un seul film")
+	case o.fils < 1:
+		return o, errors.New("-fils doit etre au moins 1")
+	case o.etapes != "" && (o.enfant || o.profilDemande()):
+		return o, errors.New("-etapes est incompatible avec -enfant, -profil-cpu et -profil-tas")
 	}
 	if err := o.verifierProfil(); err != nil {
 		return o, err
 	}
 	return o, nil
 }
+
+// vitesse rend les options de vitesse demandees au decodeur.
+func (o options) vitesse() replay.OptionsVitesse { return replay.OptionsVitesse{Fils: o.fils} }
 
 // refuserSousData refuse une sortie rangee sous un dossier `data` : les donnees de l'hote ne
 // s'ecrivent pas.
@@ -165,8 +183,11 @@ func cibles(opt options) ([]Film, []Cible, error) {
 // lancer fait le releve : un fils par film pour le pic et les empreintes, puis les passes
 // chronometrees en un seul processus, l'ordre des films tourne a chaque passe.
 func lancer(ctx context.Context, opt options, stdout, stderr io.Writer) error {
-	if opt.sortie != "" {
-		if err := refuserSousData(opt.sortie); err != nil {
+	for _, sortie := range []string{opt.sortie, opt.etapes} {
+		if sortie == "" {
+			continue
+		}
+		if err := refuserSousData(sortie); err != nil {
 			return err
 		}
 	}
@@ -181,10 +202,10 @@ func lancer(ctx context.Context, opt options, stdout, stderr io.Writer) error {
 		if err != nil {
 			return err
 		}
-		resultats[i] = ResultatFilm{Film: f, PicMio: float64(rap.PicOctets) / octetsParMio,
+		resultats[i] = ResultatFilm{Film: f, Fils: opt.vitesse().FilsEffectifs(), PicMio: float64(rap.PicOctets) / octetsParMio,
 			EmpreinteDoc: rap.EmpreinteDoc, EmpreinteFaits: rap.EmpreinteFaits}
 	}
-	passes, err := chronometrer(ctx, cs, opt.passes, stderr)
+	passes, err := chronometrer(ctx, cs, opt, stderr)
 	if err != nil {
 		return err
 	}
@@ -194,6 +215,11 @@ func lancer(ctx context.Context, opt options, stdout, stderr io.Writer) error {
 	if err := ecrireResume(stdout, resultats); err != nil {
 		return err
 	}
+	if opt.etapes != "" {
+		if err := ecrireEtapes(ctx, opt, cs, stderr); err != nil {
+			return err
+		}
+	}
 	if opt.sortie == "" {
 		return nil
 	}
@@ -202,7 +228,7 @@ func lancer(ctx context.Context, opt options, stdout, stderr io.Writer) error {
 
 // chronometrer fait l'echauffement (passe 0, ecartee) puis `n` passes ; l'ordre des films tourne
 // d'une passe a l'autre. Un seul film est en memoire a la fois.
-func chronometrer(ctx context.Context, cs []Cible, n int, stderr io.Writer) (map[string][]Passe, error) {
+func chronometrer(ctx context.Context, cs []Cible, opt options, stderr io.Writer) (map[string][]Passe, error) {
 	noms := make([]string, len(cs))
 	parNom := make(map[string]Cible, len(cs))
 	for i, c := range cs {
@@ -210,6 +236,7 @@ func chronometrer(ctx context.Context, cs []Cible, n int, stderr io.Writer) (map
 		parNom[c.Nom] = c
 	}
 	out := make(map[string][]Passe, len(cs))
+	n := opt.passes
 	for p := 0; p <= n; p++ {
 		if p == 0 {
 			dire(stderr, "passe d echauffement (ecartee)\n")
@@ -217,7 +244,7 @@ func chronometrer(ctx context.Context, cs []Cible, n int, stderr io.Writer) (map
 			dire(stderr, "passe %d/%d\n", p, n)
 		}
 		for _, nom := range tourner(noms, p) {
-			ps, err := passeChronometree(ctx, parNom[nom])
+			ps, err := passeChronometree(ctx, parNom[nom], opt.vitesse())
 			if err != nil {
 				return nil, err
 			}

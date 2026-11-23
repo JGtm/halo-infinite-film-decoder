@@ -1,0 +1,25 @@
+package grammar
+
+// film_context_fils.go — LE NOMBRE DE FILS PERMIS A UN DECODAGE.
+//
+// Le contexte porte le nombre de fils que les etapes parallelisables ont le droit d'employer. Il
+// vaut 1 a la construction : un contexte que l'hote ne regle pas decode comme avant, dans le fil
+// de l'appelant. Le plafond (nombre de coeurs, borne de la brique) n'est pas decide ici : l'hote
+// le normalise avant d'appeler [FilmContext.PoserFils].
+
+// PoserFils regle le nombre de fils permis ; une valeur inferieure a 1 se range a 1. A poser avant
+// le premier balayage du film, depuis le fil qui possede le contexte.
+func (c *FilmContext) PoserFils(n int) {
+	if n < 1 {
+		n = 1
+	}
+	c.fils = n
+}
+
+// Fils rend le nombre de fils permis, au moins 1.
+func (c *FilmContext) Fils() int {
+	if c.fils < 1 {
+		return 1
+	}
+	return c.fils
+}

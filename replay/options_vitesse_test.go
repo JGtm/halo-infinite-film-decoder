@@ -3,6 +3,8 @@ package replay
 import (
 	"runtime"
 	"testing"
+
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
 func TestOptionsVitesseFilsEffectifs(t *testing.T) {
@@ -33,5 +35,28 @@ func TestOptionsVitesseValeurZeroUnFil(t *testing.T) {
 	}
 	if got := (OptionsVitesse{Fils: 1 << 20}).FilsEffectifs(); got > MaxFils || got > runtime.GOMAXPROCS(0) || got < 1 {
 		t.Errorf("fils hors bornes : %d", got)
+	}
+}
+
+func TestVitesseArriveAuContexte(t *testing.T) {
+	ancien := runtime.GOMAXPROCS(8)
+	defer runtime.GOMAXPROCS(ancien)
+	for _, cas := range []struct{ demande, attendu int }{{1, 1}, {4, 4}, {8, 8}, {100, MaxFils}} {
+		fc := grammar.NewFilmContext(nil)
+		poserLesFils(fc, OptionsVitesse{Fils: cas.demande})
+		if got := fc.Fils(); got != cas.attendu {
+			t.Errorf("Fils=%d : le contexte porte %d, attendu %d", cas.demande, got, cas.attendu)
+		}
+	}
+}
+
+func TestVitesseZeroNeTouchePasUnContexteDejaRegle(t *testing.T) {
+	for _, demande := range []int{0, -2} {
+		fc := grammar.NewFilmContext(nil)
+		fc.PoserFils(3)
+		poserLesFils(fc, OptionsVitesse{Fils: demande})
+		if got := fc.Fils(); got != 3 {
+			t.Errorf("Fils=%d : le contexte regle a 3 porte %d", demande, got)
+		}
 	}
 }

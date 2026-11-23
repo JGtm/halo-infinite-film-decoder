@@ -13,8 +13,8 @@ func resultatDeTest() ResultatFilm {
 		stats[ph] = Stat{Mediane: ms10(10 * (i + 1)), Min: ms10(9 * (i + 1)), Max: ms10(12 * (i + 1)), Passes: 5}
 	}
 	return ResultatFilm{
-		Film:  Film{Nom: "film01", Mode: "Slayer", Version: "41 / HI_1_13_0", Joueurs: 8, Morceaux: 25},
-		Stats: stats, PicMio: 262.4, EmpreinteDoc: "aa", EmpreinteFaits: "bb",
+		Film: Film{Nom: "film01", Mode: "Slayer", Version: "41 / HI_1_13_0", Joueurs: 8, Morceaux: 25},
+		Fils: 1, Stats: stats, PicMio: 262.4, EmpreinteDoc: "aa", EmpreinteFaits: "bb",
 	}
 }
 
