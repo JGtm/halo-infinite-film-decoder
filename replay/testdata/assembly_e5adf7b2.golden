@@ -997,7 +997,7 @@ balaye=true · bande 2042 slot(s) · 538 ancre(s) -> 538 acceptee(s) -> 488 rete
 363 lachee(s) a une mort · 125 apparue(s) sans mort a proximite, dont 0 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
 0 grappe(s) -> 0 socle(s) publie(s) · 0 occupation(s) : 0 datee(s) · 0 sans passage · 0 jamais videe(s)
 0 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 662 creation(s) acceptee(s) -> 0 retenue(s) par l IDENTITE `powerup_*` -> 0 socle(s) publie(s)
+POWER-UPS (voie ti=37) — balaye=true · 662 creation(s) acceptee(s) -> 257 retenue(s) par l IDENTITE `powerup_*` -> 0 socle(s) publie(s)
 0 occupation(s) achevee(s) publiee(s) · 0 datee(s) a l instant exact par l evenement natif · 0 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
@@ -1029,7 +1029,7 @@ repli_fin_de_vie_sans_tableau_api                12
 repli_identite_premier_occupant_du_siege         112
 repli_impulsion_fusionnee_dans_le_geste          30
 repli_lien_prise_arme_abandonne                  2
-repli_origine_au_sol_lachee_par_fenetre          363
+repli_origine_au_sol_lachee_par_fenetre          548
 repli_place_du_remplacant_par_chainage_d_equipe  3
 repli_place_ouverte_sous_la_capacite_estimee     1
 repli_visee_du_tir_lue_dans_le_record            1

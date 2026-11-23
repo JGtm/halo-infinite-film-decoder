@@ -480,9 +480,9 @@ provenance : 0 evenement(s) 103 lu(s) sur 4956 liste(s) d evenements non vides
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 1426 slot(s) · 600 ancre(s) -> 597 acceptee(s) -> 398 retenue(s) par l IDENTITE (199 ecartee(s))
 161 lachee(s) a une mort · 237 apparue(s) sans mort a proximite, dont 110 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
-58 grappe(s) -> 31 socle(s) publie(s) · 94 occupation(s) : 59 datee(s) · 10 sans passage · 25 jamais videe(s)
-8 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 14 retenue(s) par l IDENTITE `powerup_*` -> 3 socle(s) publie(s)
+58 grappe(s) -> 31 socle(s) publie(s) · 133 occupation(s) : 88 datee(s) · 12 sans passage · 33 jamais videe(s)
+17 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
+POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 106 retenue(s) par l IDENTITE `powerup_*` -> 16 socle(s) publie(s)
   socle 0 0x2FB21C87 pos=(18.05, 34.01, 7.03) apparitions=[0 1573] cycle=non etabli
     presence t0=0 prouvee jusqu a 370, absente a 977
     presence t0=1573 prouvee jusqu a 9471, absente a 10078
@@ -597,21 +597,73 @@ POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 14 rete
   socle 30 0xFD98554C pos=(54.94, -65.26, 3.29) apparitions=[0 4834] cycle=non etabli
     presence t0=0 prouvee jusqu a 3403, absente a 4010
     presence t0=4834 prouvee jusqu a 10078, absente a 10292
-  socle 31 powerup_camo pos=(8.40, 14.26, 3.27) apparitions=[2 3248 4168] cycle=non etabli
+  socle 31 grapple pos=(28.98, 31.19, -0.40) apparitions=[2 4632 6940 8801] cycle=60.7 s (p10 60.6 · p90 60.7 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 2796, absente a 3403
+    presence t0=4632 prouvee jusqu a 4632, absente a 5223
+    presence t0=6940 prouvee jusqu a 6940, absente a 7044
+    presence t0=8801 prouvee jusqu a 10078, absente a 10292
+  socle 32 grapple pos=(34.90, 55.82, 3.14) apparitions=[2 2827 5143 7609] cycle=60.7 s (p10 60.7 · p90 60.7 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 977, absente a 1584
+    presence t0=2827 prouvee jusqu a 2827, absente a 3403
+    presence t0=5143 prouvee jusqu a 5223, absente a 5830
+    presence t0=7609 prouvee jusqu a 10078, absente a 10292
+  socle 33 grapple pos=(40.60, -8.50, 3.94) apparitions=[2 3781 9014] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 1584, absente a 2190
+    presence t0=3781 prouvee jusqu a 7044, absente a 7650
+    presence t0=9014 prouvee jusqu a 10078, absente a 10292
+  socle 34 grapple pos=(61.40, -5.80, 3.97) apparitions=[2 4825 7509] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 2796, absente a 3403
+    presence t0=4825 prouvee jusqu a 5223, absente a 5830
+    presence t0=7509 prouvee jusqu a 9471, absente a 10078
+  socle 35 grapple pos=(72.74, -46.29, -0.40) apparitions=[2 2620 5539] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 370, absente a 977
+    presence t0=2620 prouvee jusqu a 3403, absente a 4010
+    presence t0=5539 prouvee jusqu a 10078, absente a 10292
+  socle 36 powerup_camo pos=(8.40, 14.26, 3.27) apparitions=[2 3248 4168] cycle=non etabli
     presence t0=2 prouvee jusqu a 2190, absente a 2796
     presence t0=3248 prouvee jusqu a 4010, absente a 4618
     presence t0=4168 prouvee jusqu a 7650, absente a 8257
-  socle 32 powerup_overshield pos=(47.60, -52.57, 0.89) apparitions=[2 3623 4168] cycle=non etabli
+  socle 37 powerup_overshield pos=(47.60, -52.57, 0.89) apparitions=[2 3623 4168] cycle=non etabli
     presence t0=2 prouvee jusqu a 3403, absente a 4010
     presence t0=3623 prouvee jusqu a 4010, absente a 4618
     presence t0=4168 prouvee jusqu a 10078, absente a 10292
-  socle 33 powerup_overshield pos=(54.44, 37.50, 0.89) apparitions=[2 3631 4168 6888 7807] cycle=non etabli
+  socle 38 powerup_overshield pos=(54.44, 37.50, 0.89) apparitions=[2 3631 4168 6888 7807] cycle=non etabli
     presence t0=2 prouvee jusqu a 3403, absente a 4010
     presence t0=3631 prouvee jusqu a 4010, absente a 4618
     presence t0=4168 prouvee jusqu a 5830, absente a 6437
     presence t0=6888 prouvee jusqu a 7650, absente a 8257
     presence t0=7807 prouvee jusqu a 10078, absente a 10292
-69 occupation(s) achevee(s) publiee(s) · 42 datee(s) a l instant exact par l evenement natif · 42 avec un ramasseur nomme
+  socle 39 repulsor pos=(20.50, 9.70, 5.30) apparitions=[2 4704 9626] cycle=60.8 s (p10 60.8 · p90 60.8 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 2796, absente a 3403
+    presence t0=4704 prouvee jusqu a 7650, absente a 8257
+    presence t0=9626 prouvee jusqu a 10078, absente a 10292
+  socle 40 repulsor pos=(36.21, 18.57, 5.17) apparitions=[2 2779 4727 6889] cycle=60.8 s (p10 60.7 · p90 60.8 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 370, absente a 977
+    presence t0=2779 prouvee jusqu a 2796, absente a 3403
+    presence t0=4727 prouvee jusqu a 4727, absente a 5223
+    presence t0=6889 prouvee jusqu a 10078, absente a 10292
+  socle 41 repulsor pos=(65.91, -32.30, 4.92) apparitions=[2 2676 6093] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 370, absente a 977
+    presence t0=2676 prouvee jusqu a 4010, absente a 4618
+    presence t0=6093 prouvee jusqu a 9471, absente a 10078
+  socle 42 repulsor pos=(81.38, -24.66, 5.36) apparitions=[2 8715] cycle=non etabli
+    presence t0=2 prouvee jusqu a 6437, absente a 7044
+    presence t0=8715 prouvee jusqu a 8715, absente a 8864
+  socle 43 shroud_screen pos=(38.80, -52.00, 2.71) apparitions=[2 5989] cycle=non etabli
+    presence t0=2 prouvee jusqu a 4010, absente a 4618
+    presence t0=5989 prouvee jusqu a 10078, absente a 10292
+  socle 44 shroud_screen pos=(92.38, -44.55, 7.16) apparitions=[2 7001] cycle=non etabli
+    presence t0=2 prouvee jusqu a 4618, absente a 5223
+    presence t0=7001 prouvee jusqu a 10078, absente a 10292
+  socle 45 wall pos=(29.20, -23.00, 7.09) apparitions=[2 3280 5526 8191] cycle=60.7 s (p10 60.7 · p90 60.7 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 977, absente a 1584
+    presence t0=3280 prouvee jusqu a 3403, absente a 4010
+    presence t0=5526 prouvee jusqu a 5830, absente a 6437
+    presence t0=8191 prouvee jusqu a 8257, absente a 8864
+  socle 46 wall pos=(72.73, 8.60, 7.04) apparitions=[2 8802] cycle=non etabli
+    presence t0=2 prouvee jusqu a 6437, absente a 7044
+    presence t0=8802 prouvee jusqu a 9471, absente a 10078
+100 occupation(s) achevee(s) publiee(s) · 58 datee(s) a l instant exact par l evenement natif · 58 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
 337 loadout(s) publie(s) · 17 famille(s) distincte(s)
@@ -644,11 +696,11 @@ repli_fin_de_vie_sans_tableau_api                17
 repli_identite_premier_occupant_du_siege         68
 repli_index_de_tireur_hors_place                 896
 repli_lien_prise_arme_abandonne                  1
-repli_origine_au_sol_lachee_par_fenetre          161
+repli_origine_au_sol_lachee_par_fenetre          200
 repli_piece_engendree_sans_evenement             2
 repli_place_du_remplacant_par_chainage_d_equipe  4
 repli_position_hors_emprise_ecartee              36
-repli_prise_de_socle_premiere_du_cycle           13
+repli_prise_de_socle_premiere_du_cycle           20
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place
 17 identifiant(s) nomme(s) ; un identifiant absent garde son hexadecimal a l ecran et

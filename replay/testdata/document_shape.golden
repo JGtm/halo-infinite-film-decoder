@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee 9ad15f5b33fa77e2
-empreinte-servie 9ad15f5b33fa77e2
-empreinte-cuite 7c755d0dfef13b9c
+empreinte-stockee c80820f7a56bd0fc
+empreinte-servie c80820f7a56bd0fc
+empreinte-cuite 063b1ab478101d6f
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -52,6 +52,25 @@ AbilityRead
   Slot json:"slot" uint32
   Src json:"src" string
   T json:"t" int
+AmmoRead
+  Gauge json:"gauge,omitempty" *float32
+  Mag json:"mag,omitempty" *uint32
+  Ms json:"ms" int
+  Res json:"res,omitempty" *uint32
+  Slot json:"slot" uint32
+  Src json:"src" string
+  T json:"t" int
+  W json:"w" int
+AmmoReadCoverage
+  AfterEnd json:"afterEnd,omitempty" int
+  BeforeOrigin json:"beforeOrigin,omitempty" int
+  DeltaRefused json:"deltaRefused,omitempty" bool
+  Empty json:"empty,omitempty" int
+  FromDelta json:"fromDelta" int
+  FromKeyframe json:"fromKeyframe" int
+  NoTrack json:"noTrack,omitempty" int
+  Read json:"read" int
+  Unchanged json:"unchanged,omitempty" int
 AmmoSlot
   Gauge json:"gauge,omitempty" *float32
   Mag json:"mag,omitempty" *uint32
@@ -340,6 +359,7 @@ Coverage
   Abilities json:"abilities,omitempty" *AbilityCoverage
   AbilityCharges json:"abilityCharges,omitempty" *AbilityChargeCoverage
   AbilityImpulses json:"abilityImpulses,omitempty" *AbilityImpulseCoverage
+  AmmoReads json:"ammoReads,omitempty" *AmmoReadCoverage
   Announcements json:"announcements,omitempty" *AnnouncementCoverage
   BirthLoadouts json:"birthLoadouts,omitempty" *BirthLoadoutCoverage
   BombArmings json:"bombArmings,omitempty" *BombArmingsCoverage
@@ -351,6 +371,7 @@ Coverage
   ContinuousFire json:"continuousFire,omitempty" *ContinuousFireCoverage
   DeathsPaths json:"deathsPaths,omitempty" *DeathsPathsCoverage
   Decoder json:"decoder,omitempty" *DecoderCoverage
+  DrawnWeapons json:"drawnWeapons,omitempty" *DrawnWeaponCoverage
   Eliminations json:"eliminations,omitempty" *EliminationCoverage
   Equipment json:"equipment,omitempty" *EquipmentCoverage
   EquipmentChanges json:"equipmentChanges,omitempty" *EquipmentChangeCoverage
@@ -394,9 +415,11 @@ Coverage
 Damage
   Attacker json:"attacker,omitempty" string
   Body json:"body" float64
+  By json:"by,omitempty" uint32
   Effect json:"effect" string
   Measured json:"measured,omitempty" bool
   Shield json:"shield" float64
+  Slot json:"slot,omitempty" uint32
   T json:"t" int
   Victim json:"victim,omitempty" string
   Weapon json:"w,omitempty" string
@@ -428,6 +451,20 @@ DecoderCoverage
   ProfileRev json:"profileRev" string
   Registry json:"registry,omitempty" *RegistryCoverage
   SourceRev json:"sourceRev" string
+DrawnWeapon
+  D json:"d,omitempty" *int
+  D2 json:"d2,omitempty" *int
+  Slot json:"slot" uint32
+  T json:"t" int
+DrawnWeaponCoverage
+  AfterEnd json:"afterEnd,omitempty" int
+  BeforeOrigin json:"beforeOrigin,omitempty" int
+  ComponentAbsent json:"componentAbsent,omitempty" bool
+  Duplicates json:"duplicates,omitempty" int
+  NoTrack json:"noTrack,omitempty" int
+  Published json:"published" int
+  Read json:"read" int
+  SlotUnbound json:"slotUnbound,omitempty" int
 Elimination
   Headshot json:"headshot,omitempty" *bool
   Perfect json:"perfect,omitempty" *bool
@@ -665,6 +702,7 @@ GrappleLine
   T0 json:"t0" int
   T1 json:"t1" int
 Grenade
+  Deto json:"deto,omitempty" *GrenadeDetonation
   Idx json:"i" int
   Proj json:"proj,omitempty" *int
   Rank json:"rank" int
@@ -673,6 +711,11 @@ Grenade
   T json:"t" int
   X json:"x" float32
   Y json:"y" float32
+GrenadeDetonation
+  T json:"t" int
+  X json:"x" float32
+  Y json:"y" float32
+  Z json:"z" float32
 GrenadeRead
   G json:"g" []uint32
   Gs json:"gs,omitempty" *int
@@ -704,6 +747,7 @@ GroundWeaponCoverage
   Accepted json:"accepted" int
   Anchors json:"anchors" int
   AtRest json:"atRest" int
+  Candidates json:"candidates" int
   Clusters json:"clusters" int
   Cycles json:"cycles" int
   Dated json:"dated" int
@@ -716,6 +760,7 @@ GroundWeaponCoverage
   Pads json:"pads" int
   PlusieursLieux json:"plusieursLieux" int
   PowerupAccepted json:"powerupAccepted" int
+  PowerupCandidates json:"powerupCandidates" int
   PowerupKept json:"powerupKept" int
   PowerupPads json:"powerupPads" int
   PowerupScanned json:"powerupScanned" bool
@@ -748,6 +793,9 @@ HitCoverage
   Damages json:"damages" int
   DamagesMeasured json:"damagesMeasured" int
   DamagesOffUnit json:"damagesOffUnit" int
+  DamagesZero json:"damagesZero" int
+  DamagesZeroOffUnit json:"damagesZeroOffUnit" int
+  DamagesZeroOutOfAxis json:"damagesZeroOutOfAxis" int
   Estimated json:"estimated" bool
   Frames json:"frames" int
   Hits json:"hits" int
@@ -1100,6 +1148,7 @@ ReplayDocument
   AbilityCharges json:"abilityCharges,omitempty" []AbilityCharge
   AbilityImpulses json:"abilityImpulses,omitempty" []AbilityImpulse
   AbilityLabels json:"abilityLabels,omitempty" map[string]Label
+  AmmoReads json:"ammoReads,omitempty" []AmmoRead
   Announcements json:"announcements,omitempty" []Announcement
   BombArmings json:"bombArmings,omitempty" []BombArming
   BombCarries json:"bombCarries,omitempty" []BombCarry
@@ -1111,6 +1160,7 @@ ReplayDocument
   Chatter json:"chatter,omitempty" []Chatter
   Coverage json:"coverage,omitempty" *Coverage
   Damage json:"damage,omitempty" []Damage
+  DrawnWeapons json:"drawnWeapons,omitempty" []DrawnWeapon
   DurationMS json:"durationMs,omitempty" int
   Eliminations json:"eliminations,omitempty" []Elimination
   EquipmentChanges json:"equipmentChanges,omitempty" []EquipmentChange
@@ -1144,6 +1194,7 @@ ReplayDocument
   ObjectiveObjects json:"objectiveObjects,omitempty" []ObjectiveObjectLife
   Objectives json:"objectives,omitempty" []ObjectiveAction
   OriginMs json:"originMs,omitempty" *int64
+  PadCandidates json:"padCandidates,omitempty" []WeaponPad
   PadPickups json:"padPickups,omitempty" []PadPickup
   Pickups json:"pickups,omitempty" []Pickup
   Projectiles json:"projectiles,omitempty" []Projectile
@@ -1311,6 +1362,7 @@ SeatCoverage
   TrousDEntite json:"trousDEntite" int
 Shot
   H json:"h,omitempty" float32
+  O json:"o,omitempty" int
   P json:"p,omitempty" float32
   Slot json:"slot" uint32
   T json:"t" int

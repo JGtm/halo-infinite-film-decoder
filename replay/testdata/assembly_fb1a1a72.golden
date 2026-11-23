@@ -461,9 +461,9 @@ provenance : 0 evenement(s) 103 lu(s) sur 7850 liste(s) d evenements non vides
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 1462 slot(s) · 479 ancre(s) -> 479 acceptee(s) -> 387 retenue(s) par l IDENTITE (92 ecartee(s))
 273 lachee(s) a une mort · 114 apparue(s) sans mort a proximite, dont 64 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
-14 grappe(s) -> 10 socle(s) publie(s) · 86 occupation(s) : 64 datee(s) · 12 sans passage · 10 jamais videe(s)
-3 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 529 creation(s) acceptee(s) -> 26 retenue(s) par l IDENTITE `powerup_*` -> 2 socle(s) publie(s)
+14 grappe(s) -> 10 socle(s) publie(s) · 112 occupation(s) : 89 datee(s) · 12 sans passage · 11 jamais videe(s)
+6 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
+POWER-UPS (voie ti=37) — balaye=true · 529 creation(s) acceptee(s) -> 107 retenue(s) par l IDENTITE `powerup_*` -> 5 socle(s) publie(s)
   socle 0 0x2B1824D5 pos=(-22.24, 1.95, 60.60) apparitions=[0 2386 3364 5204 9603 12576] cycle=non etabli
     presence t0=0 prouvee jusqu a 1463, absente a 2069
     presence t0=2386 prouvee jusqu a 2386, absente a 2675
@@ -562,7 +562,36 @@ POWER-UPS (voie ti=37) — balaye=true · 529 creation(s) acceptee(s) -> 26 rete
     presence t0=18207 prouvee jusqu a 18436, absente a 19042
     presence t0=20928 prouvee jusqu a 21467, absente a 22073
     presence t0=21847 prouvee jusqu a 22679, absente a 22931
-76 occupation(s) achevee(s) publiee(s) · 49 datee(s) a l instant exact par l evenement natif · 49 avec un ramasseur nomme
+  socle 12 repulsor pos=(-17.28, -4.93, 59.38) apparitions=[0 1988 4417 8981 11863 14229 16602 18639 21671] cycle=60.7 s (p10 60.6 · p90 60.9 · 8 ecarts mesures, 0 manques)
+    presence t0=0 prouvee jusqu a 0, absente a 251
+    presence t0=1988 prouvee jusqu a 2069, absente a 2675
+    presence t0=4417 prouvee jusqu a 6918, absente a 7525
+    presence t0=8981 prouvee jusqu a 9950, absente a 10556
+    presence t0=11863 prouvee jusqu a 12374, absente a 12981
+    presence t0=14229 prouvee jusqu a 14229, absente a 14799
+    presence t0=16602 prouvee jusqu a 16618, absente a 17224
+    presence t0=18639 prouvee jusqu a 19649, absente a 20255
+    presence t0=21671 prouvee jusqu a 21671, absente a 22073
+  socle 13 repulsor pos=(16.19, -4.94, 59.39) apparitions=[0 1950 3844 6072 8084 10980 13025 15595 18087 20037 22402] cycle=60.7 s (p10 60.6 · p90 61.9 · 10 ecarts mesures, 0 manques)
+    presence t0=0 prouvee jusqu a 0, absente a 251
+    presence t0=1950 prouvee jusqu a 1950, absente a 2069
+    presence t0=3844 prouvee jusqu a 3888, absente a 4494
+    presence t0=6072 prouvee jusqu a 6072, absente a 6312
+    presence t0=8084 prouvee jusqu a 8737, absente a 9343
+    presence t0=10980 prouvee jusqu a 11162, absente a 11768
+    presence t0=13025 prouvee jusqu a 13587, absente a 14193
+    presence t0=15595 prouvee jusqu a 16011, absente a 16618
+    presence t0=18087 prouvee jusqu a 18087, absente a 18436
+    presence t0=20037 prouvee jusqu a 20255, absente a 20861
+    presence t0=22402 prouvee jusqu a 22679, absente a 22931
+  socle 14 wall pos=(-0.54, -4.43, 62.58) apparitions=[0 3235 5270 7425 12500 15142] cycle=60.7 s (p10 60.6 · p90 60.7 · 5 ecarts mesures, 0 manques)
+    presence t0=0 prouvee jusqu a 857, absente a 1463
+    presence t0=3235 prouvee jusqu a 3281, absente a 3888
+    presence t0=5270 prouvee jusqu a 5270, absente a 5706
+    presence t0=7425 prouvee jusqu a 10556, absente a 11162
+    presence t0=12500 prouvee jusqu a 12981, absente a 13587
+    presence t0=15142 prouvee jusqu a 22073, absente a 22679
+101 occupation(s) achevee(s) publiee(s) · 72 datee(s) a l instant exact par l evenement natif · 72 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
 373 loadout(s) publie(s) · 8 famille(s) distincte(s)
@@ -589,8 +618,8 @@ arrivants 0 · presences closes 0 · sans presence 0 · occupants au plus 8 · d
 ## REPLIS DECLENCHES — la part de ce document qui ne vient PAS d une lecture du film
 repli_fin_de_vie_sans_tableau_api                3
 repli_identite_premier_occupant_du_siege         66
-repli_origine_au_sol_lachee_par_fenetre          273
-repli_prise_de_socle_premiere_du_cycle           17
+repli_origine_au_sol_lachee_par_fenetre          322
+repli_prise_de_socle_premiere_du_cycle           24
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place
 18 identifiant(s) nomme(s) ; un identifiant absent garde son hexadecimal a l ecran et

@@ -807,7 +807,7 @@ balaye=true · bande 1526 slot(s) · 384 ancre(s) -> 378 acceptee(s) -> 364 rete
 297 lachee(s) a une mort · 67 apparue(s) sans mort a proximite, dont 0 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
 0 grappe(s) -> 0 socle(s) publie(s) · 0 occupation(s) : 0 datee(s) · 0 sans passage · 0 jamais videe(s)
 0 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 483 creation(s) acceptee(s) -> 0 retenue(s) par l IDENTITE `powerup_*` -> 0 socle(s) publie(s)
+POWER-UPS (voie ti=37) — balaye=true · 483 creation(s) acceptee(s) -> 210 retenue(s) par l IDENTITE `powerup_*` -> 0 socle(s) publie(s)
 0 occupation(s) achevee(s) publiee(s) · 0 datee(s) a l instant exact par l evenement natif · 0 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
@@ -839,7 +839,7 @@ repli_effet_d_ecran_par_la_fin_de_la_grenade     4
 repli_fin_de_vie_sans_tableau_api                9
 repli_identite_premier_occupant_du_siege         75
 repli_impulsion_fusionnee_dans_le_geste          36
-repli_origine_au_sol_lachee_par_fenetre          297
+repli_origine_au_sol_lachee_par_fenetre          446
 repli_place_du_remplacant_par_chainage_d_equipe  2
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place

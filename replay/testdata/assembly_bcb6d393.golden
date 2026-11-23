@@ -266,9 +266,9 @@ provenance : 1 evenement(s) 103 lu(s) sur 2730 liste(s) d evenements non vides
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 579 slot(s) · 195 ancre(s) -> 193 acceptee(s) -> 159 retenue(s) par l IDENTITE (34 ecartee(s))
 99 lachee(s) a une mort · 60 apparue(s) sans mort a proximite, dont 34 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
-16 grappe(s) -> 10 socle(s) publie(s) · 34 occupation(s) : 23 datee(s) · 3 sans passage · 8 jamais videe(s)
-3 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 171 creation(s) acceptee(s) -> 6 retenue(s) par l IDENTITE `powerup_*` -> 1 socle(s) publie(s)
+16 grappe(s) -> 10 socle(s) publie(s) · 47 occupation(s) : 34 datee(s) · 3 sans passage · 10 jamais videe(s)
+7 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
+POWER-UPS (voie ti=37) — balaye=true · 171 creation(s) acceptee(s) -> 32 retenue(s) par l IDENTITE `powerup_*` -> 5 socle(s) publie(s)
   socle 0 0xB619D84A pos=(-0.74, 20.50, -2.92) apparitions=[0 5998] cycle=non etabli
     presence t0=0 prouvee jusqu a 820, absente a 1427
     presence t0=5998 prouvee jusqu a 9307, absente a 9913
@@ -307,14 +307,31 @@ POWER-UPS (voie ti=37) — balaye=true · 171 creation(s) acceptee(s) -> 6 reten
   socle 9 0xFD98554C pos=(36.21, 16.86, 1.02) apparitions=[0 3802] cycle=non etabli
     presence t0=0 prouvee jusqu a 2639, absente a 3245
     presence t0=3802 prouvee jusqu a 10499, absente a 10499
-  socle 10 powerup_camo pos=(19.86, -2.30, -2.39) apparitions=[675 1593 3405 4323 7045 7964] cycle=non etabli
+  socle 10 grapple pos=(19.32, 10.84, 1.41) apparitions=[6 3227 9430] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=6 prouvee jusqu a 820, absente a 1427
+    presence t0=3227 prouvee jusqu a 7488, absente a 8095
+    presence t0=9430 prouvee jusqu a 10499, absente a 10499
+  socle 11 powerup_camo pos=(19.86, -2.30, -2.39) apparitions=[675 1593 3405 4323 7045 7964] cycle=non etabli
     presence t0=675 prouvee jusqu a 1427, absente a 2033
     presence t0=1593 prouvee jusqu a 1593, absente a 2033
     presence t0=3405 prouvee jusqu a 3851, absente a 4457
     presence t0=4323 prouvee jusqu a 4323, absente a 4457
     presence t0=7045 prouvee jusqu a 7488, absente a 8095
     presence t0=7964 prouvee jusqu a 7964, absente a 8095
-26 occupation(s) achevee(s) publiee(s) · 16 datee(s) a l instant exact par l evenement natif · 16 avec un ramasseur nomme
+  socle 12 repulsor pos=(29.00, 26.89, -1.65) apparitions=[6 3181 5149] cycle=60.6 s (p10 60.6 · p90 60.6 · 2 ecarts mesures, 0 manques)
+    presence t0=6 prouvee jusqu a 820, absente a 1427
+    presence t0=3181 prouvee jusqu a 3245, absente a 3851
+    presence t0=5149 prouvee jusqu a 8701, absente a 9307
+  socle 13 shroud_screen pos=(11.88, 25.10, -2.13) apparitions=[6 2950 9966] cycle=60.6 s (p10 60.6 · p90 60.6 · 2 ecarts mesures, 0 manques)
+    presence t0=6 prouvee jusqu a 820, absente a 1427
+    presence t0=2950 prouvee jusqu a 8095, absente a 8701
+    presence t0=9966 prouvee jusqu a 10499, absente a 10499
+  socle 14 thruster pos=(12.00, 7.88, -1.93) apparitions=[6 2834 5576 8369] cycle=60.6 s (p10 60.6 · p90 60.6 · 3 ecarts mesures, 0 manques)
+    presence t0=6 prouvee jusqu a 820, absente a 1427
+    presence t0=2834 prouvee jusqu a 3245, absente a 3851
+    presence t0=5576 prouvee jusqu a 6276, absente a 6882
+    presence t0=8369 prouvee jusqu a 9913, absente a 10499
+37 occupation(s) achevee(s) publiee(s) · 26 datee(s) a l instant exact par l evenement natif · 26 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
 162 loadout(s) publie(s) · 12 famille(s) distincte(s)
@@ -344,7 +361,7 @@ repli_fin_de_vie_sans_tableau_api                6
 repli_identite_premier_occupant_du_siege         29
 repli_impulsion_fusionnee_dans_le_geste          4
 repli_lien_prise_arme_abandonne                  1
-repli_origine_au_sol_lachee_par_fenetre          99
+repli_origine_au_sol_lachee_par_fenetre          108
 repli_place_du_remplacant_par_chainage_d_equipe  7
 repli_prise_de_socle_premiere_du_cycle           4
 repli_visee_du_tir_lue_dans_le_record            1

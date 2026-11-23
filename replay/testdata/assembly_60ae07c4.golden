@@ -312,9 +312,9 @@ provenance : 0 evenement(s) 103 lu(s) sur 6056 liste(s) d evenements non vides
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 982 slot(s) · 325 ancre(s) -> 294 acceptee(s) -> 218 retenue(s) par l IDENTITE (76 ecartee(s))
 183 lachee(s) a une mort · 35 apparue(s) sans mort a proximite, dont 30 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
-6 grappe(s) -> 6 socle(s) publie(s) · 42 occupation(s) : 31 datee(s) · 5 sans passage · 6 jamais videe(s)
-1 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 344 creation(s) acceptee(s) -> 13 retenue(s) par l IDENTITE `powerup_*` -> 1 socle(s) publie(s)
+6 grappe(s) -> 6 socle(s) publie(s) · 62 occupation(s) : 46 datee(s) · 8 sans passage · 8 jamais videe(s)
+2 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
+POWER-UPS (voie ti=37) — balaye=true · 344 creation(s) acceptee(s) -> 50 retenue(s) par l IDENTITE `powerup_*` -> 3 socle(s) publie(s)
   socle 0 0x48C19D2D pos=(-6.60, 30.20, 4.20) apparitions=[0 6263 12922 21592] cycle=64.5 s (p10 64.5 · p90 64.5 · 2 ecarts mesures, 1 manques)
     presence t0=0 prouvee jusqu a 3883, absente a 4490
     presence t0=6263 prouvee jusqu a 12370, absente a 12976
@@ -364,7 +364,29 @@ POWER-UPS (voie ti=37) — balaye=true · 344 creation(s) acceptee(s) -> 13 rete
     presence t0=17571 prouvee jusqu a 17571, absente a 17826
     presence t0=21203 prouvee jusqu a 22069, absente a 22675
     presence t0=22122 prouvee jusqu a 22122, absente a 22675
-36 occupation(s) achevee(s) publiee(s) · 18 datee(s) a l instant exact par l evenement natif · 18 avec un ramasseur nomme
+  socle 7 repulsor pos=(6.82, 35.87, -1.00) apparitions=[7 4871 8639 12929 17178 22865] cycle=108.7 s (p10 86.8 · p90 125.8 · 5 ecarts mesures, 0 manques)
+    presence t0=7 prouvee jusqu a 853, absente a 1459
+    presence t0=4871 prouvee jusqu a 5096, absente a 5702
+    presence t0=8639 prouvee jusqu a 9945, absente a 10551
+    presence t0=12929 prouvee jusqu a 12976, absente a 13582
+    presence t0=17178 prouvee jusqu a 19644, absente a 20250
+    presence t0=22865 prouvee jusqu a 24493, absente a 24595
+  socle 8 translocator_beacon pos=(17.70, 16.90, -1.00) apparitions=[7 3375 4293 7015 7933 10655 11573 12934 15743 16661 19383 20301 23023 23942] cycle=non etabli
+    presence t0=7 prouvee jusqu a 853, absente a 1459
+    presence t0=3375 prouvee jusqu a 3883, absente a 4490
+    presence t0=4293 prouvee jusqu a 4293, absente a 4490
+    presence t0=7015 prouvee jusqu a 7521, absente a 8127
+    presence t0=7933 prouvee jusqu a 7933, absente a 8127
+    presence t0=10655 prouvee jusqu a 11158, absente a 11764
+    presence t0=11573 prouvee jusqu a 12370, absente a 12976
+    presence t0=12934 prouvee jusqu a 12976, absente a 13582
+    presence t0=15743 prouvee jusqu a 16613, absente a 17219
+    presence t0=16661 prouvee jusqu a 16661, absente a 17219
+    presence t0=19383 prouvee jusqu a 20250, absente a 20856
+    presence t0=20301 prouvee jusqu a 21463, absente a 22069
+    presence t0=23023 prouvee jusqu a 23887, absente a 24493
+    presence t0=23942 prouvee jusqu a 24493, absente a 24595
+54 occupation(s) achevee(s) publiee(s) · 27 datee(s) a l instant exact par l evenement natif · 27 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
 420 loadout(s) publie(s) · 6 famille(s) distincte(s)
@@ -392,8 +414,8 @@ arrivants 0 · presences closes 0 · sans presence 0 · occupants au plus 8 · d
 repli_detonation_derniere_position_connue        660
 repli_fin_de_vie_sans_tableau_api                3
 repli_identite_premier_occupant_du_siege         74
-repli_origine_au_sol_lachee_par_fenetre          184
-repli_prise_de_socle_premiere_du_cycle           7
+repli_origine_au_sol_lachee_par_fenetre          201
+repli_prise_de_socle_premiere_du_cycle           10
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place
 11 identifiant(s) nomme(s) ; un identifiant absent garde son hexadecimal a l ecran et

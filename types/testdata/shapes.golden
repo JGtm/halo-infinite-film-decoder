@@ -313,6 +313,19 @@ WithAmmo	int	-
 Slot	uint32	-
 Gen	uint32	-
 
+## DrawnWeaponRead (grammar)
+TimestampUS	uint64	-
+Slot	uint32	-
+Principal	int8	-
+Second	int8	-
+
+## DrawnWeaponStats (grammar)
+Scanned	bool	-
+Absent	bool	-
+Read	int	-
+SlotUnbound	int	-
+Duplicates	int	-
+
 ## EquipmentPlacement (grammar)
 Life	types.LifeKey	-
 T0US	uint64	-
