@@ -198,7 +198,7 @@ func decodeInventaire(r *greader, g *FilmFacts) {
 		g.Inventory = append(g.Inventory, inv)
 	}
 
-	n = r.compte(6)
+	n = r.compte(coutMinimalDeltaInventaire)
 	g.InventoryDeltas = make([]types.InventoryDelta, 0, n)
 	lastTS = 0
 	for k := 0; k < n && r.err == nil; k++ {
@@ -213,6 +213,7 @@ func decodeInventaire(r *greader, g *FilmFacts) {
 		d.SelRead = r.bool8()
 		d.Sel = int(r.i())
 		d.Mask = uint32(r.u())
+		d.Ammo = decodeMunitionsDelta(r)
 		g.InventoryDeltas = append(g.InventoryDeltas, d)
 	}
 

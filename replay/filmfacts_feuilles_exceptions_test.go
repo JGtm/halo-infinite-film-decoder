@@ -96,10 +96,7 @@ var feuillesNonTransportees = map[string]string{
 		"codec en v18 faute de lecteur (cf. filmfacts.go)",
 	"types.InventoryDelta.Chunk":       tracabilite + "grammar/inventory_delta.go:readRecord",
 	"types.InventoryDelta.PacketIndex": tracabilite + "grammar/inventory_delta.go:readRecord",
-	"types.InventoryDelta.Ammo": "munitions lues dans le delta : ecrites par grammar/inventory_delta_ammo.go:" +
-		"collectAmmo, lues par refuseAmmoIfContaminated (la PORTE du canal, au balayage) ; le VERDICT, " +
-		"InventoryDeltaAmmoRefused, est transporte ; RETIRE du codec en v18 faute de lecteur",
-	"types.HeldWeaponChange.Chunk": tracabilite + "grammar/held_weapon_changes.go:ScanHeldWeaponChanges",
+	"types.HeldWeaponChange.Chunk":     tracabilite + "grammar/held_weapon_changes.go:ScanHeldWeaponChanges",
 	"types.HeldWeaponChange.Low": "mot bas brut de la reference d arme : seul ScanHeldWeaponChanges l ecrit " +
 		"(repere au sondage du 2026-09-28)",
 	"types.BipedPickup.Chunk":        tracabilite + "grammar/biped_pickups.go:ScanBipedPickups",

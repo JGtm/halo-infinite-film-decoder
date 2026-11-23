@@ -172,6 +172,7 @@ func encodeInventaire(w *gwriter, g *FilmFacts) {
 		w.bool8(d.SelRead)
 		w.i(int64(d.Sel))
 		w.u(uint64(d.Mask))
+		encodeMunitionsDelta(w, d.Ammo)
 	}
 
 }
