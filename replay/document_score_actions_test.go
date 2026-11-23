@@ -1,7 +1,7 @@
 package replay
 
 import (
-	"slices"
+	"reflect"
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
@@ -21,6 +21,9 @@ func masqueDesActions(index ...int) uint32 {
 func presenceDesActions(from, to int) []PresenceInterval {
 	return []PresenceInterval{{From: from, To: to}}
 }
+
+// placeDeTest rend un pointeur vers l'index `i` : la forme d'une place dans les actions et les éliminations.
+func placeDeTest(i int) *int { return &i }
 
 // Xuids fictifs evidents (9990...), dans l ordre des lettres : les tests trient par xuid.
 const (
@@ -119,10 +122,13 @@ func TestBuildScoreActions(t *testing.T) {
 			ScoreActionCoverage{ScoreMessages: 2, Scored: 3, Published: 3, Complete: true},
 		},
 		{
-			"un bot, un index inconnu et un humain sans présence ne reçoivent pas", []string{scriptsDeLArene}, axe,
+			"un bot est posé à sa place ; un index inconnu et un humain sans présence ne reçoivent pas", []string{scriptsDeLArene}, axe,
 			[]grammar.EvenementDeJeuLu{messageDesActions(instantDeLaFrame(3), rangAssistance, 0, false, -1, masqueDesActions(3, 20, 7, 0))},
-			[]ScoreAction{{T: 3, XUID: xuidA, Name: "assistPersonalScore", Points: 50}},
-			ScoreActionCoverage{ScoreMessages: 1, Scored: 4, Published: 1, NoRecipient: 2, NotPresent: 1},
+			[]ScoreAction{
+				{T: 3, Place: placeDeTest(3), Name: "assistPersonalScore", Points: 50},
+				{T: 3, XUID: xuidA, Name: "assistPersonalScore", Points: 50},
+			},
+			ScoreActionCoverage{ScoreMessages: 1, Scored: 4, Published: 2, NoRecipient: 1, NotPresent: 1, BotRecipient: 1},
 		},
 		{
 			"un remplaçant sur le même index : à chacun son intervalle", []string{scriptsDeLArene}, axe,
@@ -147,16 +153,16 @@ func TestBuildScoreActions(t *testing.T) {
 			ScoreActionCoverage{ScoreMessages: 3, Scored: 3, Published: 1, NotPresent: 2},
 		},
 		{
-			"une victime que le roster ne résout pas : action publiée sans cible, et comptée", []string{scriptsDeLArene}, axe,
+			"une victime bot est posée à sa place ; une victime que le roster ne résout pas : action publiée sans cible, et comptée", []string{scriptsDeLArene}, axe,
 			[]grammar.EvenementDeJeuLu{
 				messageDesActions(instantDeLaFrame(3), rangFrag, texteFrag, true, 3, masqueDesActions(0)),
 				messageDesActions(instantDeLaFrame(20), rangFrag, texteFrag, true, 6, masqueDesActions(0)),
 			},
 			[]ScoreAction{
-				{T: 3, XUID: xuidA, Name: "killPersonalScore", Points: 100},
+				{T: 3, XUID: xuidA, Name: "killPersonalScore", Points: 100, TargetPlace: placeDeTest(3)},
 				{T: 20, XUID: xuidA, Name: "killPersonalScore", Points: 100},
 			},
-			ScoreActionCoverage{ScoreMessages: 2, Scored: 2, Published: 2, NoTarget: 2, Complete: true},
+			ScoreActionCoverage{ScoreMessages: 2, Scored: 2, Published: 2, NoTarget: 1, BotTarget: 1, Complete: true},
 		},
 		{
 			"avant l'origine, à la dernière frame, après la fin", []string{scriptsDeLArene}, axe,
@@ -195,7 +201,7 @@ func TestBuildScoreActions(t *testing.T) {
 	for _, c := range cas {
 		t.Run(c.nom, func(t *testing.T) {
 			actions, cov := buildScoreActions(entreeDesActions(c.scripts, c.events...), rosterDesActions(), c.axe, nil, "")
-			if !slices.Equal(actions, c.actions) {
+			if !reflect.DeepEqual(actions, c.actions) {
 				t.Errorf("actions %+v, attendu %+v", actions, c.actions)
 			}
 			c.cov.Frames, c.cov.ClosedFrames, c.cov.Messages = 10, 10, len(c.events)
@@ -219,7 +225,7 @@ func TestLeVerdictCompletExigeUneLectureSansPerte(t *testing.T) {
 	frag := messageDesActions(instantDeLaFrame(3), rangFrag, texteFrag, true, 1, masqueDesActions(0))
 	horsArbre := messageDesActions(instantDeLaFrame(3), rangInconnuDuGroupe, 0, false, -1, masqueDesActions(0))
 	inconnu := messageDesActions(instantDeLaFrame(3), rangFrag, texteTrahison, true, 1, masqueDesActions(0))
-	perdu := messageDesActions(instantDeLaFrame(3), rangFrag, texteFrag, true, 1, masqueDesActions(3))
+	perdu := messageDesActions(instantDeLaFrame(3), rangFrag, texteFrag, true, 1, masqueDesActions(20))
 	cas := []struct {
 		nom       string
 		scripts   []string
