@@ -1,6 +1,7 @@
 package replay
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/objectives"
@@ -105,15 +106,43 @@ func TestScoreTimelineFilmAPlusieursMancheSansCompteursNommes(t *testing.T) {
 	}
 }
 
-// TestEntreeDuDrapeauGardeLaBandeSure : le calque du drapeau ne recoit que les equipes et les huit
-// premiers joueurs, quel que soit le dernier siege que le statborg porte.
-func TestEntreeDuDrapeauGardeLaBandeSure(t *testing.T) {
+// volDuSiege rend deux emissions du compteur de vols (`24 A`, 0 puis 1) d'un siege : un vol de drapeau lu.
+func volDuSiege(slot int) []types.StatRecord {
+	val := func(n int64) map[int]types.StatValue { return map[int]types.StatValue{24: {A: n}} }
+	return []types.StatRecord{statRec(1000, slot, 0, val(0)), statRec(2000, slot, 0, val(1))}
+}
+
+// TestEntreeDuDrapeauLitTousLesSieges : le calque du drapeau recoit tous les enregistrements que le film declare,
+// les sieges au-dela des huit premiers joueurs compris ; une prise faite depuis le siege 26 ou 58 se lit.
+func TestEntreeDuDrapeauLitTousLesSieges(t *testing.T) {
 	recs := []types.StatRecord{statRec(1, 8, 0, nil), statRec(2, 24, 0, nil), statRec(3, 26, 0, nil), statRec(4, 58, 0, nil)}
 	in := EntreeDuDrapeau(recs, nil, &PontParManche{})
-	if len(in.Records) != 2 || in.Records[1].Slot != 24 {
-		t.Errorf("enregistrements du drapeau = %+v, attendu les slots 8 et 24", in.Records)
+	if len(in.Records) != len(recs) {
+		t.Fatalf("enregistrements du drapeau = %+v, attendu les %d lus", in.Records, len(recs))
 	}
-	if in.SeatsBeyondBand != 2 {
-		t.Errorf("sieges au-dela de la bande = %d, attendu 2 (les slots 26 et 58)", in.SeatsBeyondBand)
+	for i, r := range in.Records {
+		if r.Slot != recs[i].Slot {
+			t.Errorf("enregistrement %d : slot %d, attendu %d", i, r.Slot, recs[i].Slot)
+		}
+	}
+	var seats []types.StatRecord
+	seats = append(seats, volDuSiege(26)...)
+	seats = append(seats, volDuSiege(12)...)
+	vus := map[int]int{}
+	for _, ev := range objectives.NamedEventsFrom(EntreeDuDrapeau(seats, nil, &PontParManche{}).Records, objectives.ObjectiveTypeFlag, nil) {
+		vus[ev.Slot]++
+	}
+	if vus[26] == 0 || vus[26] != vus[12] {
+		t.Errorf("evenements par siege = %v, attendu le vol du siege 26 lu comme celui du siege 12", vus)
+	}
+}
+
+// TestEntreeDuDrapeauHuitSiegesInchange : un match dont le dernier siege est le slot 24 (huit joueurs ou moins) rend
+// exactement les enregistrements lus, dans le meme ordre.
+func TestEntreeDuDrapeauHuitSiegesInchange(t *testing.T) {
+	recs := append(volDuSiege(10), volDuSiege(24)...)
+	in := EntreeDuDrapeau(recs, []int{500}, &PontParManche{})
+	if !reflect.DeepEqual(in.Records, recs) || !reflect.DeepEqual(in.Bursts, []int{500}) || !in.Scanned {
+		t.Errorf("entree = %+v, attendu les enregistrements lus, intacts", in)
 	}
 }

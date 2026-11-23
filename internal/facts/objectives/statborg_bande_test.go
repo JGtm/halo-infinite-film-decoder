@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/signaux"
-	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
 // TestLaBandeParDefautSeCompteEtSeDit : un film dont aucune table de datums ne porte la bande des
@@ -24,26 +23,5 @@ func TestLaBandeParDefautSeCompteEtSeDit(t *testing.T) {
 	}
 	if d := diagnosticsDuStatborg(sain, nil, "m"); len(d) != 0 {
 		t.Errorf("diagnostics = %+v sur un film sain", d)
-	}
-}
-
-func TestRecordsDeLaBandeSure(t *testing.T) {
-	recs := []types.StatRecord{{Slot: 6}, {Slot: 8}, {Slot: 10}, {Slot: 24}, {Slot: 26}, {Slot: 58}}
-	got := RecordsDeLaBandeSure(recs)
-	if len(got) != 4 || got[3].Slot != 24 {
-		t.Errorf("bande sure = %+v, attendu les slots 6, 8, 10 et 24", got)
-	}
-	if len(RecordsDeLaBandeSure(nil)) != 0 {
-		t.Error("aucun enregistrement : aucun rendu")
-	}
-}
-
-func TestSiegesAuDelaDeLaBandeSure(t *testing.T) {
-	recs := []types.StatRecord{{Slot: 8}, {Slot: 24}, {Slot: 26}, {Slot: 26}, {Slot: 58}}
-	if got := SiegesAuDelaDeLaBandeSure(recs); got != 2 {
-		t.Errorf("sieges au-dela de la bande = %d, attendu 2 (les slots 26 et 58, comptes une fois)", got)
-	}
-	if SiegesAuDelaDeLaBandeSure(nil) != 0 {
-		t.Error("aucun enregistrement : aucun siege")
 	}
 }
