@@ -310,6 +310,9 @@ type ReplayDocument struct {
 	Announcements []Announcement `json:"announcements,omitempty"`
 	// Gestures : les gestes du joueur engages dans la vue A, coup de melee et lancer amorce, une ligne par (trame, joueur, geste) (document_gestes.go).
 	Gestures []Gesture `json:"gestures,omitempty"`
+	// Attachments : les collages de projectile qu aucun vol publie ne porte, une ligne par lecture (projectiles_colles_calque.go). Un collage
+	// porte par un vol publie est dans `projectiles[].attach`, jamais ici.
+	Attachments []Attachment `json:"attachments,omitempty"`
 	// DrawnWeapons : l arme tiree en main a chaque changement, une ligne par (trame, slot) (document_arme_tiree.go).
 	DrawnWeapons []DrawnWeapon `json:"drawnWeapons,omitempty"`
 	// Vitals : la sante et le bouclier de chaque vie a chaque changement, une ligne par (instant, slot) (vitals_reads.go).

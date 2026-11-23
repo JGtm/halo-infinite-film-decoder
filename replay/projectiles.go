@@ -48,6 +48,9 @@ type Projectile struct {
 	// FullRate (optionnel) est le vol AU DEBIT DU FILM : chaque echantillon replique avant la coupure, a son instant
 	// (cf. [FullRateFlight] et projectiles_plein_debit.go). P et Z restent la vue de la grille, un point par frame.
 	FullRate *FullRateFlight `json:"fullRate,omitempty"`
+	// Attach (optionnel) est ou le projectile se colle, quand son vol se termine par un collage a une autre entite
+	// (cf. projectiles_colles.go). Absent : aucun collage lu apres son vol.
+	Attach *ProjectileAttach `json:"attach,omitempty"`
 	// Rest signale que le dernier point porte `projectile-at-rest-state` — le seul champ qui
 	// CERTIFIE une fin de vol (78 fois sur 79 sur le film de référence). Sans lui, le vol
 	// s'arrête parce que la réplication s'arrête, ce qui n'est pas la même chose.

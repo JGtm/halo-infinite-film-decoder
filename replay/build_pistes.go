@@ -233,6 +233,7 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	var projTronquees int
 	a.doc.Projectiles, pubProjByRaw, projTronquees = buildProjectiles(a.opt.Projectiles, a.origin, a.step,
 		a.opt.Detonations, a.opt.Fallbacks)
+	a.projParPiste = pubProjByRaw
 	// LA HAUTEUR ET LE VOL AU DEBIT DU FILM DES PROJECTILES : sur tout document publie, pas sur le document interne du sync.
 	projEchantillons := 0
 	if !a.opt.documentInterne {

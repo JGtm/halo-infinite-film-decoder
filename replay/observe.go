@@ -76,7 +76,9 @@ var buildFromFilmSteps = []string{
 	// LES GESTES (coup de melee, lancer amorce) : la MEME marche, la vue A de chaque trame.
 	"gestures", "gestures.stats",
 	// L ARME TIREE EN MAIN (jeu d armes desire i42) : la MEME marche, les trames delta du bipede.
-	"drawnWeapons", "drawnWeapons.stats", "filmScripts",
+	"drawnWeapons", "drawnWeapons.stats",
+	// LES PROJECTILES QUI SE COLLENT (`i10` ouvert sur la branche attache) : la MEME marche, les records de projectile.
+	"projectileAttaches", "projectileAttaches.stats", "filmScripts",
 	// LES MORTS DE VEHICULE ET L OCCUPATION : la MEME marche, le canal des morts ; vides quand le
 	// calque des vehicules n a pas ete balaye.
 	"vehicleDeaths", "vehicleDeaths.stats",

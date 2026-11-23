@@ -140,6 +140,8 @@ type ProjectileCoverage struct {
 	// FullRateSamples est le nombre d'echantillons publies dans `projectiles[].fullRate`, toutes trajectoires confondues
 	// (cf. projectiles_plein_debit.go). 0 sur le document interne du sync, qui ne la calcule pas.
 	FullRateSamples int `json:"fullRateSamples"`
+	// Attach est la couverture des projectiles colles (cf. projectiles_colles.go) ; absent quand leur lecture n a pas eu lieu.
+	Attach *ProjectileAttachCoverage `json:"attach,omitempty"`
 }
 
 // slotFor rend le slot du joueur pi à l'instant tUS, et la cause du rejet le cas échéant.
