@@ -182,6 +182,7 @@ var couchesDesCalques = map[string]string{
 	"announcements":       grammar.Rev, // document_repliques_annonces.go <- FilmInputs.Repliques (messages Dialogue2D, genre 76 de la vue A)
 	"gestures":            grammar.Rev, // document_gestes.go <- FilmInputs.Gestures (messages biped_melee_initiate et biped_throw_initiate, genres 40 et 39 de la vue A)
 	"drawnWeapons":        grammar.Rev, // document_arme_tiree.go <- FilmInputs.DrawnWeapons (jeu d armes desire i42, trames delta)
+	"vitals":              grammar.Rev, // vitals_reads.go <- FilmInputs.Vitals + Damages (sante et bouclier par vie, changements)
 	"roundClock":          grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=0 i5)
 	"rules":               grammar.Rev, // document_regles.go <- Options.FilmIdentity.InfosDeMatch (la variante de partie de chunk_00)
 	"respawnCountdowns":   grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=5 i1, nommee par l etat de creation de l entite)
@@ -304,6 +305,7 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	"reloads":      func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
 	"gestures":     func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
 	"drawnWeapons": func(_ *ReplayDocument, opt Options) bool { return opt.DrawnWeapons.Stats.Scanned },
+	"vitals":       func(_ *ReplayDocument, opt Options) bool { return opt.Vitals.Stats.Scanned },
 	// La marche des trames n a lu aucune trame : ni replique ni annonce ne se lit (document_repliques.go, `poserLesRepliques`).
 	"chatter":           func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
 	"announcements":     func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },

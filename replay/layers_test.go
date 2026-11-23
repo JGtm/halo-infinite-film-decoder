@@ -210,6 +210,7 @@ func optionsToutesGardesOuvertes() Options {
 		Repliques:    grammar.RepliquesLues{Stats: grammar.StatsRepliques{Trames: 1}},
 		Gestures:     GestureInput{Stats: types.GestureStats{Frames: 1}},
 		DrawnWeapons: DrawnWeaponInput{Stats: types.DrawnWeaponStats{Scanned: true}},
+		Vitals:       VitalsInput{Stats: VitalStats{Scanned: true}},
 	}
 }
 
@@ -267,7 +268,7 @@ func TestCalquesProduitsSuiventLesGardes(t *testing.T) {
 // illisibles ligne a ligne, ce qui est exactement ce qu elles existent pour etre.
 const calquesGardesGeles = "abilityCharges abilityImpulses ammoReads announcements bombArmings bombCarries bombEvents " +
 	"bombStats chatter damage drawnWeapons eliminations flagCarries flagReturnZone gestures grappleLines hits inventory medals reloads respawnCountdowns roundClock rules scoreActions " +
-	"scoreTimeline shotStats skullCarries t0FilmMs vehicles vipCrown zoneStates"
+	"scoreTimeline shotStats skullCarries t0FilmMs vehicles vipCrown vitals zoneStates"
 
 // TestCalquesGardesSontLaListeGelee : le jeu des calques gardes ne bouge pas en silence.
 func TestCalquesGardesSontLaListeGelee(t *testing.T) {

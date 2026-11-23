@@ -416,6 +416,28 @@ shared counters, include equipment pads. The translocator beacon is not left out
 **Detonation of a throw.** `grenades[].deto` (`t`, `x`, `y`, `z`) is the explosion (the genre-5 message `projectile_detonate`) of the projectile of a throw that has no `proj`, tied by
 the projectile handle (the message's reference + 0x400, same generation) within 8 s after the throw (the window is validated on the film). The record that creates the throw writes the
 handle at its header (`GrenadeThrow.HasLife`, `Life`), and the facts file keeps it. Absent when the throw has a `proj`.
+
+**Full rate.** `tracks[].fullRate` keeps every position and aim record that the film replicates for the life, each at its own instant. `points[]` keeps one sample per frame
+of the grid (the first of the frame); `fullRate` keeps everything, with no resampling (60 or 30 per second, depending on the film). The columns are integer differences:
+the first value is absolute, each following one is the step from the previous; the client rebuilds by cumulative sum, without loss. `t` is milliseconds from the grid origin
+(truncated), so `floor(t * 1000 / (frameIntervalMs * 1000))` is the frame index of the matching point. `x`, `y`, `z` are hundredths of a world unit. `gaps` are the indices
+(in `t`, `x`, `y`, `z`) of the samples that a gap precedes; the client holds the position until them. `aimT`, `h`, `p` are the aim, at its own instant (the aim is not replicated
+with each position record): `h` is the 12-bit heading quantum (degrees = (h + 0.5) * 360 / 4096) and `p` the 11-bit elevation quantum (degrees = (p + 0.5) * 360 / 2048 - 180);
+the heading is not wrapped to the turn (a pass from 4095 to 0 is written -4095). Each point of `points[]` is the first sample of its frame: same position to the hundredth, same
+instant to the millisecond, and `points[].h` / `points[].p` are the degrees of its quanta rounded to the tenth. Two records can carry the same millisecond: the aim then attaches to
+its position by order only. On old builds the film already replicates at the grid's cadence: `fullRate` has as many samples as `points`. The aim of records WITHOUT a position is not
+in it. `coverage.tracks`: `fullRateSamples`, `fullRateAimSamples` and `noWorld` (positions with no map bounds, which no representation publishes), always present. For a projectile,
+`z` is the height of each point of `p`, at the same index; `fullRate` is the flight at the film's rate, `t`, `x`, `y`, `z` as for a track, up to the same first impossible step as `p`
+(`p` and `z` stay the grid's view); `coverage.projectiles.fullRateSamples` is present with the block. The compressed weight of every replay grows by 24 to 39 % on the five films measured. The
+sync's internal document (the one that only feeds the carrier layers, never published) does not compute the full rate.
+
+**Health and shield.** `vitals[]` publishes the health and the shield of each life at every change, one row per (instant, slot): `t` the frame, `ms` the instant in milliseconds
+from frame 0, `slot` the track slot, `sh` the shield as a fraction of a full shield (1 is full, up to 4; to the thousandth), `hp` the health as a fraction (0 to 1; to the thousandth) and
+`dead` on the first row of a life whose health is zero, written after the end of the track. They are the same fractions as `tracks[].points[].sh` and `.hp`, but `sh` is not capped at 1
+(an overshield reads); in points, `sh` times 140 and `hp` times 90 (the full shield and body of a Spartan). A life is born full, so no row is written at its birth. The film writes the recharge
+at every frame, one notch (1/64) at a time: a *ramp* row, whose shield rises, health being equal, between two rows whose right-hand one recovers it to
+one notch, is dropped, except at the instant of a hit, just before it, at the death and as the last row of the life. `coverage.vitals`: `read`, births, unchanged, before the origin, after the
+end, without a track, after the death, ramps dropped, `published`, deaths. A client takes, for a life, the last row up to the frame.
 The totals of `shotStats[]` cover the whole film, while `damage[]` holds only the messages whose instant falls inside the frame axis (before frame 0
 or after the last frame a message counts in the totals and has no row). A weapon hit on the shooter himself (an area weapon) is neither a hit nor
 damage dealt: it is counted apart (`coverage.hits.selfHits`, `selfDamages`). The biped's vitality records are re-read on the lists the walk does not

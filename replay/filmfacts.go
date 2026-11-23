@@ -257,7 +257,7 @@ import (
 // brute, reserve ; [encodeMunitionsDelta]/[decodeMunitionsDelta]), dans l ordre du film. Elles etaient sorties du fichier faute
 // de lecteur (v15 et v18 les citent comme retirees) : elles y rentrent de nouveau, et l assemblage les lit
 // (`ammoReads[]`, `ammo_reads.go`) ; un fichier ecrit avant ne se relit pas (`SchemaDesFaits` 31 les refuse aussi). Le meme numero porte, au complement, le jeu d armes desire (`filmfacts_arme_tiree.go`) et, dans la section des lancers, le
-// handle du projectile de chaque lancer (`GrenadeThrow.HasLife`, `Life` : `bool8 has_life`, puis `slot` et `gen` s il est present).
+// handle du projectile de chaque lancer (`GrenadeThrow.HasLife`, `Life` : `bool8 has_life`, puis `slot` et `gen` s il est present). Il porte aussi, au complement, les changements de sante et de bouclier par vie (`FilmInputs.Vitals`, `filmfacts_vitalites.go`).
 const filmFactsMagic = "REPLAYINPUTS31\n"
 
 // ---------------------------------------------------------------------------
