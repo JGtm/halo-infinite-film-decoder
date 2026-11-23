@@ -70,10 +70,13 @@ type VehicleScan struct {
 	// Events sont les embarquements et les sorties de la liste d evenements des paquets delta.
 	// Absents = episodes d occupation bornes par le seul trou de position (repli mesure).
 	Events []types.VehicleEvent
-	// Aims sont les lectures de VISEE des bipedes qui ne repliquent PLUS leur position — celles
-	// des occupants, donc. Bande `ti=35` (les joueurs), PAS `ti=40` : la visee publiee sur un
-	// episode est celle de l HOMME a bord, jamais du chassis. Absentes = episodes sans serie de
-	// visee, le client retombe sur le cap du chassis (cf. vehicle_rides_aim.go).
+	// Aims sont les lectures de VISEE des bipedes dans des records SANS position : celles des occupants
+	// de vehicule, qui ne repliquent plus la leur, et celles des bipedes a pied dont la position se tait.
+	// LUES SUR TOUT FILM, vehicules ou non, et quelle que soit l issue de la lecture du calque. Bande
+	// `ti=35` (les joueurs), PAS `ti=40` : la visee publiee sur un episode est celle de l HOMME a
+	// bord, jamais du chassis. Absentes = episodes sans serie de visee (le client retombe sur le cap du
+	// chassis, cf. vehicle_rides_aim.go), tirs sans la visee des records sans position (direction du
+	// tir, shots_visee.go) et pleine cadence des vies sans elles (tracks_visees_seules.go).
 	Aims []grammar.BipedAim
 	// Deaths sont les MORTS ECRITES des entites `ti=40` : le composant `object-dead-state` lu par
 	// la marche des trames (`grammar.ScanMarcheDesTrames`), seule voie qui l atteigne — les
@@ -104,6 +107,8 @@ type VehicleScan struct {
 // `decodeFilmPadScan`. Un film sans `ti=40` aux images-cles (aucune bande) n est pas un film dont
 // les creations sont illisibles, et ni l un ni l autre n est un film dont le nuage de positions
 // manque. Le calque se tait entierement plutot que de publier des vehicules sans trajectoire.
+// Les visees sans position (`Aims`) ne sont taiees par aucune de ces pannes : elles se lisent sur tout
+// film (cf. `decodeFilmVehicleScanLecture`).
 //
 // HORS LIGNE — appelee par BuildFromFilm. Elle ne TOUCHE PAS le disque :
 // le film est deja charge et le contexte deja ouvert (lots 1 et 2 de PLAN_CUISSON_PERF), et

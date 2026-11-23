@@ -35,6 +35,9 @@ type ShotAimCoverage struct {
 	Track int `json:"track"`
 	// SameTick : parmi Track, celles lues dans le paquet meme du tir.
 	SameTick int `json:"sameTick"`
+	// SansPosition : parmi Track, celles lues dans un record SANS position (le tireur n y replique pas sa
+	// position : occupant de vehicule, ou position muette).
+	SansPosition int `json:"sansPosition"`
 	// Record : champ de visee du record de tir, faute de visee i21 tenable (repli
 	// `fallback.NomViseeDuTirLueDansLeRecord`).
 	Record int `json:"record"`
@@ -46,6 +49,8 @@ type ShotAimCoverage struct {
 type lectureVisee struct {
 	tUS  uint64
 	h, p float32
+	// seule : lue dans un record sans position.
+	seule bool
 }
 
 // viseurDesTirs pose la visee des tirs : les lectures i21 par slot, triees par instant, et la
@@ -70,7 +75,7 @@ func nouveauViseur(pos []grammar.BipedPosition, sansPosition []grammar.BipedAim,
 	}
 	for _, a := range sansPosition {
 		v.parSlot[a.Slot] = append(v.parSlot[a.Slot],
-			lectureVisee{tUS: a.TimestampUS, h: a.AimHeadingDeg(), p: a.AimPitchDeg()})
+			lectureVisee{tUS: a.TimestampUS, h: a.AimHeadingDeg(), p: a.AimPitchDeg(), seule: true})
 	}
 	for _, ls := range v.parSlot {
 		slices.SortStableFunc(ls, func(a, b lectureVisee) int { return cmp.Compare(a.tUS, b.tUS) })
@@ -85,6 +90,9 @@ func (v *viseurDesTirs) viser(s *Shot, e grammar.FireEvent, slot uint32) {
 		v.cov.Track++
 		if l.tUS == e.TimestampUS {
 			v.cov.SameTick++
+		}
+		if l.seule {
+			v.cov.SansPosition++
 		}
 		return
 	}
