@@ -10,7 +10,7 @@ package replay
 //
 // LA BOBINE : `minifilm_11de8353` (registre et seize images-cles reelles du film), en contexte de
 // cuisson (profil, carte, decoupage), lue par les PHASES DE PRODUCTION du balayage
-// ([filmScan.lireLesImagesCles], [filmScan.balayerInventaire]) ; les autres entrees (positions,
+// ([filmScan.lireLesImagesCles], [filmScan.publierLesImagesCles], [filmScan.balayerInventaire]) ; les autres entrees (positions,
 // tirs, morts) sont celles du fixture du MEME film, pour que les fiches aient des trajectoires ou se
 // poser. La capture des faits est celle de la cuisson ([versementDuBalayage], [faitsDuBalayage]).
 //
@@ -54,7 +54,7 @@ func TestLesImagesClesSurviventALaPublicationDepuisLesFaits(t *testing.T) {
 	fc := grammar.NewFilmContextForMap(film, opt.MapQuant, nil)
 	poserProfilPuisCarte(ctx, fc, b.Short8, opt)
 	s := &filmScan{ctx: ctx, matchID: b.Short8, film: film, fc: fc, opt: opt, in: relu.FilmInputs}
-	s.lireLesImagesCles()
+	s.publierLesImagesCles(s.lireLesImagesCles())
 	if s.errEtats != nil {
 		t.Fatalf("images-cles de la bobine : %v", s.errEtats)
 	}

@@ -54,9 +54,12 @@ import (
 // `film_scan.go` atteignait 512 lignes et `balayerProprietesTi13` en est sortie par DEPLACEMENT PUR.
 // `film_scan_equipement_porte.go` Y EST ENTRE LE 2026-10-14 (lot « equipement porte ») : `film_scan.go`
 // atteignait 513 lignes avec `balayerEquipementPorte`, qui vit a part.
+// `film_scan_positions.go`, `film_scan_portage.go` ET `film_scan_capacites.go` Y SONT ENTRES AVEC LA
+// COUPURE « LIRE / PUBLIER » DE LA CHAINE DES POSITIONS (item J6c du parallelisme) : `film_scan.go`
+// n y garde que les calques gardes, et leurs methodes `lire…` portent les `Scan*` que le garde compte.
 var fichiersDuBalayage = []string{"build_from_film.go", "film_scan.go", "film_scan_pont.go", "film_scan_mouvement.go",
 	"film_scan_naissances.go", "film_scan_ti13.go", "film_scan_images_cles.go", "film_scan_equipement_porte.go",
-	"film_scan_monde.go"}
+	"film_scan_monde.go", "film_scan_positions.go", "film_scan_portage.go", "film_scan_capacites.go"}
 
 // racineDuBalayage : la fonction par laquelle l'etage commence.
 const racineDuBalayage = "scanFilmInputs"
