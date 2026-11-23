@@ -60,3 +60,21 @@ func LireHandle(pay []byte, at int) types.LifeKey {
 
 // LireHandleDelta lit le handle d un record DELTA dont l en-tete commence au bit `p`.
 func LireHandleDelta(pay []byte, p int) types.LifeKey { return LireHandle(pay, p+prefixeDeltaBits) }
+
+// enTeteDeltaBits est la largeur de la tete d un record DELTA lue d un seul tenant : le prefixe, le
+// handle, puis les deux bits qui suivent le handle (bit de garde et porte du masque).
+const enTeteDeltaBits = prefixeDeltaBits + handleSlotBits + handleGenBits + 2
+
+// Places des bits de [enTeteDeltaBits], de la tete (poids fort) a la porte (poids faible).
+const (
+	teteDeltaPrefixe = uint64(1) << (enTeteDeltaBits - 1)
+	teteDeltaGarde   = uint64(1) << 1
+	teteDeltaPorte   = uint64(1)
+)
+
+// handleDeLaTeteDelta extrait le handle d une tete lue par [enTeteDeltaBits] : il rend celui que
+// [LireHandleDelta] lit a la meme position, tant que la tete tient dans le tampon.
+func handleDeLaTeteDelta(tete uint64) types.LifeKey {
+	h := uint32(tete>>2) & (1<<(handleSlotBits+handleGenBits) - 1) //nolint:gosec // 15 bits
+	return types.LifeKey{Slot: h >> handleGenBits, Gen: h & (1<<handleGenBits - 1)}
+}

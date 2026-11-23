@@ -225,14 +225,22 @@ func scanEquipRecoveryPacket(
 		return
 	}
 	total := len(pay) * 8
+	vies := viesDesFenetres(active)
 	// Lot J5.2 : generations vivantes du film, memorisees par le contexte ; DATEES a l instant du
 	// paquet (lot R2-bis) : un corps n est pas lu avant son record de creation.
 	gens := s.fc.GenerationsVivantesA(pk.TimestampUS)
 	for p := 0; p+bipedHeaderBits+bipedIndexBits <= total; p++ {
-		if uint32(source.BitsStricts(pay, p, 1)) != 1 {
+		// La tete (prefixe, handle, bit de garde, porte) se lit UNE fois : le prefixe et le bit de
+		// garde, qui ecartent la plupart des positions, se jugent avant tout handle. Chaque test de
+		// cette boucle est pur ; leur ordre ne change pas l ensemble des candidats.
+		tete := source.BitsStricts(pay, p, enTeteDeltaBits)
+		if tete&teteDeltaPrefixe == 0 || tete&teteDeltaGarde != 0 {
 			continue
 		}
-		h := LireHandleDelta(pay, p)
+		h := handleDeLaTeteDelta(tete)
+		if !vies.contient(h) {
+			continue
+		}
 		var w *equipRecoveryWindow
 		for _, cand := range active {
 			if cand.slot == h.Slot && cand.gen == h.Gen { // la VIE de la fenetre (lot J5.3)
@@ -240,12 +248,10 @@ func scanEquipRecoveryPacket(
 				break
 			}
 		}
-		if w == nil {
-			continue
-		}
 		// EN-TÊTE DE PRODUCTION INTACT (R2 §4) : génération vivante à l'instant du paquet (lot
-		// J5.2, datée au lot R2-bis ; la seule 1 avant) et bit 16 nul. Seule la PORTE du masque (bit 17) distingue les deux formes récupérables.
-		if !gens.Accepte(h) || uint32(source.BitsStricts(pay, p+16, 1)) != 0 {
+		// J5.2, datée au lot R2-bis ; la seule 1 avant) et bit 16 nul (jugé plus haut). Seule la
+		// PORTE du masque (bit 17) distingue les deux formes récupérables.
+		if !gens.Accepte(h) {
 			continue
 		}
 		counter, rank, ok := walkEquipRecoveryAt(s, pay, p, total, last)
@@ -257,9 +263,34 @@ func scanEquipRecoveryPacket(
 				Slot: h.Slot, Gen: h.Gen, Chunk: chunk, PacketIndex: pk.Index,
 				TimestampUS: pk.TimestampUS, Counter: counter, Rank: rank,
 			},
-			off: p, dense: uint32(source.BitsStricts(pay, p+17, 1)) == 1,
+			off: p, dense: tete&teteDeltaPorte != 0,
 		})
 	}
+}
+
+// viesActives est l ensemble des vies (slot, generation) des fenetres actives d un paquet : un test
+// d appartenance en un acces, qui ecarte sans parcourir les fenetres le handle d aucune d elles.
+type viesActives [1 << (handleSlotBits + handleGenBits - 6)]uint64
+
+// viesDesFenetres dresse l ensemble des vies des fenetres. Une vie hors de la plage d un handle
+// (slot sur plus de handleSlotBits bits, generation sur plus de handleGenBits) n y entre pas : aucun
+// handle lu ne peut la designer.
+func viesDesFenetres(wins []*equipRecoveryWindow) *viesActives {
+	var v viesActives
+	for _, w := range wins {
+		if w.slot >= 1<<handleSlotBits || w.gen >= 1<<handleGenBits {
+			continue
+		}
+		k := w.slot<<handleGenBits | w.gen
+		v[k>>6] |= 1 << (k & 63)
+	}
+	return &v
+}
+
+// contient dit si une fenetre active porte la vie du handle h.
+func (v *viesActives) contient(h types.LifeKey) bool {
+	k := h.Slot<<handleGenBits | h.Gen
+	return v[k>>6]&(1<<(k&63)) != 0
 }
 
 // walkEquipRecoveryAt tente les deux formes récupérables à la position p (en-tête déjà
