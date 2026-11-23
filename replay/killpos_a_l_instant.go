@@ -228,15 +228,15 @@ func dernierEchantillonAvant(tracks map[uint32]slotTrack, slots []uint32, tUS ui
 	var slot uint32
 	trouve, exAequo := false, false
 	for _, s := range slots {
-		pts := tracks[s].pts
-		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
-		for i > 0 && !pts[i-1].HasWorld {
+		tr := tracks[s]
+		i := sort.Search(tr.n(), func(k int) bool { return tr.ts(k) > tUS })
+		for i > 0 && !tr.pt(i-1).HasWorld {
 			i--
 		}
 		if i == 0 {
 			continue
 		}
-		p := pts[i-1]
+		p := tr.pt(i - 1)
 		switch {
 		case trouve && p.TimestampUS == best.TimestampUS:
 			exAequo = true
@@ -315,8 +315,8 @@ func (b bordDuFilm) etatPendantLeSilence(piste slotTrack, slot uint32, dernierUS
 
 // echantillonEntre dit que la piste porte un echantillon dans ]de, a].
 func (s slotTrack) echantillonEntre(de, a uint64) bool {
-	i := sort.Search(len(s.pts), func(k int) bool { return s.pts[k].TimestampUS > de })
-	return i < len(s.pts) && s.pts[i].TimestampUS <= a
+	i := sort.Search(s.n(), func(k int) bool { return s.ts(k) > de })
+	return i < s.n() && s.ts(i) <= a
 }
 
 // positionDuVehicule rend le lieu du vehicule `slot` a `tUS`, par l'echantillon a la tolerance, sinon

@@ -235,7 +235,7 @@ func aimDernierEchantillon(tracks map[uint32]slotTrack, slots []uint32, tMS int6
 	var best grammar.BipedPosition
 	found := false
 	for _, s := range slots {
-		for _, p := range tracks[s].pts {
+		for _, p := range tracks[s].pts() {
 			ms := int64(p.TimestampUS) / 1000
 			if ms > tMS || ms < tMS-aimWindowMS {
 				continue
@@ -259,7 +259,7 @@ func aimEchantillonProche(tracks map[uint32]slotTrack, slots []uint32,
 	bd := int64(aimWindowMS + 1)
 	found := false
 	for _, s := range slots {
-		for _, p := range tracks[s].pts {
+		for _, p := range tracks[s].pts() {
 			d := absI64(int64(p.TimestampUS)/1000 - tMS)
 			if d < bd {
 				bd, best, found = d, p, true

@@ -294,7 +294,7 @@ func shootersClaimingTwoBodies(claims map[uint32]map[int]int) map[int]bool {
 // pas un contrôle oublié.
 //
 // `from` EST LE DÉBUT DE LA VIE DÉSIGNÉE, PAS DU SLOT (correctif du 2026-09-06, constat P1-6).
-// `tracks[slot].pts[0]` est le premier point du slot TOUTES VIES CONFONDUES : sur un slot
+// le premier point de `tracks[slot]` est celui du slot TOUTES VIES CONFONDUES : sur un slot
 // recyclé, la terminalité se testait contre le début de la PREMIÈRE vie du slot, si bien qu'un
 // corps nommé du tireur s'achevant ENTRE les deux vies faisait échouer « tous ses corps connus
 // s'achèvent avant » — alors qu'il s'achève bien avant la vie candidate. La vie désignée est
@@ -302,7 +302,7 @@ func shootersClaimingTwoBodies(claims map[uint32]map[int]int) map[int]bool {
 // slot, qui est le comportement d'avant : on ne resserre que ce qui est désigné.
 func bodyExtendsShooter(tracks map[uint32]slotTrack, owner map[uint32]int, slot uint32,
 	from uint64, pi int) bool {
-	if len(tracks[slot].pts) == 0 {
+	if tracks[slot].n() == 0 {
 		return false
 	}
 	anchored := false
@@ -310,11 +310,11 @@ func bodyExtendsShooter(tracks map[uint32]slotTrack, owner map[uint32]int, slot 
 		if p != pi || s == slot {
 			continue
 		}
-		pts := tracks[s].pts
-		if len(pts) == 0 {
+		tr := tracks[s]
+		if tr.n() == 0 {
 			continue
 		}
-		if pts[len(pts)-1].TimestampUS >= from {
+		if tr.ts(tr.n()-1) >= from {
 			return false // chevauchement, ou corps postérieur : le candidat n'est pas terminal
 		}
 		anchored = true
@@ -331,8 +331,8 @@ func lifeStartOf(lives []lifeSpan, life int, tracks map[uint32]slotTrack, slot u
 	if life >= 0 && life < len(lives) && lives[life].slot == slot {
 		return uint64(lives[life].from)
 	}
-	if pts := tracks[slot].pts; len(pts) > 0 {
-		return pts[0].TimestampUS
+	if tr := tracks[slot]; tr.n() > 0 {
+		return tr.ts(0)
 	}
 	return 0
 }

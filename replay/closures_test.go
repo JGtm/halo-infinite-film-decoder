@@ -471,7 +471,7 @@ func TestFermetureBNeTranchePasQuandDeuxMortsDesignentLeMemeSlot(t *testing.T) {
 // TestFermetureBTesteLaVieDesigneeEtPasLeSlotEntier — LE CORRECTIF P1-6, côté fermeture B
 // (audit du 2026-09-06).
 //
-// `overlapsNamedLife` bornait son garde-fou sur `tracks[slot].pts`, le nuage COMPLET du slot,
+// `overlapsNamedLife` bornait son garde-fou sur `tracks[slot].pts()`, le nuage COMPLET du slot,
 // toutes vies confondues. Sur un slot recyclé dont deux vies sont éloignées, l'intervalle testé
 // couvrait le trou qui les sépare : n'importe quelle vie nommée du joueur candidat y tombait,
 // la déduction sortait `refused`, `owner[slot]` n'était pas posé — et tous les tirs du slot
@@ -536,7 +536,7 @@ func TestFermetureBRefuseToujoursUnVraiRecouvrement(t *testing.T) {
 // TestFermetureADateLaTerminaliteSurLaVieDesignee — LE CORRECTIF P1-6, côté fermeture A
 // (audit du 2026-09-06).
 //
-// `bodyExtendsShooter` prenait `from` sur `tracks[slot].pts[0]`, le premier point du slot
+// `bodyExtendsShooter` prenait `from` sur `tracks[slot].pts()[0]`, le premier point du slot
 // TOUTES VIES CONFONDUES. Sur un slot recyclé, la terminalité se testait donc contre le début
 // de la PREMIÈRE vie du slot : un corps nommé du tireur s'achevant ENTRE les deux vies faisait
 // échouer « tous ses corps connus s'achèvent avant », alors qu'il s'achève bien avant la vie

@@ -118,6 +118,11 @@ type IdentityInput struct {
 	// ([niveauDePublication]). NON EXPORTE : seul l'assemblage le pose ; faux, sa valeur zero, est
 	// celui de tout autre registre (cuisson, collecteur).
 	documentInterne bool
+	// pistes : l index par slot de `Positions`, deja construit par l assemblage quand il le partage
+	// entre ses passes (cf. [assemblage.pistes]). NON EXPORTE ET FACULTATIF : nil, tout autre appelant
+	// laisse le registre indexer `Positions` lui-meme. Il n est lu que si `Positions` est la tranche
+	// sur laquelle il a ete construit, et jamais modifie.
+	pistes map[uint32]slotTrack
 	// indexDesChunks : index des chunks hors table (index -> xuid), pose par [BuildIdentityRegistry]
 	// apres la composition de la table effective (identity_registry_index_des_chunks.go).
 	indexDesChunks map[int]uint64

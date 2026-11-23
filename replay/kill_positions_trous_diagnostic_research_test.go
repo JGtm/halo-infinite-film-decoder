@@ -57,7 +57,7 @@ func (c *contexteFilm) diagnostiquer(xuid uint64, tUS uint64, estTueur bool, mor
 	var aDernier, aProchain, aAvDernier bool
 	var siegeDernier uint32
 	for _, s := range sieges {
-		pts := c.pistes[s].pts
+		pts := c.pistes[s].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
 		if i > 0 && (!aDernier || pts[i-1].TimestampUS > dernier.TimestampUS) {
 			dernier, aDernier, siegeDernier = pts[i-1], true, s
@@ -160,7 +160,7 @@ func (c *contexteFilm) finDeVie(sieges []uint32, tUS uint64) (int64, bool) {
 	var best uint64
 	ok := false
 	for _, s := range sieges {
-		pts := c.pistes[s].pts
+		pts := c.pistes[s].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS+2_000_000 })
 		if i > 0 && pts[i-1].TimestampUS+2_000_000 >= tUS && (!ok || pts[i-1].TimestampUS > best) {
 			best, ok = pts[i-1].TimestampUS, true

@@ -43,7 +43,7 @@ func (a *assemblage) poserLesPistes() {
 	// positions sortent avant le registre (cf. pistes_sans_creation.go).
 	a.reg = a.construireLeRegistre(func(fb *fallback.Compteur) IdentityInput {
 		return IdentityInput{
-			Positions: a.sorted, BipedCreations: a.opt.BipedCreations,
+			Positions: a.sorted, pistes: a.pistes(), BipedCreations: a.opt.BipedCreations,
 			Deaths: a.opt.Deaths, PlayerIndices: a.opt.PlayerIndices, FilmTable: a.opt.FilmTable,
 			Bots: a.opt.Bots, Entities: a.opt.PlayerEntities, Presences: a.opt.Presences, Fire: refs, RosterXUIDs: a.opt.RosterXUIDs,
 			Participants: a.opt.Participants,
@@ -198,7 +198,7 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	// vehicule cesse de repliquer la sienne) ; le champ du record ne sert qu en repli, compte.
 	var orphelins []orphanShot
 	viseur := nouveauViseur(a.sorted, a.opt.Vehicles.Aims, a.opt.Fallbacks)
-	shots, orphelins, a.shotCov = buildShots(a.sorted, fire, a.horloge(), a.reg.Occupants(), viseur)
+	shots, orphelins, a.shotCov = buildShots(a.pistes(), fire, a.horloge(), a.reg.Occupants(), viseur)
 	a.shotOrphans = orphelinsDesTirs{tirs: orphelins, viseur: viseur}
 	a.doc.Shots = keepShotsOfPublishedTracks(shots, a.doc.Tracks)
 	a.shotCov.Unpublished = countUnpublished(len(shots), len(a.doc.Shots))
@@ -236,7 +236,7 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	}
 
 	var gren []Grenade
-	gren, a.grenCov = buildGrenades(a.sorted, a.opt.Grenades, a.origin, a.step, a.reg.Occupants(), a.opt.Projectiles, pubProjByRaw)
+	gren, a.grenCov = buildGrenades(a.pistes(), a.opt.Grenades, a.origin, a.step, a.reg.Occupants(), a.opt.Projectiles, pubProjByRaw)
 	a.doc.Grenades = keepGrenadesOfPublishedTracks(gren, a.doc.Tracks)
 	a.grenCov.Unpublished = countUnpublished(len(gren), len(a.doc.Grenades))
 	a.grenCov.Attached = len(a.doc.Grenades)

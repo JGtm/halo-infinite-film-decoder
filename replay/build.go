@@ -138,8 +138,11 @@ type assemblage struct {
 	doc      ReplayDocument
 	interval int
 	sorted   []grammar.BipedPosition
-	origin   uint64
-	step     uint64
+	// pistesSrc et pistesIdx : le dernier index par slot de `sorted` (cf. [assemblage.pistes]).
+	pistesSrc []grammar.BipedPosition
+	pistesIdx map[uint32]slotTrack
+	origin    uint64
+	step      uint64
 	// lastUS est l'instant (microsecondes du film) de la DERNIERE position : la fin de l'axe, que la grille
 	// arrondit a un multiple du pas. Ce qui se compare a la fin du rejeu se compare a lui.
 	lastUS uint64
@@ -254,4 +257,18 @@ func keepShotsOfPublishedTracks(shots []Shot, tracks []Track) []Shot {
 func frameSpan(sorted []grammar.BipedPosition, origin, step uint64) int {
 	last := sorted[len(sorted)-1].TimestampUS
 	return int((last-origin)/step) + 1
+}
+
+// pistes rend l'index par slot de `a.sorted`, construit UNE fois et partage entre les passes qui le
+// demandent (registre d'identite, tirs, lancers) : chacune en faisait sa propre copie des positions.
+//
+// CONTRAT : l'index est en LECTURE SEULE pour tous ses appelants (aucun ne trie ni n'ecrit dans une
+// piste). Il se rebatit quand `a.sorted` change de tranche (la porte des positions, l'ecart des
+// slots sans creation) : la tranche memorisee se compare par son premier element et sa longueur.
+func (a *assemblage) pistes() map[uint32]slotTrack {
+	if a.pistesIdx == nil || len(a.pistesSrc) != len(a.sorted) ||
+		(len(a.sorted) > 0 && &a.pistesSrc[0] != &a.sorted[0]) {
+		a.pistesSrc, a.pistesIdx = a.sorted, indexBySlot(a.sorted)
+	}
+	return a.pistesIdx
 }

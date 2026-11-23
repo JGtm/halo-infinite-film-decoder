@@ -89,7 +89,7 @@ type Grenade struct {
 // `pubProjByRaw` traduit l'index BRUT d'une piste de projectile (rang dans `proj`) vers son
 // index PUBLIÉ (cf. buildProjectiles) : c'est lui qui alimente Grenade.Proj. Nil = aucun
 // projectile publié, les lancers sortent sans lien — jamais un index qui ne pointe rien.
-func buildGrenades(pos []grammar.BipedPosition, throws []grammar.GrenadeThrow,
+func buildGrenades(tracks map[uint32]slotTrack, throws []grammar.GrenadeThrow,
 	origin, step uint64, occ occupantsDesSlots, proj []types.ProjectileTrack,
 	pubProjByRaw map[int]int) ([]Grenade, LayerCoverage) {
 	cov := LayerCoverage{Available: len(throws)}
@@ -97,7 +97,6 @@ func buildGrenades(pos []grammar.BipedPosition, throws []grammar.GrenadeThrow,
 		return nil, cov
 	}
 	births := projectileBirths(proj)
-	tracks := indexBySlot(pos)
 	var out []Grenade
 	for _, g := range throws {
 		rank, known := g.Rank()

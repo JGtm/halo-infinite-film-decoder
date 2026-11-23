@@ -71,13 +71,13 @@ func buildLifeSpans(tracks map[uint32]slotTrack) []lifeSpan {
 	slices.Sort(slots)
 	var out []lifeSpan
 	for _, s := range slots {
-		pts := tracks[s].pts
-		if len(pts) == 0 {
+		tr := tracks[s]
+		if tr.n() == 0 {
 			continue
 		}
-		start, last := int64(pts[0].TimestampUS), int64(pts[0].TimestampUS)
-		for _, p := range pts[1:] {
-			t := int64(p.TimestampUS)
+		start, last := int64(tr.ts(0)), int64(tr.ts(0))
+		for i := 1; i < tr.n(); i++ {
+			t := int64(tr.ts(i))
 			if t-last > lifeGapUS {
 				// TROU AU-DELÀ DU SEUIL : la vie se ferme ici. C'est la cause STRUCTURELLE,
 				// que le nommage écrasera s'il sait mieux (une mort, une fermeture).

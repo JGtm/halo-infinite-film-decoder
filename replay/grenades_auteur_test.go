@@ -41,7 +41,7 @@ func TestLancerUneSeuleNaissanceEtUnAuteurConnu(t *testing.T) {
 		{TimestampUS: 2_000_000, FilmIndex: 3, TypeID: grammar.GrenadeFragmentation},
 	}
 	proj := []types.ProjectileTrack{grenNaissance(2048, 2_050_000, 10.3, 10.2)}
-	gren, cov := buildGrenades(pos, throws, 1_000_000, 100_000,
+	gren, cov := buildGrenades(indexBySlot(pos), throws, 1_000_000, 100_000,
 		occupantsPlats(map[uint32]int{1024: 3}), proj, nil)
 	if len(gren) != 1 {
 		t.Fatalf("un lancer attendu, obtenu %d : %+v", len(gren), gren)
@@ -77,7 +77,7 @@ func TestDeuxLanceursDansLaMemeFenetreRecoiventChacunLaLeur(t *testing.T) {
 		grenNaissance(11, 2_030_000, 40.4, 0.2),  // celle du joueur 7 (slot 2048)
 		grenNaissance(12, 2_040_000, -19.7, 0.1), // celle du joueur 3 (slot 1024)
 	}
-	gren, _ := buildGrenades(pos, throws, 1_000_000, 100_000,
+	gren, _ := buildGrenades(indexBySlot(pos), throws, 1_000_000, 100_000,
 		occupantsPlats(map[uint32]int{1024: 3, 2048: 7}), proj, nil)
 	if len(gren) != 2 {
 		t.Fatalf("deux lancers attendus, obtenu %d : %+v", len(gren), gren)
@@ -103,7 +103,7 @@ func TestNaissanceTropLoinDeSonAuteurReplieSurLeBiped(t *testing.T) {
 		{TimestampUS: 2_000_000, FilmIndex: 3, TypeID: grammar.GrenadeFragmentation},
 	}
 	proj := []types.ProjectileTrack{grenNaissance(2048, 2_050_000, 10.2, 41.9)}
-	gren, _ := buildGrenades(pos, throws, 1_000_000, 100_000,
+	gren, _ := buildGrenades(indexBySlot(pos), throws, 1_000_000, 100_000,
 		occupantsPlats(map[uint32]int{1024: 3}), proj, nil)
 	if len(gren) != 1 {
 		t.Fatalf("un lancer attendu (repli biped), obtenu %d : %+v", len(gren), gren)
@@ -130,7 +130,7 @@ func TestSansAuteurDeuxCandidatesSAbstient(t *testing.T) {
 		grenNaissance(11, 2_030_000, 40.4, 0.2),
 		grenNaissance(12, 2_040_000, -19.7, 0.1),
 	}
-	gren, cov := buildGrenades(nil, throws, 1_000_000, 100_000, occupantsPlats(nil), proj, nil)
+	gren, cov := buildGrenades(indexBySlot(nil), throws, 1_000_000, 100_000, occupantsPlats(nil), proj, nil)
 	if len(gren) != 0 {
 		t.Fatalf("sans auteur et avec deux candidates, le lancer ne doit PAS etre publie : %+v", gren)
 	}

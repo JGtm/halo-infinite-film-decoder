@@ -439,11 +439,11 @@ func v3dOccupantCourant(v v1cVie, ctx v3dCtx, finUS uint64) (uint32, bool, bool)
 // v3dFinDuTrou rend l'instant du premier echantillon de position APRES `debut` : la fermeture
 // du trou. ok=false quand le bipede ne re-emet jamais (trou ouvert jusqu'a la fin du film).
 func v3dFinDuTrou(tr slotTrack, debut uint64) (uint64, bool) {
-	i := sort.Search(len(tr.pts), func(k int) bool { return tr.pts[k].TimestampUS > debut })
-	if i >= len(tr.pts) {
+	i := sort.Search(tr.n(), func(k int) bool { return tr.ts(k) > debut })
+	if i >= tr.n() {
 		return 0, false
 	}
-	return tr.pts[i].TimestampUS, true
+	return tr.ts(i), true
 }
 
 // v3dSortieEntre dit si une sortie de ce bipede tombe dans ]debut, fin].

@@ -270,7 +270,7 @@ func TestIndexBySlot_ExAequoDansLOrdreDuFilm(t *testing.T) {
 		cles[i] = i % 3
 		in[i] = grammar.BipedPosition{Slot: 2, TimestampUS: uint64(i % 3), X: float32(i)}
 	}
-	pts := indexBySlot(in)[2].pts
+	pts := indexBySlot(in)[2].pts()
 	got := make([]int, len(pts))
 	for i, p := range pts {
 		got[i] = int(p.X)

@@ -158,7 +158,7 @@ func (b *trouBilan) mesurerCadence(c *contexteFilm) {
 		b.dureeChunk = append(b.dureeChunk, int64(bo[1]-bo[0])/1000)
 	}
 	for _, s := range c.sieges {
-		pts := c.pistes[s].pts
+		pts := c.pistes[s].pts()
 		for i := 1; i < len(pts); i++ {
 			dt := int64(pts[i].TimestampUS-pts[i-1].TimestampUS) / 1000
 			if dt <= 0 {

@@ -62,7 +62,7 @@ func (c *contexteFilm) aBordLu(slot uint32, tUS uint64) string {
 	if !derniere.Attached {
 		return "lecture-libre"
 	}
-	pts := c.pistes[slot].pts
+	pts := c.pistes[slot].pts()
 	i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > derniere.TimestampUS })
 	if i < len(pts) && pts[i].TimestampUS <= tUS {
 		return "retour-au-flux-avant"
@@ -76,7 +76,7 @@ func (c *contexteFilm) aBordLu(slot uint32, tUS uint64) string {
 	if len(v) == 0 {
 		return "a-bord:parent-sans-echantillon"
 	}
-	tr := slotTrack{pts: v}
+	tr := pisteTrieeDeTest(v)
 	if _, d := tr.at(tUS); d <= killPosToleranceUS {
 		return "a-bord:parent-a-120ms"
 	}
@@ -121,7 +121,7 @@ func (c *contexteFilm) verdictOccupation(xuid uint64, tUS uint64) string {
 	best := ""
 	var bestT uint64
 	for _, s := range sieges {
-		pts := c.pistes[s].pts
+		pts := c.pistes[s].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
 		if i > 0 && (best == "" || pts[i-1].TimestampUS > bestT) {
 			bestT, best = pts[i-1].TimestampUS, c.aBordLu(s, tUS)

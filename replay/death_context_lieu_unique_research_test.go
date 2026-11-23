@@ -306,7 +306,7 @@ func detailDePerte(l lectureALInstant, reg IdentityRegistry, sieges []uint32, j 
 	fmt.Fprintf(&b, "victime %d a %d ms (film %d us) :", j.VictimeXUID, j.TempsMS, tUS)
 	for _, s := range siegesDe(reg, sieges, j.VictimeXUID, tUS) {
 		p, d := l.tracks[s].at(tUS)
-		fmt.Fprintf(&b, " [siege %d proche a %d us (%v, monde=%v, %.1f %.1f %.1f, %d points)", s, d, int64(p.TimestampUS)-int64(tUS), p.HasWorld, p.X, p.Y, p.Z, len(l.tracks[s].pts))
+		fmt.Fprintf(&b, " [siege %d proche a %d us (%v, monde=%v, %.1f %.1f %.1f, %d points)", s, d, int64(p.TimestampUS)-int64(tUS), p.HasWorld, p.X, p.Y, p.Z, len(l.tracks[s].pts()))
 		for _, o := range l.bord.occupation[s] {
 			if o.TimestampUS+5_000_000 >= tUS && o.TimestampUS <= tUS+1_000_000 {
 				fmt.Fprintf(&b, " occ@%d attache=%v parent=%d", int64(o.TimestampUS)-int64(tUS), o.Attached, o.ParentSlot)
@@ -328,7 +328,7 @@ func dernierQuantumRepete(l lectureALInstant, reg IdentityRegistry, sieges []uin
 	if !ok {
 		return false
 	}
-	pts := l.tracks[slot].pts
+	pts := l.tracks[slot].pts()
 	i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
 	return i >= 2 && pts[i-1].Q == pts[i-2].Q
 }
