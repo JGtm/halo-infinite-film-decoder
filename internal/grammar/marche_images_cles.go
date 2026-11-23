@@ -150,6 +150,26 @@ func (m *marcheDesImagesCles) parcourir(rendre func(*lecture.Paquet) bool) int {
 	return lus
 }
 
+// payloadsDesImagesCles liste, dans l'ordre du flux, les payloads non vides des paquets d'image-cle de
+// tous les chunks de donnees du film. Les tranches sont celles du film (la cle du memo en est
+// l'adresse). A appeler depuis le fil qui possede le contexte : le releve des chunks y est paresseux.
+func (c *FilmContext) payloadsDesImagesCles() [][]byte {
+	var out [][]byte
+	for _, num := range c.ChunkNumbers() {
+		data, pks, ok := c.ChunkAt(num)
+		if !ok {
+			continue
+		}
+		for _, pk := range pks {
+			if pk.Type != PacketTypeKeyframe || pk.Size <= 0 || pk.Start < 0 || pk.Start+pk.Size > len(data) {
+				continue
+			}
+			out = append(out, pk.Payload(data))
+		}
+	}
+	return out
+}
+
 // marcherLePaquet range UN paquet d image-cle dans l arene : ses ancres, dans l ordre des bits, et
 // l etat complet de chacune dont le corps est a parcourir.
 func (m *marcheDesImagesCles) marcherLePaquet(chunk int, pk FilmPacket, data []byte) {

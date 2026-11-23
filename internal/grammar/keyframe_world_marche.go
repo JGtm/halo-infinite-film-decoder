@@ -96,8 +96,7 @@ func (m MarcheDImageCle) Marcher(pay []byte) MarcheDePayload {
 			return mp.copie()
 		}
 	}
-	mp := marcherLaTable(&kfRecherche{buf: pay, total: len(pay) * 8, maxWin: kfScanFenetreBits,
-		preuve: m.preuve})
+	mp := calculerLaMarche(pay, m.preuve)
 	if mem != nil {
 		mem.mu.Lock()
 		mem.parPayload[cle] = mp
@@ -105,6 +104,28 @@ func (m MarcheDImageCle) Marcher(pay []byte) MarcheDePayload {
 		return mp.copie()
 	}
 	return mp
+}
+
+// calculerLaMarche est la marche d'ancres d'un payload sous une preuve : une fonction pure de ses
+// deux arguments, qui n'ecrit rien hors de ses locales (ni memo, ni contexte). Elle est appelee par
+// [MarcheDImageCle.Marcher] et, sur plusieurs fils, par le pre-passage ([tacheDesAncres]) ; la
+// preuve n'y est que lue.
+func calculerLaMarche(pay []byte, preuve *PreuveDImageCle) MarcheDePayload {
+	return marcherLaTable(&kfRecherche{buf: pay, total: len(pay) * 8, maxWin: kfScanFenetreBits, preuve: preuve})
+}
+
+// poserSiAbsent range la marche de `pay` dans le memo si le payload n'y est pas deja (un payload
+// vide n'est jamais memorise). Le memo garde la tranche `mp` telle quelle : l'appelant la lui cede.
+func (mem *memoireDesMarches) poserSiAbsent(pay []byte, mp MarcheDePayload) {
+	if mem == nil || len(pay) == 0 {
+		return
+	}
+	cle := clePayload{debut: &pay[0], n: len(pay)}
+	mem.mu.Lock()
+	if _, ok := mem.parPayload[cle]; !ok {
+		mem.parPayload[cle] = mp
+	}
+	mem.mu.Unlock()
 }
 
 // WalkKeyframeWorld porte la logique durcie de walkOffline (cmd/tmp_kfworldpos) : il parcourt
