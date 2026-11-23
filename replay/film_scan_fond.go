@@ -35,7 +35,7 @@ package replay
 // appelant au moment ou il attend la valeur que la tache n a pas rendue (ou a la jointure) ; elle
 // n est rejouee qu une fois.
 //
-// CE FICHIER PORTE L UNIQUE INSTRUCTION `go` DE `replay` (garde-rail :
+// CE FICHIER PORTE L UNE DES DEUX INSTRUCTIONS `go` DE `replay` (l autre : film_scan_voies.go ; garde-rail :
 // `depottest.TestUneSeuleSourceDeGoroutines`). Il n est pas dans `fichiersDuBalayage` : ses lectures
 // sont des COPIES de celles des consommateurs, et le garde de l ordre des etapes les compterait deux
 // fois (cf. `TestLesLecturesDuFondSontCellesDesConsommateurs`).

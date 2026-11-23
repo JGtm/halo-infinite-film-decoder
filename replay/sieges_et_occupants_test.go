@@ -3,9 +3,12 @@ package replay
 // sieges_et_occupants_test.go — LE SYNC ET LA CUISSON NOMMENT AVEC LE MEME REGISTRE.
 //
 //	SO-UNIQUE   la table des sieges du film et les occupants par entite ne se lisent, en production,
-//	            que dans [lireSiegesEtOccupantsLecture], et ses DEUX appelants sont la lecture de l'etage
-//	            de balayage de la cuisson ([filmScan.lireSieges]) et [lireSiegesEtOccupants], que le
-//	            document interne du sync est seul a appeler ;
+//	            que dans [lireSiegesEtOccupantsLecture] (la table) et [lireLesOccupants] (les equipes
+//	            et le tableau des scores) ; [lireSiegesEtOccupantsLecture] a DEUX appelants, la lecture
+//	            de l'etage de balayage de la cuisson ([filmScan.lireSieges]) et [lireSiegesEtOccupants],
+//	            que le document interne du sync est seul a appeler ; [lireLesOccupants] en a deux, elle
+//	            aussi : [lireSiegesEtOccupantsLecture] et la voie des sieges de la cuisson a plusieurs
+//	            fils ([lancerLaVoieDesSieges]), qui lit le meme registre sur son contexte derive ;
 //	SO-OPTIONS  le document interne pose les quatre lectures dans les options de l'assemblage — celles
 //	            que la cuisson y pose par `FilmInputs.applyTo`.
 //
@@ -26,6 +29,10 @@ import (
 
 // lecturesDuNommage : les trois lectures du film que [lireSiegesEtOccupantsLecture] est seule a appeler.
 var lecturesDuNommage = []string{"ScanFilmPlayerTable", "ScanPlayerTeams", "ScanRosterListings"}
+
+// lecteurAutorise : la fonction qui appelle chacune de ces lectures, et la seule.
+var lecteurAutorise = map[string]string{"ScanFilmPlayerTable": "lireSiegesEtOccupantsLecture",
+	"ScanPlayerTeams": "lireLesOccupants", "ScanRosterListings": "lireSiegesEtOccupantsLecture"}
 
 // appelsParFonction rend, pour chaque fonction de production du paquet, les noms simples qu'elle
 // appelle.
@@ -68,13 +75,16 @@ func appelsParFonction(t *testing.T) map[string][]string {
 // `grammar.ScanPlayerTeams` dans la garde du drapeau du sync ; lire la table du film a part dans
 // `lireSieges` ; ne plus appeler [lireSiegesEtOccupants] depuis `DocumentInterne`.
 func TestLeSyncEtLaCuissonLisentLesMemesSiegesEtOccupants(t *testing.T) {
-	var appelantsDeLaLecture, appelantsDuSync []string
+	var appelantsDeLaLecture, appelantsDuSync, appelantsDesOccupants []string
 	for fn, appels := range appelsParFonction(t) {
 		for _, lecture := range lecturesDuNommage {
-			if fn != "lireSiegesEtOccupantsLecture" && slices.Contains(appels, lecture) {
-				t.Errorf("%s appelle %s hors de lireSiegesEtOccupantsLecture : le sync et la cuisson ne "+
-					"liraient plus le meme registre", fn, lecture)
+			if fn != lecteurAutorise[lecture] && slices.Contains(appels, lecture) {
+				t.Errorf("%s appelle %s hors de %s : le sync et la cuisson ne "+
+					"liraient plus le meme registre", fn, lecture, lecteurAutorise[lecture])
 			}
+		}
+		if slices.Contains(appels, "lireLesOccupants") {
+			appelantsDesOccupants = append(appelantsDesOccupants, fn)
 		}
 		if slices.Contains(appels, "lireSiegesEtOccupantsLecture") {
 			appelantsDeLaLecture = append(appelantsDeLaLecture, fn)
@@ -85,6 +95,11 @@ func TestLeSyncEtLaCuissonLisentLesMemesSiegesEtOccupants(t *testing.T) {
 	}
 	slices.Sort(appelantsDeLaLecture)
 	slices.Sort(appelantsDuSync)
+	slices.Sort(appelantsDesOccupants)
+	if want := []string{"lancerLaVoieDesSieges", "lireSiegesEtOccupantsLecture"}; !slices.Equal(appelantsDesOccupants, want) {
+		t.Errorf("appelants de lireLesOccupants = %v, attendu %v (lecture complete et voie des sieges)",
+			appelantsDesOccupants, want)
+	}
 	if want := []string{"lireSieges", "lireSiegesEtOccupants"}; !slices.Equal(appelantsDeLaLecture, want) {
 		t.Errorf("appelants de lireSiegesEtOccupantsLecture = %v, attendu %v (cuisson et composition du sync)",
 			appelantsDeLaLecture, want)

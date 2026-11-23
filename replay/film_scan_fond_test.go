@@ -221,6 +221,8 @@ func TestVoieAUnFilAucuneGoroutine(t *testing.T) {
 	if !goroutinesRetombees(avant) {
 		t.Errorf("%d goroutines avant, %d apres le balayage a 4 fils", avant, runtime.NumGoroutine())
 	}
+	// Les voies du balayage (film_scan_voies.go) : meme exigence.
+	voiesAUnFilAucuneGoroutine(t)
 }
 
 // TestVoiePaniqueRelayee (VOIE-PANIQUE) : la panique du roster, levee dans la tache, est rejouee telle
@@ -286,7 +288,7 @@ func TestLesLecturesDuFondSontCellesDesConsommateurs(t *testing.T) {
 		}
 	}
 
-	// L UNIQUE `go` DE REPLAY : dans le fichier de fond, une fois.
+	// LES `go` DE REPLAY : un dans le fichier de fond, un dans celui des voies.
 	entrees, err := os.ReadDir(".")
 	if err != nil {
 		t.Fatal(err)
@@ -309,7 +311,7 @@ func TestLesLecturesDuFondSontCellesDesConsommateurs(t *testing.T) {
 			return true
 		})
 	}
-	if want := []string{"film_scan_fond.go"}; !slices.Equal(gos, want) {
+	if want := []string{"film_scan_fond.go", "film_scan_voies.go"}; !slices.Equal(gos, want) {
 		t.Errorf("instructions `go` de replay dans %v, attendu %v", gos, want)
 	}
 	if slices.Contains(fichiersDuBalayage, "film_scan_fond.go") {

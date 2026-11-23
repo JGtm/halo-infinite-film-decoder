@@ -35,8 +35,18 @@ func (s *filmScan) balayerMonde() {
 // tete de paquet, pas dans les records — un balayage separe, sans verrou (il ne touche aucun etat
 // global de decodage). Le maintien est borne : au-dela, on cesse d'affirmer plutot que de prolonger
 // une entree dont la sortie n'a pas ete lue (cf. grammar.ZoomStateAt).
+//
+// A plus d un fil, la voie du monde l a deja lue (film_scan_voie_monde.go) : elle est attendue ici.
 func (s *filmScan) lireLunette() []grammar.ZoomEvent {
-	return grammar.ScanZoomEvents(s.fc)
+	if ev, ok := s.voies.lunette(); ok {
+		return ev
+	}
+	return lireLaLunette(s.fc)
+}
+
+// lireLaLunette est la lecture de la lunette sur un contexte, que la chaine et la voie du monde emploient.
+func lireLaLunette(fc *grammar.FilmContext) []grammar.ZoomEvent {
+	return grammar.ScanZoomEvents(fc)
 }
 
 // publierLunette pose les bascules de lunette et observe l'etape `zoomEvents`.
@@ -51,7 +61,11 @@ func (s *filmScan) publierLunette(ev []grammar.ZoomEvent) {
 
 // lirePoses lit les POSES d'equipement : records de CREATION de l'archetype 37, sur la MEME horloge
 // (cf. equipment_placements.go).
+// A plus d un fil, la voie du monde l a deja lue : elle est attendue ici.
 func (s *filmScan) lirePoses() lecturePoses {
+	if lu, ok := s.voies.poses(); ok {
+		return lu
+	}
 	return decodeFilmPlacementsLecture(s.fc, &s.world)
 }
 
@@ -68,6 +82,9 @@ func (s *filmScan) publierPoses(lu lecturePoses) {
 // decodage — elle ne touche aucun global de filmdec — et sans cout de chargement : le contexte du film
 // est deja ouvert.
 func (s *filmScan) lirePiecesEngendrees() lectureEvenementsPiece {
+	if lu, ok := s.voies.pieces(); ok {
+		return lu
+	}
 	return decodeFilmSpawnEventsLecture(s.fc)
 }
 
@@ -80,7 +97,13 @@ func (s *filmScan) publierPiecesEngendrees(lu lectureEvenementsPiece) {
 
 // lireSocles lit les SOCLES : archetypes 42 (armes) et 37 (power-ups), sur la MEME horloge, AUX LARGEURS
 // MPP que la calibration des POSES vient de mesurer sur ce film (cf. build_ground_weapons.go).
+//
+// A plus d un fil, la voie du monde les a lus aux memes largeurs (celles de ses poses) : `mpp` n est lu
+// qu en serie.
 func (s *filmScan) lireSocles(mpp profile.MPPWidths) lecturePads {
+	if lu, ok := s.voies.socles(); ok {
+		return lu
+	}
 	return decodeFilmPadScansLecture(s.fc, &s.world, mpp)
 }
 
@@ -94,7 +117,11 @@ func (s *filmScan) publierSocles(lu lecturePads) {
 // lireVehicules lit les VEHICULES : archetype 40, sur la MEME horloge et AUX MEMES largeurs MPP que les
 // socles — le mot d'identite du chassis se lit derriere les memes deux champs de largeur variable
 // (cf. build_vehicles.go). CINQ lectures du film deja charge, aucune E/S.
+// A plus d un fil, la voie du monde les a lus ; `mpp` n est lu qu en serie.
 func (s *filmScan) lireVehicules(mpp profile.MPPWidths) lectureVehicules {
+	if lu, ok := s.voies.vehicules(); ok {
+		return lu
+	}
 	return decodeFilmVehicleScanLecture(s.fc, &s.world, mpp)
 }
 

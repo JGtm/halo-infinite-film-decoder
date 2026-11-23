@@ -23,6 +23,7 @@ import (
 	"log/slog"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
@@ -47,8 +48,15 @@ type siegesEtOccupants struct {
 // la table du film lue aux listes de la session avec l erreur de sa lecture, les equipes et les
 // occupants par entite, les entrees du tableau des scores.
 type lectureSieges struct {
-	table        grammar.TableDuFilmAuxListages
-	errTable     error
+	table    grammar.TableDuFilmAuxListages
+	errTable error
+	lectureOccupants
+}
+
+// lectureOccupants est la part de cette lecture qui passe par le contexte du film : l equipe de chaque index
+// et les occupants par entite, et les entrees du tableau des scores. La voie des sieges la rend d avance
+// (film_scan_voie_sieges.go).
+type lectureOccupants struct {
 	equipes      map[int]int
 	rapport      grammar.TeamScanReport
 	entites      grammar.PlayerEntityScan
@@ -80,6 +88,15 @@ func lireSiegesEtOccupantsLecture(film *source.Film, fc *grammar.FilmContext, av
 	} else {
 		lu.table, lu.errTable = grammar.ScanFilmPlayerTableAuxListages(film)
 	}
+	lu.lectureOccupants = lireLesOccupants(fc)
+	return lu
+}
+
+// lireLesOccupants lit les equipes, les occupants par entite et les entrees du tableau des scores sur un
+// contexte. La cuisson en serie ([lireSiegesEtOccupantsLecture]), le document interne du sync et la voie des
+// sieges de la cuisson a plusieurs fils passent par elle.
+func lireLesOccupants(fc *grammar.FilmContext) lectureOccupants {
+	var lu lectureOccupants
 	lu.equipes, lu.rapport, lu.entites = grammar.ScanPlayerTeams(fc)
 	lu.entrees, lu.statsEntrees = grammar.ScanStatborgEntries(fc)
 	return lu
@@ -138,6 +155,11 @@ func (s *filmScan) publierLeFilDesMorts() {
 // le document interne du sync emploie aussi. Elle attend la table de la tache de fond, quand il y en a
 // une, la ou le balayage la lisait.
 func (s *filmScan) lireSieges() lectureSieges {
+	if occ, ok := s.voies.occupants(); ok {
+		// La voie des sieges a lu les equipes et le tableau des scores ; la table vient de la tache de fond.
+		avance := s.fond.laTable()
+		return lectureSieges{table: avance.lu, errTable: avance.err, lectureOccupants: occ}
+	}
 	return lireSiegesEtOccupantsLecture(s.film, s.fc, s.fond.laTable())
 }
 
@@ -207,7 +229,15 @@ func (s *filmScan) publierLOrigineDHorloge() {
 // lireGrenades lit les lancers de grenade : décodés des paquets delta du MÊME film, sur la MÊME
 // horloge. Absence non fatale, comme les tirs et les armes portées.
 func (s *filmScan) lireGrenades() lectureGrenades {
-	g, err := grammar.ScanGrenadeThrows(s.fc)
+	if lu, ok := s.voies.grenades(); ok {
+		return lu
+	}
+	return lireLesGrenades(s.fc)
+}
+
+// lireLesGrenades est la lecture des lancers sur un contexte, que la chaine et la voie du monde emploient.
+func lireLesGrenades(fc *grammar.FilmContext) lectureGrenades {
+	g, err := grammar.ScanGrenadeThrows(fc)
 	return lectureGrenades{lancers: g, err: err}
 }
 
@@ -224,7 +254,16 @@ func (s *filmScan) publierGrenades(lu lectureGrenades) {
 
 // lireProjectiles lit les trajectoires de projectile : memes chunks, meme horloge. Absence non fatale.
 func (s *filmScan) lireProjectiles() lectureProjectiles {
-	p, err := grammar.ScanProjectiles(s.fc, &s.world)
+	if lu, ok := s.voies.projectiles(); ok {
+		return lu
+	}
+	return lireLesProjectiles(s.fc, &s.world)
+}
+
+// lireLesProjectiles est la lecture des trajectoires sur un contexte, que la chaine et la voie du monde
+// emploient.
+func lireLesProjectiles(fc *grammar.FilmContext, wr *profile.Vec3Range) lectureProjectiles {
+	p, err := grammar.ScanProjectiles(fc, wr)
 	return lectureProjectiles{pistes: p, err: err}
 }
 
@@ -243,7 +282,16 @@ func (s *filmScan) publierProjectiles(lu lectureProjectiles) {
 // seule, sans chunk supplementaire — jamais d'erreur, juste moins de couverture sur un film qui ne les
 // ecrit pas.
 func (s *filmScan) lireDetonations() []types.ProjectileDetonation {
-	d, _ := grammar.ScanProjectileDetonations(s.fc)
+	if d, ok := s.voies.detonations(); ok {
+		return d
+	}
+	return lireLesDetonations(s.fc)
+}
+
+// lireLesDetonations est la lecture des detonations sur un contexte, que la chaine et la voie du monde
+// emploient.
+func lireLesDetonations(fc *grammar.FilmContext) []types.ProjectileDetonation {
+	d, _ := grammar.ScanProjectileDetonations(fc)
 	return d
 }
 
