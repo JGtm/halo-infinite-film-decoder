@@ -170,6 +170,21 @@ func (c StatComponent) key() statSlotKey {
 // J8.7-bis) ; nil hors production.
 func SeriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
+	return seriesByRound(recs, c, teams, cons, nil)
+}
+
+// SeriesByRoundBySeat est [SeriesByRound] pour les lecteurs qui nomment la suite PAR L'INSTANT : un siege qui
+// change d'occupant en cours de manche rend la suite de chaque occupant, mises bout a bout et decalees
+// ([longestRunBySeat], [seatCuts]) ; la suite rendue est croissante et chaque point garde son instant, que
+// [RoundIdentity.At] nomme. Un siege qui garde son occupant rend la meme suite que [SeriesByRound].
+func SeriesByRoundBySeat(recs []types.StatRecord, c StatComponent, teams bool,
+	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
+	return seriesByRound(recs, c, teams, cons, seatCutsOf(recs))
+}
+
+// seriesByRound est le coeur de [SeriesByRound] et [SeriesByRoundBySeat] : `cuts` nil, la plus longue suite du siege.
+func seriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
+	cons *ReplisALaConsultation, cuts seatCuts) map[int]map[int][]types.ScorePoint {
 	real := RealRounds(recs)
 	out := map[int]map[int][]types.ScorePoint{}
 	for slot, byRound := range rawSeries(recs, c, teams, cons) {
@@ -178,7 +193,7 @@ func SeriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 				continue
 			}
 			slices.SortStableFunc(pts, func(a, b types.ScorePoint) int { return cmp.Compare(a.TimeMS, b.TimeMS) })
-			kept := longestRun(pts, c.Strict)
+			kept := longestRunBySeat(pts, cuts.of(round, slot), c.Strict)
 			if c.Unitary {
 				kept = boundedSeries(kept)
 			}
@@ -207,7 +222,7 @@ func SeriesByRound(recs []types.StatRecord, c StatComponent, teams bool,
 // `cons` : l enregistreur des replis a la consultation du document ([ReplisALaConsultation], lot
 // J8.7-bis) ; nil hors production.
 func SeriesTotal(recs []types.StatRecord, c StatComponent, teams bool, cons *ReplisALaConsultation) map[int][]types.ScorePoint {
-	out := cumulateRounds(rawSeries(recs, c, teams, cons), RealRounds(recs), cons.Diagnostics())
+	out := cumulateRounds(rawSeries(recs, c, teams, cons), RealRounds(recs), nil, cons.Diagnostics())
 	for slot, pts := range out {
 		if c.Unitary {
 			pts = boundedSeries(pts)
