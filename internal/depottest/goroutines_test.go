@@ -12,11 +12,13 @@ import (
 )
 
 // fichiersAutorisesAGoroutines nomme les seuls fichiers de production qui portent une instruction
-// `go`. Le decodeur ne lance de fil que par l'assistant de fils de la grammaire ; les deux autres
-// entrees sont des outils qui l'entourent (le garde-memoire et le profilage de la commande de mesure)
-// et ne decodent rien.
+// `go`. Le decodeur ne lance de fil que par l'assistant de fils de la grammaire et par la tache de
+// fond du balayage de `replay` (une goroutine qui lit, sans contexte de film, ce qui ne depend que du
+// film charge ; elle est toujours attendue par l'appelant) ; les deux autres entrees sont des outils
+// qui l'entourent (le garde-memoire et le profilage de la commande de mesure) et ne decodent rien.
 var fichiersAutorisesAGoroutines = map[string]bool{
 	"internal/grammar/fils.go": true,
+	"replay/film_scan_fond.go": true,
 	"memguard/memguard.go":     true,
 	"cmd/film-bench/profil.go": true,
 }

@@ -147,7 +147,7 @@ func (e EntreePorteursAuSync) DocumentInterne(ctx context.Context) (ReplayDocume
 	fb := fallback.NouveauCompteur()
 	b.Replis = fb
 	poserProfilPuisCarte(ctx, e.Contexte, e.MatchID, Options{ProfilDeBalayage: e.ProfilDeBalayage, Fallbacks: fb})
-	opt := e.optionsDuRegistre(fb, lireSiegesEtOccupants(ctx, e.Film, e.Contexte, e.MatchID))
+	opt := e.optionsDuRegistre(fb, lireSiegesEtOccupants(ctx, e.Film, e.Contexte, e.MatchID, nil))
 	b.Lectures = e.lireLesPorteurs(ctx, b.Gardes, &opt)
 	b.Lectures.Identite = true
 	// Le document n'est pas publié : le titre n'y sert à rien, il reste vide, et le journal des places,

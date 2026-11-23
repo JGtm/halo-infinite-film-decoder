@@ -217,6 +217,8 @@ type filmScan struct {
 	// ([filmScan.lireLaMarcheDesTrames]) et prise par les etats de mouvement ; errMarche, son echec.
 	marche    grammar.MarcheDesTrames
 	errMarche error
+	// fond est la tache de fond des lectures qui ne dependent que du film (film_scan_fond.go) ; nil a un fil.
+	fond *fondDuFilm
 	// etats porte ce que la marche UNIQUE des images-cles dit des bipedes (armes, inventaire, marques,
 	// lot D1.1 de 2.7.d1), jouee une fois par [filmScan.balayerPositions] ; errEtats, son echec.
 	etats    grammar.EtatsDesImagesCles
@@ -305,6 +307,12 @@ func scanFilmInputs(ctx context.Context, matchID string, film *source.Film, fc *
 	// LA MARCHE DES TRAMES PRECEDE TOUT LE RESTE : elle recueille les records bipedes que les
 	// positions et les huit lecteurs du portage et des capacites lisent ensuite, l ancrage d en-tete
 	// passant derriere elle (`grammar/lectures_bipedes.go`, `grammar/positions_lues.go`).
+	//
+	// A PLUS D UN FIL, LES LECTURES QUI NE DEPENDENT QUE DU FILM PARTENT ICI, pendant la marche
+	// (film_scan_fond.go) ; le balayage rend la main par n importe quelle sortie, et la tache est
+	// toujours attendue.
+	s.fond = s.demarrerLeFond()
+	defer s.fond.joindre()
 	s.lireLaMarcheDesTrames()
 	if err := s.balayerPositions(); err != nil {
 		return nil, err

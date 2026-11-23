@@ -42,9 +42,14 @@ func (s *filmScan) lirePontDIdentite() {
 	// elle l'etait (etapes observees dans le meme ordre) ; seules les POLITIQUES de la cuisson
 	// restent ici : le roster de l'index (fil des morts + roster de l'appelant), la capture des
 	// directions (dans `s.scan`), l'injectivite et la fatalite des erreurs.
+	//
+	// LES LECTURES DU FILM SEUL VIENNENT DE LA TACHE DE FOND quand il y en a une (cf.
+	// film_scan_fond.go) : on les attend ICI, juste avant que le pont les verse ; sans tache, le pont
+	// les lit lui-meme sur le roster de cette cuisson.
 	s.pont = grammar.ScanPontDIdentite(s.fc, grammar.OptionsDuPont{
 		Balayage: s.scan, Carte: s.opt.MapQuant,
 		RosterDesMorts: func(d []types.Death) []uint64 { return rosterOf(d, s.opt.RosterXUIDs) },
+		FaitsDuFilm:    s.fond.lesFaits(),
 	})
 	s.in.Translocations = s.pont.Translocations
 	if len(s.in.Translocations) > 0 {
@@ -78,8 +83,19 @@ type siegesEtOccupants struct {
 //
 // Aucun refus n'est fatal : la table refusee est consignee et publiee
 // ([consignerLaTableDuFilm]), une lecture d'equipes refusee porte sa cause dans son rapport.
-func lireSiegesEtOccupants(ctx context.Context, film *source.Film, fc *grammar.FilmContext, matchID string) siegesEtOccupants {
-	lu, err := grammar.ScanFilmPlayerTableAuxListages(film)
+//
+// `avance` est la table que la tache de fond a deja lue sur CE film ([fondDuFilm.laTable]) ; nil, la
+// fonction la lit elle-meme. La table ne depend que du film : lue d'avance ou ici, elle est la meme,
+// et sa consignation (journal, compteur) reste ICI, a la meme place.
+func lireSiegesEtOccupants(ctx context.Context, film *source.Film, fc *grammar.FilmContext, matchID string,
+	avance *tableLueDAvance) siegesEtOccupants {
+	var lu grammar.TableDuFilmAuxListages
+	var err error
+	if avance != nil {
+		lu, err = avance.lu, avance.err
+	} else {
+		lu, err = grammar.ScanFilmPlayerTableAuxListages(film)
+	}
 	so := siegesEtOccupants{table: consignerLaTableDuFilm(ctx, lu.Table, err, matchID)}
 	so.equipes, so.rapport, so.entites = grammar.ScanPlayerTeams(fc)
 	so.listages, so.statsListages = lu.Listages, lu.StatsListages
@@ -125,7 +141,7 @@ func (s *filmScan) balayerPont() {
 	// leur XUID et leur gamertag, le lien DIRECT que le registre emploie AVANT la table des chunks de
 	// réplication (cf. film_player_table.go). Un refus est NOMMÉ, journalisé et publié. Elle se lit
 	// avec les occupants par la lecture que le document interne du sync appelle aussi.
-	so := lireSiegesEtOccupants(s.ctx, s.film, s.fc, s.matchID)
+	so := lireSiegesEtOccupants(s.ctx, s.film, s.fc, s.matchID, s.fond.laTable())
 	s.in.FilmTable = so.table
 	s.opt.observe(s.ctx, "filmTable", s.in.FilmTable)
 	// L'EQUIPE DE CHAQUE JOUEUR (lot 1.7) : le composant i0 de ti=9 de la trame d'etat, a une
