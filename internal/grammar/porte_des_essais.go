@@ -41,6 +41,7 @@ type crochetsDeCanal struct {
 	munitions     func(bool, uint32, bool, uint32)
 	cartouches    func(uint32)
 	equipement    func(UnitEquipmentRead)
+	jeuDArmes     func(uint32, JeuDArmes)
 }
 
 // lesCrochetsDeCanal rend les crochets de canal que l observation porte.
@@ -50,6 +51,7 @@ func (o *Observation) lesCrochetsDeCanal() crochetsDeCanal {
 		nonPredite: o.AbilityNonPredictedHook, spartan: o.SpartanAbilityHook, rang: o.AbilitySetHook,
 		choixGrenades: o.GrenadeSetHook, comptes: o.GrenadeCountsHook, armePortee: o.HeldWeaponHook,
 		munitions: o.WeaponAmmoHook, cartouches: o.WeaponRoundsHook, equipement: o.UnitEquipmentHook,
+		jeuDArmes: o.DesiredWeaponSetHook,
 	}
 }
 
@@ -59,6 +61,7 @@ func (o *Observation) poserLesCrochetsDeCanal(c crochetsDeCanal) {
 	o.AbilityNonPredictedHook, o.SpartanAbilityHook, o.AbilitySetHook = c.nonPredite, c.spartan, c.rang
 	o.GrenadeSetHook, o.GrenadeCountsHook, o.HeldWeaponHook = c.choixGrenades, c.comptes, c.armePortee
 	o.WeaponAmmoHook, o.WeaponRoundsHook, o.UnitEquipmentHook = c.munitions, c.cartouches, c.equipement
+	o.DesiredWeaponSetHook = c.jeuDArmes
 }
 
 // neutraliserLesCrochetsDeCanal eteint les crochets de canal ([crochetsDeCanal]) et rend leur

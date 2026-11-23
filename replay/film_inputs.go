@@ -201,6 +201,10 @@ type FilmInputs struct {
 	// GestureStats ce que leur canal a vu.
 	Gestures     []types.GestureRead
 	GestureStats types.GestureStats
+	// DrawnWeapons sont les changements du jeu d armes desire du bipede (`i42`) des trames delta et
+	// DrawnWeaponStats ce que leur canal a vu.
+	DrawnWeapons     []types.DrawnWeaponRead
+	DrawnWeaponStats types.DrawnWeaponStats
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -316,6 +320,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Reloads, opt.ReloadStats = in.Reloads, in.ReloadStats
 	opt.Repliques = in.Repliques
 	opt.Gestures = GestureInput{Reads: in.Gestures, Stats: in.GestureStats}
+	opt.DrawnWeapons = DrawnWeaponInput{Reads: in.DrawnWeapons, Stats: in.DrawnWeaponStats}
 	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable

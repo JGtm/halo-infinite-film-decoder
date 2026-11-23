@@ -40,7 +40,6 @@ type Options struct {
 	// (`grammar.ReadFilmIdentity`, via le profil du contexte). nil quand le film ne porte AUCUNE
 	// section d'identification (5 films du cache, majeures 31 et 33), quand `chunk_00` est
 	// tronqué ou encore compressé, ou quand l'appelant construit depuis des positions sans film.
-	//
 	// DEUX CHAMPS DE `coverage.decoder` EN VIENNENT, ET RIEN D'AUTRE : `build` (la clé du profil,
 	// chaîne VIDE quand cette option est nil — décision V15 (15), le bloc reste présent) et le
 	// bloc `registry` (l'empreinte du registre ECS et sa classification, absent quand cette
@@ -129,10 +128,11 @@ type Options struct {
 	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
-	// Repliques et Gestures : les repliques, les annonces et les gestes de la vue A, avec ce que leur canal a vu
-	// (document_repliques.go, document_gestes.go).
-	Repliques grammar.RepliquesLues
-	Gestures  GestureInput
+	// Repliques, Gestures et DrawnWeapons : les repliques, les annonces et les gestes de la vue A, et les changements
+	// d arme tiree des trames, avec ce que leur canal a vu (document_repliques.go, document_gestes.go, document_arme_tiree.go).
+	Repliques    grammar.RepliquesLues
+	Gestures     GestureInput
+	DrawnWeapons DrawnWeaponInput
 	// ControlHolds / ControlHoldStats : les commandes tenues de la vue de controle, en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
 	ControlHoldStats types.ControlHoldStats
