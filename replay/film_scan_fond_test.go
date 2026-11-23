@@ -105,7 +105,7 @@ func balayerLesPhasesDeFin(t *testing.T, dossier string, fils int) sortieDuFond 
 	s.scan.Layout = fc.ImposedLayout()
 	s.fond = s.demarrerLeFond()
 	defer s.fond.joindre()
-	s.lirePontDIdentite()
+	s.publierPontDIdentite(s.lirePontDIdentite())
 	s.balayerEtatsDeMouvement()
 	s.balayerPont()
 	sortie.replis = fc.ComptesDesReplis()
@@ -275,7 +275,7 @@ func TestLesLecturesDuFondSontCellesDesConsommateurs(t *testing.T) {
 		}
 	}
 	for lecture, want := range map[string][]string{
-		"ScanFilmPlayerTableAuxListages": {"lireLeFond", "lireSiegesEtOccupants"},
+		"ScanFilmPlayerTableAuxListages": {"lireLeFond", "lireSiegesEtOccupantsLecture"},
 		"ScanScriptsDuFilm":              {"balayerEtatsDeMouvement", "lireLeFond"},
 		"LireLesFaitsDuFilmSeul":         {"lireLeFond"},
 	} {
