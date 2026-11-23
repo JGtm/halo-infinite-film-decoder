@@ -117,7 +117,7 @@ func FilmComplet(root, shortID string) (bool, error) {
 // fichier declare est absent, et [ErrChunkTronque] au premier fichier d'une autre taille que
 // celle declaree (0 = inconnue, aucun controle).
 func (s *Source) controlerFichiers() (manquant bool, err error) {
-	dir := ChunkDir(s.root, s.short)
+	dir := s.dirDesChunks()
 	for i, c := range s.chunks {
 		info, err := os.Stat(CheminDuChunk(dir, c.Index))
 		if errors.Is(err, os.ErrNotExist) {
