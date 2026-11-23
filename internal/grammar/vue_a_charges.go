@@ -208,9 +208,7 @@ func chargeRechargement(br *Lecteur) bool {
 			m.Booleens |= 1 << k
 		}
 	}
-	if !br.ReadBit() { // FUN_1407f2058
-		m.Joueur = int8(br.ReadBits(5)) //nolint:gosec // R(5)
-	}
+	m.Joueur = lireJoueurDuMessage(br) // FUN_1407f2058
 	br.rechargementLu = m
 	return true
 }

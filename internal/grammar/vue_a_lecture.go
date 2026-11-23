@@ -94,6 +94,9 @@ type FluxVueA struct {
 	// Rechargements : les messages de rechargement d arme (genre 38) lus, dans l ordre
 	// ([messageDeRechargement]).
 	Rechargements []lecture.MessageDeRechargement
+	// Gestes : les messages de lancer amorce et de coup de melee (genres 39 et 40) lus, dans l ordre
+	// ([recueillirUnGeste]).
+	Gestes []lecture.MessageDeGeste
 	// Tirs : les messages `action_weapon_fire` (genre 36) lus, a tout rang, dans l ordre.
 	Tirs []lecture.MessageDeTir
 	// Repliques et Annonces : les messages des genres 75 et 76 lus, dans l ordre ; rangees seulement
@@ -163,6 +166,9 @@ func lireLaVueA(pay []byte, debut int, bal ProfilDeBalayage, g grammaireDeLaVueA
 // cas par genre collecte, jamais une decision.
 func recueillirLeMessage(br *Lecteur, out *FluxVueA, genre, debut int) {
 	if recueillirUnDialogue(br, out, genre, debut) {
+		return
+	}
+	if recueillirUnGeste(br, out, genre, debut) {
 		return
 	}
 	if genre == GenreEvenementJoueurCourt {

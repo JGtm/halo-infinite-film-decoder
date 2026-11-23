@@ -35,6 +35,7 @@ func TestTaillesDesTypesSontGelees(t *testing.T) {
 		{"MessageDePoussee", unsafe.Sizeof(lecture.MessageDePoussee{}), 24, "message de poussee lu"},
 		{"MessageDeDetonation", unsafe.Sizeof(lecture.MessageDeDetonation{}), 24, "message de detonation lu"},
 		{"MessageDeRechargement", unsafe.Sizeof(lecture.MessageDeRechargement{}), 16, "message de rechargement lu"},
+		{"MessageDeGeste", unsafe.Sizeof(lecture.MessageDeGeste{}), 16, "message de geste lu"},
 		{"MessageDeReplique", unsafe.Sizeof(lecture.MessageDeReplique{}), 20, "replique lue"},
 		{"MessageDAnnonce", unsafe.Sizeof(lecture.MessageDAnnonce{}), 20, "annonce lue"},
 	}

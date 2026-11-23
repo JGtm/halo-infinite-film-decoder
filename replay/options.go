@@ -129,6 +129,8 @@ type Options struct {
 	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
+	// Gestures : les gestes de la vue A et la porte de cadence (document_gestes.go).
+	Gestures GestureInput
 	// ControlHolds / ControlHoldStats : les commandes de deplacement tenues de la vue de controle, publiees
 	// en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
