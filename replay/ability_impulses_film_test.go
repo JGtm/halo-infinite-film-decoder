@@ -231,7 +231,8 @@ func p3MapEntry(t *testing.T, dir string) profile.MapQuantEntry {
 }
 
 // mapEntryFromCatalog est le corps de la résolution : les largeurs d'axe lues dans le film
-// contre le catalogue versionné.
+// contre le catalogue versionné. Un film dont la signature désigne plusieurs cartes fait
+// échouer le test (voir resoudreCarteDuCatalogue).
 func mapEntryFromCatalog(t *testing.T, dir, path string) profile.MapQuantEntry {
 	t.Helper()
 	cat, err := profile.LoadMapQuantCatalog(path)
@@ -242,34 +243,44 @@ func mapEntryFromCatalog(t *testing.T, dir, path string) profile.MapQuantEntry {
 	if err != nil {
 		t.Fatalf("decoupage i0 illisible dans %s : %v", dir, err)
 	}
-	var names []string
-	var got []profile.MapQuantEntry
-	for name, e := range cat.Maps {
-		if e.AxisWidths != lay.AxisW || e.Region != lay.Region {
-			continue
-		}
-		if !p3hasRange(got, e.Range()) {
-			got = append(got, e)
-			names = append(names, name)
-		}
+	name, entry, err := resoudreCarteDuCatalogue(cat, lay)
+	if err != nil {
+		t.Fatalf("%s : %v", filepath.Base(dir), err)
 	}
-	if len(got) == 0 {
-		t.Fatalf("aucune carte du catalogue ne porte les largeurs %v (region %d) de %s",
-			lay.AxisW, lay.Region, filepath.Base(dir))
-	}
-	sort.Strings(names)
-	t.Logf("%s : largeurs i0 %v region %d -> %d AABB distincte(s), cartes %v",
-		filepath.Base(dir), lay.AxisW, lay.Region, len(got), names)
-	return got[0]
+	t.Logf("%s : largeurs i0 %v region %d -> carte %s", filepath.Base(dir), lay.AxisW, lay.Region, name)
+	return entry
 }
 
-func p3hasRange(all []profile.MapQuantEntry, r profile.Vec3Range) bool {
-	for _, x := range all {
-		if x.Range() == r {
-			return true
+// cartesDuCatalogue rend, TRIÉS par nom, les cartes du catalogue qui portent les largeurs
+// d'axe et la région lues dans le film. Le tri rend l'ordre indépendant de celui de la
+// `map` Go parcourue, qui est aléatoire.
+func cartesDuCatalogue(cat *profile.MapQuantCatalog, lay profile.I0Layout) []string {
+	var noms []string
+	for name, e := range cat.Maps {
+		if e.AxisWidths == lay.AxisW && e.Region == lay.Region {
+			noms = append(noms, name)
 		}
 	}
-	return false
+	sort.Strings(noms)
+	return noms
+}
+
+// resoudreCarteDuCatalogue rend le nom et l'entrée de la carte qui porte la signature de lay.
+// Aucune carte : erreur. Plusieurs cartes : erreur qui les nomme toutes, triées, plutôt qu'un
+// choix : une carte tirée au hasard ferait varier le document d'un lancement à l'autre. Une
+// seule carte : elle est rendue.
+func resoudreCarteDuCatalogue(cat *profile.MapQuantCatalog, lay profile.I0Layout) (string, profile.MapQuantEntry, error) {
+	noms := cartesDuCatalogue(cat, lay)
+	switch len(noms) {
+	case 0:
+		return "", profile.MapQuantEntry{}, fmt.Errorf(
+			"aucune carte du catalogue ne porte les largeurs %v (region %d)", lay.AxisW, lay.Region)
+	case 1:
+		return noms[0], cat.Maps[noms[0]], nil
+	}
+	return "", profile.MapQuantEntry{}, fmt.Errorf(
+		"%d cartes du catalogue portent les largeurs %v (region %d), choix impossible : %s",
+		len(noms), lay.AxisW, lay.Region, strings.Join(noms, ", "))
 }
 
 // p3MMSS met en forme un instant du visionneur. Les millisecondes sont TUES : un relevé se
