@@ -167,6 +167,10 @@ func positionsDuContexte(fc *FilmContext, chunks []int, lay profile.I0Layout, op
 // toujours ([lireLaPosition]).
 func lireLesPositions(fc *FilmContext, pb *positionsBipedes, lay profile.I0Layout, opt ScanFilmOptions) []BipedPosition {
 	var out []BipedPosition
+	if len(pb.records) > 0 {
+		// Un record rend au plus une position : la suite ne se recopie pas en grandissant.
+		out = make([]BipedPosition, 0, len(pb.records))
+	}
 	ctx, g := fc.ContexteDeLecture(), grammaireDOrientation(opt)
 	chunk := -1
 	var data []byte

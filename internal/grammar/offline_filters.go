@@ -35,6 +35,36 @@ func DropIsolated(pos []BipedPosition, gapMS int) []BipedPosition {
 	if gapMS <= 0 || len(pos) == 0 {
 		return pos
 	}
+	keep := echantillonsNonIsoles(pos, gapMS)
+	out := pos[:0:0]
+	for i, p := range pos {
+		if keep[i] {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// ecarterLesIsolesEnPlace est [DropIsolated] sans copie : les échantillons gardés sont compactés
+// au début de `pos`, dans leur ordre, et la suite rendue en est un préfixe. L'APPELANT POSSÈDE
+// `pos` et ne le relit pas : son contenu est écrasé. Même résultat que [DropIsolated].
+func ecarterLesIsolesEnPlace(pos []BipedPosition, gapMS int) []BipedPosition {
+	if gapMS <= 0 || len(pos) == 0 {
+		return pos
+	}
+	keep := echantillonsNonIsoles(pos, gapMS)
+	out := pos[:0]
+	for i, p := range pos {
+		if keep[i] {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// echantillonsNonIsoles rend, pour chaque échantillon de `pos`, s'il est gardé : son écart au
+// voisin le plus proche de son slot ne dépasse pas gapMS (> 0). `pos` n'est pas modifié.
+func echantillonsNonIsoles(pos []BipedPosition, gapMS int) []bool {
 	gap := uint64(gapMS) * 1000
 	bySlot := map[uint32][]int{}
 	for i, p := range pos {
@@ -48,13 +78,7 @@ func DropIsolated(pos []BipedPosition, gapMS int) []BipedPosition {
 			}
 		}
 	}
-	out := pos[:0:0]
-	for i, p := range pos {
-		if keep[i] {
-			out = append(out, p)
-		}
-	}
-	return out
+	return keep
 }
 
 // nearestGap renvoie l'écart temporel au voisin le plus proche dans la séquence du slot
@@ -132,13 +156,30 @@ func DropTeleportsExcept(pos []BipedPosition, maxSpeed float64, exempt TeleportE
 	if maxSpeed <= 0 || len(pos) == 0 {
 		return pos
 	}
+	return filtrerLesTeleportations(pos, pos[:0:0], maxSpeed, exempt)
+}
+
+// ecarterLesTeleportationsEnPlace est [DropTeleportsExcept] sans copie : les positions acceptées
+// sont compactées au début de `pos`, dans leur ordre, et la suite rendue en est un préfixe.
+// L'APPELANT POSSÈDE `pos` et ne le relit pas : son contenu est écrasé. Même résultat que
+// [DropTeleportsExcept].
+func ecarterLesTeleportationsEnPlace(pos []BipedPosition, maxSpeed float64, exempt TeleportExemptions) []BipedPosition {
+	if maxSpeed <= 0 || len(pos) == 0 {
+		return pos
+	}
+	return filtrerLesTeleportations(pos, pos[:0], maxSpeed, exempt)
+}
+
+// filtrerLesTeleportations ajoute à `out` les positions de `pos` que le filtre accepte. `out` est
+// soit vide et distinct de `pos`, soit le préfixe vide de `pos` : l'écriture au rang j ne précède
+// jamais la lecture du rang i >= j, donc le second cas compacte sans rien perdre.
+func filtrerLesTeleportations(pos, out []BipedPosition, maxSpeed float64, exempt TeleportExemptions) []BipedPosition {
 	type anchor struct {
 		p      BipedPosition
 		ok     bool
 		streak int
 	}
 	anchors := map[uint32]*anchor{}
-	out := pos[:0:0]
 	for _, p := range pos {
 		a := anchors[p.Slot]
 		if a == nil {
