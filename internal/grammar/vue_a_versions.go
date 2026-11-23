@@ -111,6 +111,10 @@ type grammaireDeLaVueA struct {
 	// ([chargeMesuree]) ; faux, la vue A s arrete sur le message d un de ces genres. Le profil du build
 	// l etablit ([profile.EcritureDuBuild.ChargesDeVueAMesurees]).
 	chargesMesurees bool
+	// repliques : un lecteur est inscrit auprès de la marche ([canalDeRepliques]) ; les messages des genres
+	// 75 et 76 se rangent alors dans le flux lu ([FluxVueA.Repliques], [FluxVueA.Annonces]). Faux, ils se
+	// traversent exactement de même et rien n'est gardé.
+	repliques bool
 }
 
 // grammaireDeLaVueASousFilm derive d un profil la grammaire de la vue A que le film declare : sa table

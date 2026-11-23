@@ -252,6 +252,7 @@ func distribuerLesDeuxPhases(fc *FilmContext, reg *Registry, canaux []Canal, l l
 		return err
 	}
 	mt.interets = interets[PhaseTrames]
+	mt.repliques = veutLesRepliques(l.tetes)
 	m.Paquet, m.Entites, m.marche = &mt.paquet, mt.entites, mt
 	mt.parcourir(func(t *trameLue) bool {
 		for _, c := range l.trames {
