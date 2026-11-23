@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee c80820f7a56bd0fc
-empreinte-servie c80820f7a56bd0fc
-empreinte-cuite 063b1ab478101d6f
+empreinte-stockee d48dfc08d9f12f9a
+empreinte-servie d48dfc08d9f12f9a
+empreinte-cuite 5a128adc70e122a1
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -410,6 +410,7 @@ Coverage
   Vehicles json:"vehicles,omitempty" *VehicleCoverage
   Verdict json:"verdict,omitempty" map[string]string
   VipCrown json:"vipCrown,omitempty" *VipCrownCoverage
+  Vitals json:"vitals,omitempty" *VitalCoverage
   WeaponChanges json:"weaponChanges,omitempty" *WeaponChangeCoverage
   Zones json:"zones,omitempty" *ZonesCoverage
 Damage
@@ -668,6 +669,20 @@ FrozenRoundsCoverage
   Expected json:"expected" int
   PlayersWithout json:"playersWithout" int
   Read json:"read" int
+FullRateFlight
+  T json:"t" []int64
+  X json:"x" []int32
+  Y json:"y" []int32
+  Z json:"z" []int32
+FullRateTrack
+  AimT json:"aimT,omitempty" []int64
+  Gaps json:"gaps,omitempty" []int
+  H json:"h,omitempty" []int32
+  P json:"p,omitempty" []int32
+  T json:"t" []int64
+  X json:"x" []int32
+  Y json:"y" []int32
+  Z json:"z" []int32
 GaugePoint
   T json:"t" int
   V json:"v" float32
@@ -1113,11 +1128,14 @@ Projectile
   DetoT json:"detoT" int
   DetoX json:"detoX" float32
   DetoY json:"detoY" float32
+  FullRate json:"fullRate,omitempty" *FullRateFlight
   P json:"p" [][3]float32
   Rest json:"rest,omitempty" bool
   Shot json:"shot,omitempty" *int
   T0 json:"t0" int
+  Z json:"z,omitempty" []float32
 ProjectileCoverage
+  FullRateSamples json:"fullRateSamples" int
   Published json:"published" int
   ShotAmbiguous json:"shotAmbiguous" int
   ShotLinked json:"shotLinked" int
@@ -1223,6 +1241,7 @@ ReplayDocument
   VehicleWeapons json:"vehicleWeapons,omitempty" map[string]VehicleWeapon
   Vehicles json:"vehicles,omitempty" []VehicleTrack
   VipCrown json:"vipCrown,omitempty" []VipPeriod
+  Vitals json:"vitals,omitempty" []Vital
   WeaponChanges json:"weaponChanges,omitempty" []WeaponChange
   WeaponLabels json:"weaponLabels,omitempty" map[string]WeaponLabel
   WeaponPads json:"weaponPads,omitempty" []WeaponPad
@@ -1485,6 +1504,7 @@ Track
   Bot json:"bot,omitempty" string
   EndFrame json:"endFrame,omitempty" int
   EndReason json:"endReason,omitempty" string
+  FullRate json:"fullRate,omitempty" *FullRateTrack
   Name json:"name,omitempty" string
   Points json:"points" []Point
   ReleaseFrame json:"releaseFrame,omitempty" *int
@@ -1494,11 +1514,14 @@ Track
   XUID json:"xuid,omitempty" string
 TrackCoverage
   AvantCreation json:"avantCreation" int
+  FullRateAimSamples json:"fullRateAimSamples" int
+  FullRateSamples json:"fullRateSamples" int
   GapMS json:"gapMs" int
   Gaps json:"gaps" int
   HorsEmprise json:"horsEmprise" int
   LifeEnds json:"lifeEnds,omitempty" *LifeEndCoverage
   MinPoints json:"minPoints" int
+  NoWorld json:"noWorld" int
   Published json:"published" int
   PublishedPoints json:"publishedPoints" int
   RefusedMinPoints json:"refusedMinPoints" int
@@ -1714,6 +1737,24 @@ VipPeriod
   T0 json:"t0" int
   T1 json:"t1" int
   XUID json:"xuid" string
+Vital
+  Dead json:"dead,omitempty" bool
+  Hp json:"hp" float32
+  Ms json:"ms" int
+  Sh json:"sh" float32
+  Slot json:"slot" uint32
+  T json:"t" int
+VitalCoverage
+  AfterDeath json:"afterDeath,omitempty" int
+  AfterEnd json:"afterEnd,omitempty" int
+  BeforeOrigin json:"beforeOrigin,omitempty" int
+  Births json:"births,omitempty" int
+  Deaths json:"deaths,omitempty" int
+  NoTrack json:"noTrack,omitempty" int
+  Published json:"published" int
+  Ramp json:"ramp,omitempty" int
+  Read json:"read" int
+  Unchanged json:"unchanged,omitempty" int
 WeaponChange
   From json:"from,omitempty" string
   K json:"k,omitempty" *int
