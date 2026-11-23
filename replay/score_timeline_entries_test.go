@@ -1,6 +1,7 @@
 package replay
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/objectives"
@@ -142,6 +143,22 @@ func TestJoinSegmentsDecaleLeSecondSegmentDUnCompteurCumulatif(t *testing.T) {
 	brut := joinSegments([][]types.ScorePoint{premier, second}, false)
 	if brut[2].Value != 1 || brut[3].Value != 2 {
 		t.Errorf("segments non cumulatifs decales : %+v", brut)
+	}
+}
+
+// Deux segments qui debutent au meme instant : la sortie ne depend pas de l'ordre d'arrivee (departage par le slot).
+func TestJoinSegmentsDepartageParLeSlotAInstantEgal(t *testing.T) {
+	a := []types.ScorePoint{{TimeMS: 1_000, Slot: 10, Value: 1}, {TimeMS: 2_000, Slot: 10, Value: 2}}
+	b := []types.ScorePoint{{TimeMS: 1_000, Slot: 1010, Value: 5}, {TimeMS: 3_000, Slot: 1010, Value: 7}}
+	for _, cumulative := range []bool{true, false} {
+		direct := joinSegments([][]types.ScorePoint{a, b}, cumulative)
+		inverse := joinSegments([][]types.ScorePoint{b, a}, cumulative)
+		if !slices.Equal(direct, inverse) {
+			t.Errorf("cumulatif=%v : ordre d'arrivee visible : %+v contre %+v", cumulative, direct, inverse)
+		}
+		if direct[0].Slot != 10 {
+			t.Errorf("cumulatif=%v : le plus petit slot devait passer d'abord : %+v", cumulative, direct)
+		}
 	}
 }
 
