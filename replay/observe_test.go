@@ -97,7 +97,7 @@ func declarationsDuBalayage(t *testing.T) map[string]*ast.FuncDecl {
 // balayagesAPlusieursCanaux : les balayages dont UNE marche rend PLUSIEURS canaux observes, et
 // combien. La marche du frame-processeur (`grammar.ScanMarcheDesTramesAvec`) deroule chaque trame une
 // fois et rend les ETATS DE MOUVEMENT (vue B), le JOUEUR AUX COMMANDES (`unit-control`, meme crochet), le TIR CONTINU
-// (vue C), les MORTS DE VEHICULE avec l occupation (vue B, canal des morts), les HORLOGES (canal des horloges), les MESSAGES DE JEU (vue A, `gameEvents`), les DEGATS (vue A, `damages`), les RECHARGEMENTS (vue A, `reloads`), les REPLIQUES et les ANNONCES (vue A, `repliques`), les GESTES (vue A, `gestures`), les COMMANDES DE DEPLACEMENT TENUES (vue C, `controlHolds`) et les SUPPRESSIONS DE BIPEDE (records DEL, `bipedDeletions`) : douze
+// (vue C), les MORTS DE VEHICULE avec l occupation (vue B, canal des morts), les HORLOGES (canal des horloges), les MESSAGES DE JEU (vue A, `gameEvents`), les DEGATS (vue A, `damages`), les RECHARGEMENTS (vue A, `reloads`), les REPLIQUES et les ANNONCES (vue A, `repliques`), les GESTES (vue A, `gestures`), l ARME TIREE EN MAIN (`i42`, `drawnWeapons`), les COMMANDES DE DEPLACEMENT TENUES (vue C, `controlHolds`) et les SUPPRESSIONS DE BIPEDE (records DEL, `bipedDeletions`) : treize
 // etapes observees pour un seul balayage. Refaire la
 // marche pour l une d elles doublerait le cout du plus cher des balayages ; l egalite
 // `etapes = balayages` reste exacte, ponderee ici.
@@ -115,7 +115,7 @@ func declarationsDuBalayage(t *testing.T) map[string]*ast.FuncDecl {
 //
 // LE DECODEUR DES LECTURES DE ZONE (`decodeFilmZoneReads`) rend DEUX canaux observes — `zoneReads`
 // (trames delta) et `zoneKeyReads` (images-cles) — d un seul balayage de `ti=13`.
-var balayagesAPlusieursCanaux = map[string]int{"ScanMarcheDesTramesAvec": 12, "ScanPontDIdentite": 6,
+var balayagesAPlusieursCanaux = map[string]int{"ScanMarcheDesTramesAvec": 13, "ScanPontDIdentite": 6,
 	"decodeFilmZoneReads": 2, "ScanEtatsDesImagesCles": 2, "ScanFilmPlayerTableAuxListages": 2}
 
 // canauxDuBalayage rend le nombre d etapes observees qu un balayage alimente (1 par defaut).

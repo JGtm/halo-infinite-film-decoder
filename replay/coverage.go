@@ -185,6 +185,8 @@ type Coverage struct {
 	Announcements *AnnouncementCoverage `json:"announcements,omitempty"`
 	// Gestures dit ce que le calque des gestes a lu, retenu, publie et ecarte ; absent quand la marche des trames n a lu aucune trame.
 	Gestures *GestureCoverage `json:"gestures,omitempty"`
+	// DrawnWeapons dit ce que le calque de l arme tiree a lu, publie et ecarte ; absent quand la marche des trames n a pas ete jouee.
+	DrawnWeapons *DrawnWeaponCoverage `json:"drawnWeapons,omitempty"`
 	// Eliminations dit ce que le calque des éliminations a posé et sait marquer (tirs à la tête, frags parfaits) ; absent sans tableau des scores.
 	Eliminations *EliminationCoverage `json:"eliminations,omitempty"`
 	// Hits dit ce que le calque des touches a lu, pose et ecarte ; absent quand les messages de degat n ont pas ete lus.
@@ -272,6 +274,8 @@ type Coverage struct {
 	// GrenadeReads dit ce que chaque canal a apporte a l'axe des grenades portees, et si le
 	// canal MUNITIONS du film a ete refuse en bloc (cf. grenade_reads.go).
 	GrenadeReads *GrenadeReadCoverage `json:"grenadeReads,omitempty"`
+	// AmmoReads dit ce que le calque des munitions portees a lu, publie par canal et ecarte ; absent quand l inventaire n a pas ete lu.
+	AmmoReads *AmmoReadCoverage `json:"ammoReads,omitempty"`
 	// Abilities est la couverture du calque IDENTITE DE CAPACITE PORTEE (cf. abilities.go) :
 	// lectures i48/image-cle disponibles, celles ecartees comme BRUIT DE BALAYAGE (rang hors
 	// domaine plausible, RAPPORT_E0_2026-09-10 §3), celles sans trajectoire publiee, et

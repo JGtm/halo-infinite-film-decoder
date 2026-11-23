@@ -102,6 +102,7 @@ func BuildFromPositions(ctx context.Context, matchID, titleSlug string, pos []gr
 	a.poserLesRechargements()
 	a.poserLesRepliques()
 	a.poserLesGestes()
+	a.poserLesArmesTirees()
 	a.poserLesCommandes()
 	a.poserLesEliminations()
 	a.poserLesTouches()

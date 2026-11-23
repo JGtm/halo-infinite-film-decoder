@@ -156,7 +156,7 @@ func (c *ri27d0Canal) lire(p *lecture.Paquet, r *lecture.Record, ctx ContexteDeL
 			g.resLu[k] = true
 			obs.WeaponRoundsHook = func(v uint32) { g.res[k] = int(v) }
 		case role == "i42":
-			obs.DesiredWeaponSetHook = func(j JeuDArmes) { g.sel = int(j.Demande) }
+			obs.DesiredWeaponSetHook = func(_ uint32, j JeuDArmes) { g.sel = int(j.Demande) }
 		case strings.HasPrefix(role, "ti"):
 			fmt.Sscanf(role, "ti%d", &k) //nolint:errcheck // role construit ici
 			g.armeLue[k] = true

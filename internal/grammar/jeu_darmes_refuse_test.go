@@ -48,7 +48,7 @@ func TestLeJeuDArmesRefuseArreteLaBoucleDEtatComplet(t *testing.T) {
 			sousLaPortee(br)
 		}
 		var publie bool
-		br.obs = &Observation{DesiredWeaponSetHook: func(JeuDArmes) { publie = true }}
+		br.obs = &Observation{DesiredWeaponSetHook: func(uint32, JeuDArmes) { publie = true }}
 		consumeBipedDesiredWeaponSet(br)
 		if got := br.arret == lecture.ArretJeuDArmesRefuse; got != c.arret {
 			t.Errorf("%s : arret %v, attendu %v", c.nom, got, c.arret)

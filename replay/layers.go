@@ -149,6 +149,7 @@ var couchesDesCalques = map[string]string{
 	"grenades":            grammar.Rev, // build_pistes.go <- FilmInputs.Grenades
 	"inventory":           grammar.Rev, // build_inventaire.go <- FilmInputs.Inventory
 	"grenadeReads":        grammar.Rev, // build_inventaire.go <- FilmInputs.Inventory + InventoryDeltas
+	"ammoReads":           grammar.Rev, // build_inventaire.go `poserLesMunitions` <- FilmInputs.Inventory + InventoryDeltas (chargeur, reserve, jauge)
 	"abilities":           grammar.Rev, // build_inventaire.go <- FilmInputs.AbilityRanks + Inventory
 	"equipmentChanges":    grammar.Rev, // build_inventaire.go <- FilmInputs.EquipmentChanges
 	"translocations":      grammar.Rev, // build_inventaire.go <- FilmInputs.Translocations
@@ -179,6 +180,7 @@ var couchesDesCalques = map[string]string{
 	"chatter":             grammar.Rev, // document_repliques.go <- FilmInputs.Repliques (messages AIDialog, genre 75 de la vue A)
 	"announcements":       grammar.Rev, // document_repliques_annonces.go <- FilmInputs.Repliques (messages Dialogue2D, genre 76 de la vue A)
 	"gestures":            grammar.Rev, // document_gestes.go <- FilmInputs.Gestures (messages biped_melee_initiate et biped_throw_initiate, genres 40 et 39 de la vue A)
+	"drawnWeapons":        grammar.Rev, // document_arme_tiree.go <- FilmInputs.DrawnWeapons (jeu d armes desire i42, trames delta)
 	"roundClock":          grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=0 i5)
 	"rules":               grammar.Rev, // document_regles.go <- Options.FilmIdentity.InfosDeMatch (la variante de partie de chunk_00)
 	"respawnCountdowns":   grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=5 i1, nommee par l etat de creation de l entite)
@@ -268,6 +270,7 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// reste absente plutot que de publier quatre zeros (inventory.go, `attachInventoryCoverage`).
 	// La tranche NULLE et la tranche VIDE ne disent pas la meme chose.
 	"inventory": func(_ *ReplayDocument, opt Options) bool { return opt.Inventory != nil },
+	"ammoReads": func(_ *ReplayDocument, opt Options) bool { return opt.Inventory != nil },
 	// Le film ne declare NI i57 NI i59 / NI i56 : le balayage n a jamais commence
 	// (build_inventaire.go, `poserImpulsionsEtCharges` — meme patron que l inventaire).
 	"abilityImpulses": func(_ *ReplayDocument, opt Options) bool { return opt.AbilityImpulseStats.Scanned },
@@ -297,8 +300,9 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// (document_horloges.go, `poserLesHorloges`).
 	"roundClock": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
 	// La marche des trames n a lu aucune trame : aucun rechargement ne se lit (document_reloads.go, `poserLesRechargements`).
-	"reloads":  func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
-	"gestures": func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
+	"reloads":      func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
+	"gestures":     func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
+	"drawnWeapons": func(_ *ReplayDocument, opt Options) bool { return opt.DrawnWeapons.Stats.Scanned },
 	// La marche des trames n a lu aucune trame : ni replique ni annonce ne se lit (document_repliques.go, `poserLesRepliques`).
 	"chatter":           func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
 	"announcements":     func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },

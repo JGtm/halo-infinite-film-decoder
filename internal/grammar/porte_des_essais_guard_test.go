@@ -26,7 +26,7 @@ import (
 var nomsDesCrochetsDeCanal = []string{
 	"EtatMouvementHook", "AbilityEnergyHook", "CamoStateHook", "AbilityNonPredictedHook",
 	"SpartanAbilityHook", "AbilitySetHook", "GrenadeSetHook", "GrenadeCountsHook", "HeldWeaponHook",
-	"WeaponAmmoHook", "WeaponRoundsHook", "UnitEquipmentHook",
+	"WeaponAmmoHook", "WeaponRoundsHook", "UnitEquipmentHook", "DesiredWeaponSetHook",
 }
 
 // crochetsDeTrame : les crochets qu un canal pose et que la porte n eteint pas, chacun avec sa

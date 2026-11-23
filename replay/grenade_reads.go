@@ -31,12 +31,8 @@ import (
 // forme serait impardonnable. Les deux canaux se rejoignent donc sur la GRANDEUR GRENADES et
 // sur elle seule, chacun disant d'où il vient.
 //
-// CE QUI N'EST PAS ICI, ET POURQUOI : LES MUNITIONS. Le suivi delta des chargeurs a été
-// implémenté, mesuré, et REFUSÉ par sa propre mesure (2026-08-25) : la concordance avec les images-clés
-// plafonne à 92,80 % et — c'est le point — elle DESCEND quand on rapproche les deux lectures
-// (88,06 % à 0,10 s contre 93,19 % à 2 s). Un désaccord dû au tir survenu entre les deux
-// mesures ferait l'inverse. Le scanner reste en place et publie ses chiffres ; il n'alimente
-// pas la fiche.
+// LES MUNITIONS ONT LEUR PROPRE AXE, `ammoReads` (ammo_reads.go), pour la raison ci-dessus : elles ne se
+// versent pas ici. Le verdict du scanner (`InventoryDeltaAmmoRefused`) reste la porte de leur canal delta.
 //
 // L'IDENTITÉ DE L'ARME N'EST PAS SUIVIE NON PLUS : i43/i44 comptent 14 et 9 annonces sur
 // 171 851 records du film témoin. Elle reste une lecture d'image-clé, comme l'étude l'annonçait.

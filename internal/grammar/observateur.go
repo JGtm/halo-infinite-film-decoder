@@ -265,11 +265,11 @@ type Observation struct {
 	//	FUN_1406d00ec = R(1)+optR(2).
 	//	FUN_1406d00ec = R(1)+optR(2).
 	//
-	// DesiredWeaponSetHook, si non nil, reçoit CHAQUE lecture d'i42 du bipède avec ses trois
-	// champs ([JeuDArmes] : la demande, l'emplacement désiré en main principale, en seconde
-	// main). Même règle que les autres sondes : l'observateur est PORTÉ par le lecteur, et deux
+	// DesiredWeaponSetHook, si non nil, reçoit CHAQUE lecture d'i42 du bipède avec le slot du
+	// record en cours et ses trois champs ([JeuDArmes] : la demande, l'emplacement désiré en main
+	// principale, en seconde main). Même règle que les autres sondes : l'observateur est PORTÉ par le lecteur, et deux
 	// films se décodent donc en parallèle (`TestDeuxFilmsEnParallele`).
-	DesiredWeaponSetHook func(j JeuDArmes)
+	DesiredWeaponSetHook func(slot uint32, j JeuDArmes)
 
 	// (depuis `unit_weaponstate.go`)
 	// WeaponOverheatHook, si non nil, reçoit chaque lecture de `weapon-state-overheated`

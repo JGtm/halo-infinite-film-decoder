@@ -67,6 +67,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.Reloads, s.in.ReloadStats = m.Reloads, m.ReloadStats
 	s.in.Repliques = m.Repliques
 	s.in.Gestures, s.in.GestureStats = m.Gestures, m.GestureStats
+	s.in.DrawnWeapons, s.in.DrawnWeaponStats = m.DrawnWeapons, m.DrawnWeaponStats
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
 	// LES SCRIPTS NE DEPENDENT QUE DU FILM : la tache de fond les a lus d'avance quand il y en a une
@@ -102,6 +103,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "repliques.stats", s.in.Repliques.Stats)
 	s.opt.observe(s.ctx, "gestures", s.in.Gestures)
 	s.opt.observe(s.ctx, "gestures.stats", s.in.GestureStats)
+	s.opt.observe(s.ctx, "drawnWeapons", s.in.DrawnWeapons)
+	s.opt.observe(s.ctx, "drawnWeapons.stats", s.in.DrawnWeaponStats)
 	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)

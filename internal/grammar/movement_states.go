@@ -159,6 +159,10 @@ type MarcheDesTrames struct {
 	DebutsDeListeParRepliFermeAuBit int
 	// Horloges sont l horloge de manche et les comptes a rebours de reapparition ([canalDesHorloges]).
 	Horloges HorlogesLues
+	// DrawnWeapons : les changements du jeu d armes desire du bipede (`i42`), tries par instant puis slot
+	// ([canalDuJeuDArmes]) ; DrawnWeaponStats, leurs denominateurs.
+	DrawnWeapons     []types.DrawnWeaponRead
+	DrawnWeaponStats types.DrawnWeaponStats
 	// ProprietesGerees sont les valeurs des proprietes reseau de ti=13 que les trames delta portent
 	// ([canalDesProprietesGereesTrames]).
 	ProprietesGerees ProprietesGereesLues
@@ -221,7 +225,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	gestes := nouveauCanalDesGestes()
 	vitalites := nouveauCanalDesVitalites()
 	repliques := nouveauCanalDesRepliques()
-	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes}
+	armes := nouveauCanalDuJeuDArmes(arch)
+	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes, armes}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -255,6 +260,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.Reloads, m.ReloadStats = rechargements.out, rechargements.stats
 	m.Repliques = repliques.resultat()
 	m.Gestures, m.GestureStats = gestes.out, gestes.stats
+	m.DrawnWeapons, m.DrawnWeaponStats = armes.out, armes.st
 	m.Vitalites = vitalites.resultat()
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()
@@ -284,16 +290,6 @@ func nouveauCanalDesEtats(st *types.MovementStateStats, reg *Registry, arch Arch
 		componentIndexOfAny(arch, abilityComponentName, abilityComponentAlt) >= 0
 	return &movementStateScanner{st: st, transmet: transmet, vues: map[movementStateKey]types.MovementStateRead{},
 		physique: occurrencesDe(reg, compVehicleTypePhysics)}
-}
-
-// movementStateKey deduplique une lecture : le chemin d inference de la marche ([decodeInferLoop])
-// re-parcourt un record quand une chaine de transitoires le demande, et le deserialiseur
-// re-publie alors la MEME transition. Compter deux fois la meme gonflerait les denominateurs
-// sans qu aucun compteur ne le dise.
-type movementStateKey struct {
-	slot uint32
-	kind string
-	ts   uint64
 }
 
 // movementStateScanner est le CANAL DES ETATS DE MOUVEMENT de la marche des trames

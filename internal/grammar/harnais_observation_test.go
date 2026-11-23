@@ -37,13 +37,18 @@ func poserObservateur(o *Observation) *Observation {
 func SetAbilityEnergyHook(h func(mask uint32, ch [AbilityEnergyCharges]int)) {
 	observateur.AbilityEnergyHook = h
 }
-func SetCamoStateHook(h func(st CamoState))              { observateur.CamoStateHook = h }
-func SetMobilityActionHook(h func(flag1, flag2 bool))    { observateur.MobilityActionHook = h }
-func SetGrenadeSetHook(h func(mask uint32, sel int))     { observateur.GrenadeSetHook = h }
-func SetEmpTimerHook(h func(quant uint32))               { observateur.EmpTimerHook = h }
-func SetUnitRefHook(h func(UnitRefRead))                 { observateur.UnitRefHook = h }
-func SetWeaponRoundsHook(h func(rounds uint32))          { observateur.WeaponRoundsHook = h }
-func SetDesiredWeaponSetHook(h func(j JeuDArmes))        { observateur.DesiredWeaponSetHook = h }
+func SetCamoStateHook(h func(st CamoState))           { observateur.CamoStateHook = h }
+func SetMobilityActionHook(h func(flag1, flag2 bool)) { observateur.MobilityActionHook = h }
+func SetGrenadeSetHook(h func(mask uint32, sel int))  { observateur.GrenadeSetHook = h }
+func SetEmpTimerHook(h func(quant uint32))            { observateur.EmpTimerHook = h }
+func SetUnitRefHook(h func(UnitRefRead))              { observateur.UnitRefHook = h }
+func SetWeaponRoundsHook(h func(rounds uint32))       { observateur.WeaponRoundsHook = h }
+func SetDesiredWeaponSetHook(h func(j JeuDArmes)) {
+	observateur.DesiredWeaponSetHook = nil
+	if h != nil {
+		observateur.DesiredWeaponSetHook = func(_ uint32, j JeuDArmes) { h(j) }
+	}
+}
 func SetGroundWeaponAmmoHook(h func(a, b, c uint32))     { observateur.GroundWeaponAmmoHook = h }
 func SetHeldWeaponHook(h func(idHigh, idLow uint32))     { observateur.HeldWeaponHook = h }
 func SetObjectParentStateHook(h func(ObjectParentState)) { observateur.ObjectParentStateHook = h }

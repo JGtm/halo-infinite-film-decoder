@@ -104,6 +104,8 @@ type ReplayDocument struct {
 	// degaine et du marqueur de lecture vide. Les deux axes coexistent parce qu'ils n'ont pas la
 	// meme cadence, et les melanger ferait masquer une lecture pleine par une lecture partielle.
 	GrenadeReads []GrenadeRead `json:"grenadeReads,omitempty"`
+	// AmmoReads : les munitions portees a chaque changement de valeur, images-cles et trames delta sur un axe (ammo_reads.go).
+	AmmoReads []AmmoRead `json:"ammoReads,omitempty"`
 	// AbilityLabels nomme les RANGS de capacité que le document emploie.
 	//
 	// LA TABLE EST PARTIELLE, et un rang absent GARDE SON NUMÉRO à l'écran, marqué non
@@ -301,6 +303,8 @@ type ReplayDocument struct {
 	Announcements []Announcement `json:"announcements,omitempty"`
 	// Gestures : les gestes du joueur engages dans la vue A, coup de melee et lancer amorce, une ligne par (trame, joueur, geste) (document_gestes.go).
 	Gestures []Gesture `json:"gestures,omitempty"`
+	// DrawnWeapons : l arme tiree en main a chaque changement, une ligne par (trame, slot) (document_arme_tiree.go).
+	DrawnWeapons []DrawnWeapon `json:"drawnWeapons,omitempty"`
 	// Eliminations est une ligne par élimination du tableau des scores : tueur, image, victime quand le film la donne, marques
 	// de tir à la tête et de frag parfait à trois états (document_eliminations.go). Absente sans tableau des scores.
 	Eliminations []Elimination `json:"eliminations,omitempty"`
