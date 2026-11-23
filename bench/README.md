@@ -99,6 +99,8 @@ Les colonnes du TSV :
 | `pic_mio` | pic de memoire en Mio, pris dans un processus neuf (voir plus bas) ; repete sur chaque ligne du film |
 | `empreinte_document`, `empreinte_faits` | SHA-256 du document de rejeu (serialise en JSON) et du fichier de faits ; repetees sur chaque ligne du film |
 
+A plus d'un fil, les durees par etape ne sont plus significatives : des lectures tournent en meme temps, et leur duree se melange. Seules la duree totale, le pic de memoire et les empreintes se comparent d'un releve a l'autre.
+
 Les empreintes servent a prouver qu'une optimisation ne change aucune sortie : deux releves du meme
 code donnent les memes empreintes, et une version qui ne doit rien changer les garde.
 
