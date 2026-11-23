@@ -210,10 +210,11 @@ func flagFilmBasesNeutralBirths(x, y float32) []flagFreeLife {
 		flagTestLife(20, [2]float32{x, y})}
 }
 
-// TestBasesDuFilmBaseNeutreSurLeCatalogue — les deux camps volent au meme point (50,50). Le
-// catalogue reste source quand il NOMME le camp ou quand l'objet a tranche ; un socle qui ne nomme
-// aucun camp devient le socle neutre quand l'objet n'a pas tranche (cas Cliffside `4bffd021` :
-// socle central sans camp ni label).
+// TestBasesDuFilmBaseNeutreSurLeCatalogue — les deux camps volent au meme point (50,50). Ce que
+// le film lit l'emporte sur le rangement du catalogue : un socle a portee, qu'il nomme un camp
+// (variante a un seul drapeau rangee dans l'equipe 0) ou non (cas Cliffside `4bffd021` : socle
+// central sans camp ni label), devient le socle neutre unique quand l'objet n'a pas tranche. Le
+// verdict de l'objet reste quand il a tranche, et sans socle a portee le catalogue reste.
 func TestBasesDuFilmBaseNeutreSurLeCatalogue(t *testing.T) {
 	equipes := []FlagSpawn{{Team: 0, X: 0, Y: 0}, {Team: 1, X: 100, Y: 100}}
 	avec := func(s ...FlagSpawn) []FlagSpawn { return append(s, equipes...) }
@@ -232,8 +233,14 @@ func TestBasesDuFilmBaseNeutreSurLeCatalogue(t *testing.T) {
 		{"contradiction : l'objet a tranche neutre ailleurs, le socle sans camp a portee ne l'emporte pas",
 			avec(FlagSpawn{Team: TeamNeutral, Neutral: true, X: 80, Y: 80}, FlagSpawn{Team: TeamNeutral, X: 50, Y: 50}),
 			flagFilmBasesNeutralBirths(80, 80), 0, 1, 0, 1, 80},
-		{"contradiction : le socle a portee nomme un camp",
-			avec(FlagSpawn{Team: 0, X: 50, Y: 50}), nil, 0, 1, 0, 3, 0},
+		{"socle a portee rangé dans une equipe par le catalogue : le film l'emporte, un seul drapeau neutre",
+			avec(FlagSpawn{Team: 0, X: 50, Y: 50}), nil, 0, 0, 1, 1, 50},
+		{"le socle sans camp a portee passe avant le socle d'equipe plus proche",
+			avec(FlagSpawn{Team: 0, X: 50, Y: 50}, FlagSpawn{Team: TeamNeutral, X: 52, Y: 50}), nil, 0, 0, 1, 1, 52},
+		{"le socle d'equipe le plus proche l'emporte entre deux socles d'equipe",
+			avec(FlagSpawn{Team: 1, X: 52, Y: 50}, FlagSpawn{Team: 0, X: 50.5, Y: 50}), nil, 0, 0, 1, 1, 50.5},
+		{"contradiction : aucun socle a portee de la base lue",
+			avec(FlagSpawn{Team: 0, X: 60, Y: 50}), nil, 0, 1, 0, 3, 0},
 		{"socle sans camp promu neutre",
 			avec(FlagSpawn{Team: TeamNeutral, X: 50, Y: 50}), nil, 0, 0, 1, 1, 50},
 		{"socle neutre par son label, objet muet",
