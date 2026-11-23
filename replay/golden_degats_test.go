@@ -122,8 +122,15 @@ func renderTouches(p func(string, ...any), doc ReplayDocument) {
 		f, l := doc.Hits[0], doc.Hits[n-1]
 		p("première : t=%d %s -> %s %s w=%s · dernière : t=%d %s -> %s %s w=%s", f.T, f.Shooter, f.Victim, f.Effect, f.Weapon, l.T, l.Shooter, l.Victim, l.Effect, l.Weapon)
 	}
-	if n := len(doc.Damage); n > 0 {
-		f, l := doc.Damage[0], doc.Damage[n-1]
+	// LES LIGNES A ZERO POINT NE SE LISENT PAS ICI : le rendu garde le sens d avant leur publication (premiere et derniere ligne A POINTS).
+	var avecPoints []Damage
+	for _, d := range doc.Damage {
+		if d.Shield != 0 || d.Body != 0 {
+			avecPoints = append(avecPoints, d)
+		}
+	}
+	if n := len(avecPoints); n > 0 {
+		f, l := avecPoints[0], avecPoints[n-1]
 		p("dégât, première : t=%d %s -> %s %s bouclier %.1f corps %.1f · dernière : t=%d %s -> %s %s bouclier %.1f corps %.1f",
 			f.T, f.Attacker, f.Victim, f.Effect, f.Shield, f.Body, l.T, l.Attacker, l.Victim, l.Effect, l.Shield, l.Body)
 	}
