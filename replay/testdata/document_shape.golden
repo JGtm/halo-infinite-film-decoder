@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee fcc84700fa689fe6
-empreinte-servie fcc84700fa689fe6
-empreinte-cuite 1c1025aa1af198a6
+empreinte-stockee c90bb6fbfc2ae2c5
+empreinte-servie c90bb6fbfc2ae2c5
+empreinte-cuite 5956f1b0680884e1
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -88,6 +88,17 @@ AnnouncementCoverage
   Published json:"published" int
   Read json:"read" int
   StoppedFrames json:"stoppedFrames" int
+Attachment
+  Attacker json:"attacker,omitempty" string
+  Born json:"born,omitempty" bool
+  By json:"by,omitempty" uint32
+  Node json:"node" uint32
+  ParentSlot json:"parentSlot" uint32
+  Pose json:"pose" [3]uint32
+  T json:"t" int
+  Tag json:"tag,omitempty" string
+  Target json:"target,omitempty" string
+  Victim json:"victim,omitempty" string
 BipedLinkCounts
   DirectPropagated json:"direct_propage" int
   LinkCounts json:"" LinkCounts
@@ -1139,6 +1150,7 @@ PresenceInterval
   To json:"to" int
   ToMax json:"toMax,omitempty" *int
 Projectile
+  Attach json:"attach,omitempty" *ProjectileAttach
   DetoLue json:"detoLue,omitempty" bool
   DetoT json:"detoT" int
   DetoX json:"detoX" float32
@@ -1149,7 +1161,30 @@ Projectile
   Shot json:"shot,omitempty" *int
   T0 json:"t0" int
   Z json:"z,omitempty" []float32
+ProjectileAttach
+  FromFrame json:"fromFrame" int
+  Node json:"node" uint32
+  ParentSlot json:"parentSlot" uint32
+  Pose json:"pose" [3]uint32
+ProjectileAttachCoverage
+  AuthorNoTrack json:"authorNoTrack" int
+  AuthorNone json:"authorNone" int
+  Authored json:"authored" int
+  Created json:"created" int
+  Desynced json:"desynced" int
+  Listed json:"listed" int
+  OnFlight json:"onFlight" int
+  OutOfMatch json:"outOfMatch" int
+  Player json:"player" int
+  Read json:"read" int
+  Records json:"records" int
+  Tagged json:"tagged" int
+  UnreadFrames json:"unreadFrames" int
+  Unresolved json:"unresolved" int
+  Vehicle json:"vehicle" int
+  WideLocations json:"wideLocations" int
 ProjectileCoverage
+  Attach json:"attach,omitempty" *ProjectileAttachCoverage
   FullRateSamples json:"fullRateSamples" int
   Published json:"published" int
   ShotAmbiguous json:"shotAmbiguous" int
@@ -1183,6 +1218,7 @@ ReplayDocument
   AbilityLabels json:"abilityLabels,omitempty" map[string]Label
   AmmoReads json:"ammoReads,omitempty" []AmmoRead
   Announcements json:"announcements,omitempty" []Announcement
+  Attachments json:"attachments,omitempty" []Attachment
   BombArmings json:"bombArmings,omitempty" []BombArming
   BombCarries json:"bombCarries,omitempty" []BombCarry
   BombEvents json:"bombEvents,omitempty" []BombEvent

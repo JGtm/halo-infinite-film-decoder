@@ -326,6 +326,35 @@ Read	int	-
 SlotUnbound	int	-
 Duplicates	int	-
 
+## ProjectileAttachRead (grammar)
+TimestampUS	uint64	-
+Life	types.LifeKey	-
+BornUS	uint64	-
+HasBirth	bool	-
+Tag	uint32	-
+HasTag	bool	-
+Creator	types.LifeKey	-
+HasCreator	bool	-
+Created	bool	-
+Parent	types.LifeKey	-
+Node	uint32	-
+Pose	[3]uint32	-
+
+## ProjectileAttachStats (grammar)
+Scanned	bool	-
+Absent	bool	-
+Frames	int	-
+UnreadFrames	int	-
+Records	int	-
+Read	int	-
+Created	int	-
+Desynced	int	-
+Repeats	int	-
+NoBirth	int	-
+NoTag	int	-
+NoCreator	int	-
+WideLocations	int	-
+
 ## EquipmentPlacement (grammar)
 Life	types.LifeKey	-
 T0US	uint64	-
