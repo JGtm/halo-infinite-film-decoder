@@ -52,6 +52,16 @@ type Couche struct {
 	// [Module.SurDisque] le resout dans le module courant. Tout paquet sous cette racine est
 	// de la couche.
 	Racine string
+	// Associes : les paquets HORS couche que la fermeture des imports de la couche ne rencontre pas, mais dont
+	// les octets (sources et fichiers embarques) decident ce que le calque de la couche publie : ils entrent dans son
+	// perimetre comme s'ils etaient importes, et leurs propres imports sont suivis a leur tour. Noms historiques, en
+	// slash, relatifs au module. Un paquet qui est deja une couche, ou qui ne porte aucune source de production, est
+	// une faute de declaration ([ErrPerimetre]).
+	//
+	// Le cas d'usage est une TABLE DE DONNEES consommee par la publication et pas par la couche : la table des
+	// reponses de jeu (`reponsesdejeu`) nomme les actions de score que `grammar` fait lire ; sans cette association,
+	// une ligne de plus ne changerait aucune revision et le rejeu ne serait jamais a redecoder.
+	Associes []string
 }
 
 // ErrPerimetre : la declaration d une couche et sa fermeture ne s accordent pas (couche inconnue,
@@ -130,6 +140,16 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 	for _, p := range file {
 		vus[p] = true
 	}
+	associes, err := m.paquetsAssocies(propre, couches)
+	if err != nil {
+		return Perimetre{}, err
+	}
+	for _, rel := range associes {
+		if !vus[rel] {
+			vus[rel] = true
+			file = append(file, rel)
+		}
+	}
 	amonts := map[string]bool{}
 	for i := 0; i < len(file); i++ {
 		imports, err := m.importsDuPaquet(file[i])
@@ -157,6 +177,23 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 		}
 	}
 	return p, nil
+}
+
+// paquetsAssocies rend les paquets que `propre` declare ([Couche.Associes]) apres les avoir verifies : un paquet
+// d'une couche revisee entrerait par sa valeur et non par ses octets, et un dossier sans source de production ne
+// hacherait rien.
+func (m Module) paquetsAssocies(propre Couche, couches []Couche) ([]string, error) {
+	for _, rel := range propre.Associes {
+		if autre := coucheDuPaquet(rel, couches); autre != "" {
+			return nil, fmt.Errorf("%w : le paquet associe %s a la couche %s est de la couche %s, qui entre par sa valeur",
+				ErrPerimetre, rel, propre.Nom, autre)
+		}
+		noms, err := sourcesDuDossier(m.SurDisque(rel))
+		if err != nil || len(noms) == 0 {
+			return nil, fmt.Errorf("%w : paquet associe %s a la couche %s (%v)", ErrRacineSansSource, rel, propre.Nom, err)
+		}
+	}
+	return propre.Associes, nil
 }
 
 // coucheNommee rend la couche de ce nom.

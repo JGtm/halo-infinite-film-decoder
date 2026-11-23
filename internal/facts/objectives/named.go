@@ -331,7 +331,7 @@ func namedEventsOfTable(recs []types.StatRecord, objectiveType string, table, ju
 		if slot.Redundant {
 			continue
 		}
-		series := cumulateRounds(byKey[key], real, cuts, cons.Diagnostics())
+		series := cumulateRounds(byKey[key], real, cuts, nil, cons.Diagnostics())
 		for _, entity := range sortedIntKeys(series) {
 			for _, t := range incrementTimes(series[entity], key, b) {
 				out = append(out, NamedEvent{
