@@ -230,7 +230,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	vitalites := nouveauCanalDesVitalites()
 	repliques := nouveauCanalDesRepliques()
 	armes := nouveauCanalDuJeuDArmes(arch)
-	colles := nouveauCanalDesProjectilesColles(reg)
+	colles := nouveauCanalDesProjectilesColles(fc, reg)
 	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes, armes, colles}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))

@@ -6,6 +6,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/lecture"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
@@ -114,9 +115,10 @@ func enregistrementColle(typ int, slot, gen uint32, st ObjectParentState, desali
 func TestLeCanalDesProjectilesCollesNeRetientQueLesCollagesAlignes(t *testing.T) {
 	colle := etatDeParenteCapture(t)
 	libre := ObjectParentState{Attached: false}
-	c := &canalDesProjectilesColles{vues: map[types.LifeKey]struct{}{}}
-	lire := func(ts uint64, r FrameRecord) { c.lire(ts, &r) }
+	c := &canalDesProjectilesColles{vues: map[types.LifeKey]struct{}{}, naissances: map[types.LifeKey]naissanceDeProjectile{}}
+	lire := func(ts uint64, r FrameRecord) { c.lire(&lecture.Paquet{TS: ts}, &r) }
 
+	lire(50, enregistrementColle(recNew, 1133, 1, libre, -1)) // la creation de la vie qui se colle plus tard
 	lire(300, enregistrementColle(recDelta, 1133, 1, colle, -1))
 	lire(100, enregistrementColle(recNew, 1200, 2, colle, -1))
 	lire(100, enregistrementColle(recDelta, 1100, 0, libre, -1))
@@ -129,14 +131,14 @@ func TestLeCanalDesProjectilesCollesNeRetientQueLesCollagesAlignes(t *testing.T)
 	parent := types.LifeKey{Slot: 561, Gen: 1}
 	pose := [3]uint32{32214, 33936, 33041}
 	want := []types.ProjectileAttachRead{
-		{TimestampUS: 100, Life: types.LifeKey{Slot: 1200, Gen: 2}, Created: true, Parent: parent, Node: 22, Pose: pose},
-		{TimestampUS: 300, Life: types.LifeKey{Slot: 1133, Gen: 1}, Parent: parent, Node: 22, Pose: pose},
-		{TimestampUS: 400, Life: types.LifeKey{Slot: 1133, Gen: 1}, Parent: parent, Node: 22, Pose: pose},
+		{TimestampUS: 100, Life: types.LifeKey{Slot: 1200, Gen: 2}, BornUS: 100, HasBirth: true, Created: true, Parent: parent, Node: 22, Pose: pose},
+		{TimestampUS: 300, Life: types.LifeKey{Slot: 1133, Gen: 1}, BornUS: 50, HasBirth: true, Parent: parent, Node: 22, Pose: pose},
+		{TimestampUS: 400, Life: types.LifeKey{Slot: 1133, Gen: 1}, BornUS: 50, HasBirth: true, Parent: parent, Node: 22, Pose: pose},
 	}
 	if !slices.Equal(c.out, want) {
 		t.Errorf("lectures %+v, attendu %+v", c.out, want)
 	}
-	attendu := types.ProjectileAttachStats{Scanned: true, Records: 4, Read: 3, Created: 1, Desynced: 1, Repeats: 1}
+	attendu := types.ProjectileAttachStats{Scanned: true, Records: 5, Read: 3, Created: 1, Desynced: 1, Repeats: 1, NoTag: 3, NoCreator: 3}
 	if c.st != attendu {
 		t.Errorf("comptes %+v, attendu %+v", c.st, attendu)
 	}
@@ -145,7 +147,7 @@ func TestLeCanalDesProjectilesCollesNeRetientQueLesCollagesAlignes(t *testing.T)
 // TestLeCanalDesProjectilesCollesSAbstientQuandLeComposantManque : un registre sans i10 pour le projectile ne pose aucun
 // interet et le canal le dit (`Absent`) au lieu de rendre « zero collage ».
 func TestLeCanalDesProjectilesCollesSAbstientQuandLeComposantManque(t *testing.T) {
-	c := nouveauCanalDesProjectilesColles(&Registry{})
+	c := nouveauCanalDesProjectilesColles(nil, &Registry{})
 	if !c.st.Absent || c.Interets() != nil {
 		t.Fatalf("un registre sans archetype projectile doit etre absent et sans interet : %+v", c.st)
 	}
@@ -185,5 +187,13 @@ func TestLaMarcheDesTramesRendLesMemesProjectilesCollesAUnEtAQuatreFils(t *testi
 	}
 	if ref.ProjectileAttachStats.Read == 0 {
 		t.Error("la bobine porte des projectiles colles et aucune lecture n est rendue")
+	}
+	for _, l := range ref.ProjectileAttaches {
+		if !l.HasBirth || !l.HasTag || l.BornUS > l.TimestampUS || (l.Created && l.BornUS != l.TimestampUS) {
+			t.Errorf("la naissance d une lecture de la bobine est incoherente : %+v", l)
+		}
+		if l.HasCreator && l.Creator.Slot < parentHandleBase {
+			t.Errorf("le createur n est pas dans l espace des slots d unites : %+v", l)
+		}
 	}
 }

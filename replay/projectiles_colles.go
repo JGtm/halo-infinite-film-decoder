@@ -2,7 +2,7 @@ package replay
 
 // projectiles_colles.go : LE PROJECTILE QUI SE COLLE, PUBLIE (`projectiles[].attach`).
 //
-// Un projectile (grenade plasma ou a pointes, aiguille...) qui se fixe sur une entite l ecrit dans son etat de parente. Son record
+// Un projectile (grenade, trait d arme, arc de grenade...) qui se fixe sur une entite l ecrit dans son etat de parente. Son record
 // nomme alors ce sur quoi il est colle ([types.ProjectileAttachRead]) : le PARENT (dans le meme espace de
 // slots que les pistes), un NOEUD de ce parent, et trois valeurs de 16 bits qui placent le projectile dans le
 // repere de ce noeud. Le document publie cette lecture, rien de plus.
@@ -46,9 +46,9 @@ type ProjectileAttachInput struct {
 	Stats types.ProjectileAttachStats
 }
 
-// ProjectileAttachCoverage dit ce que le calque a lu, pose et ecarte. Chaque lecture compte dans UNE de ces trois
-// classes : hors du match, sans vol publie, ou posee (`outOfMatch + noFlight + published == read`) ; une lecture posee
-// compte dans UNE des trois cibles (`player + vehicle + unresolved == published`).
+// ProjectileAttachCoverage dit ce que le calque a lu, pose et ecarte. Chaque lecture compte dans UNE de ces trois classes : hors du
+// match, posee sur un vol publie (`projectiles[].attach`), ou publiee dans `attachments[]` (`outOfMatch + onFlight + listed == read`) ;
+// une lecture posee ou publiee compte dans UNE des trois cibles (`player + vehicle + unresolved == onFlight + listed`).
 type ProjectileAttachCoverage struct {
 	// Records : les records de projectile dont l etat de parente a ete lu jusqu au bout ; Read : ceux qui ouvrent la porte
 	// « attache », donc les lectures ; Created : parmi elles, celles d un projectile qui nait colle.
@@ -63,16 +63,23 @@ type ProjectileAttachCoverage struct {
 	WideLocations int `json:"wideLocations"`
 	// OutOfMatch : les lectures avant l origine de l axe ou apres sa derniere frame.
 	OutOfMatch int `json:"outOfMatch"`
-	// NoFlight : les lectures dans l axe qu aucun projectile publie ne porte : le projectile nait colle, son vol n est pas publie
-	// (moins de trois echantillons), ou la lecture tombe hors de sa fenetre de vie.
-	NoFlight int `json:"noFlight"`
-	// Published : les lectures posees sur un projectile publie.
-	Published int `json:"published"`
-	// Player, Vehicle, Unresolved : parmi les posees, celles dont le parent est une piste de joueur ou un vehicule a FromFrame, et
-	// celles dont il n est ni l un ni l autre (sans cible resolue).
+	// OnFlight : les lectures posees sur un projectile publie, dont le vol se termine par elles. Listed : les lectures qu aucun projectile
+	// publie ne porte (le projectile nait colle, son vol n est pas publie, ou la lecture tombe hors de sa fenetre de vie), publiees dans
+	// `attachments[]`.
+	OnFlight int `json:"onFlight"`
+	Listed   int `json:"listed"`
+	// Player, Vehicle, Unresolved : parmi les lectures posees ou publiees, celles dont le parent est une piste de joueur ou un vehicule a la
+	// frame de la lecture, et celles dont il n est ni l un ni l autre (sans cible resolue).
 	Player     int `json:"player"`
 	Vehicle    int `json:"vehicle"`
 	Unresolved int `json:"unresolved"`
+	// Tagged : parmi les publiees dans `attachments[]`, celles dont le type du projectile est lu. Authored : celles dont le createur est lu et
+	// tient une piste a cette frame (`by`) ; AuthorNoTrack : celles dont le createur est lu et ne tient aucune piste ; AuthorNone : celles dont
+	// la creation ne nomme pas de createur (ou n est pas lue).
+	Tagged        int `json:"tagged"`
+	Authored      int `json:"authored"`
+	AuthorNoTrack int `json:"authorNoTrack"`
+	AuthorNone    int `json:"authorNone"`
 }
 
 // cibleDuCollage est ce que le parent d un collage est dans le document.
@@ -110,20 +117,35 @@ func lecturesParVie(lectures []types.ProjectileAttachRead) map[types.LifeKey][]i
 }
 
 // premiereLectureDuVol rend l indice de la premiere lecture `libre` de la vie du vol `tr` qui suit son premier echantillon et tombe au
-// plus tard a la frame de sa detonation `detoT`, ou -1. `frames[i]` est la frame de la lecture `i`.
+// plus tard a la frame de sa detonation `detoT`, ou -1. `frames[i]` est la frame de la lecture `i`. Une lecture dont la creation est lue
+// n appartient au vol que si celui-ci commence apres cette creation : une cle se reutilise.
 func premiereLectureDuVol(tr types.ProjectileTrack, detoT int, indices []int, lectures []types.ProjectileAttachRead,
 	frames []int, prises []bool) int {
+	debut := tr.Pts[0].TimestampUS
 	for _, i := range indices {
-		if !prises[i] && lectures[i].TimestampUS >= tr.Pts[0].TimestampUS && frames[i] <= detoT {
+		l := lectures[i]
+		if !prises[i] && l.TimestampUS >= debut && (!l.HasBirth || l.BornUS <= debut) && frames[i] <= detoT {
 			return i
 		}
 	}
 	return -1
 }
 
-// poserLesProjectilesColles pose `attach` sur les projectiles publies dont le vol se termine par un collage, et la couverture du
-// calque. Sans lecture des projectiles colles (marche des trames non jouee, archetype sans `i10`) ou sans piste de projectile,
-// rien ne se pose et la couverture reste absente.
+// compterLaCible ajoute une lecture de cible `cible` au compte de sa cible dans la couverture.
+func (cov *ProjectileAttachCoverage) compterLaCible(cible cibleDuCollage) {
+	switch cible {
+	case cibleJoueur:
+		cov.Player++
+	case cibleVehicule:
+		cov.Vehicle++
+	default:
+		cov.Unresolved++
+	}
+}
+
+// poserLesProjectilesColles pose `attach` sur les projectiles publies dont le vol se termine par un collage, publie les autres lectures
+// dans `attachments[]`, et pose la couverture du calque. Sans lecture des projectiles colles (marche des trames non jouee, archetype sans
+// `i10`) ou sans piste de projectile, rien ne se pose et la couverture reste absente.
 func (a *assemblage) poserLesProjectilesColles() {
 	in := a.opt.ProjectileAttaches
 	if a.projCov == nil || !in.Stats.Scanned || in.Stats.Absent {
@@ -132,6 +154,7 @@ func (a *assemblage) poserLesProjectilesColles() {
 	st := in.Stats
 	cov := ProjectileAttachCoverage{Records: st.Records, Read: st.Read, Created: st.Created,
 		Desynced: st.Desynced, UnreadFrames: st.UnreadFrames, WideLocations: st.WideLocations}
+	cadre := cadreDesCollages{pistes: a.doc.Tracks, vehicules: a.doc.Vehicles}
 	axe := axeDeFrames{a.origin, a.step, a.doc.FrameCount}
 	frames := make([]int, len(in.Reads))
 	prises := make([]bool, len(in.Reads))
@@ -139,7 +162,7 @@ func (a *assemblage) poserLesProjectilesColles() {
 		t, refus := frameDeLAction(l.TimestampUS, axe)
 		frames[i] = t
 		if refus != refusAucun {
-			prises[i] = true // hors de l axe : aucun vol ne la prend
+			prises[i] = true // hors de l axe : aucun vol ne la prend, aucune frame ne la porte
 			cov.OutOfMatch++
 		}
 	}
@@ -157,16 +180,9 @@ func (a *assemblage) poserLesProjectilesColles() {
 		prises[i] = true
 		l := in.Reads[i]
 		p.Attach = &ProjectileAttach{FromFrame: frames[i], ParentSlot: l.Parent.Slot, Node: l.Node, Pose: l.Pose}
-		cov.Published++
-		switch cibleDuParent(l.Parent, frames[i], a.doc.Tracks, a.doc.Vehicles) {
-		case cibleJoueur:
-			cov.Player++
-		case cibleVehicule:
-			cov.Vehicle++
-		default:
-			cov.Unresolved++
-		}
+		cov.OnFlight++
+		cov.compterLaCible(cibleDuParent(l.Parent, frames[i], cadre.pistes, cadre.vehicules))
 	}
-	cov.NoFlight = len(in.Reads) - cov.OutOfMatch - cov.Published
+	a.doc.Attachments = publierLesCollagesSansVol(in.Reads, frames, prises, cadre, &cov)
 	a.projCov.Attach = &cov
 }

@@ -67,7 +67,7 @@ func TestUnVolQuiSeColleSurUnJoueurPublieSonCollage(t *testing.T) {
 	if autre := a.doc.Projectiles[a.projParPiste[1]]; autre.Attach != nil {
 		t.Errorf("un vol qui ne colle pas porte un collage : %+v", *autre.Attach)
 	}
-	if c := a.projCov.Attach; c == nil || c.Published != 1 || c.Player != 1 || c.Read != 1 || c.NoFlight != 0 || c.OutOfMatch != 0 {
+	if c := a.projCov.Attach; c == nil || c.OnFlight != 1 || c.Player != 1 || c.Read != 1 || c.Listed != 0 || c.OutOfMatch != 0 {
 		t.Errorf("couverture %+v", c)
 	}
 }
@@ -94,7 +94,7 @@ func TestLeCollageNEstPublieQueDansLaFenetreDeVieDuVol(t *testing.T) {
 		if got := a.doc.Projectiles[a.projParPiste[0]].Attach; got != nil {
 			t.Errorf("%s : collage publie %+v", nom, *got)
 		}
-		if c := a.projCov.Attach; c.NoFlight != 1 || c.Published != 0 {
+		if c := a.projCov.Attach; c.Listed != 1 || c.OnFlight != 0 {
 			t.Errorf("%s : couverture %+v, attendu une lecture sans vol", nom, *c)
 		}
 	}
@@ -121,7 +121,7 @@ func TestUneCleReutiliseDonneSonCollageAChaqueVol(t *testing.T) {
 	if second.Attach == nil || second.Attach.Node != 26 || second.Attach.FromFrame != 22 {
 		t.Errorf("second vol : %+v, attendu le noeud 26 a la frame 22", second.Attach)
 	}
-	if c := a.projCov.Attach; c.Published != 2 || c.NoFlight != 1 {
+	if c := a.projCov.Attach; c.OnFlight != 2 || c.Listed != 1 {
 		t.Errorf("couverture %+v, attendu deux posees et une sans vol", *c)
 	}
 }
@@ -158,7 +158,7 @@ func TestLaCibleDuCollageEstUnJoueurUnVehiculeOuRien(t *testing.T) {
 		a := assemblageDeCollage(vols, []types.ProjectileAttachRead{l})
 		a.poserLesProjectilesColles()
 		c := a.projCov.Attach
-		if c.Player+c.Vehicle+c.Unresolved != c.Published || c.Published != 1 || [3]int{c.Player, c.Vehicle, c.Unresolved}[i] != 1 {
+		if c.Player+c.Vehicle+c.Unresolved != c.OnFlight || c.OnFlight != 1 || [3]int{c.Player, c.Vehicle, c.Unresolved}[i] != 1 {
 			t.Errorf("parent %v : couverture %+v", parent, *c)
 		}
 	}
@@ -175,7 +175,7 @@ func TestLaCouvertureDesCollagesClasseChaqueLecture(t *testing.T) {
 	a := assemblageDeCollage([]types.ProjectileTrack{volDeProjectile(1133, 1, 2_000_000, 10)}, lectures)
 	a.poserLesProjectilesColles()
 	c := *a.projCov.Attach
-	if c.OutOfMatch != 2 || c.NoFlight != 1 || c.Published != 1 || c.OutOfMatch+c.NoFlight+c.Published != c.Read {
+	if c.OutOfMatch != 2 || c.Listed != 1 || c.OnFlight != 1 || c.OutOfMatch+c.Listed+c.OnFlight != c.Read {
 		t.Errorf("couverture %+v", c)
 	}
 	if c.Records != 7 || c.Created != 1 || c.WideLocations != 2 {

@@ -4,7 +4,7 @@ package grammar
 //
 // # CE QUE LE FILM ECRIT
 //
-// Un projectile (grenade plasma ou a pointes, aiguille...) qui se fixe sur une entite l ecrit dans
+// Un projectile (grenade, trait d arme, arc de grenade...) qui se fixe sur une entite l ecrit dans
 // `object-parent-state-component` (i10), porte « attache » ouverte : le record capture d un collage (les tests de
 // ce canal) porte i10 et `projectile-at-rest-state` (i18), sans position (i0). La branche « attache » de i10 nomme le
 // PARENT (le handle de la categorie 1, de base [parentHandleBase] : celui que lisent deja l occupation des
@@ -18,6 +18,9 @@ package grammar
 // Les lectures BRUTES, dans l ordre du flux : le parent, le noeud et les trois valeurs, jamais interpretees.
 // Aucune plage n est connue pour ces trois valeurs (cf. [types.ProjectileAttachRead]) ; ce qu elles valent en
 // unites du monde est le travail d un lecteur qui connait le squelette du parent, pas celui du decodeur.
+// Chaque lecture porte aussi ce que la CREATION de sa vie dit du projectile : son instant, son type (le mot de
+// 32 bits de son tag) et son createur ([canal_des_projectiles_colles_naissance.go]). Le canal ne dit pas quel
+// tir ou quelle arme a produit le projectile : le film ne l ecrit pas.
 //
 // # LES LARGEURS SONT CELLES DE i10, ET LE FILM LES PROUVE
 //
@@ -43,12 +46,17 @@ type canalDesProjectilesColles struct {
 	st   types.ProjectileAttachStats
 	out  []types.ProjectileAttachRead
 	vues map[types.LifeKey]struct{}
+	// id relit l etat de creation de chaque projectile ; nil quand le profil du film ne le deroule pas. naissances tient la creation
+	// courante de chaque cle (slot, generation) : la derniere lue.
+	id         *lecteurDeNaissance
+	naissances map[types.LifeKey]naissanceDeProjectile
 }
 
-// nouveauCanalDesProjectilesColles prepare le canal d un film dont le registre est `reg` : un archetype
+// nouveauCanalDesProjectilesColles prepare le canal du film `fc` dont le registre est `reg` : un archetype
 // projectile qui ne declare pas `i10` ne transmet aucun collage, ce que `Absent` publie.
-func nouveauCanalDesProjectilesColles(reg *Registry) *canalDesProjectilesColles {
-	c := &canalDesProjectilesColles{vues: map[types.LifeKey]struct{}{}}
+func nouveauCanalDesProjectilesColles(fc *FilmContext, reg *Registry) *canalDesProjectilesColles {
+	c := &canalDesProjectilesColles{vues: map[types.LifeKey]struct{}{}, naissances: map[types.LifeKey]naissanceDeProjectile{},
+		id: nouveauLecteurDeNaissance(fc)}
 	arch, ok := reg.Archetype(ProjectileTypeIndex)
 	c.st.Absent = !ok || len(arch.indicesOf(compObjectParentState)) == 0
 	return c
@@ -72,7 +80,7 @@ func (c *canalDesProjectilesColles) Clore(BilanDeMarche) {
 		return cmp.Or(cmp.Compare(a.TimestampUS, b.TimestampUS), cmp.Compare(a.Life.Slot, b.Life.Slot),
 			cmp.Compare(a.Life.Gen, b.Life.Gen))
 	})
-	c.vues = nil
+	c.vues, c.naissances = nil, nil
 }
 
 // Trame lit les records delta de projectile de la trame `p`. Une liste que la marche n a pas localisee se
@@ -97,16 +105,20 @@ func (c *canalDesProjectilesColles) Trame(p *lecture.Paquet) {
 	}
 	c.st.Frames++
 	for i := range recs {
-		c.lire(p.TS, &recs[i])
+		c.lire(p, &recs[i])
 	}
 }
 
 // lire range la lecture du record `r` s il est la creation ou le delta d un projectile dont i10 ouvre la porte
-// « attache ». Une creation qui s ouvre sur cette porte est un projectile qui nait colle, a bout portant : il n a
-// replique aucun vol, et c est son seul collage.
-func (c *canalDesProjectilesColles) lire(ts uint64, r *FrameRecord) {
+// « attache ». Une creation qui s ouvre sur cette porte est un projectile qui nait colle, a bout portant. Toute
+// creation lue jusqu au bout est retenue, collee ou non : c est elle qui dit le type et le createur de la vie.
+func (c *canalDesProjectilesColles) lire(p *lecture.Paquet, r *FrameRecord) {
 	if r.TypeIndex != ProjectileTypeIndex || (r.Type != recDelta && r.Type != recNew) {
 		return
+	}
+	vie := types.LifeKey{Slot: r.Slot, Gen: r.ID >> 30}
+	if r.Type == recNew && r.DesyncAt == -1 {
+		c.naissances[vie] = c.id.lire(p, r)
 	}
 	st, ok := parentDuRecord(r)
 	if !ok {
@@ -120,16 +132,22 @@ func (c *canalDesProjectilesColles) lire(ts uint64, r *FrameRecord) {
 	if !st.Attached {
 		return
 	}
-	vie := types.LifeKey{Slot: r.Slot, Gen: r.ID >> 30}
 	if _, deja := c.vues[vie]; deja {
 		c.st.Repeats++
 	}
 	c.vues[vie] = struct{}{}
 	c.st.Read++
 	c.st.Created += unSi(r.Type == recNew)
-	c.out = append(c.out, types.ProjectileAttachRead{
-		TimestampUS: ts, Life: vie, Created: r.Type == recNew,
+	l := types.ProjectileAttachRead{TimestampUS: p.TS, Life: vie, Created: r.Type == recNew,
 		Parent: types.LifeKey{Slot: (st.Quant16 & parentHandleValueMask) + parentHandleBase, Gen: st.Quant16 >> 30},
-		Node:   st.Word16, Pose: st.Mtx,
-	})
+		Node:   st.Word16, Pose: st.Mtx}
+	if n, ok := c.naissances[vie]; ok {
+		l.BornUS, l.HasBirth = n.us, true
+		l.Tag, l.HasTag = n.tag, n.aTag
+		l.Creator, l.HasCreator = n.createur, n.aCreateur
+	}
+	c.st.NoBirth += unSi(!l.HasBirth)
+	c.st.NoTag += unSi(!l.HasTag)
+	c.st.NoCreator += unSi(!l.HasCreator)
+	c.out = append(c.out, l)
 }

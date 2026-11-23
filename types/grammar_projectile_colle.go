@@ -3,7 +3,7 @@ package types
 // grammar_projectile_colle.go : LE PROJECTILE QUI SE COLLE, lu dans les trames delta (composant
 // `i10 object-parent-state`, branche « attache »).
 //
-// Un projectile (grenade plasma ou a pointes, aiguille...) qui se fixe sur une entite l ecrit dans
+// Un projectile (grenade, trait d arme, arc de grenade...) qui se fixe sur une entite l ecrit dans
 // son etat de parente : le record nomme ce sur quoi il est colle (le parent), un noeud de ce parent
 // et trois valeurs de 16 bits qui le placent dans le repere de ce noeud. Ces trois valeurs sont rendues BRUTES : leur plage n est pas connue (elles couvrent toute
 // la plage de 0 a 65 535 dans les films et ne forment pas un vecteur unitaire).
@@ -15,7 +15,20 @@ type ProjectileAttachRead struct {
 	TimestampUS uint64
 	// Life : le projectile (slot, generation), la cle de sa ProjectileTrack.
 	Life LifeKey
-	// Created : le record est la CREATION du projectile (un record NEW) : il nait déjà colle, a bout portant, sans
+	// BornUS : l instant de la creation de cette vie du projectile, le dernier record de creation de la cle (slot, generation) que le
+	// canal a lu avant la lecture ; egal a TimestampUS quand la lecture est celle de la creation. Zero sans creation lue (HasBirth faux).
+	BornUS   uint64
+	HasBirth bool
+	// Tag est le mot de 32 bits du bloc de proprietes de la creation du projectile (l identifiant de son tag `proj`, avant le decalage d un bit
+	// qui en fait un identifiant global) : le TYPE de l objet, tel que le film l ecrit. HasTag est faux sans creation lue, ou quand le film
+	// n a pas de deserialiseur d etat de creation du projectile.
+	Tag    uint32
+	HasTag bool
+	// Creator : l unite qui a cree le projectile, la reference de categorie 1 de son etat de creation (meme espace de slots que Parent). Le
+	// film la porte derriere une porte : HasCreator faux quand elle est fermee.
+	Creator    LifeKey
+	HasCreator bool
+	// Created : le record est la CREATION du projectile (un record NEW) : il nait deja colle, a bout portant, sans
 	// avoir replique de vol. Faux : un record delta, le collage d un projectile qui avait vole.
 	Created bool
 	// Parent : l objet sur lequel il est colle. Le slot est celui du handle plus la base de sa
@@ -48,6 +61,10 @@ type ProjectileAttachStats struct {
 	// Repeats : les lectures dont la cle (slot, generation) avait deja un collage lu : une seconde lecture de la meme
 	// vie, ou une cle reutilisee (la generation tient sur deux bits, donc une cle revient).
 	Repeats int
+	// NoBirth : les lectures dont la cle n avait aucun record de creation lu (la creation precede le film, ou n a pas ete lue jusqu au bout) ;
+	// NoTag : celles dont le tag du projectile n est pas lu (creation absente, ou film sans deserialiseur d etat de creation) ; NoCreator :
+	// celles dont la creation ne nomme pas de createur.
+	NoBirth, NoTag, NoCreator int
 	// WideLocations : les listes que la marche n avait pas localisees et que le repli a largeur libre a
 	// recuperees pour ce canal.
 	WideLocations int
