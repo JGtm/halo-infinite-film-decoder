@@ -176,6 +176,8 @@ var couchesDesCalques = map[string]string{
 	"vehicleCycles":       grammar.Rev, // vehicle_cycles.go <- `doc.Vehicles` SEUL : une couche d ANALYSE sur les vies deja publiees, donc la MEME revision que le calque dont elle derive
 	"stances":             grammar.Rev, // document_stances.go <- FilmInputs.MovementStates (i29/i62/i54, lot 5.3.6)
 	"reloads":             grammar.Rev, // document_reloads.go <- FilmInputs.Reloads (messages weapon_reload, genre 38 de la vue A)
+	"chatter":             grammar.Rev, // document_repliques.go <- FilmInputs.Repliques (messages AIDialog, genre 75 de la vue A)
+	"announcements":       grammar.Rev, // document_repliques_annonces.go <- FilmInputs.Repliques (messages Dialogue2D, genre 76 de la vue A)
 	"gestures":            grammar.Rev, // document_gestes.go <- FilmInputs.Gestures (messages biped_melee_initiate et biped_throw_initiate, genres 40 et 39 de la vue A)
 	"roundClock":          grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=0 i5)
 	"rules":               grammar.Rev, // document_regles.go <- Options.FilmIdentity.InfosDeMatch (la variante de partie de chunk_00)
@@ -295,8 +297,11 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// (document_horloges.go, `poserLesHorloges`).
 	"roundClock": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
 	// La marche des trames n a lu aucune trame : aucun rechargement ne se lit (document_reloads.go, `poserLesRechargements`).
-	"reloads":           func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
-	"gestures":          func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
+	"reloads":  func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
+	"gestures": func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
+	// La marche des trames n a lu aucune trame : ni replique ni annonce ne se lit (document_repliques.go, `poserLesRepliques`).
+	"chatter":           func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
+	"announcements":     func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
 	"respawnCountdowns": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
 	// Le film n a pas d identite, ou sa variante n a pas ete lue : aucune regle (document_regles.go).
 	"rules": func(_ *ReplayDocument, opt Options) bool { return !rulesOf(opt.FilmIdentity).vide() },

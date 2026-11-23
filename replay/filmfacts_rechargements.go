@@ -42,6 +42,7 @@ func encodeCanauxDeLaMarche(w *gwriter, g *FilmFacts) {
 	encodeJeu(w, g)
 	encodeDegats(w, g)
 	encodeRechargements(w, g.Reloads, g.ReloadStats)
+	encodeRepliques(w, g.Repliques)
 	encodeGestes(w, g.Gestures, g.GestureStats)
 	encodeCommandes(w, g.ControlHolds, g.ControlHoldStats)
 }
@@ -50,6 +51,7 @@ func decodeCanauxDeLaMarche(r *greader, g *FilmFacts) {
 	decodeJeu(r, g)
 	decodeDegats(r, g)
 	g.Reloads, g.ReloadStats = decodeRechargements(r)
+	g.Repliques = decodeRepliques(r)
 	g.Gestures, g.GestureStats = decodeGestes(r)
 	g.ControlHolds, g.ControlHoldStats = decodeCommandes(r)
 }

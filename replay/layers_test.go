@@ -207,6 +207,7 @@ func optionsToutesGardesOuvertes() Options {
 		ScoreActions: ScoreActionInput{Read: true},
 		Damages:      HitInput{Read: true},
 		ReloadStats:  types.ReloadStats{Frames: 1},
+		Repliques:    grammar.RepliquesLues{Stats: grammar.StatsRepliques{Trames: 1}},
 		Gestures:     GestureInput{Stats: types.GestureStats{Frames: 1}},
 	}
 }
@@ -263,8 +264,8 @@ func TestCalquesProduitsSuiventLesGardes(t *testing.T) {
 // nom de calque une troisieme copie du meme litteral dans le paquet (`goconst` mord a la
 // quatrieme), et le remede — une constante par nom — rendrait les deux tables de `layers.go`
 // illisibles ligne a ligne, ce qui est exactement ce qu elles existent pour etre.
-const calquesGardesGeles = "abilityCharges abilityImpulses bombArmings bombCarries bombEvents " +
-	"bombStats damage eliminations flagCarries flagReturnZone gestures grappleLines hits inventory medals reloads respawnCountdowns roundClock rules scoreActions " +
+const calquesGardesGeles = "abilityCharges abilityImpulses announcements bombArmings bombCarries bombEvents " +
+	"bombStats chatter damage eliminations flagCarries flagReturnZone gestures grappleLines hits inventory medals reloads respawnCountdowns roundClock rules scoreActions " +
 	"scoreTimeline shotStats skullCarries t0FilmMs vehicles vipCrown zoneStates"
 
 // TestCalquesGardesSontLaListeGelee : le jeu des calques gardes ne bouge pas en silence.

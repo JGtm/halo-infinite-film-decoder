@@ -83,9 +83,6 @@ type GestureCoverage struct {
 type GestureInput struct {
 	Reads []types.GestureRead
 	Stats types.GestureStats
-	// CadenceNonPleine : la porte de cadence est fermée. Faux (porte ouverte) tant que rien ne mesure la
-	// cadence des commandes ; voir [assemblage.cadencePleineDesCommandes].
-	CadenceNonPleine bool
 }
 
 // millisecondes rend l instant `ts` (microsecondes du film) en millisecondes depuis l origine de l axe ;
@@ -143,9 +140,10 @@ func buildGestures(in GestureInput, axe axeDeFrames, pleineCadence bool) ([]Gest
 }
 
 // cadencePleineDesCommandes est LA PORTE DE CADENCE des gestes : vrai quand les commandes du film sont
-// enregistrées à pleine cadence. C est le point unique où la mesure de cette cadence se branche ; tant
-// qu aucune mesure n est fournie, la porte est ouverte.
-func (a *assemblage) cadencePleineDesCommandes() bool { return !a.opt.Gestures.CadenceNonPleine }
+// enregistrées à pleine cadence, le verdict que la grammaire mesure sur le pas des entrées de contrôle
+// ([types.ControlHoldStats.PleineCadence]) et que `accroupi` et `saut` consultent aussi. Un film dont ce pas
+// n est pas mesuré est sous la porte. Les rechargements ne passent pas par elle.
+func (a *assemblage) cadencePleineDesCommandes() bool { return a.opt.ControlHoldStats.PleineCadence() }
 
 // poserLesGestes publie le calque : seulement quand la marche des trames a lu au moins une trame.
 func (a *assemblage) poserLesGestes() {

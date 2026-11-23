@@ -71,28 +71,34 @@ func TestLaPorteDeCadenceRetientLesGestes(t *testing.T) {
 }
 
 // TestLaPoseDesGestesSuitLaPorteEtLesTrames : sans trame lue le calque et sa couverture sont absents ; avec
-// des trames, la porte ouverte (défaut) publie et la porte fermée ne publie que la couverture.
-// MUTATIONS : la pose sans garde de trames, la porte non lue sur les options -> ROUGE.
+// des trames, la porte ouverte (le pas des entrées de contrôle mesuré à pleine cadence) publie et la porte
+// fermée (pas non mesuré ou lent) ne publie que la couverture.
+// MUTATIONS : la pose sans garde de trames, la porte non lue sur les statistiques des commandes -> ROUGE.
 func TestLaPoseDesGestesSuitLaPorteEtLesTrames(t *testing.T) {
 	lus, axe := lectureDeGestes()
-	poser := func(in GestureInput) *assemblage {
+	pleine := types.ControlHoldStats{StepGaps: types.EcartsDuPasMin, StepUS: 16_650}
+	lente := types.ControlHoldStats{StepGaps: types.EcartsDuPasMin, StepUS: 33_364}
+	poser := func(in GestureInput, commandes types.ControlHoldStats) *assemblage {
 		a := &assemblage{ctx: context.Background(), origin: axe.origin, step: axe.step}
 		a.doc.FrameCount = axe.frames
 		a.doc.Coverage = &Coverage{}
 		a.opt.Gestures = in
+		a.opt.ControlHoldStats = commandes
 		a.poserLesGestes()
 		return a
 	}
-	if a := poser(GestureInput{Reads: lus}); a.doc.Gestures != nil || a.doc.Coverage.Gestures != nil {
+	if a := poser(GestureInput{Reads: lus}, pleine); a.doc.Gestures != nil || a.doc.Coverage.Gestures != nil {
 		t.Error("aucune trame lue : le calque et sa couverture doivent être absents")
 	}
 	stats := types.GestureStats{Frames: 10}
-	if a := poser(GestureInput{Reads: lus, Stats: stats}); len(a.doc.Gestures) != 3 || a.doc.Coverage.Gestures.Gated != 0 {
+	if a := poser(GestureInput{Reads: lus, Stats: stats}, pleine); len(a.doc.Gestures) != 3 || a.doc.Coverage.Gestures.Gated != 0 {
 		t.Errorf("porte ouverte : %d geste(s), couverture %+v", len(a.doc.Gestures), a.doc.Coverage.Gestures)
 	}
-	a := poser(GestureInput{Reads: lus, Stats: stats, CadenceNonPleine: true})
-	if len(a.doc.Gestures) != 0 || a.doc.Coverage.Gestures == nil || a.doc.Coverage.Gestures.Gated != 6 {
-		t.Errorf("porte fermée : %d geste(s), couverture %+v", len(a.doc.Gestures), a.doc.Coverage.Gestures)
+	for nom, commandes := range map[string]types.ControlHoldStats{"pas lent": lente, "pas non mesuré": {}} {
+		a := poser(GestureInput{Reads: lus, Stats: stats}, commandes)
+		if len(a.doc.Gestures) != 0 || a.doc.Coverage.Gestures == nil || a.doc.Coverage.Gestures.Gated != 6 {
+			t.Errorf("porte fermée (%s) : %d geste(s), couverture %+v", nom, len(a.doc.Gestures), a.doc.Coverage.Gestures)
+		}
 	}
 }
 
