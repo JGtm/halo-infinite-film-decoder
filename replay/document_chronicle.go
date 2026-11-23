@@ -4888,7 +4888,7 @@ package replay
 // Quatre corrections de la lecture des objectifs et du drapeau, mesurees ensemble (joueurs a 2 s de l API sur les 13 films a drapeau : 161 avant, 197 avec la lecture de tous les sieges et la base neutre, 203 avec la coupure par occupant ; aucun joueur juste ne devient faux ; les autres modes : 2 019 -> 2 027 valeurs
 // exactes sur 2 644, aucune ne devient inexacte).
 //
-//	LE DRAPEAU LIT TOUS LES SIEGES du film, et non les huit premiers : sur un CTF de plus de huit sieges (jusqu a 25 et plus), les portages des autres sieges n etaient pas publies. `coverage.flagCarries.seatsBeyondBand` n a plus d ecrivain (il valait 16 sur les films a 25 sieges et plus) : le champ est RETIRE a cette version.
+//	LE DRAPEAU LIT TOUS LES SIEGES du film, et non les huit premiers : sur un CTF de plus de huit sieges (jusqu a 25 et plus), les portages des autres sieges n etaient pas publies. `coverage.flagCarries.seatsBeyondBand` n a plus d ecrivain (il valait 16 sur les films a 25 sieges et plus) : le champ est DEPRECIE a cette version, garde au schema (un champ publie ne se retire pas en v1) et toujours a zero ; `FlagInput.SeatsBeyondBand` est garde et ignoré.
 //	UNE BASE NEUTRE EST UN SEUL DRAPEAU : quand les deux camps volent au meme point, ce point est le socle unique de la variante, meme si le catalogue le range dans une equipe. Trois films a un drapeau publient un drapeau neutre au lieu de deux drapeaux d equipe, quatre etats au socle faux sont regles, dix autres
 //	                                films sont identiques. La lecture compte `spawnsFromFilm` (+1) et ne compte plus de contradiction (`filmBaseContradict`).
 //	UN SIEGE QUI CHANGE D OCCUPANT COUPE SES COMPTEURS : la suite d evenements nommes de chaque occupant se lit separement et se met bout a bout, la frontiere etant le changement d occupant que le pont d identite lit deja ; un siege qui garde son occupant rend la meme suite. Les vols, prises, captures de zone,
@@ -4908,11 +4908,11 @@ package replay
 // HUITIEME APPORT : UN TRI TOTAL DES SEGMENTS DE SCORE :
 // Les segments de score d un joueur se joignent par l instant de leur premier point ; a instant egal, l ordre dependait du parcours d une map. Le tri departage par le slot : aucune valeur n est changee, une sortie qui variait d une execution a l autre ne varie plus (`scoreTimeline.players[].stats.maxSpree`).
 //
-// POURQUOI LA VERSION MONTE. Le premier, le deuxieme, le troisieme et le quatrieme apport ajoutent des calques et des champs optionnels ; le cinquieme et le sixieme changent des valeurs publiees (portages du drapeau, compteurs d objectif, scores de manche) et le cinquieme retire un champ de couverture ;
+// POURQUOI LA VERSION MONTE. Le premier, le deuxieme, le troisieme et le quatrieme apport ajoutent des calques et des champs optionnels ; le cinquieme et le sixieme changent des valeurs publiees (portages du drapeau, compteurs d objectif, scores de manche) et le cinquieme deprecie un champ de couverture (`seatsBeyondBand`, sans ecrivain) ;
 // le septieme change le nombre de messages que les calques de la vue A lisent. La pratique du depot (v21, v51, v108, v125, v126) monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`.
 //
 // CE QUI MONTE    `SchemaVersion` 126 -> 127, et avec lui `publication-127`. `grammar.Rev` -> `grammar-2026-11-23` : les charges des genres 13, 27, 117 et 93, la trame renvoyee en entier, les repliques et les annonces, les gestes, le pas des entrees de controle et les deux commandes de plus. `objectives.Rev` ->
 // AVEC ELLE       `objectives-2026-11-23` : la manche courte admise, le drapeau lu sur tous les sieges, la base neutre, la coupure par occupant. `SchemaDesFaits` 30 -> 31 : le complement de la section 1 porte les repliques, les gestes, les copies de rechargement, le genre des commandes tenues et le pas des entrees ;
-//                 les faits cuits avant se refusent sur ce numero et sur les revisions. `coverage.flagCarries.seatsBeyondBand` n existe plus.
+//                 les faits cuits avant se refusent sur ce numero et sur les revisions. `coverage.flagCarries.seatsBeyondBand` est deprecie, sans ecrivain (toujours a zero). `types.ControlHoldStats.Holds`, `WithHole` et `InnerHoles` gardent le sens de la v1.5.0 (la commande de deplacement) et sont tenus a jour ; le compte par genre est dans `Move`, `Crouch` et `Jump`.
 //
 // LE PARC         un artefact 126 : verdict `a redecoder`. La recuisson est une decision de l utilisateur.

@@ -52,6 +52,13 @@ type ControlHoldCount struct {
 // ControlHoldStats dit ce que la lecture des commandes a rendu. Les trous de la vue de controle eux-memes
 // sont ceux de [ContinuousFireStats].
 type ControlHoldStats struct {
+	// Holds est le nombre de commandes de deplacement tenues rendues ; WithHole celles qu un trou touche ; InnerHoles
+	// le nombre de passages interieurs.
+	//
+	// Deprecated: ces trois comptes sont ceux de la commande de deplacement seule, comme en v1.5.0 ; ils sont tenus a
+	// jour et egaux a Move.Holds, Move.WithHole et Move.InnerHoles. Le compte de chaque genre vit dans Move, Crouch et
+	// Jump, qu il faut lire de preference.
+	Holds, WithHole, InnerHoles int
 	// Move, Crouch et Jump comptent les commandes tenues de chaque genre.
 	Move, Crouch, Jump ControlHoldCount
 	// Entries est le nombre d entrees lues qui portent le bloc de commande.

@@ -64,6 +64,11 @@ type FlagInput struct {
 	// une autre grammaire du film, et le signal sans lequel le discriminant de mode ne tient
 	// pas (un film Oddball rend 1 470 « prises » a la table du drapeau).
 	Bursts []int
+	// SeatsBeyondBand etait le compte des sieges du statborg au-dela de la bande que le calque lisait.
+	//
+	// Deprecated: le calque lit tous les sieges du film depuis le schema 127 ; ce champ est ignore. Il reste pour la
+	// compatibilite de l API publiee (un champ exporte ne se retire pas en v1).
+	SeatsBeyondBand int
 	// Spawns sont TOUS les socles `flag_spawn` de la carte, en coordonnees monde, lus dans le
 	// catalogue versionne d'objectifs : les deux socles d'equipe ET le socle NEUTRE du centre.
 	// C'est le calque qui retient les uns ou l'autre, selon la variante qu'il reconnait

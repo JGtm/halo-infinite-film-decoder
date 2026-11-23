@@ -391,6 +391,11 @@ type FlagCarriesCoverage struct {
 	// publies sur aucun drapeau, plutot que sur un drapeau INVENTE. Ils restent comptes dans
 	// `carries` : le joueur a bel et bien porte quelque chose, c'est LEQUEL qui n'est pas su.
 	Unresolved int `json:"unresolved"`
+	// SeatsBeyondBand : les sieges du statborg que le calque ne lisait pas (au-dela des huit premiers joueurs).
+	//
+	// Deprecated: le calque lit tous les sieges du film depuis le schema 127 et plus rien n ecrit ce compte : il
+	// vaut toujours zero. Le champ reste au schema (un champ publie ne se retire pas en v1).
+	SeatsBeyondBand int `json:"seatsBeyondBand"`
 	// LES CINQ DENOMINATEURS DE LA JAUGE DE RETOUR (schema 63, cf. flag_return_gauge.go). Ils
 	// separent les QUATRE silences que `returnProgress` absent ne distingue pas : le canal n'a
 	// pas ete lu, il a ete lu et ne porte aucun slot de jauge, il en porte mais aucun ne

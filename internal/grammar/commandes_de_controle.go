@@ -96,10 +96,16 @@ func (c *collecteurTirContinu) clorerLaCommande(k cleBitDeTir, s *etatBitDeTir, 
 		StartBound: s.debutBorne, EndBound: borne, Entries: s.entrees, Holes: s.trous}
 	c.commandes = append(c.commandes, h)
 	st := c.compteDuGenre(h.Kind)
+	avecTrou := h.StartBound == types.ContinuousFireBoundHole || h.EndBound == types.ContinuousFireBoundHole || len(h.Holes) > 0
 	st.Holds++
 	st.InnerHoles += len(h.Holes)
-	if h.StartBound == types.ContinuousFireBoundHole || h.EndBound == types.ContinuousFireBoundHole || len(h.Holes) > 0 {
+	if avecTrou {
 		st.WithHole++
+	}
+	if st == &c.commandeStats.Move {
+		// Les trois comptes publies en v1.5.0 (`ControlHoldStats.Holds` et suivants) sont ceux du deplacement.
+		c.commandeStats.Holds, c.commandeStats.InnerHoles = st.Holds, st.InnerHoles
+		c.commandeStats.WithHole = st.WithHole
 	}
 	delete(c.tenus, k)
 }

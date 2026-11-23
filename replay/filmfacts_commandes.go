@@ -66,5 +66,7 @@ func decodeCommandes(r *greader) ([]types.ControlHold, types.ControlHoldStats) {
 		*v = int(r.u()) //nolint:gosec // compteurs ecrits positifs
 	}
 	st.StepUS = int64(r.u()) //nolint:gosec // pas ecrit positif
+	// Les comptes herites (`Holds`, `WithHole`, `InnerHoles`) sont ceux du deplacement : ils ne s ecrivent pas, ils se refont.
+	st.Holds, st.WithHole, st.InnerHoles = st.Move.Holds, st.Move.WithHole, st.Move.InnerHoles
 	return out, st
 }

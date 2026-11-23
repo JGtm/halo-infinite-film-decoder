@@ -55,6 +55,9 @@ func TestLaCommandeDeDeplacementEstNonNulleHorsDuZeroExact(t *testing.T) {
 	if st.Entries != 4 || st.Move.Holds != 1 {
 		t.Errorf("compteurs %+v", st)
 	}
+	if st.Holds != st.Move.Holds || st.WithHole != st.Move.WithHole || st.InnerHoles != st.Move.InnerHoles {
+		t.Errorf("les comptes herites de v1.5.0 doivent suivre ceux du deplacement : %+v", st)
+	}
 	if (ChampsDeControle{Analogique: [2]int{ChampDeControleAbsent, ChampDeControleAbsent}}).deplacementNonNul() {
 		t.Error("un couple absent du flux ne porte pas de commande")
 	}
@@ -76,6 +79,9 @@ func TestLesTrousDeLaCommandeSontPortesSansToucherAuTirContinu(t *testing.T) {
 	}
 	if st.Move.WithHole != 1 || st.Move.InnerHoles != 1 {
 		t.Errorf("compteurs %+v", st)
+	}
+	if st.Holds != 1 || st.WithHole != 1 || st.InnerHoles != 1 {
+		t.Errorf("comptes herites de v1.5.0 : %+v, attendu 1, 1, 1 (le deplacement)", st)
 	}
 	if tir.HeldHoleMS != 0 || tir.Bursts != 0 {
 		t.Errorf("le tir continu doit rester intact : %+v", tir)
