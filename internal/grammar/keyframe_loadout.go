@@ -180,6 +180,10 @@ func motsParRecord(pay []byte, marches []lecture.Record, wantTI int, jeux ...map
 	for k := range jeux {
 		byRec[k] = map[int][]uint32{}
 	}
+	filtres := make([]prefiltreDeMots, len(jeux))
+	for k, jeu := range jeux {
+		filtres[k] = nouveauPrefiltreDeMots(jeu)
+	}
 	total := len(pay) * 8
 	var w uint32
 	for b := range total {
@@ -188,7 +192,7 @@ func motsParRecord(pay []byte, marches []lecture.Record, wantTI int, jeux ...map
 			continue
 		}
 		for k, jeu := range jeux {
-			if !jeu[w] {
+			if !filtres[k].peutContenir(w) || !jeu[w] {
 				continue
 			}
 			ri := recordContaining(starts, b-31)
@@ -223,4 +227,33 @@ func recordContaining(starts []int, at int) int {
 		}
 	}
 	return lo - 1
+}
+
+// prefiltreDeMots est une table de bits sur un hachage multiplicatif des mots d'un jeu : chaque clé
+// du jeu y pose son bit, donc un mot ABSENT de la table est absent du jeu (condition nécessaire
+// d'appartenance, sans faux négatif). Un mot présent dans la table n'est qu'un candidat : le jeu
+// tranche. Un jeu vide ou nil rend une table vide, qui écarte tout, comme le jeu.
+type prefiltreDeMots struct {
+	bits  []uint64
+	decal uint
+}
+
+// nouveauPrefiltreDeMots dimensionne la table à au moins seize bits par clé (entre 2^6 et 2^16 bits).
+func nouveauPrefiltreDeMots(jeu map[uint32]bool) prefiltreDeMots {
+	n := uint(6)
+	for n < 16 && 1<<n < 16*len(jeu) {
+		n++
+	}
+	f := prefiltreDeMots{bits: make([]uint64, 1<<(n-6)), decal: 32 - n}
+	for w := range jeu {
+		h := (w * 0x9E3779B1) >> f.decal
+		f.bits[h>>6] |= 1 << (h & 63)
+	}
+	return f
+}
+
+// peutContenir rend faux seulement si `w` n'est pas une clé du jeu.
+func (f *prefiltreDeMots) peutContenir(w uint32) bool {
+	h := (w * 0x9E3779B1) >> f.decal
+	return f.bits[h>>6]&(1<<(h&63)) != 0
 }
