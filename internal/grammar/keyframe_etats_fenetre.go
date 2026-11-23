@@ -62,22 +62,14 @@ func (c *canalDeLEtatCompletBipede) fenetresDerriereLaLecture(p *lecture.Paquet,
 	a.FenetresArmes += nonAdmis
 	// ARMES SEULES ([ScanArmesDesImagesCles]) : ni le jeu de mots de la marque ni les regles
 	// d inventaire ne tournent, et leurs replis ne voient aucun record.
-	jeux := []map[uint32]bool{c.known}
 	if !c.armesSeules {
 		a.FenetresInventaire += nonAdmis
 		a.FenetresMarque += nonAdmis
-		jeux = append(jeux, carrierMarkViews)
 	}
-	mots := motsParRecord(p.Payload, recs, keyframeBipedTI, jeux...)
-	familles, marques := map[uint32][]uint32{}, map[uint32]bool{}
-	for _, rf := range mots[0] {
-		familles[rf.Rec.Debut] = rf.Families
-	}
+	// Les mots viennent du pre-calcul du canal quand il a eu lieu ([canalDeLEtatCompletBipede.predecoderLesMots]).
+	familles, marques := c.motsDuPaquet(p, recs)
 	var emprises []invRecordSpan
 	if !c.armesSeules {
-		for _, rf := range mots[1] {
-			marques[rf.Rec.Debut] = true
-		}
 		emprises = invRecordSpansDe(p.Payload, recs)
 	}
 	for i := range rendus {

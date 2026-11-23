@@ -86,6 +86,7 @@ func ScanArmesDesImagesCles(fc *FilmContext, known map[uint32]bool) ([]types.Key
 // marcherLesImagesCles distribue la phase des images-cles de `fc` au canal `c`, puis note les comptes
 // des trois replis sur le contexte.
 func marcherLesImagesCles(fc *FilmContext, c *canalDeLEtatCompletBipede) (EtatsDesImagesCles, error) {
+	c.predecoderLesMots()
 	distribuerLesImagesClesSeules(fc, []Canal{c})
 	c.out.StatsInventaire.Chunks = len(fc.ChunkNumbers())
 	c.out.StatsInventaire.ChunksUnread = c.out.StatsInventaire.Chunks - c.lus
@@ -118,6 +119,9 @@ type canalDeLEtatCompletBipede struct {
 	bipedes []map[uint32]bool
 	// lus : les chunks que la phase a pu lire.
 	lus int
+	// motsAvance : les mots par record deja calcules, par payload ([canalDeLEtatCompletBipede.predecoderLesMots]) ;
+	// vide a un fil.
+	motsAvance map[clePayload]motsDuPayload
 }
 
 // nouveauCanalDeLEtatComplet prepare le canal ; un film sans archetype bipede lisible le laisse
@@ -142,7 +146,7 @@ func (c *canalDeLEtatCompletBipede) Interets() []Interet {
 	return interetsDeLEtatComplet()
 }
 
-func (c *canalDeLEtatCompletBipede) Clore(b BilanDeMarche) { c.lus = b.ChunksLus }
+func (c *canalDeLEtatCompletBipede) Clore(b BilanDeMarche) { c.lus, c.motsAvance = b.ChunksLus, nil }
 
 // ImageCle lit chaque record bipede du paquet et publie ce que la regle admet.
 func (c *canalDeLEtatCompletBipede) ImageCle(p *lecture.Paquet, m *MarcheDistribuee) {
