@@ -198,8 +198,10 @@ func TestTirContinuIndependantDuPas(t *testing.T) {
 	var ref int
 	for i, pas := range pasDeTest {
 		clock := replayClock{origin: 0, step: uint64(pas) * 1000, frames: 100_000}
-		_, cov := buildFireBursts(context.Background(), doc, []types.ContinuousFireBurst{r},
-			types.ContinuousFireStats{Scanned: true}, occupantsPlats(map[uint32]int{11: 4}), clock)
+		_, cov := buildFireBursts(context.Background(), doc,
+			entreesDesRafales{lues: []types.ContinuousFireBurst{r}, stats: types.ContinuousFireStats{Scanned: true},
+				places: tireursDesPlaces{sieges: nouveauxTireursParPlace(doc.Roster)}},
+			occupantsPlats(map[uint32]int{11: 4}), clock)
 		if cov.Published != 1 {
 			t.Fatalf("pas %d ms : %d rafale(s) publiee(s), attendu 1 (%+v)", pas, cov.Published, cov)
 		}

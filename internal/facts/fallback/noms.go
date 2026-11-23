@@ -195,6 +195,8 @@ const (
 	NomPorteurAnonymeSansFinParMort Nom = "repli_porteur_anonyme_sans_fin_par_mort"
 	// NomViseeDuTirLueDansLeRecord : `replay/shots_visee.go`, `viser`.
 	NomViseeDuTirLueDansLeRecord Nom = "repli_visee_du_tir_lue_dans_le_record"
+	// NomTireurParLeSiegeDeLaPlace : `replay/tirs_par_place.go`, `tirsParPlace`, et `replay/fire_bursts.go`.
+	NomTireurParLeSiegeDeLaPlace Nom = "repli_tireur_par_le_siege_de_la_place"
 
 	// LES REPLIS DE `grammar` ET `profile` (sous-lot grammar du lot J8.7, 2026-09-27) : comptes en
 	// DONNEES au rapport du contexte de film (`grammar.ComptesDesReplis`), et verses au compteur de

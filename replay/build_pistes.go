@@ -178,10 +178,24 @@ func (a *assemblage) tirsDuCombat() []grammar.FireEvent {
 	}
 	a.tirsAttribues = sansIndexDeTireur(a.fire)
 	if a.indexTireur.estLaPlace() {
-		a.tirsAttribues, a.siegeCov.TirsParPlace = nouveauxTireursParPlace(a.doc.Roster).tirsParPlace(a.fire, a.horloge())
+		a.tirsAttribues, a.siegeCov.TirsParPlace = a.tireursDesPlaces().tirsParPlace(a.fire, a.horloge(), &a.placesCov)
 	}
 	a.tirsAttribuesPoses = true
 	return a.tirsAttribues
+}
+
+// tireursDesPlaces rend le tireur de chaque place : la place lue dans les tirs, le siege du roster a defaut. Pose
+// au premier appel, sur le roster et les pistes publies : les tirs et les rafales lisent les memes places.
+func (a *assemblage) tireursDesPlaces() tireursDesPlaces {
+	if !a.tireursPoses {
+		occ := a.reg.Occupants()
+		lues := lirePlacesDeControle(a.fire, occ, a.horloge(), viesParJoueur(a.doc.Tracks, a.doc.Roster, occ, a.horloge()),
+			a.indexTireur.estLaPlace())
+		a.placesCov = lues.cov
+		a.tireurs = tireursDesPlaces{lues: lues, sieges: nouveauxTireursParPlace(a.doc.Roster)}
+		a.tireursPoses = true
+	}
+	return a.tireurs
 }
 
 // poserTirsProjectilesEtGrenades publie les trois calques du combat, chacun avec sa couverture.
@@ -325,6 +339,8 @@ func (a *assemblage) composerLaCouverture() {
 	a.doc.Coverage.Stances = &a.stanceCov
 	// CE QUE LA POSE DES SIEGES A LU ET APPARIE (lot 1.9.14) : mesure faite ci-dessus, posee ici.
 	a.doc.Coverage.Seats = &a.siegeCov
+	// LA LECTURE DES PLACES DE CONTROLE (places_de_controle.go) : posee par les tirs, completee par les rafales.
+	a.doc.Coverage.ControlPlaces = &a.placesCov
 	// La version du film est une DIMENSION du décodage : elle voyage avec l'artefact plutôt que
 	// d'exiger une relecture du film pour la retrouver (cf. Coverage.FilmMajorVersion).
 	a.doc.Coverage.FilmMajorVersion = a.opt.FilmMajorVersion

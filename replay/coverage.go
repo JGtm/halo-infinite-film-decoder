@@ -47,6 +47,10 @@ type Coverage struct {
 	// AU PLUS EN MÊME TEMPS face au nombre d'entrées du roster. Absente quand le roster est
 	// vide : il n'y a alors aucun siège à couvrir.
 	Seats *SeatCoverage `json:"seats,omitempty"`
+	// ControlPlaces est CE QUE LA LECTURE DES PLACES DE CONTROLE A LU DANS LES TIRS et la source de
+	// chaque tireur decide (cf. ControlPlaceCoverage, places_de_controle.go). Absente sur un document
+	// anterieur a la lecture des places.
+	ControlPlaces *ControlPlaceCoverage `json:"controlPlaces,omitempty"`
 	// Projectiles est la couverture des TRAJECTOIRES DE PROJECTILE (cf. projectiles.go) :
 	// pistes décodées, trajectoires publiées, et celles qu'un PAS IMPOSSIBLE a coupées.
 	//
