@@ -198,7 +198,7 @@ func (m *MarcheDistribuee) lireLaListeRecuperee() (recs []FrameRecord, lus, libr
 	if s < 0 {
 		return nil, false, false
 	}
-	defer mt.monde.Restore(mt.monde.Snapshot())
+	defer mt.monde.annulerLEssai(mt.monde.ouvrirUnEssai())
 	br := LecteurSur(pay)
 	br.poserCadre(cfg)
 	br.Skip(s)

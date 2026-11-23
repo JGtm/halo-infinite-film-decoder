@@ -228,8 +228,8 @@ func lectureDEssai(pay []byte, w *World, cfg FrameConfig, debut int) LectureVueC
 	var l LectureVueC
 	obs.VueControleHook = func(x LectureVueC) { l = x }
 	essai.Obs = obs
-	snap := w.Snapshot()
+	e := w.ouvrirUnEssai()
 	DecodeFrameViewsCurseur(pay, w, essai, MovementStateViews, debut)
-	w.Restore(snap)
+	w.annulerLEssai(e)
 	return l
 }
