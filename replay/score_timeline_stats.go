@@ -20,8 +20,9 @@ type namedStatSets []namedStatSet
 
 // loadNamedStats decode les series de chaque compteur nomme. Un maximum ne porte que ses courbes
 // par manche : le cumul de plusieurs maximums ne veut rien dire.
-func loadNamedStats(recs []types.StatRecord, cons *objectives.ReplisALaConsultation) namedStatSets {
-	stats := objectives.ScoreboardStats()
+func loadNamedStats(recs []types.StatRecord, c scoreClock) namedStatSets {
+	cons := c.cons
+	stats := objectives.ScoreboardStatsOf(c.family)
 	out := make(namedStatSets, 0, len(stats))
 	for _, st := range stats {
 		set := scoreSeriesSet{byRound: objectives.SeriesByRound(recs, st.Component, false, cons)}
@@ -53,7 +54,7 @@ func (n namedStatSets) at(slot int, c scoreClock) map[string]ScoreSeries {
 // porte que ses courbes par manche.
 func namedStatsByXUID(recs []types.StatRecord, owner slotOwner, c scoreClock) map[string]map[string]ScoreSeries {
 	out := map[string]map[string]ScoreSeries{}
-	for _, st := range objectives.ScoreboardStats() {
+	for _, st := range objectives.ScoreboardStatsOf(c.family) {
 		for xuid, byRound := range playerRoundsByXUID(recs, st.Component, owner, c.cons, !st.Peak) {
 			series := ScoreSeries{Rounds: scoreRoundsOf(byRound, c)}
 			if !st.Peak {

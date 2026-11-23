@@ -67,6 +67,10 @@ type scoreClock struct {
 	// que le calque de score lit y note ses emissions jetees. Meme place que `replayClock.fb` : ce
 	// que les passes du calque se transmettent. Nil (tests) : rien n est note.
 	cons *objectives.ReplisALaConsultation
+	// family est la famille d'objectif du match quand l'appelant la reconnait (`objectives.ObjectiveTypeVip` pour un VIP),
+	// vide sinon : elle commande les compteurs de mode que le tableau publie ([objectives.ScoreboardStatsOf]). Le film ne
+	// dit pas son mode : un emplacement de mode y est lu seulement sur la parole de l'hote.
+	family string
 }
 
 // frameOf pose un instant du film sur la grille, ou dit qu'il n'y tient pas.

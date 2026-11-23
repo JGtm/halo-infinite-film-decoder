@@ -43,6 +43,9 @@ func replayScoreClock(ctx context.Context, doc *ReplayDocument, intervalMS int, 
 // n'est pas lu — le chemin plat par totaux est conserve a l'octet.
 func attachScoreTimeline(ctx context.Context, doc *ReplayDocument, opt Options, c scoreClock, matchID string) *ScoreCoverage {
 	in, unplayed := scoreInputOfPlayedRounds(opt)
+	if opt.Vip.Scanned {
+		c.family = objectives.ObjectiveTypeVip
+	}
 	c.cons = opt.consultations() // l enregistreur du document (lot J8.7-bis) suit l horloge du calque, comme `fb`
 	tl, cov, seuil := assembleScoreTimeline(in, opt.Deaths, entryResolverOf(opt), c, opt.Fallbacks)
 	doc.ScoreTimeline = tl

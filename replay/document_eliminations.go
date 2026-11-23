@@ -12,7 +12,9 @@ package replay
 //     jeu, et chaque unité d'un pas est une élimination ; un pas de n unités donne n lignes à la même image ;
 //   - la victime : l'action de score `killPersonalScore` du même joueur, à une image près (`scoreActions[]`). Le jeu ne
 //     l'écrit pas pour toutes les éliminations (absente ou partielle sur les anciennes versions) : `victim` est alors
-//     absent, jamais deviné ;
+//     absent, jamais deviné. Il l'est aussi quand plusieurs victimes restent possibles pour l'élimination (plusieurs
+//     actions candidates de noms différents dans la fenêtre, ou une action que deux images réclament) : aucun appariement
+//     « au plus proche » ; le nombre de ces éliminations est `coverage.eliminations.victimAmbiguous` ;
 //   - le tueur BOT : un bot n'a pas d'identifiant et le tableau ne nomme pas sa ligne ; son élimination se lit sur l'action de score
 //     `killPersonalScore` qu'il reçoit (posée à sa place, cf. document_score_actions.go), une ligne par action, à l'image de
 //     l'action. Sans compteur de tirs à la tête ni médaille rattachée : `headshot` et `perfect` sont absents ;
@@ -76,6 +78,10 @@ type EliminationCoverage struct {
 	// la victime est un bot (`victimPlace`). Absents à zéro.
 	BotEliminations int `json:"botEliminations,omitempty"`
 	VictimPlaces    int `json:"victimPlaces,omitempty"`
+	// VictimAmbiguous compte les éliminations sans victime parce que plusieurs victimes restaient possibles (plusieurs
+	// actions de score candidates de noms différents, ou une action réclamée par deux images) : la victime n'est alors
+	// jamais appariée « au plus proche ». Absent à zéro.
+	VictimAmbiguous int `json:"victimAmbiguous,omitempty"`
 	// HeadYes, HeadNo, HeadUnknown : les trois états de `headshot`.
 	HeadYes     int `json:"headYes"`
 	HeadNo      int `json:"headNo"`

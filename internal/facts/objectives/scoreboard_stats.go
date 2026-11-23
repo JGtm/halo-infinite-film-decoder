@@ -28,6 +28,14 @@ const (
 	StatSpawns           = "spawns"
 )
 
+// Les noms publies des compteurs du tableau propres au VIP ([ScoreboardStatsOf]). Les durees sont des DIXIEMES de seconde,
+// comme le film les porte.
+const (
+	StatTimeAsVip        = "timeAsVip"
+	StatLongestTimeAsVip = "longestTimeAsVip"
+	StatMaxSpreeAsVip    = "maxSpreeAsVip"
+)
+
 // ScoreboardStat est un compteur nomme du tableau des scores.
 type ScoreboardStat struct {
 	// Name est le nom publie, en anglais simple.
@@ -65,6 +73,44 @@ func ScoreboardStats() []ScoreboardStat {
 		{Name: StatPowerWeaponKills, Component: heldKills(9, false)},
 		{Name: StatSpawns, Component: held(10, true)},
 	}
+}
+
+// ScoreboardStatsOf rend les compteurs nommes du tableau d'un match de la famille `objectiveType` ([ScoreboardStats] et ceux
+// que le mode ajoute). Le sens d'un emplacement dependant du mode, les compteurs de mode ne se lisent que quand l'appelant
+// reconnait la famille ; une famille sans compteur de mode (ou vide) rend exactement [ScoreboardStats].
+//
+// VIP : `comp 23 B` est le temps passe en VIP (`TimeAsVip`), `comp 23 A` le plus long temps d'une traite
+// (`LongestTimeAsVip`, un maximum) et `comp 22 B` la meilleure serie d'eliminations faite en VIP (`BestKillingSpreeAsVip`, un
+// maximum, borne par les eliminations de la manche). Les durees sont des dixiemes de seconde ; contre l'API, sur les trois
+// films VIP du parc (24 joueurs), `timeAsVip` et la serie sont exacts pour 24 joueurs, `longestTimeAsVip` pour 22 et a un
+// dixieme de seconde pour les deux autres.
+func ScoreboardStatsOf(objectiveType string) []ScoreboardStat {
+	base := ScoreboardStats()
+	mode := modeScoreboardStats[objectiveType]
+	if len(mode) == 0 {
+		return base
+	}
+	return append(base, mode...)
+}
+
+// modeScoreboardStats : par famille, les compteurs du tableau que le mode ajoute. Les emplacements sont ceux de
+// [namedStatSlots] : aucun ne coincide avec un compteur de [ScoreboardStats] (composants 4 a 10).
+var modeScoreboardStats = map[string][]ScoreboardStat{
+	ObjectiveTypeVip: {
+		{Name: StatMaxSpreeAsVip, Component: StatComponent{Comp: 22, SideB: true, HoldOnClear: true, KillBounded: true}, Peak: true},
+		{Name: StatLongestTimeAsVip, Component: StatComponent{Comp: 23, HoldOnClear: true, Joint: true}, Peak: true},
+		{Name: StatTimeAsVip, Component: StatComponent{Comp: 23, SideB: true, HoldOnClear: true, Joint: true}},
+	},
+}
+
+// tousLesCompteursDuTableau rend les compteurs de base et ceux de chaque mode : la table dont se servent les lectures qui
+// ne savent pas de quelle famille est le film (garde par les eliminations, comptes des emissions ecartees).
+func tousLesCompteursDuTableau() []ScoreboardStat {
+	out := ScoreboardStats()
+	for _, mode := range modeScoreboardStats {
+		out = append(out, mode...)
+	}
+	return out
 }
 
 // rawSeries rend les emissions de l'emplacement `c` par slot puis par manche, avec les regles de
