@@ -28,7 +28,7 @@ func CouchesRevisees() []Couche {
 		{Nom: "profile", Racine: racineDesCouches + "profile"},
 		// La table des reponses de jeu nomme et chiffre les actions de score que `grammar` fait lire (calque
 		// `scoreActions`, attribue a `grammar.Rev`) : ses lignes decident la sortie sans que `grammar` l'importe.
-		{Nom: "grammar", Racine: racineDesCouches + "grammar", Associes: []string{racineHistorique + "reponsesdejeu"}},
+		{Nom: "grammar", Racine: racineDesCouches + "grammar", Associes: racineHistorique + "reponsesdejeu"},
 		{Nom: "killsource", Racine: racineDesCouches + "facts/killsource"},
 		{Nom: "objectives", Racine: racineDesCouches + "facts/objectives"},
 	}

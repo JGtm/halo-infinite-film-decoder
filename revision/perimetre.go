@@ -58,11 +58,17 @@ type Couche struct {
 	// slash, relatifs au module. Un paquet qui est deja une couche, ou qui ne porte aucune source de production, est
 	// une faute de declaration ([ErrPerimetre]).
 	//
+	// Une chaine de chemins separes par des espaces, et non une tranche : `Couche` reste comparable (`==`), comme avant
+	// l ajout du champ ; [Couche.PaquetsAssocies] rend les chemins.
+	//
 	// Le cas d'usage est une TABLE DE DONNEES consommee par la publication et pas par la couche : la table des
 	// reponses de jeu (`reponsesdejeu`) nomme les actions de score que `grammar` fait lire ; sans cette association,
 	// une ligne de plus ne changerait aucune revision et le rejeu ne serait jamais a redecoder.
-	Associes []string
+	Associes string
 }
+
+// PaquetsAssocies rend les chemins de [Couche.Associes], un par paquet.
+func (c Couche) PaquetsAssocies() []string { return strings.Fields(c.Associes) }
 
 // ErrPerimetre : la declaration d une couche et sa fermeture ne s accordent pas (couche inconnue,
 // valeur amont manquante ou superflue). C est une faute de DECLARATION, jamais un resultat.
@@ -183,7 +189,7 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 // d'une couche revisee entrerait par sa valeur et non par ses octets, et un dossier sans source de production ne
 // hacherait rien.
 func (m Module) paquetsAssocies(propre Couche, couches []Couche) ([]string, error) {
-	for _, rel := range propre.Associes {
+	for _, rel := range propre.PaquetsAssocies() {
 		if autre := coucheDuPaquet(rel, couches); autre != "" {
 			return nil, fmt.Errorf("%w : le paquet associe %s a la couche %s est de la couche %s, qui entre par sa valeur",
 				ErrPerimetre, rel, propre.Nom, autre)
@@ -193,7 +199,7 @@ func (m Module) paquetsAssocies(propre Couche, couches []Couche) ([]string, erro
 			return nil, fmt.Errorf("%w : paquet associe %s a la couche %s (%v)", ErrRacineSansSource, rel, propre.Nom, err)
 		}
 	}
-	return propre.Associes, nil
+	return propre.PaquetsAssocies(), nil
 }
 
 // coucheNommee rend la couche de ce nom.

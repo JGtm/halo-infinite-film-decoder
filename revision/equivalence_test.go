@@ -71,7 +71,7 @@ func couchesDeLOracle() []revision.Couche {
 	return []revision.Couche{
 		{Nom: "source", Racine: film + "source"},
 		{Nom: "profile", Racine: film + "profile"},
-		{Nom: "grammar", Racine: film + "grammar", Associes: []string{"internal/games/halo_infinite/film/reponsesdejeu"}},
+		{Nom: "grammar", Racine: film + "grammar", Associes: "internal/games/halo_infinite/film/reponsesdejeu"},
 		{Nom: "killsource", Racine: film + "facts/killsource"},
 		{Nom: "objectives", Racine: film + "facts/objectives"},
 	}

@@ -17,7 +17,7 @@ import (
 
 // moduleAvecTable : le module de fixture, plus un paquet `table` (une source qui embarque un fichier de donnees) que la
 // couche `a` n'importe pas. Les couches rendues sont celles de la fixture, `a` portant `associes`.
-func moduleAvecTable(t *testing.T, donnees string, associes []string) (revision.Module, []revision.Couche) {
+func moduleAvecTable(t *testing.T, donnees string, associes string) (revision.Module, []revision.Couche) {
 	t.Helper()
 	m, couches := moduleDeFixture(t, map[string]string{
 		"table/t.go":         "package table\n\nimport _ \"embed\"\n\n//go:embed data/t.tsv\nvar Brut string\n",
@@ -29,7 +29,7 @@ func moduleAvecTable(t *testing.T, donnees string, associes []string) (revision.
 }
 
 func TestAssocies_LesDonneesDuPaquetAssocieEntrentDansLEmpreinte(t *testing.T) {
-	empreinte := func(donnees string, associes []string) string {
+	empreinte := func(donnees string, associes string) string {
 		m, couches := moduleAvecTable(t, donnees, associes)
 		res, _, err := m.CalculerCouche("a", couches, nil, map[string]string{"z": "z-1"})
 		if err != nil {
@@ -37,21 +37,21 @@ func TestAssocies_LesDonneesDuPaquetAssocieEntrentDansLEmpreinte(t *testing.T) {
 		}
 		return res.Empreinte
 	}
-	avec := empreinte("1\ta\n", []string{"table"})
-	if got := empreinte("1\ta\n2\tb\n", []string{"table"}); got == avec {
+	avec := empreinte("1\ta\n", "table")
+	if got := empreinte("1\ta\n2\tb\n", "table"); got == avec {
 		t.Error("une ligne s'ajoute a la table du paquet associe et l'empreinte de la couche ne bouge pas : " +
 			"le rejeu ne serait jamais a redecoder")
 	}
-	if got := empreinte("1\ta\n", nil); got == avec {
+	if got := empreinte("1\ta\n", ""); got == avec {
 		t.Error("declarer le paquet associe ne change pas l'empreinte : il n'entre pas dans le hachage")
 	}
-	if got := empreinte("1\ta\r\n", []string{"table"}); got != avec {
+	if got := empreinte("1\ta\r\n", "table"); got != avec {
 		t.Error("la meme table en CRLF rend une autre empreinte")
 	}
 }
 
 func TestAssocies_LePaquetEntreDansLeCalculDeLaFermeture(t *testing.T) {
-	m, couches := moduleAvecTable(t, "1\ta\n", []string{"table"})
+	m, couches := moduleAvecTable(t, "1\ta\n", "table")
 	p, err := m.Fermeture("a", couches)
 	if err != nil {
 		t.Fatalf("fermeture : %v", err)
@@ -66,10 +66,10 @@ func TestAssocies_LePaquetEntreDansLeCalculDeLaFermeture(t *testing.T) {
 }
 
 func TestAssocies_UneDeclarationFausseEchoueBruyamment(t *testing.T) {
-	for quoi, associes := range map[string][]string{
-		"un paquet d'une couche revisee": {"couches/z/zz"},
-		"un dossier sans source":         {"table/data"},
-		"un dossier absent":              {"fantome"},
+	for quoi, associes := range map[string]string{
+		"un paquet d'une couche revisee": "couches/z/zz",
+		"un dossier sans source":         "table/data",
+		"un dossier absent":              "fantome",
 	} {
 		m, couches := moduleAvecTable(t, "1\ta\n", associes)
 		_, err := m.Fermeture("a", couches)
