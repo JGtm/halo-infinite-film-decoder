@@ -55,6 +55,11 @@ type World struct {
 	// neufsSuspendus : les NEW de la trame en cours refuses contre une entite vivante, que la
 	// fermeture de la trame peut prouver ([World.lierLesNeufsProuves]).
 	neufsSuspendus []neufSuspendu
+	// journal / essaisOuverts : l annulation des essais ([World.ouvrirUnEssai]). Toute ecriture de
+	// `slots` passe par [World.poser] ou [World.retirer] (`world_essai.go`), qui y notent l ancienne
+	// liaison tant qu un essai est ouvert.
+	journal       []annulation
+	essaisOuverts int
 }
 
 // nsImageCleInconnu : la valeur de [World.nsImageCle] avant toute liaison d image-cle.
@@ -188,8 +193,8 @@ func (w *World) VuePossede(slot uint32) bool {
 // d'anticipation) ; le controle supplementaire [World.GenerationMatches] ne joue que pour les chemins
 // qui l'appellent et sous la generation stricte du profil.
 func (w *World) BindFull(id, typeIndex uint32) {
-	w.slots[id&0x3fffffff] = slotState{TypeIndex: typeIndex, FullID: id, Vue: w.vueCourante,
-		Liaison: lecture.LiaisonLueNeuf}
+	w.poser(id&0x3fffffff, slotState{TypeIndex: typeIndex, FullID: id, Vue: w.vueCourante,
+		Liaison: lecture.LiaisonLueNeuf})
 }
 
 // GenerationMatches indique si l'eid complet `id` correspond a celui memorise pour son slot,
@@ -214,10 +219,10 @@ func (w *World) GenerationMatches(id uint32, strict bool) bool {
 // sont deduites de l'ordre d'allocation des keyframes). Le test strict de generation est
 // neutralise pour ce slot, l'eid complet ne pouvant pas etre devine.
 func (w *World) BindWildcard(slot, typeIndex uint32) {
-	w.slots[slot&0x3fffffff] = slotState{
+	w.poser(slot&0x3fffffff, slotState{
 		TypeIndex: typeIndex, FullID: slot & 0x3fffffff, GenAny: true, Vue: 0,
 		Liaison: lecture.LiaisonJoker,
-	}
+	})
 }
 
 // vueDeLImageCle : LE RANG DE VUE que porte une liaison d image-cle dans la marche hors ligne.
@@ -272,10 +277,10 @@ const vueDeLImageCle int8 = 0
 //
 // `ns` est le rang lu (`KeyframeRec.Gen`), et il SERT : il nomme la vue.
 func (w *World) BindImageCle(ns, slot, typeIndex uint32) {
-	w.slots[slot&0x3fffffff] = slotState{
+	w.poser(slot&0x3fffffff, slotState{
 		TypeIndex: typeIndex, FullID: slot & 0x3fffffff, GenAny: true,
 		Vue: w.vueDeLEspaceDeNoms(ns), Liaison: lecture.LiaisonImageCle,
-	}
+	})
 }
 
 // vueDeLEspaceDeNoms rend le RANG DE VUE de la marche hors ligne que nomme un rang d image-cle.
@@ -308,9 +313,9 @@ func (w *World) vueDeLEspaceDeNoms(ns uint32) int8 {
 // connue — c est l eid que la garde compare (`entree[0]` de `FUN_142e2bfd0`), donc [World.ArchetypeForEID] ne repond
 // qu a cet eid.
 func (w *World) BindEntreeDeTable(id, typeIndex uint32) {
-	w.slots[id&masqueDeSlot] = slotState{
+	w.poser(id&masqueDeSlot, slotState{
 		TypeIndex: typeIndex, FullID: id, Soft: true, Vue: vueInconnue, Liaison: lecture.LiaisonDatum,
-	}
+	})
 }
 
 // lierCommeDatum pose une liaison `Soft`, de GENERATION INCONNUE (les deux bits de tete d une image-cle et ceux d un delta
@@ -318,9 +323,9 @@ func (w *World) BindEntreeDeTable(id, typeIndex uint32) {
 // ([World.LierParRepliDAnticipation]).
 func (w *World) lierCommeDatum(slot, typeIndex uint32, l lecture.Liaison) {
 	s := slot & 0x3fffffff
-	w.slots[s] = slotState{
+	w.poser(s, slotState{
 		TypeIndex: typeIndex, FullID: s, Soft: true, GenAny: true, Vue: vueInconnue, Liaison: l,
-	}
+	})
 }
 
 // liaisonDu rend la provenance de la liaison d un slot ; [lecture.LiaisonAucune] s il n est pas lie.
@@ -332,10 +337,10 @@ func (w *World) liaisonDu(slot uint32) lecture.Liaison {
 // bindings decode subsequent deltas like hard ones, but are NOT confirmation anchors
 // for further inference (a soft anchor could self-confirm a wrong chain).
 func (w *World) BindSoft(id, typeIndex uint32) {
-	w.slots[id&0x3fffffff] = slotState{
+	w.poser(id&0x3fffffff, slotState{
 		TypeIndex: typeIndex, FullID: id, Soft: true, Vue: w.vueCourante,
 		Liaison: lecture.LiaisonInference,
-	}
+	})
 }
 
 // HardBound reports whether slot carries a NON-inferred binding (world dump or clean
@@ -346,7 +351,7 @@ func (w *World) HardBound(slot uint32) bool {
 }
 
 // Unbind removes a slot (DEL record).
-func (w *World) Unbind(slot uint32) { delete(w.slots, slot) }
+func (w *World) Unbind(slot uint32) { w.retirer(slot) }
 
 // OublierLesSlotsNonPortes retire les liaisons dont le slot n est pas dans `portes` — ce qu une
 // image-cle ne porte plus n est plus vivant (cf. `keyframe_liaison.go`) — et rend leur nombre.
@@ -354,7 +359,7 @@ func (w *World) OublierLesSlotsNonPortes(portes map[uint32]bool) int {
 	n := 0
 	for s := range w.slots {
 		if !portes[s] {
-			delete(w.slots, s)
+			w.retirer(s)
 			n++
 		}
 	}
@@ -384,7 +389,7 @@ func (w *World) ArchetypeForSlot(slot uint32) (uint32, bool) {
 func (w *World) SetPos(slot uint32, v [3]float32) {
 	if s, ok := w.slots[slot]; ok {
 		s.Pos, s.PosValid = v, true
-		w.slots[slot] = s
+		w.poser(slot, s)
 	}
 }
 
@@ -406,14 +411,14 @@ func (w *World) cloneSlots() map[uint32]slotState {
 	return m
 }
 
-// restoreSlots replaces the slot table (rollback after a desynced frame so a
-// partial/garbage NEW/DEL does not corrupt a PERSISTENT World).
-func (w *World) restoreSlots(m map[uint32]slotState) { w.slots = m }
-
 // WorldSnapshot is an opaque copy of a World's slot table for rollback across a
 // desynced frame (see World.Snapshot / World.Restore). Exported so decode tools can
 // run a PERSISTENT World (NEW binds, DEL unbinds across frames, mirroring the game's
 // runtime datum store) and roll back only the frames that desync.
+//
+// A snapshot is a full copy, independent of later mutations until it is restored (the world then
+// takes its table over). The marche's own trials, which rewind at once and keep nothing, use
+// [World.ouvrirUnEssai] instead: it copies nothing.
 type WorldSnapshot struct{ slots map[uint32]slotState }
 
 // Snapshot captures the current slot table (shallow copy) for a later Restore.

@@ -65,8 +65,7 @@ func echantillonParChunk(f *source.Film, ech EchantillonDeCalibration) (map[int]
 // recordsBipedesPropres marche `pay` depuis son bit 2 sur `vues` vues sous `cadre`, le monde restaure
 // ensuite, et rend le nombre de records de bipede entierement portes.
 func recordsBipedesPropres(pay []byte, w *World, cadre FrameConfig, vues int) int {
-	snap := w.Snapshot()
-	defer w.Restore(snap)
+	defer w.annulerLEssai(w.ouvrirUnEssai())
 	br := LecteurSur(pay)
 	br.Skip(2)
 	n := 0
