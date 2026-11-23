@@ -36,7 +36,7 @@ func killBounds(recs []types.StatRecord) map[int]map[int]int64 {
 // killBoundedSides dit, pour un composant, laquelle de ses deux valeurs (A, B) porte un compteur borne par les
 // eliminations ([StatComponent.KillBounded] d'une entree de [ScoreboardStats]).
 func killBoundedSides(comp int) (a, b bool) {
-	for _, st := range ScoreboardStats() {
+	for _, st := range tousLesCompteursDuTableau() {
 		if !st.Component.KillBounded || st.Component.Comp != comp {
 			continue
 		}

@@ -73,7 +73,7 @@ func buildPlayerScoresFlat(recs []types.StatRecord, identity map[int]string, c s
 	kills := loadScoreSeries(recs, objectives.KillsComponent(), false, c.cons)
 	deaths := loadScoreSeries(recs, objectives.DeathsComponent(), false, c.cons)
 	assists := loadScoreSeries(recs, objectives.AssistsComponent(), false, c.cons)
-	stats := loadNamedStats(recs, c.cons)
+	stats := loadNamedStats(recs, c)
 
 	slots := make([]int, 0, len(identity))
 	for slot := range identity {
