@@ -65,7 +65,7 @@ func reposParVie(tracks []types.ProjectileTrack, origin, step uint64) map[types.
 	}
 	out := map[types.LifeKey][]reposEngendre{}
 	for _, tr := range tracks {
-		v, lu := volPublie(tr, origin, step)
+		v, lu := volPublie(tr, origin, step, false)
 		if !lu || !v.publie() {
 			continue
 		}

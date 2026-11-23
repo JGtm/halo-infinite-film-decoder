@@ -137,6 +137,9 @@ type ProjectileCoverage struct {
 	// ShotAmbiguous est le nombre de projectiles dont la naissance coïncide avec des tirs de deux
 	// armes ou de deux tireurs : aucun lien publié (cf. linkShotsToProjectiles).
 	ShotAmbiguous int `json:"shotAmbiguous"`
+	// FullRateSamples est le nombre d'echantillons publies dans `projectiles[].fullRate`, toutes trajectoires confondues
+	// (cf. projectiles_plein_debit.go). 0 sur le document interne du sync, qui ne la calcule pas.
+	FullRateSamples int `json:"fullRateSamples"`
 }
 
 // slotFor rend le slot du joueur pi à l'instant tUS, et la cause du rejet le cas échéant.
