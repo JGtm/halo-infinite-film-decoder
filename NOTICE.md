@@ -103,6 +103,18 @@ All five are identifiers, labels and points, not content of the game: no mesh, t
   and the publication per player and round (`internal/facts/objectives/frozen_rounds.go`, `replay/score_timeline_figees.go`)
   are this module's own code; no line of libfilmshell code is copied or translated.
 
+- **libfilmshell, an eighth time, for view A** (same author and licence, tree published on 2026-11-09). The widths of the payloads of genres 13 (`motor_system_interruption`),
+  27 (`controlToggleResponse`) and 117 (`EquipmentTranslocatorTeleportEffects`) of view A (`src/events.rs`, the `match` on the event type) are taken, as
+  is the attribution of genres 75 (`AIDialog`) and 76 (`Dialogue2D`) to the spoken line and the announcement; the widths were then proved on the maintainer's own
+  films (a frame read with these widths ends where its declared end is). The reading, the chatter and announcement channel and the publication
+  (`internal/grammar/vue_a_charges_effets.go`, `internal/grammar/repliques.go`, `replay/document_repliques.go`) are this module's own code; no line of libfilmshell code is copied or translated.
+- **A contributor's 3D replay reader** (public repository `llampwall/installation-08`, a fork of this decoder, revision `a66b791`). The contributor found that the optional 5-bit
+  field of a control entry carries the crouch button (bit of value 1) and the jump button (bit of value 4), proposed publishing the player's gestures
+  read in view A (the melee strike and the started throw), and measured that the reloads written twice at the same instant are copies of the reload in progress. This module's
+  readings (`internal/grammar/commandes_de_controle.go`, `internal/grammar/pas_des_commandes.go`, `internal/grammar/gestes.go`, `replay/document_stances_commandes.go`,
+  `replay/document_gestes.go`) are written again under its own rules and measured again on the maintainer's films; no line of the fork is copied. The slide the fork deduces from the sprint and the
+  speed is not taken.
+
 ## Third-party code
 
 The module imports `github.com/klauspost/compress`, `github.com/pelletier/go-toml/v2` and `golang.org/x/sys`

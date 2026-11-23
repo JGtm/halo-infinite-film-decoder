@@ -276,7 +276,9 @@ A `%pe` (the enemy killed) or `%pa` (the player betrayed) in the response's labe
 `betrayalPersonalScore` the recipient is the betrayer and the first participant the betrayed player. The replay document publishes these as
 `scoreActions[]`, on the frame `(TS - origin) / step` of the positions, with `coverage.scoreActions` counting what was read, published and
 left out: messages that are not score (announcements, medals, kill-feed lines), score responses the game pays zero, ranks outside the tree,
-ranks the message does not confirm, and the actions not placed. `coverage.scoreActions.complete` says the reading is whole (no stopped
+ranks the message does not confirm, and the actions not placed. A bot has no identifier: an action whose recipient (or target) is a bot of the film is published with `place`
+(`targetPlace`), the player index of the film, the same index space as `reloads[].place` and `roster[].filmIndex` (not `roster[].seat`, the displayed
+sheet), and without `xuid`; `coverage.scoreActions.botRecipient` and `botTarget` count them. `coverage.scoreActions.complete` says the reading is whole (no stopped
 frame, a readable view A, a known script group, no unconfirmed rank, every action with points placed, no player whose scoreboard score is above the sum of their published positive points). It is necessary, not sufficient, for
 a player's sum of points to equal the personal score: the points come from the response table, which can differ from the game (vehicle
 actions on older builds) or know nothing of a mode written outside the tree. False, the consumer shows "insufficient data"; a consumer
@@ -306,12 +308,34 @@ reading of their event list did: read to its terminator, or stopped at an unread
 a film with stopped frames the count is a floor), `read`, `copies`, `withoutPlayer` (no player index in the message), `beforeOrigin` and
 `afterEnd` (outside the frame axis), `published`; `read` = `copies` + `withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`. On
 builds whose view A stops early (the 1.4.1 and 1.8 builds and the film versions 31 and 33 of the 20-film set) no message is read and
-`reloads` is empty: the coverage says why.
+`reloads` is empty: the coverage says why. Each line also carries `ms` (the instant of the packet in milliseconds since frame 0) and `copies` (how many copies of the message the game
+wrote in the same frame and the decoder removed; absent when the message is written once). The decoder publishes the count, not what a copy
+means: the sum of `copies` over the film is `coverage.reloads.copies`, less the copies of the reloads the coverage drops (`withoutPlayer`,
+`beforeOrigin`, `afterEnd`).
+
+**Gestures.** Two messages of view A say that a player starts a gesture: `biped_melee_initiate` (genre 40: the melee strike leaves) and
+`biped_throw_initiate` (genre 39: the throw is started). Each ends with the author's player index, as the reload message does. The message
+gives the instant the gesture starts, never its result: a strike leaves whether it hits or not (the document says that a blow was given, not that it landed), and a started throw is not yet a grenade (the
+projectile is born later and stays in `grenades[]`; the started throw and the release are two facts). The replay document publishes
+`gestures[]` (`t` frame of the packet that writes the message, `ms` the instant in milliseconds since frame 0, `place` the author's player
+index as the message writes it, the same index space as `reloads[].place` and `roster[].filmIndex`, `kind` `melee` or `throwStart`), with
+`coverage.gestures`: `frames`, `closedFrames` and `stoppedFrames` (as for the reloads), `read`, `copies` (messages that copy a message of the
+same frame, same genre, author and references), `gated`, `withoutPlayer`, `beforeOrigin`, `afterEnd`, `published`; `read` = `copies` + `gated` +
+`withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`. `gated` counts the gestures held back by the cadence gate (see *Held commands*): gestures are published
+only for films whose commands are recorded at full cadence, and `gestures[]` is empty (the coverage present) on the others. Measured on five
+recent films (about 15 to 81 strikes and 28 to 186 started throws each): the game wrote no copy of either message, and every view A was read to
+its terminator. Every one of the 508 started throws is followed by a grenade of the same player (median and
+90th percentile 0.30 s, extremes 0.07 and 0.45 s), and 3 of the 510 grenades have no started throw before them. A strike is followed by a
+melee damage message of the same player within 2 s for 60 to 78 % of the strikes (the others leave without touching, or touch something that is
+not a player).
+
+**Spartan chatter and announcements.** A genre-75 message (`AIDialog`) of view A is a line spoken by a unit: a 5-bit priority, a gated 32-bit sound id, a gated 12-bit line index, a gated 5-bit player index and 1 or 2 opaque tail bits; the speaker is reference 0 of the header. A genre-76 message (`Dialogue2D`) is an announcement: a gated 32-bit sound id, a gated opaque 32-bit value, a gated 5-bit player index and a 32-bit recipient mask. The film does not say which audio variant played, and the document does not either. The speaker of a line is the player whose track carries the unit of reference 0 at that frame (the same route as the wounded unit of a damage message): on the film measured, the unit resolves to a player for all 365 lines, over all eight players, and one sound only comes from the players of one voice group, whereas the player index of the payload (present on 199 lines, values 0 to 5) names the same player as the unit in 35 cases of 199, which is chance; it is not published. The document publishes `chatter[]` (`t` frame, `player` the speaker's xuid, absent when the unit has no human track at that frame, `sound` as eight hexadecimal digits, `priority`, `line`) with `coverage.chatter`: `frames`, `closedFrames` and `stoppedFrames` (as for reloads), `read`, `beforeOrigin` and `afterEnd` (outside the frame axis), `published`, `bySpeaker`, `withoutPlayer` (no reference, no track at that frame, or a bot's track) and `bots`; `read` = `beforeOrigin` + `afterEnd` + `published`, `published` = `bySpeaker` + `withoutPlayer`. The game writes an announcement once per recipient in the same frame (one mask bit each, bits 24 to 31, bit 25 never set on the film measured); the document publishes `announcements[]` (`t`, `sound`, `mask`), one line per sound and frame whose mask is the union of the masks of the messages merged into it, with `coverage.announcements` (`merged` counts the messages folded into an earlier line; `read` = `beforeOrigin` + `afterEnd` + `merged` + `published`). No mask bit is tied to a player: the bit sets of team sounds fit both teams of the roster whichever way the bits are numbered.
 
 **Eliminations, headshots and perfect kills.** The scoreboard writes a player's elimination counter and headshot counter in the same entity
 record: on the 1,455 films of the corpus, 36,839 of the 36,847 rises of the headshot counter (99.98 %) fall on the same frame as exactly one
 step of the same player's elimination counter. The replay document publishes `eliminations[]`, one line per unit of each rise of
-`scoreTimeline.players[].kills.total` (frame `t`, killer `xuid`), so a step of n units gives n lines on one frame. Two marks, each with three
+`scoreTimeline.players[].kills.total` (frame `t`, killer `xuid`; a bot killer is published as `place`, a bot victim as `victimPlace`, without `xuid`, counted by
+`coverage.eliminations.botEliminations` and `victimPlaces`), so a step of n units gives n lines on one frame. Two marks, each with three
 states (true, false, absent for unknown), come from the game's own counters, never from an estimate:
 `headshot` is true when the same player's `stats.headshots` rises on that frame by as many units as the step, false when the player has a
 published headshot counter that does not rise there, and unknown otherwise: no headshot counter for the player (an absent series is not a
@@ -382,19 +406,28 @@ kinds 1 and 2: a body that depends on run-time state        kind 3: no handler, 
 copies the entry into the player's case: a state persists until the player's next entry read, as for a trigger. The decoder folds the
 movement command like a continuous-fire burst: held from the first entry read with a scalar off zero to the first entry read with both at
 zero (an entry without the block says nothing), a packet whose view C is not read being a hole that is carried, never filled; a command
-held before and after a hole carries the hole, and one released after it ends at the hole's start. The replay document publishes the
-held command as `stances[]` of kind `moveCommand` (never the series of values), cut at the limits of each published life of the player
-who holds the seat at that frame and silent over the frames a hole covers entirely; `coverage.stances.control` counts `holds` read
-(`withHole`, `innerHoles`), the `entries` read, those `published` (`intervals` published), and those that no published life covers
-(`noTrack`) or that no life of the seat's occupant covers (`noPlayer`); `holds` = `published` + `noTrack` + `noPlayer`.
-The 5-bit field is not published. Its bit of value 4 looks like the jump button (libfilmshell calls the field `stance` and names its bit
-`0x10` the jump button; the bit that agrees here is the one of value 4): on the 20 films of the equivalence set, the rising edge of that bit
-falls within 100 ms of 87.6 to 97.2 % of the derived jumps (`jumpDerived`) on 12 films (builds 1.8, 1.12 and 1.13, and one film of 1.10), of
-50 to 61 % on 4 films (builds 1.9 to 1.11), and of none on the 3 films where view C is almost never read (film versions 31 and 33, build
-1.4.1). The pooled agreement is 63 % (the same edges shifted by 5 s: 5 %), under the 90 % the publication requires; the reverse, a rising
-edge within 100 ms of a derived jump, is 57 %.
+held before and after a hole carries the hole, and one released after it ends at the hole's start. The replay document publishes three held commands as `stances[]` (never the series of values), each cut at the limits of each published life of the player
+who holds the seat at that frame and silent over the frames a hole covers entirely: `moveCommand` (the movement command), `crouchCommand` (the crouch button) and
+`jumpCommand` (the jump button). The 5-bit field is the `+0x14` flags: the bit of value 1 is the crouch button (the game has one button for crouching and sliding,
+so the interval covers both; the slide is not published, the film holds no fact that tells it from a crouch), the bit of value 4 the jump button (libfilmshell
+calls the field `stance` and names its bit `0x10` the jump button; the bit that agrees here is the one of value 4). A field absent from the stream holds no button.
+The jump button is a button pressed, not a jump performed: the derived jump (`jumpDerived`, the integral of the vertical speed) is another fact and both are published.
+`crouchCommand` and `jumpCommand` carry `ms0` and `ms1`, the interval to the millisecond from frame 0, within the interval read and the frames `t0` to `t1`; the instant of a jump is `ms0`.
 
-Not published: the jump button (the agreement above is under the bar). The crouch (`i29`) and slide (`i62`) states are published only where the film announces them: films of version 37 and later do not announce those two components in the biped's deltas, so `stances[]` carries no `crouch` or `slide` interval for them, and zero published does not say that nobody crouched or slid.
+*Cadence gate.* A film records the control entries at every 60 Hz tick or at every other one; neither the build nor the film version tells which (two films of the same build and format
+have both). The decoder measures the step of the entries: the most frequent gap between two entries read of the same seat, with no unread packet between them. `coverage.stances.control.stepUs`
+is that step (16,640 to 16,679 us at 60 Hz, 33,364 to 33,380 us at 30 Hz on the 22 films of the reference corpus) and `fullCadence` says it is measurable (at least 1,000 gaps carry it) and
+no larger than 25,000 us. `crouchCommand` and `jumpCommand` are published only on a film with `fullCadence`: a press of one tick is seen once in two at 30 Hz. On the 15 films at 60 Hz,
+the ground departures (vertical speed from at most 0.6 to 2.5 to 3.5, with a continuous run of entries over 100 ms) are found within 100 ms of a published `jumpCommand` in 97.8 % of cases
+(5,302 of 5,422; the raw bit: 98.0 %), against 53.6 % at 30 Hz; the crouch bit is set at a speed that fits a crouch or a slide in 95.3 % of the stable instants and clear at a normal standing speed in 99.8 %
+(the reference is the physics read in the film, not a state the game writes). The gestures below (`gestures[]`) pass through the same gate; the reloads do not.
+
+Beyond the gate, a command is not published during a vehicle ride of the occupant (`inVehicle`), and a jump whose start follows a hole is not published (`afterHole`: its start is unknown).
+`coverage.stances.control` counts the movement command with `holds` read (`withHole`, `innerHoles`), the `entries` read, those `published` (`intervals` published), and those that no published life covers
+(`noTrack`) or that no life of the seat's occupant covers (`noPlayer`); `holds` = `published` + `noTrack` + `noPlayer`. `crouchCommand` and `jumpCommand` count each kind
+the same way, with `inVehicle`, `afterHole` and `gated` (film under the cadence); `holds` = `published` + `noTrack` + `noPlayer` + `inVehicle` + `afterHole` + `gated`.
+
+The crouch (`i29`) and slide (`i62`) states are published only where the film announces them: films of version 37 and later do not announce those two components in the biped's deltas, so `stances[]` carries no `crouch` or `slide` interval for them, and zero published does not say that nobody crouched or slid; `crouchCommand` says what the player asked, on the films at full cadence.
 
 **Closure.** View C is the last rank, so a correct reading ends on its terminator with 0 to 7 zero bits left. A packet is *closed*
 when it ends so and no rule of the game's writer is contradicted; a reading that reaches a terminator without closing the packet
