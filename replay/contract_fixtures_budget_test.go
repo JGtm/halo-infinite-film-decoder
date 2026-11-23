@@ -41,7 +41,11 @@ import (
 // desormais les lectures d'horloge (`roundClock`, `respawnCountdowns`, `coverage.clocks` et deux
 // entrees de `layers` gagnent chaque fixture), et le jeu de huit passe de 4 936 939 a 4 992 442 octets,
 // au-dela de l'ancien plafond (4 980 736). Le plafond se releve de 131 072 octets (4<<20 + 7<<17) ; rien n'est coupe, ni calque ni build.
-const contractFixturesBudget = 4<<20 + 7<<17
+//
+// RELEVE A 5 242 880 OCTETS LE 2026-11-23 (schema 127) : le jeu de huit passe de 5 111 808 a 5 226 571 octets mesures avec les calques de la 1.6.0 (les repliques et les annonces, les
+// gestes, les commandes d'accroupi et de saut, les degats a zero point et le decalage des tirs, l'arme tiree et les munitions portees, les candidats de socle) : trois premiers apports a 5 073 607 octets, les trois derniers
+// ajoutent 152 964 octets. Le plafond se releve a 5 Mio pile (5<<20) ; rien n'est coupe, ni calque ni build. Decision proposee par l'integration, a confirmer par le mainteneur.
+const contractFixturesBudget = 5 << 20
 
 // TestContractFixturesTiennentDansLeBudget : le jeu entier tient-il sous le plafond, et
 // combien pese chaque fixture ?
