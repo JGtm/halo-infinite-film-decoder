@@ -44,12 +44,16 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 		return chargeEmbarquement
 	case 9:
 		return chargeRamassage
+	case 13:
+		return chargeInterruptionDuMoteur
 	case 15:
 		return chargeScript
 	case 21:
 		return chargeZoom
 	case 22:
 		return chargeSortieDeVehicule
+	case 27:
+		return chargeReponseDeBascule
 	case TypeTirArme:
 		return chargeTirArme
 	case GenreRechargement:
@@ -64,12 +68,16 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 		return chargeEffetDIA
 	case 88:
 		return chargeRetourDeCarte
+	case 93:
+		return chargeActivationDeCapacite
 	case 109:
 		return chargeCycleDeVieIA
 	case GenreJoueurTue:
 		return chargeJoueurTue
 	case 116:
 		return chargeEffetsDeTeleportation
+	case 117:
+		return chargeTeleportationDuTranslocateur
 	case 120:
 		return chargeAppelDeJoueur
 	}

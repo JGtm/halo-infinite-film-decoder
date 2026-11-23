@@ -151,16 +151,16 @@ func TestUnFilmAncienPrendLaFinDeSaVueAQuandElleFermeLePaquet(t *testing.T) {
 }
 
 // TestUneVueALueEnPartieNeDecideRien : une vue A que la lecture n atteint pas jusqu a son
-// terminateur — bit de configuration a 0, film sans table, genre 13 dont la charge n est pas
+// terminateur — bit de configuration a 0, film sans table, genre 17 dont la charge n est pas
 // portee — ne decide de rien : le paquet suit le localisateur a l identique, ici la signature
 // trouvee dans la vue A. MUTATIONS — E pris malgre le bit de configuration a 0 ; E pris sur une
 // lecture arretee : ROUGES.
 func TestUneVueALueEnPartieNeDecideRien(t *testing.T) {
 	cfg := cadreDeCarte()
 	pay0, _ := paquetVueA(0, scriptPortantUneSignature, vueBFermee)
-	pay13, _ := paquetVueA(1, func(w *bitWriter) {
+	pay17, _ := paquetVueA(1, func(w *bitWriter) {
 		scriptPortantUneSignature(w)
-		w.ecrireEnTeteDeMessage(13)
+		w.ecrireEnTeteDeMessage(17)
 	}, vueBFermee)
 	pay1, _ := paquetVueA(1, scriptPortantUneSignature, vueBFermee)
 	for _, c := range []struct {
@@ -169,7 +169,7 @@ func TestUneVueALueEnPartieNeDecideRien(t *testing.T) {
 		g   grammaireDeLaVueA
 	}{
 		{"bit de configuration a 0", pay0, grammaireDeScript(vueAEgale, GenresVueA)},
-		{"genre 13 non porte", pay13, grammaireDeScript(vueAEgale, GenresVueA)},
+		{"genre 17 non porte", pay17, grammaireDeScript(vueAEgale, GenresVueA)},
 		{"film sans table", pay1, grammaireDeLaVueA{}},
 	} {
 		w := mondeDeCarte(compHighFrequency)
