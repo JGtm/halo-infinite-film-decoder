@@ -963,7 +963,7 @@ première : t=986 xuid=2649451507849234 killPersonalScore 100 cible="26783167817
 ## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
 3362 message(s) · 1890 d'arme · 1342 touche(s) · 956 posée(s) · 16 sans auteur · 370 sans victime · 0 avant la frame 0 · 0 après la fin · 0 joueur(s) dont 26 suffisant(s) (couverture >= 0.7, doublons < 1.2)
 1503 ligne(s) de dégât dont 878 mesurée(s) · 272 message(s) sans piste · 4 touche(s) et 16 dégât(s) sur soi · 234 trame(s) arrêtée(s) et 18 de vitalités non lues sur 17629
-  2539909643060628 : 788 tir(s) dont 175 écrit(s) · 62 message(s) · 45 touche(s) · couverture 0.22 · doublons 1.38 · infligé 2033.1 · subi 1853.4 · suffisant false
+  2539909643060628 : 276 tir(s) dont 175 écrit(s) · 62 message(s) · 45 touche(s) · couverture 0.63 · doublons 1.38 · infligé 2033.1 · subi 1853.4 · suffisant false
   2555274482597606 : 396 tir(s) dont 170 écrit(s) · 204 message(s) · 132 touche(s) · couverture 0.43 · doublons 1.55 · infligé 1737.4 · subi 2105.9 · suffisant false
   2556228301812198 : 304 tir(s) dont 46 écrit(s) · 62 message(s) · 45 touche(s) · couverture 0.15 · doublons 1.38 · infligé 1303.4 · subi 1327.4 · suffisant false
   2560293259909136 : 37 tir(s) dont 35 écrit(s) · 25 message(s) · 11 touche(s) · couverture 0.95 · doublons 2.27 · infligé 1101.7 · subi 1391.6 · suffisant false
@@ -973,7 +973,7 @@ première : t=986 xuid=2649451507849234 killPersonalScore 100 cible="26783167817
   2623439693412443 : 111 tir(s) dont 100 écrit(s) · 11 message(s) · 11 touche(s) · couverture 0.90 · doublons 1.00 · infligé 72.0 · subi 1104.9 · suffisant false
   2640966191058275 : 200 tir(s) dont 69 écrit(s) · 103 message(s) · 83 touche(s) · couverture 0.34 · doublons 1.24 · infligé 974.7 · subi 1207.7 · suffisant false
   2649451507849234 : 724 tir(s) dont 288 écrit(s) · 191 message(s) · 101 touche(s) · couverture 0.40 · doublons 1.89 · infligé 2551.0 · subi 989.5 · suffisant false
-  2649558580197277 : 715 tir(s) dont 137 écrit(s) · 53 message(s) · 53 touche(s) · couverture 0.19 · doublons 1.00 · infligé 1019.0 · subi 876.4 · suffisant false
+  2649558580197277 : 203 tir(s) dont 137 écrit(s) · 53 message(s) · 53 touche(s) · couverture 0.67 · doublons 1.00 · infligé 1019.0 · subi 876.4 · suffisant false
   2659582532226335 : 169 tir(s) dont 135 écrit(s) · 30 message(s) · 25 touche(s) · couverture 0.80 · doublons 1.20 · infligé 752.7 · subi 1715.6 · suffisant false
   2661816997026755 : 129 tir(s) dont 115 écrit(s) · 119 message(s) · 59 touche(s) · couverture 0.89 · doublons 2.02 · infligé 1872.9 · subi 1391.7 · suffisant false
   2670885433928816 : 99 tir(s) dont 96 écrit(s) · 25 message(s) · 20 touche(s) · couverture 0.97 · doublons 1.25 · infligé 1567.2 · subi 1211.3 · suffisant false
@@ -988,7 +988,7 @@ première : t=986 xuid=2649451507849234 killPersonalScore 100 cible="26783167817
   2769745370848087 : 57 tir(s) dont 55 écrit(s) · 62 message(s) · 30 touche(s) · couverture 0.96 · doublons 2.07 · infligé 1469.2 · subi 928.4 · suffisant false
   2788613520028391 : 86 tir(s) dont 86 écrit(s) · 57 message(s) · 51 touche(s) · couverture 1.00 · doublons 1.12 · infligé 1644.7 · subi 1352.3 · suffisant false
   2795415847885860 : 142 tir(s) dont 141 écrit(s) · 66 message(s) · 42 touche(s) · couverture 0.99 · doublons 1.57 · infligé 2118.7 · subi 742.9 · suffisant false
-  2812024117143317 : 314 tir(s) dont 60 écrit(s) · 19 message(s) · 18 touche(s) · couverture 0.19 · doublons 1.06 · infligé 226.0 · subi 1140.7 · suffisant false
+  2812024117143317 : 58 tir(s) dont 60 écrit(s) · 19 message(s) · 18 touche(s) · couverture 1.03 · doublons 1.06 · infligé 226.0 · subi 1140.7 · suffisant false
 première : t=986 2649451507849234 -> 2678316781767380 d468178e w= · dernière : t=15358 2746409228518711 -> 2706469099639436 003ce739 w=0x767DB96D42C9679F
 dégât, première : t=986 2649451507849234 -> 2678316781767380 d468178e bouclier 140.0 corps 90.0 · dernière : t=15358 2746409228518711 -> 2706469099639436 e9941862 bouclier 0.0 corps 65.9
 

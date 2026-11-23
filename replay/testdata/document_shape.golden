@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee d48dfc08d9f12f9a
-empreinte-servie d48dfc08d9f12f9a
-empreinte-cuite 5a128adc70e122a1
+empreinte-stockee fcc84700fa689fe6
+empreinte-servie fcc84700fa689fe6
+empreinte-cuite 1c1025aa1af198a6
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -355,6 +355,20 @@ ControlKindCoverage
   NoTrack json:"noTrack" int
   Published json:"published" int
   WithHole json:"withHole" int
+ControlPlaceCoverage
+  Bindings json:"bindings" int
+  BurstsByPlace json:"burstsByPlace" int
+  BurstsBySeat json:"burstsBySeat" int
+  BurstsUnheld json:"burstsUnheld" int
+  Contested json:"contested" int
+  Handovers json:"handovers" int
+  MultiPlace json:"multiPlace" int
+  Players json:"players" int
+  Read json:"read" bool
+  Returns json:"returns" int
+  ShotsByPlace json:"shotsByPlace" int
+  ShotsBySeat json:"shotsBySeat" int
+  ShotsUnheld json:"shotsUnheld" int
 Coverage
   Abilities json:"abilities,omitempty" *AbilityCoverage
   AbilityCharges json:"abilityCharges,omitempty" *AbilityChargeCoverage
@@ -369,6 +383,7 @@ Coverage
   Chatter json:"chatter,omitempty" *ChatterCoverage
   Clocks json:"clocks,omitempty" *ClocksCoverage
   ContinuousFire json:"continuousFire,omitempty" *ContinuousFireCoverage
+  ControlPlaces json:"controlPlaces,omitempty" *ControlPlaceCoverage
   DeathsPaths json:"deathsPaths,omitempty" *DeathsPathsCoverage
   Decoder json:"decoder,omitempty" *DecoderCoverage
   DrawnWeapons json:"drawnWeapons,omitempty" *DrawnWeaponCoverage
@@ -1393,6 +1408,7 @@ ShotAimCoverage
   None json:"none" int
   Record json:"record" int
   SameTick json:"sameTick" int
+  SansPosition json:"sansPosition" int
   Track json:"track" int
 ShotStat
   Coverage json:"coverage" float64
@@ -1529,6 +1545,7 @@ TrackCoverage
   SlotsArmes json:"slotsArmes" int
   SlotsDesarmes json:"slotsDesarmes" int
   ViesAvantPremiereCreation json:"viesAvantPremiereCreation" int
+  ViseesSeulesCoverage json:"" ViseesSeulesCoverage
 Translocation
   FX json:"fx,omitempty" *float32
   FY json:"fy,omitempty" *float32
@@ -1737,6 +1754,10 @@ VipPeriod
   T0 json:"t0" int
   T1 json:"t1" int
   XUID json:"xuid" string
+ViseesSeulesCoverage
+  AimOnlyBeforeOrigin json:"aimOnlyBeforeOrigin" int
+  AimOnlyNoLife json:"aimOnlyNoLife" int
+  FullRateAimOnlySamples json:"fullRateAimOnlySamples" int
 Vital
   Dead json:"dead,omitempty" bool
   Hp json:"hp" float32

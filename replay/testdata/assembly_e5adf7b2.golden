@@ -1165,10 +1165,10 @@ groupe "bigteambattle.lua+btbslayerevents.lua" (absent : false) · trames 16824 
 première : t=1470 xuid=2589126457614003 killPersonalScore 100 cible="2672083226526653" · dernière : t=16131 xuid=2723146048008498 killPersonalScore 100 cible="2765652959641097"
 
 ## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
-5160 message(s) · 3022 d'arme · 2253 touche(s) · 1659 posée(s) · 3 sans auteur · 591 sans victime · 0 avant la frame 0 · 0 après la fin · 10 joueur(s) dont 26 suffisant(s) (couverture >= 0.7, doublons < 1.2)
+5160 message(s) · 3022 d'arme · 2253 touche(s) · 1659 posée(s) · 3 sans auteur · 591 sans victime · 0 avant la frame 0 · 0 après la fin · 11 joueur(s) dont 26 suffisant(s) (couverture >= 0.7, doublons < 1.2)
 2506 ligne(s) de dégât dont 1330 mesurée(s) · 581 message(s) sans piste · 13 touche(s) et 23 dégât(s) sur soi · 0 trame(s) arrêtée(s) et 0 de vitalités non lues sur 16824
   2540772937228890 : 218 tir(s) dont 175 écrit(s) · 153 message(s) · 120 touche(s) · couverture 0.80 · doublons 1.27 · infligé 1914.9 · subi 2317.5 · suffisant false
-  2561148439453257 : 580 tir(s) dont 317 écrit(s) · 193 message(s) · 162 touche(s) · couverture 0.55 · doublons 1.19 · infligé 3412.2 · subi 1655.5 · suffisant false
+  2561148439453257 : 324 tir(s) dont 317 écrit(s) · 193 message(s) · 162 touche(s) · couverture 0.98 · doublons 1.19 · infligé 3412.2 · subi 1655.5 · suffisant true
   2571799355927177 : 80 tir(s) dont 73 écrit(s) · 56 message(s) · 54 touche(s) · couverture 0.91 · doublons 1.04 · infligé 596.9 · subi 2530.6 · suffisant true
   2572310721014643 : 124 tir(s) dont 75 écrit(s) · 127 message(s) · 109 touche(s) · couverture 0.60 · doublons 1.17 · infligé 2748.4 · subi 2315.8 · suffisant false
   2589126457614003 : 252 tir(s) dont 60 écrit(s) · 334 message(s) · 186 touche(s) · couverture 0.24 · doublons 1.80 · infligé 3187.8 · subi 2090.7 · suffisant false
@@ -1190,7 +1190,7 @@ première : t=1470 xuid=2589126457614003 killPersonalScore 100 cible="2672083226
   2737134040163930 : 54 tir(s) dont 48 écrit(s) · 30 message(s) · 26 touche(s) · couverture 0.89 · doublons 1.15 · infligé 458.6 · subi 976.7 · suffisant true
   2748989142252344 : 144 tir(s) dont 144 écrit(s) · 234 message(s) · 224 touche(s) · couverture 1.00 · doublons 1.04 · infligé 4058.7 · subi 2530.7 · suffisant true
   2749052410484660 : 197 tir(s) dont 175 écrit(s) · 104 message(s) · 93 touche(s) · couverture 0.89 · doublons 1.12 · infligé 2659.2 · subi 2507.2 · suffisant true
-  2753789657611042 : 457 tir(s) dont 82 écrit(s) · 190 message(s) · 126 touche(s) · couverture 0.18 · doublons 1.51 · infligé 1630.7 · subi 2089.9 · suffisant false
+  2753789657611042 : 201 tir(s) dont 82 écrit(s) · 190 message(s) · 126 touche(s) · couverture 0.41 · doublons 1.51 · infligé 1630.7 · subi 2089.9 · suffisant false
   2765652959641097 : 115 tir(s) dont 115 écrit(s) · 44 message(s) · 44 touche(s) · couverture 1.00 · doublons 1.00 · infligé 765.5 · subi 2600.7 · suffisant true
   2813424593400726 : 36 tir(s) dont 36 écrit(s) · 16 message(s) · 16 touche(s) · couverture 1.00 · doublons 1.00 · infligé 772.9 · subi 1038.4 · suffisant true
 première : t=1125 2737134040163930 -> 2572310721014643 f712c64a w= · dernière : t=16331 2748989142252344 -> 2671823358891472 5eaa815c w=0x9D6AAED242C9679F
