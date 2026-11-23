@@ -39,6 +39,8 @@ type options struct {
 	passes         int
 	plafondGiB     int
 	enfant         bool
+	profilCPU      string
+	profilTas      string
 }
 
 func main() {
@@ -58,6 +60,8 @@ func lireOptions(args []string, stderr io.Writer) (options, error) {
 	fs.IntVar(&o.passes, "passes", 5, "passes chronometrees, apres une passe d'echauffement ecartee")
 	fs.IntVar(&o.plafondGiB, "plafond-gio", 2, "plafond de memoire d'un film, en Gio (mesure sur le poste)")
 	fs.BoolVar(&o.enfant, "enfant", false, "usage interne : une passe d'un film, sous sentinelle, pour son pic de memoire")
+	fs.StringVar(&o.profilCPU, "profil-cpu", "", "profil CPU pprof d une passe d un seul film (avec -seulement)")
+	fs.StringVar(&o.profilTas, "profil-tas", "", "profil du tas pprof d une passe d un seul film (avec -seulement) ; <fichier>.pic = plus haut tas")
 	if err := fs.Parse(args); err != nil {
 		return o, err
 	}
@@ -72,6 +76,9 @@ func lireOptions(args []string, stderr io.Writer) (options, error) {
 		return o, errors.New("-plafond-gio doit etre au moins 1")
 	case o.enfant && strings.Contains(o.seulement, ","):
 		return o, errors.New("-enfant mesure un seul film")
+	}
+	if err := o.verifierProfil(); err != nil {
+		return o, err
 	}
 	return o, nil
 }
@@ -97,6 +104,9 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 			dire(stderr, "film-bench : %v\n", err)
 		}
 		return 2
+	}
+	if opt.profilDemande() {
+		return profiler(ctx, opt, stdout, stderr)
 	}
 	if opt.enfant {
 		return executerEnfant(ctx, opt, stdout, stderr)

@@ -68,3 +68,24 @@ func TestDernieresLignes(t *testing.T) {
 		t.Errorf("dernieres lignes : %q", got)
 	}
 }
+
+func TestLireOptionsProfil(t *testing.T) {
+	base := []string{"-correspondance", "c.tsv", "-catalogue", "cat.json"}
+	o, err := lireOptions(append(append([]string{}, base...), "-seulement", "film01", "-profil-cpu", "p.prof"), io.Discard)
+	if err != nil || !o.profilDemande() || o.profilCPU != "p.prof" {
+		t.Fatalf("profil valide refuse : %v %+v", err, o)
+	}
+	refus := map[string][]string{
+		"sans film":    {"-profil-tas", "t.prof"},
+		"plusieurs":    {"-profil-cpu", "p", "-seulement", "a,b"},
+		"avec le fils": {"-profil-cpu", "p", "-seulement", "a", "-enfant"},
+	}
+	for nom, extra := range refus {
+		if _, err := lireOptions(append(append([]string{}, base...), extra...), io.Discard); err == nil {
+			t.Errorf("%s : une erreur etait attendue", nom)
+		}
+	}
+	if o, _ := lireOptions(base, io.Discard); o.profilDemande() {
+		t.Error("profil demande sans option")
+	}
+}

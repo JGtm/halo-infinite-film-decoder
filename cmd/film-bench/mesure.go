@@ -170,6 +170,9 @@ func executer(ctx context.Context, c Cible) (Resultat, error) {
 	// EMPLACEMENT DU NOMBRE DE FILS : l option d une version qui en porte une se pose ici, sur `opt`.
 	opt := replay.Options{MapQuant: &c.Entree}
 	opt.Observe = func(etape string, _ any) {
+		if survolEtape != nil {
+			survolEtape(etape)
+		}
 		if etape == etapeFinDuBalayage && finBalayage.IsZero() {
 			finBalayage = time.Now()
 		}
