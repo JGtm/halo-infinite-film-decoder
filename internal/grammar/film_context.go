@@ -89,8 +89,8 @@ package grammar
 // # CE QU'IL N'EST PAS
 //
 // Ni un cache global (aucun `var` de paquet — le ratchet `archlint/filmdec_package_vars_test.go`
-// gele leur compte), ni un objet partageable entre goroutines : il n'est ni verrouille ni
-// atomique : il appartient au balayage qui l a ouvert, et a lui seul.
+// gele leur compte), ni un objet partageable entre goroutines : ni verrou ni atomique, il appartient
+// au balayage qui l a ouvert ; des balayages simultanes ont chacun leur [FilmContext.Deriver].
 
 import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/constat"
@@ -133,12 +133,9 @@ type FilmContext struct {
 	prof   profile.Profile
 	profLu bool
 
-	// bal est le PROFIL DE BALAYAGE de ce decodage (lot 2.3) : ce que les lecteurs de bits
-	// construits sous ce contexte portent. Il nait a l INVARIANT ; la carte du match
-	// (largeurs d axe objets du monde), la version de format (decoupage MPP) et la
-	// calibration de `killsource` y substituent leurs valeurs, par
-	// [FilmContext.PoserProfilDeBalayage]. C est ce qui a remplace l heritage par l etat du
-	// processus : rien ici n est partage entre deux films.
+	// bal est le PROFIL DE BALAYAGE de ce decodage (lot 2.3), ce que portent les lecteurs de bits
+	// construits sous ce contexte. Il nait a l INVARIANT ; la carte, la version de format et la
+	// calibration de `killsource` y substituent leurs valeurs ([FilmContext.PoserProfilDeBalayage]).
 	bal ProfilDeBalayage
 	// duFilm : la grammaire que le film DECLARE (controle_corruption_du_film.go).
 	duFilm grammaireDuFilm
@@ -158,6 +155,8 @@ type FilmContext struct {
 	diag constat.Diagnostics
 	// fils : nombre de fils permis a ce decodage, au moins 1 ([FilmContext.PoserFils]).
 	fils int
+	// voie : non nil sur un contexte de voie ([FilmContext.Deriver]), qui garde le lien vers son parent.
+	voie *etatDeVoie
 }
 
 // Observation rend l observateur de ce contexte. Jamais nil.
