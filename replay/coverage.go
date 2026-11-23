@@ -184,6 +184,8 @@ type Coverage struct {
 	ScoreActions *ScoreActionCoverage `json:"scoreActions,omitempty"`
 	// Reloads dit ce que le calque des rechargements a lu, publie et ecarte ; absent quand la marche des trames n a lu aucune trame.
 	Reloads *ReloadCoverage `json:"reloads,omitempty"`
+	// Appearance dit ce que la lecture de l'apparence des joueurs a rencontre ; absent quand la lecture n'a pas eu lieu.
+	Appearance *AppearanceCoverage `json:"appearance,omitempty"`
 	// Chatter et Announcements disent ce que les calques des repliques et des annonces ont lu, publie et ecarte ; absents quand la marche des trames n a lu aucune trame.
 	Chatter       *ChatterCoverage      `json:"chatter,omitempty"`
 	Announcements *AnnouncementCoverage `json:"announcements,omitempty"`

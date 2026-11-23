@@ -155,6 +155,8 @@ func (a *assemblage) poserLesEquipesEtLeRoster() {
 		tailleDEquipe: a.opt.TeamSize})
 	// LE BOT SANS VIE NI PLACE SORT DU ROSTER PUBLIE (sieges_bots_sans_place.go) : une tuile de trop sinon.
 	a.doc.Roster = sansLesBotsEcartes(a.doc.Roster, a.siegeCov)
+	// L'APPARENCE se pose sur le roster publie, par xuid (document_apparence.go).
+	a.poserLesApparences()
 	a.siegeCov.BotsSuccesseurs = botsSuccesseurs + botsParDeclaration
 	a.siegeCov.TirsIndexNonPlace = !a.indexTireur.estLaPlace()
 	// LE JOURNAL DES PLACES DIT UN DEFAUT DU ROSTER PUBLIE : un document interne le tait (cf.
@@ -340,6 +342,8 @@ func (a *assemblage) composerLaCouverture() {
 	a.doc.Coverage.Stances = &a.stanceCov
 	// CE QUE LA POSE DES SIEGES A LU ET APPARIE (lot 1.9.14) : mesure faite ci-dessus, posee ici.
 	a.doc.Coverage.Seats = &a.siegeCov
+	// L'APPARENCE (document_apparence.go) : lue avant la couverture, posee ici.
+	a.doc.Coverage.Appearance = a.apparenceCov
 	// LA LECTURE DES PLACES DE CONTROLE (places_de_controle.go) : posee par les tirs, completee par les rafales.
 	a.doc.Coverage.ControlPlaces = &a.placesCov
 	// La version du film est une DIMENSION du décodage : elle voyage avec l'artefact plutôt que

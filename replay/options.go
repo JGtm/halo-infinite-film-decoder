@@ -272,11 +272,13 @@ type Options struct {
 	// Presences : les plages de listage des humains (paquets de type 8) et le joueur aux commandes des bipedes ;
 	// vide = lectures non faites, le roster garde la presence par entites et vies.
 	Presences LecturesDePresence
-	// StatborgEntries / StatborgEntryStats : de qui est chaque ligne du tableau des scores, lu aux images-cles. Avec
-	// `Presences.Listings`, ils nomment le joueur de chaque enregistrement du tableau ; vide ou `Scanned` faux, le
-	// tableau se nomme par le pont d'identite des slots.
+	// StatborgEntries / StatborgEntryStats : de qui est chaque ligne du tableau des scores, lu aux images-cles. Avec `Presences.Listings`,
+	// ils nomment le joueur de chaque enregistrement ; vide ou `Scanned` faux, le tableau se nomme par le pont d'identite des slots.
 	StatborgEntries    []types.StatborgEntry
 	StatborgEntryStats types.StatborgEntryStats
+	// Appearances / AppearanceStats : l'apparence brute des humains, posee sur le roster par xuid ; `Scanned` faux : rien publie.
+	Appearances     []types.PlayerAppearance
+	AppearanceStats types.AppearanceStats
 	// ScoreboardTeams est la table `identifiant -> équipe` de la FEUILLE DE MATCH (xuid d'un humain,
 	// `bid(N.0)` d'un bot). Elle CONTRÔLE : elle alimente `coverage.teams.{accord, contradiction,
 	// silence}` — une contradiction avec le film se compte, elle ne se corrige pas en silence. Elle

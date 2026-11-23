@@ -95,6 +95,10 @@ type RosterEntry struct {
 	// = l'entrée n'est présente à aucun instant, ou artefact antérieur au schéma 69 (le client
 	// retombe alors sur l'enveloppe des vies).
 	Presence []PresenceInterval `json:"presence,omitempty"`
+	// Appearance est l'apparence du joueur, en codes bruts (document_apparence.go) : le dernier bloc de personnalisation non nul des
+	// paquets de type 8. Absente pour un bot, pour un joueur dont l'apparence n'est pas chargee (tous les blocs nuls, compte dans
+	// `coverage.appearance.unloaded`) et sur un film dont la lecture n'a pas eu lieu.
+	Appearance *Appearance `json:"appearance,omitempty"`
 }
 
 // PresenceInterval est UN intervalle de présence d'une entrée de roster, en FRAMES du document,

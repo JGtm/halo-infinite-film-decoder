@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee 64d3451528d27b82
-empreinte-servie 64d3451528d27b82
-empreinte-cuite f7c25b0554619f60
+empreinte-stockee e5829f2f7547b060
+empreinte-servie e5829f2f7547b060
+empreinte-cuite 2811e1df33f2e8ef
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -88,6 +88,21 @@ AnnouncementCoverage
   Published json:"published" int
   Read json:"read" int
   StoppedFrames json:"stoppedFrames" int
+Appearance
+  Pairs json:"pairs,omitempty" [][2]uint32
+  Rest json:"rest,omitempty" []uint8
+  Size json:"size" int
+AppearanceCoverage
+  Changed json:"changed" int
+  Distinct json:"distinct" int
+  NoXUID json:"noXUID" int
+  Packets json:"packets" int
+  Pairs json:"pairs" int
+  Raw json:"raw" int
+  Refused json:"refused" int
+  UnknownBuild json:"unknownBuild" bool
+  Unloaded json:"unloaded" int
+  Unmatched json:"unmatched" int
 Attachment
   Attacker json:"attacker,omitempty" string
   Born json:"born,omitempty" bool
@@ -389,6 +404,7 @@ Coverage
   AbilityImpulses json:"abilityImpulses,omitempty" *AbilityImpulseCoverage
   AmmoReads json:"ammoReads,omitempty" *AmmoReadCoverage
   Announcements json:"announcements,omitempty" *AnnouncementCoverage
+  Appearance json:"appearance,omitempty" *AppearanceCoverage
   BirthLoadouts json:"birthLoadouts,omitempty" *BirthLoadoutCoverage
   BombArmings json:"bombArmings,omitempty" *BombArmingsCoverage
   BombCarries json:"bombCarries,omitempty" *BombCarriesCoverage
@@ -1319,6 +1335,7 @@ RiftPose
   Y json:"y,omitempty" *float32
   Z json:"z,omitempty" *float32
 RosterEntry
+  Appearance json:"appearance,omitempty" *Appearance
   Bid json:"bid,omitempty" string
   Bot json:"bot,omitempty" bool
   FilmIndex json:"filmIndex" int

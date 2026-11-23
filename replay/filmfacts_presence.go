@@ -56,6 +56,7 @@ func encodePresenceEtEntrees(w *gwriter, g *FilmFacts) {
 	encodeListagesDeRoster(w, g.RosterListings, g.RosterListingStats)
 	encodeCommandeDesBipedes(w, g)
 	encodeEntreesDuStatborg(w, g.StatborgEntries, g.StatborgEntryStats)
+	encodeApparences(w, g.Appearances, g.AppearanceStats)
 }
 
 // decodePresenceEtEntrees relit ce que [encodePresenceEtEntrees] ecrit.
@@ -63,6 +64,7 @@ func decodePresenceEtEntrees(r *greader, g *FilmFacts) {
 	g.RosterListings, g.RosterListingStats = decodeListagesDeRoster(r)
 	decodeCommandeDesBipedes(r, g)
 	g.StatborgEntries, g.StatborgEntryStats = decodeEntreesDuStatborg(r)
+	g.Appearances, g.AppearanceStats = decodeApparences(r)
 }
 
 // encodeControlesDeBipede ecrit les lectures d `unit-control` (TRIEES par instant : delta

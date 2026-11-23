@@ -655,6 +655,28 @@ Distinct	int	-
 Refused	int	-
 Entries	int	-
 
+## AppearancePair (grammar)
+Key	uint32	-
+Value	uint32	-
+
+## PlayerAppearance (grammar)
+XUID	uint64	-
+Size	int	-
+Pairs	[]types.AppearancePair	-
+Rest	[]uint8	-
+
+## AppearanceStats (grammar)
+Scanned	bool	-
+UnknownBuild	bool	-
+Packets	int	-
+Distinct	int	-
+Refused	int	-
+NoXUID	int	-
+Pairs	int	-
+Raw	int	-
+Unloaded	int	-
+Changed	int	-
+
 ## StatborgEntry (grammar)
 Slot	int	-
 TS	uint64	-

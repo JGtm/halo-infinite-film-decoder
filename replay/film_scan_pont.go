@@ -182,11 +182,15 @@ func (s *filmScan) publierSieges(lu lectureSieges) {
 	s.in.PlayerTeams, s.in.TeamScan, s.in.PlayerEntities = so.equipes, so.rapport, so.entites
 	s.in.RosterListings, s.in.RosterListingStats = so.listages, so.statsListages
 	s.in.StatborgEntries, s.in.StatborgEntryStats = so.entrees, so.statsEntrees
+	// L'apparence se lit dans les memes paquets de type 8, a la suite, sur le fil de l'appelant : aucune voie parallele.
+	s.in.Appearances, s.in.AppearanceStats = grammar.ScanRosterAppearances(s.film)
 	s.opt.observe(s.ctx, "playerTeams", s.in.PlayerTeams)
 	s.opt.observe(s.ctx, "rosterListings", s.in.RosterListings)
 	s.opt.observe(s.ctx, "rosterListings.stats", s.in.RosterListingStats)
 	s.opt.observe(s.ctx, "statborgEntries", s.in.StatborgEntries)
 	s.opt.observe(s.ctx, "statborgEntries.stats", s.in.StatborgEntryStats)
+	s.opt.observe(s.ctx, "appearances", s.in.Appearances)
+	s.opt.observe(s.ctx, "appearances.stats", s.in.AppearanceStats)
 }
 
 // publierLIndexDesJoueurs publie la table d index de joueur que l etage du pont a lue sur le roster de

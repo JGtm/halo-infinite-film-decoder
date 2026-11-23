@@ -171,6 +171,8 @@ type assemblage struct {
 	viesNommees        int
 	viesSlotAmbigu     int
 	siegeCov           SeatCoverage
+	// apparenceCov : ce que la lecture de l apparence a rencontre ([assemblage.poserLesApparences]), posee dans `doc.Coverage` a la composition de la couverture ; nil sans lecture.
+	apparenceCov *AppearanceCoverage
 
 	// tireurs : le tireur de chaque place ([assemblage.tireursDesPlaces]), pose au premier appel ; placesCov
 	// est la couverture de leur lecture (`coverage.controlPlaces`), completee par les tirs puis les rafales.

@@ -257,6 +257,10 @@ type FilmInputs struct {
 	// d'un enregistrement du tableau a son instant ([objectives.EntryResolver]).
 	StatborgEntries    []types.StatborgEntry
 	StatborgEntryStats types.StatborgEntryStats
+	// Appearances / AppearanceStats sont l'apparence des humains (bloc de personnalisation des paquets de type 8, codes
+	// bruts) et ce que sa lecture a rencontre ; `AppearanceStats.Scanned` faux = lecture non faite.
+	Appearances     []types.PlayerAppearance
+	AppearanceStats types.AppearanceStats
 	// BipedDeletions / BipedDeletionStats sont les suppressions de bipede (records DEL des trames delta), lues par la
 	// marche des trames dans les records qu elle range, avec leurs denominateurs.
 	BipedDeletions     []types.BipedDeletion
@@ -341,5 +345,6 @@ func (in FilmInputs) applyTo(opt *Options) {
 		Controls: in.UnitControls, ControlStats: in.UnitControlStats,
 		Deletions: in.BipedDeletions, DeletionStats: in.BipedDeletionStats}
 	opt.StatborgEntries, opt.StatborgEntryStats = in.StatborgEntries, in.StatborgEntryStats
+	opt.Appearances, opt.AppearanceStats = in.Appearances, in.AppearanceStats
 	opt.FilmClockOriginUS = in.FilmClockOriginUS
 }
