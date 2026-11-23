@@ -336,44 +336,6 @@ func (s *filmScan) balayerImpulsionsEtCharges() {
 	s.opt.observe(s.ctx, "abilityCharges", s.in.AbilityCharges)
 }
 
-// balayerMonde lit la lunette, puis les objets du monde : poses d'equipement, socles, vehicules,
-// et les trois calques gardes par le mode (marqueur de portage, zones, anneau de la bombe).
-func (s *filmScan) balayerMonde() {
-	// LA LUNETTE (schema 24) : les bascules vivent dans la liste d'evenements en tete de
-	// paquet, pas dans les records — un balayage separe, sans verrou (il ne touche aucun etat
-	// global de decodage). Le maintien est borne : au-dela, on cesse d'affirmer plutot que de
-	// prolonger une entree dont la sortie n'a pas ete lue (cf. grammar.ZoomStateAt).
-	//
-	// LA RECONSTRUCTION (`buildScopedLookup`) VIT DESORMAIS DANS `FilmInputs.applyTo` (lot 1.0) :
-	// elle est PURE, et la porter la permet au fixture de figer une LISTE d'evenements plutot
-	// qu'une fermeture. Son cout — un O(n) sur les evenements qu'on vient de balayer — quitte
-	// donc la mesure de l'etape `zoomEvents` ; il ne lit aucun octet de film.
-	s.in.ZoomEvents = grammar.ScanZoomEvents(s.fc)
-	s.opt.observe(s.ctx, "zoomEvents", s.in.ZoomEvents)
-	// POSES d'equipement : records de CREATION de l'archetype 37, sur la MEME horloge
-	// (cf. equipment_placements.go — decodage, journal et refus y vivent ensemble).
-	s.in.Placements, s.in.PlacementStats = decodeFilmPlacements(s.ctx, s.fc, s.matchID, &s.world)
-	s.opt.observe(s.ctx, "placements", s.in.Placements)
-	s.opt.observe(s.ctx, "placements.stats", s.in.PlacementStats)
-	// « UNE PIECE A ETE ENGENDREE » : l'evenement de liste 103, qui DESIGNE la vie de l'objet
-	// cree (lot 1.9.1, cf. equipment_origin.go). Lecture de TETE de liste, sans verrou de
-	// decodage — elle ne touche aucun global de filmdec — et sans cout de chargement : le
-	// contexte du film est deja ouvert.
-	s.in.SpawnEvents, s.in.SpawnStats = decodeFilmSpawnEvents(s.ctx, s.fc, s.matchID)
-	s.opt.observe(s.ctx, "spawnEvents", s.in.SpawnEvents)
-	// SOCLES : archetypes 42 (armes) et 37 (power-ups), sur la MEME horloge, AUX LARGEURS MPP que
-	// la calibration des POSES vient de mesurer sur ce film (cf. build_ground_weapons.go).
-	mpp := s.in.PlacementStats.Calibration.Widths
-	s.in.Pads = decodeFilmPadScans(s.ctx, s.fc, s.matchID, &s.world, mpp)
-	s.opt.observe(s.ctx, "pads", s.in.Pads)
-	// VEHICULES : archetype 40, sur la MEME horloge et AUX MEMES largeurs MPP que les socles —
-	// le mot d'identite du chassis se lit derriere les memes deux champs de largeur variable
-	// (cf. build_vehicles.go). CINQ lectures du film deja charge, aucune E/S.
-	s.in.Vehicles = decodeFilmVehicleScan(s.ctx, s.fc, s.matchID, &s.world, mpp)
-	s.opt.observe(s.ctx, "vehicles", s.in.Vehicles)
-	s.balayerCalquesGardes()
-}
-
 // balayerCalquesGardes lit les trois calques que l'APPELANT commande : le marqueur de portage du
 // drapeau, l'etat des zones et l'anneau d'armement de la bombe. Sans la garde correspondante
 // dans `Options`, aucun octet n'est lu — ce paquet ne devine aucun mode.
