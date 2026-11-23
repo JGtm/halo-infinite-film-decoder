@@ -140,6 +140,8 @@ type MarcheDesTrames struct {
 	// Reloads : les rechargements d arme des trames delta et ReloadStats ce que leur canal a vu.
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
+	// Repliques : les repliques des Spartans et les annonces des trames delta (genres 75 et 76 de la vue A) et ce que leur canal a vu.
+	Repliques RepliquesLues
 	// Vitalites : la sante et le bouclier des bipedes, par vie.
 	Vitalites VitalitesLues
 	// LiaisonsParRepliDAnticipation : les liaisons que le repli `repli_liaison_par_anticipation`
@@ -214,7 +216,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	degats := nouveauCanalDesDegats()
 	rechargements := nouveauCanalDesRechargements()
 	vitalites := nouveauCanalDesVitalites()
-	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements}
+	repliques := nouveauCanalDesRepliques()
+	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -246,6 +249,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.EvenementsDeJeuStats = jeu.stats
 	m.Degats, m.DegatsStats = degats.lus, degats.stats
 	m.Reloads, m.ReloadStats = rechargements.out, rechargements.stats
+	m.Repliques = repliques.resultat()
 	m.Vitalites = vitalites.resultat()
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()

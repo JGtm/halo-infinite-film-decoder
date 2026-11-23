@@ -295,6 +295,10 @@ type ReplayDocument struct {
 	ShotStats    []ShotStat            `json:"shotStats,omitempty"`
 	// Reloads : les rechargements d arme lus dans le film, une ligne par (trame, joueur, unite) (document_reloads.go).
 	Reloads []Reload `json:"reloads,omitempty"`
+	// Chatter : les repliques des Spartans lues dans le film, une ligne par message (document_repliques.go). Announcements : les
+	// annonces de l annonceur et des scripts de mode (document_repliques_annonces.go).
+	Chatter       []Chatter      `json:"chatter,omitempty"`
+	Announcements []Announcement `json:"announcements,omitempty"`
 	// Eliminations est une ligne par élimination du tableau des scores : tueur, image, victime quand le film la donne, marques
 	// de tir à la tête et de frag parfait à trois états (document_eliminations.go). Absente sans tableau des scores.
 	Eliminations []Elimination `json:"eliminations,omitempty"`

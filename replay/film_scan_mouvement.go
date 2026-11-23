@@ -65,6 +65,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.GameEvents, s.in.GameEventStats, s.in.GameEventsRead = m.EvenementsDeJeu, m.EvenementsDeJeuStats, err == nil
 	s.in.Damages, s.in.DamageStats, s.in.DamagesRead = m.Degats, m.DegatsStats, err == nil
 	s.in.Reloads, s.in.ReloadStats = m.Reloads, m.ReloadStats
+	s.in.Repliques = m.Repliques
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
 	// LES SCRIPTS NE DEPENDENT QUE DU FILM : la tache de fond les a lus d'avance quand il y en a une
@@ -96,9 +97,17 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "damages.stats", s.in.DamageStats)
 	s.opt.observe(s.ctx, "reloads", s.in.Reloads)
 	s.opt.observe(s.ctx, "reloads.stats", s.in.ReloadStats)
+	s.opt.observe(s.ctx, "repliques", messagesDeDialogue{Repliques: s.in.Repliques.Repliques, Annonces: s.in.Repliques.Annonces})
+	s.opt.observe(s.ctx, "repliques.stats", s.in.Repliques.Stats)
 	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)
+}
+
+// messagesDeDialogue est ce que l etape `repliques` observe : les repliques et les annonces lues, sans leurs comptes.
+type messagesDeDialogue struct {
+	Repliques []grammar.RepliqueLue
+	Annonces  []grammar.AnnonceLue
 }
 
 // mortsEtOccupation est ce que l etape `vehicleDeaths` observe : les morts de vehicule et les

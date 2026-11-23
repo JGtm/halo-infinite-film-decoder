@@ -194,6 +194,9 @@ type FilmInputs struct {
 	// canal a vu.
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
+	// Repliques sont les repliques des Spartans (genre 75 de la vue A) et les annonces (genre 76) des trames delta, avec ce que
+	// leur canal a vu.
+	Repliques grammar.RepliquesLues
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -307,6 +310,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.ScoreActions = ScoreActionInput{Read: in.GameEventsRead, Events: in.GameEvents, Stats: in.GameEventStats, Scripts: in.Scripts}
 	opt.Damages = HitInput{Read: in.DamagesRead, Messages: in.Damages, Points: in.DamagePoints, Stats: in.DamageStats}
 	opt.Reloads, opt.ReloadStats = in.Reloads, in.ReloadStats
+	opt.Repliques = in.Repliques
 	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable
