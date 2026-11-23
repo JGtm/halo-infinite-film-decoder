@@ -23,7 +23,7 @@ func TestLeTirDuRemplacantLuiRevient(t *testing.T) {
 		{TimestampUS: 1_000_000, FilmIndex: 5, HasShooter: true},
 		{TimestampUS: 4_000_000, FilmIndex: -1},
 	}
-	out, autres := places.tirsParPlace(fire, vsClock())
+	out, autres := tireursDesPlaces{sieges: places}.tirsParPlace(fire, vsClock(), nil)
 	if autres != 1 || out[0].FilmIndex != 9 || out[1].FilmIndex != 5 || out[2].FilmIndex != -1 {
 		t.Errorf("index = %d, %d, %d (%d rendus), attendu 9, 5, -1 (1)", out[0].FilmIndex, out[1].FilmIndex,
 			out[2].FilmIndex, autres)

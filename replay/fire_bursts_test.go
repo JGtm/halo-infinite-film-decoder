@@ -8,6 +8,8 @@ import (
 	"math"
 	"testing"
 
+	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
@@ -32,8 +34,10 @@ func fbDoc() *ReplayDocument {
 }
 
 func fbPublier(doc *ReplayDocument, rs ...types.ContinuousFireBurst) ([]FireBurst, *ContinuousFireCoverage) {
-	return buildFireBursts(context.Background(), doc, rs, types.ContinuousFireStats{Scanned: true}, occupantsPlats(map[uint32]int{10: 3, 11: 4}),
-		vsClock())
+	return buildFireBursts(context.Background(), doc,
+		entreesDesRafales{lues: rs, stats: types.ContinuousFireStats{Scanned: true},
+			places: tireursDesPlaces{sieges: nouveauxTireursParPlace(doc.Roster)}},
+		occupantsPlats(map[uint32]int{10: 3, 11: 4}), vsClock())
 }
 
 // TestRafaleDuPiloteDuGhostPoseeSurLeGhost — le cas du retour utilisateur (81c02726) : la gachette
@@ -122,6 +126,38 @@ func TestRafaleDuRemplacantParSaPlace(t *testing.T) {
 	}
 }
 
+// TestRafaleDeLaPlaceLuePrimeSurLeSiege — la place 3 est lue tenue par le joueur 4 (deux tirs de son
+// unite) pendant que le roster la donne au joueur 3 : la rafale est celle du joueur 4, comptee par la
+// place lue ; une rafale d une place que personne n a liee revient au siege et se compte comme repli.
+func TestRafaleDeLaPlaceLuePrimeSurLeSiege(t *testing.T) {
+	doc := fbDoc()
+	doc.Roster = []RosterEntry{
+		{XUID: "1", FilmIndex: 3, Seat: 3, Presence: []PresenceInterval{{From: 0, To: 90}}},
+		{XUID: "2", FilmIndex: 4, Seat: 4, Presence: []PresenceInterval{{From: 0, To: 90}}},
+	}
+	horloge := vsClock()
+	horloge.fb = fallback.NouveauCompteur()
+	lues := lirePlacesDeControle([]grammar.FireEvent{tirDePlace(3, 11, 10), tirDePlace(3, 11, 40)},
+		occupantsPlats(map[uint32]int{11: 4}), horloge, nil, true)
+	cov := lues.cov
+	e := entreesDesRafales{lues: []types.ContinuousFireBurst{fbRafale(3, 20, 25, 1), fbRafale(4, 20, 25, 1)},
+		stats:  types.ContinuousFireStats{Scanned: true},
+		places: tireursDesPlaces{lues: lues, sieges: nouveauxTireursParPlace(doc.Roster)}, lecture: &cov}
+	out, ccov := buildFireBursts(context.Background(), doc, e, occupantsPlats(map[uint32]int{10: 3, 11: 4}), horloge)
+	if len(out) != 2 || ccov.Published != 2 {
+		t.Fatalf("rafales = %+v, couverture %+v", out, ccov)
+	}
+	if out[0].Slot != 11 || out[1].Slot != 11 {
+		t.Errorf("slots = %d, %d : attendu les deux sur la piste du joueur 4 (slot 11)", out[0].Slot, out[1].Slot)
+	}
+	if cov.BurstsByPlace != 1 || cov.BurstsBySeat != 1 || cov.BurstsUnheld != 0 {
+		t.Errorf("comptes = %+v : attendu 1 rafale par la place lue, 1 par le siege", cov)
+	}
+	if n := horloge.fb.Compte(fallback.NomTireurParLeSiegeDeLaPlace); n != 1 {
+		t.Errorf("repli compte %d fois, attendu 1", n)
+	}
+}
+
 // TestTrousProjetesSurLesFramesEntieres — une frame n est muette que si le trou la couvre entiere,
 // et les trous qui se touchent fusionnent.
 func TestTrousProjetesSurLesFramesEntieres(t *testing.T) {
@@ -154,7 +190,7 @@ func TestCoupsALaCadenceEtALaMontee(t *testing.T) {
 
 // TestSansMarcheDesTramesAucuneCouverture — un artefact reconstruit sans la marche n affirme rien.
 func TestSansMarcheDesTramesAucuneCouverture(t *testing.T) {
-	out, cov := buildFireBursts(context.Background(), fbDoc(), nil, types.ContinuousFireStats{}, occupantsPlats(nil), vsClock())
+	out, cov := buildFireBursts(context.Background(), fbDoc(), entreesDesRafales{}, occupantsPlats(nil), vsClock())
 	if out != nil || cov != nil {
 		t.Errorf("rafales %v couverture %v : attendu nil, nil", out, cov)
 	}

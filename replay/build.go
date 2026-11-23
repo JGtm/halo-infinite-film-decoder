@@ -171,6 +171,12 @@ type assemblage struct {
 	viesSlotAmbigu     int
 	siegeCov           SeatCoverage
 
+	// tireurs : le tireur de chaque place ([assemblage.tireursDesPlaces]), pose au premier appel ; placesCov
+	// est la couverture de leur lecture (`coverage.controlPlaces`), completee par les tirs puis les rafales.
+	tireurs      tireursDesPlaces
+	tireursPoses bool
+	placesCov    ControlPlaceCoverage
+
 	// Les mesures faites AVANT `composerLaCouverture` et posées par elle.
 	shotCov     LayerCoverage
 	grenCov     LayerCoverage

@@ -168,8 +168,10 @@ func (a *assemblage) poserArmesAuSolEtVehicules() {
 	// l arme de leur monture ou sur l arme en main. APRES les vehicules (episodes et porteurs), les
 	// dotations et les prises (arme en main) et la pose des places (le tireur est l occupant de sa
 	// place) — cf. fire_bursts.go.
-	a.doc.Bursts, a.doc.Coverage.ContinuousFire = buildFireBursts(a.ctx, &a.doc, a.opt.ContinuousFire,
-		a.opt.ContinuousFireStats, a.reg.Occupants(),
+	a.doc.Bursts, a.doc.Coverage.ContinuousFire = buildFireBursts(a.ctx, &a.doc,
+		entreesDesRafales{lues: a.opt.ContinuousFire, stats: a.opt.ContinuousFireStats,
+			places: a.tireursDesPlaces(), lecture: &a.placesCov},
+		a.reg.Occupants(),
 		replayClock{origin: a.origin, step: a.step, frames: a.doc.FrameCount, fb: a.opt.Fallbacks})
 	logFireBursts(a.ctx, a.doc.Coverage.ContinuousFire)
 }
