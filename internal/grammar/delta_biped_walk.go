@@ -95,7 +95,13 @@ func walkDeltaBipedPayloadJusqua(
 	total := len(pay) * 8
 	i0Bits := lay.TotalBits()
 	minRecord := deltaBipedMinRecord(i0Bits)
-	for p := 0; p+minRecord <= total && p < fin; {
+	// Les positions jugees : p < fin et p+minRecord <= total.
+	limite := min(fin, total-minRecord+1)
+	for p := 0; p < limite; {
+		// Les positions que le prefixe, la porte ou le compteur de masque ecartent ne se jugent pas.
+		if p = prochainEnteteDelta(pay, p, limite, bipedMinMaskCnt); p >= limite {
+			break
+		}
 		i0, slot, idx, ok := matchBipedHeader(pay, p, total, slots, gens, lay)
 		if !ok {
 			p++

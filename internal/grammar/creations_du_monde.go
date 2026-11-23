@@ -229,7 +229,12 @@ func nouvellePasseDesCreations(marches []equipCreationWalk) *passeDesCreations {
 func (ps *passeDesCreations) payload(pay []byte, lieu lieuDuPaquet, fin int) {
 	clear(ps.curseurs)
 	total := len(pay) * 8
-	for p := 0; p <= total-woNewHeaderBits && p < fin; p++ {
+	limite := min(fin, total-woNewHeaderBits+1) // positions jugees : p < fin et p+woNewHeaderBits <= total
+	for p := 0; p < limite; p++ {
+		// Les positions qui n'ouvrent pas un record NEW ne se jugent pas.
+		if p = prochainPrefixeNEW(pay, p, limite); p >= limite {
+			break
+		}
 		ti, ok := archetypeDeLEnTeteNEW(pay, p)
 		if !ok {
 			continue

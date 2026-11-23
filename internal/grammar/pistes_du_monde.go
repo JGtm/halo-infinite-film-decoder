@@ -186,7 +186,12 @@ func echantillonsDesBandes(pay []byte, appartenance []uint32, n int, wr *profile
 	posBits := projPosBits(lg)
 	limit := len(pay)*8 - (worldObjectHeaderBits + worldObjectIndexBits + posBits)
 	var curseurs [maxBandesParPasse]int
-	for p := 0; p <= limit && p < fin; p++ {
+	lim := min(fin, limit+1) // positions jugees : p <= limit et p < fin
+	for p := 0; p < lim; p++ {
+		// Les positions que le prefixe, la porte ou le compteur de masque ecartent ne se jugent pas.
+		if p = prochainEnteteDelta(pay, p, lim, 1); p >= lim {
+			break
+		}
 		h, ok := enteteDObjetDuMonde(pay, p)
 		if !ok || int(h.Slot) >= len(appartenance) || appartenance[h.Slot] == 0 {
 			continue
