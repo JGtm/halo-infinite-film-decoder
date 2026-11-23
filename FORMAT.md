@@ -430,6 +430,16 @@ its position by order only. On old builds the film already replicates at the gri
 (`p` and `z` stay the grid's view); `coverage.projectiles.fullRateSamples` is present with the block. The compressed weight of every replay grows by 24 to 39 % on the five films measured. The
 sync's internal document (the one that only feeds the carrier layers, never published) does not compute the full rate.
 
+**Stuck projectiles.** A projectile that stuck to another entity is published once, in one of two places. `projectiles[].attach` ends a PUBLISHED flight: `fromFrame` (same axis as `points[].t`),
+`parentSlot`, `node` and `pose`. `attachments[]` holds every other stuck projectile (born stuck, or whose flight is too short to be published): `t`, `parentSlot`, `node`, `pose`, plus `target`
+(`player` or `vehicle`, when a published track or vehicle holds `parentSlot` at `t`; absent otherwise), `victim` (the target player's xuid, absent for a bot), `tag`, `by` and `attacker`, `born`.
+`parentSlot` is the slot of the object it stuck to (a player's `tracks[].slot`, a `vehicles[].slot`, a weapon, an object). `node` is an index of the parent's render model, raw. `pose` is THREE RAW
+16-BIT INTEGERS, in the film's order: the film gives neither their range nor their unit (they cover 0 to 65,535 and do not form a unit vector), so none is published. `tag` is the projectile's
+type: the 32-bit word of its creation (the `proj` tag id, eight hexadecimal digits; the host names it). `by` and `attacker` are the creator of the projectile (the track slot and the xuid of the unit
+its creation state names, resolved as the author of a damage line); absent when the creation names none or its unit holds no track at `t`. No shot and no weapon is published for a stuck projectile.
+`coverage.projectiles.attach` counts what was read (`read`), where it went (`onFlight`, `listed`, `outOfMatch`), the targets (`player`, `vehicle`, `unresolved`), and for `listed` the types and creators
+read (`tagged`, `authored`, `authorNoTrack`, `authorNone`), and what the channel discarded (`desynced`, `unreadFrames`).
+
 **Health and shield.** `vitals[]` publishes the health and the shield of each life at every change, one row per (instant, slot): `t` the frame, `ms` the instant in milliseconds
 from frame 0, `slot` the track slot, `sh` the shield as a fraction of a full shield (1 is full, up to 4; to the thousandth), `hp` the health as a fraction (0 to 1; to the thousandth) and
 `dead` on the first row of a life whose health is zero, written after the end of the track. They are the same fractions as `tracks[].points[].sh` and `.hp`, but `sh` is not capped at 1

@@ -172,6 +172,7 @@ var couchesDesCalques = map[string]string{
 	"weaponPads":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (ti=42 et ti=37)
 	"padPickups":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads
 	"padCandidates":       grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (grappes a une seule apparition, ti=42 et ti=37)
+	"attachments":         grammar.Rev, // projectiles_colles_calque.go <- FilmInputs.ProjectileAttaches (collages de projectile sans vol publie)
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
 	"objectiveObjects":    grammar.Rev, // build_objective_objects.go <- FilmInputs.Pads.Weapons SEUL : son en-tete mesure « aucune lecture de film ajoutee », ni statborg ni morts
 	"vehicles":            grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles
@@ -306,6 +307,9 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	"gestures":     func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
 	"drawnWeapons": func(_ *ReplayDocument, opt Options) bool { return opt.DrawnWeapons.Stats.Scanned },
 	"vitals":       func(_ *ReplayDocument, opt Options) bool { return opt.Vitals.Stats.Scanned },
+	"attachments": func(_ *ReplayDocument, opt Options) bool {
+		return opt.ProjectileAttaches.Stats.Scanned && !opt.ProjectileAttaches.Stats.Absent
+	},
 	// La marche des trames n a lu aucune trame : ni replique ni annonce ne se lit (document_repliques.go, `poserLesRepliques`).
 	"chatter":           func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
 	"announcements":     func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },

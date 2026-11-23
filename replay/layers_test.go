@@ -204,13 +204,14 @@ func optionsToutesGardesOuvertes() Options {
 		Horloges:            grammar.HorlogesLues{Stats: grammar.StatsDesHorloges{Trames: 1}},
 		FilmIdentity: &profile.FilmIdentity{InfosDeMatch: profile.InfosDeMatch{VarianteLue: true,
 			DelaiDeReapparitionSecondes: new(int64)}},
-		ScoreActions: ScoreActionInput{Read: true},
-		Damages:      HitInput{Read: true},
-		ReloadStats:  types.ReloadStats{Frames: 1},
-		Repliques:    grammar.RepliquesLues{Stats: grammar.StatsRepliques{Trames: 1}},
-		Gestures:     GestureInput{Stats: types.GestureStats{Frames: 1}},
-		DrawnWeapons: DrawnWeaponInput{Stats: types.DrawnWeaponStats{Scanned: true}},
-		Vitals:       VitalsInput{Stats: VitalStats{Scanned: true}},
+		ScoreActions:       ScoreActionInput{Read: true},
+		Damages:            HitInput{Read: true},
+		ReloadStats:        types.ReloadStats{Frames: 1},
+		Repliques:          grammar.RepliquesLues{Stats: grammar.StatsRepliques{Trames: 1}},
+		Gestures:           GestureInput{Stats: types.GestureStats{Frames: 1}},
+		DrawnWeapons:       DrawnWeaponInput{Stats: types.DrawnWeaponStats{Scanned: true}},
+		Vitals:             VitalsInput{Stats: VitalStats{Scanned: true}},
+		ProjectileAttaches: ProjectileAttachInput{Stats: types.ProjectileAttachStats{Scanned: true}},
 	}
 }
 
@@ -266,7 +267,7 @@ func TestCalquesProduitsSuiventLesGardes(t *testing.T) {
 // nom de calque une troisieme copie du meme litteral dans le paquet (`goconst` mord a la
 // quatrieme), et le remede — une constante par nom — rendrait les deux tables de `layers.go`
 // illisibles ligne a ligne, ce qui est exactement ce qu elles existent pour etre.
-const calquesGardesGeles = "abilityCharges abilityImpulses ammoReads announcements bombArmings bombCarries bombEvents " +
+const calquesGardesGeles = "abilityCharges abilityImpulses ammoReads announcements attachments bombArmings bombCarries bombEvents " +
 	"bombStats chatter damage drawnWeapons eliminations flagCarries flagReturnZone gestures grappleLines hits inventory medals reloads respawnCountdowns roundClock rules scoreActions " +
 	"scoreTimeline shotStats skullCarries t0FilmMs vehicles vipCrown vitals zoneStates"
 
