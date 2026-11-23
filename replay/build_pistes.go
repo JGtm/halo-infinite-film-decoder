@@ -62,7 +62,7 @@ func (a *assemblage) poserLesPistes() {
 	// découpe vient des VIES du registre, et ce fichier-ci est déjà au-delà du seuil de 500 L.
 	a.trackCov = poserLesTraces(a.ctx, &a.doc, a.sorted, decoupeDesTraces{
 		origin: a.origin, step: a.step, minPoints: a.opt.minPoints(), scoped: a.opt.Scoped,
-		vies: a.reg.Vies(), fb: a.opt.Fallbacks, sansPleineCadence: a.opt.documentInterne,
+		vies: a.reg.Vies(), fb: a.opt.Fallbacks, sansPleineCadence: a.opt.documentInterne, viseesSeules: a.opt.Vehicles.Aims,
 		fin: nouvelleClotureParMort(a.opt.Deaths, a.reg.CalageSiConnu(), a.reg.Vies(), a.opt.Participants, a.horloge()),
 	})
 	// CE QUE LA PORTE DES POSITIONS A ECARTE se publie avec la couverture des traces : un point

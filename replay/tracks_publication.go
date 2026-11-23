@@ -71,6 +71,9 @@ type decoupeDesTraces struct {
 	// document interne du sync, qui n est pas publie ([Options.documentInterne]) : la pleine cadence s y calculerait pour
 	// rien. Faux, sa valeur zero, est celui de tout document publie.
 	sansPleineCadence bool
+	// viseesSeules : les visees que le film replique SANS position, a poser sur les colonnes de visee de la pleine
+	// cadence de la vie qui couvre leur instant (cf. tracks_visees_seules.go). Vide = aucune. Sans effet sur le document interne.
+	viseesSeules []grammar.BipedAim
 }
 
 // decimateTracks projette les positions sur la grille de frames (un point par slot et par
@@ -174,6 +177,10 @@ func (in decoupeDesTraces) nouveauPleinDebit() *pleinDebit {
 func (in decoupeDesTraces) publierLesVies(order []uint32, accs map[uint32]*accDeSlot,
 	bornes map[uint32][]lifeSpan, cov *TrackCoverage) []Track {
 	tracks := make([]Track, 0, len(order))
+	seules := map[vieIndexee][]grammar.BipedAim{}
+	if !in.sansPleineCadence {
+		seules = repartirLesViseesSeules(in.viseesSeules, bornes, in.origin, &cov.ViseesSeulesCoverage)
+	}
 	for _, slot := range order {
 		a := accs[slot]
 		for _, v := range append(a.done, vieDecimee{a.pts, a.vie, a.plein}) {
@@ -187,6 +194,8 @@ func (in decoupeDesTraces) publierLesVies(order []uint32, accs map[uint32]*accDe
 				cov.RefusedPoints += len(v.pts)
 				continue
 			}
+			lues := seules[vieIndexee{slot, v.vie}]
+			v.plein.fusionnerLesViseesSeules(lues, in.origin)
 			tracks = append(tracks, Track{
 				Slot:       slot,
 				Team:       -1,
@@ -200,7 +209,11 @@ func (in decoupeDesTraces) publierLesVies(order []uint32, accs map[uint32]*accDe
 			positions, visees := v.plein.echantillons()
 			cov.FullRateSamples += positions
 			cov.FullRateAimSamples += visees
+			cov.FullRateAimOnlySamples += len(lues)
 		}
+	}
+	if !in.sansPleineCadence {
+		cov.AimOnlyNoLife = len(in.viseesSeules) - cov.AimOnlyBeforeOrigin - cov.FullRateAimOnlySamples
 	}
 	return tracks
 }
@@ -399,7 +412,8 @@ type TrackCoverage struct {
 	//
 	//	FullRateSamples     les positions publiees dans `tracks[].fullRate`, toutes vies publiees
 	//	                    confondues
-	//	FullRateAimSamples  les visees de ses colonnes (celles des records de position)
+	//	FullRateAimSamples  les visees de ses colonnes : celles des records de position, et celles des
+	//	                    records sans position posees sur la vie (cf. [ViseesSeulesCoverage])
 	//	NoWorld             les positions sans bornes de carte (un quantum, pas une coordonnee), que
 	//	                    ni les points ni la pleine cadence ne publient
 	//
@@ -408,6 +422,9 @@ type TrackCoverage struct {
 	FullRateSamples    int `json:"fullRateSamples"`
 	FullRateAimSamples int `json:"fullRateAimSamples"`
 	NoWorld            int `json:"noWorld"`
+	// ViseesSeulesCoverage : le sort des visees sans position, posees ou ecartees et pourquoi. Ses trois champs
+	// se publient a plat dans `coverage.tracks`.
+	ViseesSeulesCoverage
 }
 
 // logTrackCoverage journalise ce que la publication des traces a refusé et ce que le film a tu.
@@ -416,6 +433,7 @@ type TrackCoverage struct {
 // ni compteur publié, ni ligne de journal. Les LACUNES l'étaient plus encore : elles découpaient
 // les vies, donc elles ne ressemblaient même pas à un silence.
 func logTrackCoverage(ctx context.Context, matchID string, c TrackCoverage) {
+	c.ViseesSeulesCoverage.journaliser(ctx, matchID)
 	if c.Gaps > 0 {
 		slog.InfoContext(ctx, "rejeu : lacunes de replication DANS une vie",
 			"match_id", matchID, "lacunes", c.Gaps, "duree_ms", c.GapMS,

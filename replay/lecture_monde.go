@@ -227,7 +227,8 @@ func journaliserPads(ctx context.Context, fc *grammar.FilmContext, matchID strin
 // ---------------------------------------------------------------------------
 
 // lectureVehicules est ce que le balayage des vehicules a rendu : les trois lectures fondatrices
-// (images-cles, creations, nuage) et, quand elles ont abouti, les evenements et les visees.
+// (images-cles, creations, nuage), les evenements quand elles ont abouti, et les visees sans position,
+// lues sur tout film.
 type lectureVehicules struct {
 	mpp        versementMPP
 	kf         grammar.WorldObjectKeyframes
@@ -242,21 +243,35 @@ type lectureVehicules struct {
 	errVisees  error
 }
 
-// decodeFilmVehicleScanLecture lit les CINQ lectures du calque des vehicules aux largeurs MPP du film.
-// Aucun journal, aucun repli verse.
+// decodeFilmVehicleScanLecture lit les lectures du calque des vehicules aux largeurs MPP du film, puis
+// les visees sans position. Aucun journal, aucun repli verse.
 //
-// LES EVENEMENTS D EMBARQUEMENT ET DE SORTIE, ET LES VISEES D OCCUPANT, SONT ADDITIFS ET NON FATAUX :
-// leur absence rend les episodes d occupation au seul trou de position (86,3 % des trous portent leur
-// sortie, et 100 % de ces sorties ferment le trou a +/-2 s), ou sans serie de visee (le cone retombe
-// sur le cap du chassis). Les visees sont une lecture a part du nuage de positions : les deux
-// balayages n acceptent pas les memes records (le nuage exige un `i0` absolu et un masque commencant
-// par 0 ; les visees acceptent precisement ceux que cette exigence ecarte).
+// LES EVENEMENTS D EMBARQUEMENT ET DE SORTIE, ET LES VISEES SANS POSITION, SONT ADDITIFS ET NON FATAUX :
+// l absence des evenements rend les episodes d occupation au seul trou de position (86,3 % des trous
+// portent leur sortie, et 100 % de ces sorties ferment le trou a +/-2 s) ; celle des visees rend des
+// episodes sans serie de visee (le cone retombe sur le cap du chassis) et des tirs sans la visee d un
+// record sans position. Les visees sont une lecture a part du nuage de positions : les deux balayages
+// n acceptent pas les memes records (le nuage exige un `i0` absolu et un masque commencant par 0 ; les
+// visees acceptent precisement ceux que cette exigence ecarte).
+//
+// LES VISEES SE LISENT SUR TOUT FILM, ET LES TROIS ARRETS DU CALQUE NE LES TAISENT PAS : un biped a pied
+// replique aussi sa visee dans des records sans position, vehicule ou non. Elles servent la direction
+// des tirs (`shots_visee.go`) et le plein debit des vies (`tracks_visees_seules.go`), pas seulement
+// les occupants. La lecture suit la lecture du calque, comme avant : seul son declenchement change.
 func decodeFilmVehicleScanLecture(fc *grammar.FilmContext, wr *profile.Vec3Range, mpp profile.MPPWidths,
 ) lectureVehicules {
 	largeurs, verse := gwReglageMPP(fc, mpp)
 	restaurer := gwPoserLargeurs(fc, largeurs)
 	defer restaurer()
-	lu := lectureVehicules{mpp: verse}
+	lu := lireLeCalqueDesVehicules(fc, wr, lectureVehicules{mpp: verse})
+	lu.visees, lu.errVisees = grammar.ScanBipedAimOnly(fc)
+	return lu
+}
+
+// lireLeCalqueDesVehicules lit les lectures propres aux vehicules (bande, creations, nuage, evenements) ;
+// elle s arrete au premier echec fatal et le dit dans [lectureVehicules.issue].
+func lireLeCalqueDesVehicules(fc *grammar.FilmContext, wr *profile.Vec3Range, lu lectureVehicules,
+) lectureVehicules {
 	lu.kf = grammar.ScanWorldObjectKeyframes(fc, grammar.VehicleTypeIndex)
 	if len(lu.kf.Band) == 0 {
 		lu.issue = lectureBandeVide
@@ -273,47 +288,61 @@ func decodeFilmVehicleScanLecture(fc *grammar.FilmContext, wr *profile.Vec3Range
 		return lu
 	}
 	lu.evenements, lu.errEvents = grammar.ScanVehicleEvents(fc)
-	lu.visees, lu.errVisees = grammar.ScanBipedAimOnly(fc)
 	return lu
 }
 
 // journaliserVehicules verse les replis des largeurs MPP, ecrit le journal de la lecture et rend le
-// calque que le balayage publie.
+// calque que le balayage publie. Les visees sans position accompagnent le calque quelle que soit son issue
+// (bande vide, creations ou nuage illisibles) : elles ne dependent d aucune de ces lectures.
 func journaliserVehicules(ctx context.Context, fc *grammar.FilmContext, matchID string, lu lectureVehicules,
 ) VehicleScan {
 	lu.mpp.verser(fc)
+	visees := viseesSansPositionLues(ctx, matchID, lu)
+	var out VehicleScan
 	switch lu.issue {
 	case lectureBandeVide:
 		slog.InfoContext(ctx, "vehicules : aucun slot ti=40 aux images-cles — film lu, aucun vehicule",
 			"match_id", matchID, "imagesCles", len(lu.kf.TimesUS))
-		return scanBandeVide(lu.kf)
+		out = scanBandeVide(lu.kf)
 	case lectureCreationsIllisibles:
 		slog.WarnContext(ctx, "vehicules : records de creation illisibles — rejeu sans ce calque",
 			"err", lu.err, "match_id", matchID)
-		return VehicleScan{}
 	case lectureNuageIllisible:
 		slog.WarnContext(ctx, "vehicules : nuage de positions illisible — AUCUN vehicule publie (sans lui, une"+
 			" vie recensee n aurait ni trajectoire ni cap)", "err", lu.err, "match_id", matchID)
-		return VehicleScan{}
+	default:
+		out = calqueDesVehicules(ctx, matchID, lu)
 	}
+	out.Aims = visees
+	return out
+}
+
+// viseesSansPositionLues rend les visees sans position de la lecture, nil quand elle a echoue : l echec est
+// journalise et n arrete rien (les episodes d occupation sortent sans serie de visee, le cone retombe sur
+// le cap du chassis, et les tirs gardent la visee de leur record).
+func viseesSansPositionLues(ctx context.Context, matchID string, lu lectureVehicules) []grammar.BipedAim {
+	if lu.errVisees != nil {
+		slog.WarnContext(ctx, "visees sans position illisibles — episodes d occupation sans serie de visee, tirs"+
+			" sans les visees des records sans position", "err", lu.errVisees, "match_id", matchID)
+		return nil
+	}
+	slog.InfoContext(ctx, "visees sans position lues", "match_id", matchID, "viseesSansPosition", len(lu.visees))
+	return lu.visees
+}
+
+// calqueDesVehicules rend le calque d une lecture aboutie : images-cles, creations, nuage et evenements.
+func calqueDesVehicules(ctx context.Context, matchID string, lu lectureVehicules) VehicleScan {
 	out := VehicleScan{Scanned: true, Keyframes: lu.kf, Creations: lu.cre, Stats: lu.st, Positions: lu.pos}
-	// ADDITIFS ET NON FATAUX : leur absence rend les episodes d occupation au seul trou de position
-	// (evenements) ou sans serie de visee (visees).
+	// ADDITIFS ET NON FATAUX : leur absence rend les episodes d occupation au seul trou de position.
 	if lu.errEvents != nil {
 		slog.WarnContext(ctx, "vehicules : liste d evenements illisible — episodes d occupation bornes par le"+
 			" seul trou de position", "err", lu.errEvents, "match_id", matchID)
 	} else {
 		out.Events = lu.evenements
 	}
-	if lu.errVisees != nil {
-		slog.WarnContext(ctx, "vehicules : visees sans position illisibles — episodes d occupation sans serie"+
-			" de visee, le cone retombe sur le cap du chassis", "err", lu.errVisees, "match_id", matchID)
-	} else {
-		out.Aims = lu.visees
-	}
 	slog.InfoContext(ctx, "vehicules : balayage ti=40",
 		"slots", lu.st.Slots, "ancres", lu.st.Anchors, "creationsAcceptees", lu.st.Accepted,
 		"imagesCles", len(lu.kf.TimesUS), "viesRecensees", len(lu.kf.SeenUS),
-		"echantillons", len(lu.pos), "evenements", len(out.Events), "viseesSansPosition", len(out.Aims))
+		"echantillons", len(lu.pos), "evenements", len(out.Events))
 	return out
 }

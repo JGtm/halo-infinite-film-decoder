@@ -69,8 +69,8 @@ func TestLaViseeSansPositionSertLeTireur(t *testing.T) {
 	v := nouveauViseur(pos, bord, nil)
 	var s Shot
 	v.viser(&s, grammar.FireEvent{TimestampUS: 1_060_000}, 10)
-	if s.H != 270 || v.cov.Track != 1 {
-		t.Errorf("cap %v (couverture %+v), attendu 270 lu dans le record sans position", s.H, *v.cov)
+	if s.H != 270 || v.cov.Track != 1 || v.cov.SansPosition != 1 {
+		t.Errorf("cap %v (couverture %+v), attendu 270 lu dans le record sans position (SansPosition=1)", s.H, *v.cov)
 	}
 }
 
@@ -85,7 +85,7 @@ func TestLaCouvertureDesVisesCouvreChaqueTirPose(t *testing.T) {
 			if c.Aim == nil {
 				t.Fatal("coverage.shots.aim absente")
 			}
-			if a := c.Aim; a.Track+a.Record+a.None != c.Attached+c.Unpublished || a.SameTick > a.Track {
+			if a := c.Aim; a.Track+a.Record+a.None != c.Attached+c.Unpublished || a.SameTick > a.Track || a.SansPosition > a.Track {
 				t.Errorf("visees %+v pour %d tirs poses (%d publies)", *a, c.Attached+c.Unpublished, c.Attached)
 			}
 		})

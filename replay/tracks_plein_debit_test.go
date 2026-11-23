@@ -359,14 +359,17 @@ func TestPleineCadenceDesBuildsFiges(t *testing.T) {
 	for _, b := range goldenBuilds() {
 		t.Run(b.Build+"/"+b.Short8, func(t *testing.T) {
 			g, entry := chargerGoldenBuild(t, b)
-			assembler := func(interne bool) ReplayDocument {
+			assembler := func(interne, avecViseesSeules bool) ReplayDocument {
 				opt := g.options()
 				opt.Bots = botsDuFixture(t, b.Short8)
 				opt.Labels, opt.EquipmentEnergy = goldenCatalog(t), goldenEnergyCatalog(t)
 				opt.MapQuant, opt.documentInterne = &entry, interne
+				if !avecViseesSeules {
+					opt.Vehicles.Aims = nil
+				}
 				return BuildFromPositions(context.Background(), b.Short8, "halo_infinite", g.Positions, g.Fire, opt)
 			}
-			eteint, allume := assembler(true), assembler(false)
+			eteint, allume, sansSeules := assembler(true, true), assembler(false, true), assembler(false, false)
 			if eteint.Coverage.Tracks.FullRateSamples != 0 {
 				t.Errorf("compteurs remplis sur le document interne : %+v", eteint.Coverage.Tracks)
 			}
@@ -377,9 +380,14 @@ func TestPleineCadenceDesBuildsFiges(t *testing.T) {
 					t.Fatalf("piste slot %d sans pleine cadence", tr.Slot)
 				}
 				somme, visees = somme+len(tr.FullRate.T), visees+len(tr.FullRate.AimT)
-				verifierLaCoherenceAvecLesPoints(t, tr, int64(allume.FrameIntervalMS)*1000, -1)
 				allume.Tracks[i].FullRate = nil
 			}
+			// La coherence point par echantillon se juge sans les visees sans position : un point n en porte jamais, mais l echantillon
+			// de sa frame peut en porter une (cf. tracks_visees_seules.go).
+			for _, tr := range sansSeules.Tracks {
+				verifierLaCoherenceAvecLesPoints(t, tr, int64(allume.FrameIntervalMS)*1000, -1)
+			}
+			verifierLeSortDesViseesSeules(t, &allume)
 			if somme != c.FullRateSamples || visees != c.FullRateAimSamples {
 				t.Errorf("colonnes %d / %d, couverture %d / %d", somme, visees, c.FullRateSamples, c.FullRateAimSamples)
 			}
@@ -388,7 +396,7 @@ func TestPleineCadenceDesBuildsFiges(t *testing.T) {
 			if somme < c.PublishedPoints {
 				t.Errorf("%d echantillons pour %d points : la publication perd des records", somme, c.PublishedPoints)
 			}
-			c.FullRateSamples, c.FullRateAimSamples = 0, 0
+			c.FullRateSamples, c.FullRateAimSamples, c.ViseesSeulesCoverage = 0, 0, ViseesSeulesCoverage{}
 			verifierLesVolsDuDocument(t, &allume)
 			a, e := mustJSON(t, allume), mustJSON(t, eteint)
 			if a != e {
@@ -405,4 +413,22 @@ func mustJSON(t *testing.T, v any) string {
 		t.Fatal(err)
 	}
 	return string(b)
+}
+
+// verifierLeSortDesViseesSeules : chaque visee sans position lue est posee, ecartee avant l origine de la grille ou
+// ecartee faute de vie ; la somme des trois est les lectures du film, et les posees sont comprises dans les visees
+// de la pleine cadence.
+func verifierLeSortDesViseesSeules(t *testing.T, doc *ReplayDocument) {
+	t.Helper()
+	c := doc.Coverage.Tracks
+	if doc.Coverage.Vehicles == nil {
+		t.Fatal("coverage.vehicles absente")
+	}
+	if somme := c.FullRateAimOnlySamples + c.AimOnlyBeforeOrigin + c.AimOnlyNoLife; somme != doc.Coverage.Vehicles.AimReads {
+		t.Errorf("visees sans position : %d posees + %d avant l origine + %d sans vie = %d, lectures du film %d",
+			c.FullRateAimOnlySamples, c.AimOnlyBeforeOrigin, c.AimOnlyNoLife, somme, doc.Coverage.Vehicles.AimReads)
+	}
+	if c.FullRateAimOnlySamples > c.FullRateAimSamples {
+		t.Errorf("%d visees sans position posees pour %d visees de pleine cadence", c.FullRateAimOnlySamples, c.FullRateAimSamples)
+	}
 }
