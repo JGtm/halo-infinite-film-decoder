@@ -398,5 +398,8 @@ package grammar
 // SIXIEME APPORT : LES PROJECTILES COLLES. Un canal de la marche ([canalDesProjectilesColles]) lit les records de projectile (ti=41) dont l etat de parente `i10` ouvre la branche « attache », creation ou delta, et relit l etat de creation de chaque projectile (instant, type : le mot de 32 bits du tag `proj`, createur : la reference de categorie 1), y compris le projectile qui nait colle.
 // Les lectures portent le parent, le noeud et la pose brute (trois entiers de 16 bits). Aucun bit deja lu ne change de largeur ; les listes illisibles se recuperent a largeur libre et se comptent.
 //
+// SEPTIEME APPORT : LA TABLE DES REPONSES DE JEU ENTRE DANS L EMPREINTE. `reponsesdejeu/data/reponses.tsv` nomme et chiffre les actions de score que la couche fait lire (`scoreActions`) mais n etait importee que par la publication : une ligne de plus ne changeait aucune revision. La couche la declare desormais comme paquet associe
+// (`revision.Couche.Associes`, `internal/games/halo_infinite/film/reponsesdejeu`). AUCUNE SORTIE NE CHANGE : l empreinte change, et c est ce qui rend un rejeu `redecoder` quand la table change. Le golden de perimetre de la couche gagne la ligne `paquet`.
+//
 // CE QUI MONTE AVEC ELLE : `replay.SchemaVersion` 126 -> 127 et `replay.SchemaDesFaits` 30 -> 31 (le complement de la section 1 porte les repliques, les gestes, les copies de rechargement, le genre des commandes tenues et le pas des entrees), `objectives.Rev` (la meme integration change la sortie des objectifs : voir
 // son entree). `source.Rev`, `profile.Rev` et `killsource.Rev` : aucune lecture d octets ne change dans leur couche ; leurs goldens ne se refigent que si un test le demande (`killsource.Rev` hache la valeur de `grammar.Rev`).

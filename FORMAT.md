@@ -286,7 +286,7 @@ that holds the official score compares the sum to it. A mode written without a p
 gives points: nothing is invented. `coverage.scoreActions.scoreboardCompared` counts the players compared with the scoreboard (one with a
 published action or a line in `scoreTimeline.players`); `scoreboardMissing` those whose last scoreboard `score` is above the sum of their
 published actions with POSITIVE points (the scoreboard shows points the layer does not publish), and `scoreboardBehind` those for whom it is
-below (the scoreboard lags the published points). The game does remove a penalty from the score, but the published scoreboard curve (the longest non-decreasing run of the readings) never goes down, so its readings stay within the sum of the positive points; a player
+below (the scoreboard lags the published points). The game removes a penalty from the score (a suicide or a betrayal, 100 points): the published scoreboard curve drops by it at the instant of the reading that carries it, when the matching counter (suicides, component 4 A; betrayals, 4 B) rises in the same reading and the drop is exactly its units times 100, so a total can be negative; any other drop (a row emptied when a player leaves, a change of occupant of a seat) is never published. Its readings stay within the sum of the positive points; a player
 with no total counts zero; the three are zero when the film publishes no scoreboard player, and nothing is compared. `complete` is false when
 `scoreboardMissing` is above zero; `scoreboardBehind` does not change it.
 
@@ -439,6 +439,13 @@ type: the 32-bit word of its creation (the `proj` tag id, eight hexadecimal digi
 its creation state names, resolved as the author of a damage line); absent when the creation names none or its unit holds no track at `t`. No shot and no weapon is published for a stuck projectile.
 `coverage.projectiles.attach` counts what was read (`read`), where it went (`onFlight`, `listed`, `outOfMatch`), the targets (`player`, `vehicle`, `unresolved`), and for `listed` the types and creators
 read (`tagged`, `authored`, `authorNoTrack`, `authorNone`), and what the channel discarded (`desynced`, `unreadFrames`).
+
+**VIP counters.** On a VIP match (the host passes the family, `Options.Vip.Scanned`) the score table publishes three more per-player counters under `scoreTimeline.players[].stats`: `timeAsVip` (component 23 B, cumulative, in tenths of a second),
+`longestTimeAsVip` (23 A) and `maxSpreeAsVip` (22 B), maxima: per-round curves only, no total (the spree is bounded by the eliminations of the round). Their meaning depends on the mode, which is why they are read only on the host's word.
+Against the API on the three VIP films of the corpus (24 players): time as VIP 24 of 24 exact, best spree 24 of 24, longest time 22 of 24 exact and the two others within 0.1 s. The compressed weight of these replays grows by 3.1 to 4.1 %.
+
+**Ambiguous victim.** A `killPersonalScore` action is given to an elimination only if no other frame claims it and the candidate actions of the window (the same frame, then the neighbouring one) do not exceed the rows of the frame, unless they all name the same victim;
+otherwise the elimination has no `victim` and `coverage.eliminations.victimAmbiguous` counts the row (the victim is never matched to the nearest one); the candidates are set aside so that no other elimination receives them silently. On 27 films the ambiguity is zero.
 
 **Health and shield.** `vitals[]` publishes the health and the shield of each life at every change, one row per (instant, slot): `t` the frame, `ms` the instant in milliseconds
 from frame 0, `slot` the track slot, `sh` the shield as a fraction of a full shield (1 is full, up to 4; to the thousandth), `hp` the health as a fraction (0 to 1; to the thousandth) and
