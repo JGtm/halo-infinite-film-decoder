@@ -67,7 +67,13 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.Reloads, s.in.ReloadStats = m.Reloads, m.ReloadStats
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
-	s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
+	// LES SCRIPTS NE DEPENDENT QUE DU FILM : la tache de fond les a lus d'avance quand il y en a une
+	// (film_scan_fond.go), sinon ils se lisent ici.
+	if scripts, lus := s.fond.lesScripts(); lus {
+		s.in.Scripts = scripts
+	} else {
+		s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
+	}
 	if s.in.Vehicles.Scanned {
 		morts := mortsDeVehicule(s.ctx, s.matchID, m)
 		s.in.Vehicles.Deaths, s.in.Vehicles.BipedDeaths = morts.Vehicles, morts.Bipeds

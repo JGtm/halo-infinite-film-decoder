@@ -20,7 +20,7 @@ func TestLaCuissonLitLaTableAuxSiegesDeLaListe(t *testing.T) {
 		t.Fatal(err)
 	}
 	filmtest.PermuterDeuxLignesDeLaTable(t, film)
-	so := lireSiegesEtOccupants(context.Background(), film, grammar.NewFilmContext(film), "minibobine")
+	so := lireSiegesEtOccupants(context.Background(), film, grammar.NewFilmContext(film), "minibobine", nil)
 	listes := map[uint64]int{}
 	for _, l := range so.listages {
 		listes[l.XUID] = l.Slot
