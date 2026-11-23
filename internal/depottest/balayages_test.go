@@ -81,16 +81,15 @@ var balayagesNommes = map[string]string{
 	"internal/grammar/frame_harvest.go:scanForTargetDelta": "resynchronisation de `DecodeFrameResync`, sans appelant de production",
 	"internal/grammar/frame_infer.go:validatedResync":      "resynchronisation, active par `inferResyncTargets` que seuls les tests posent",
 	// Hors paquet delta.
-	"internal/grammar/bot_metadata.go:balayerLesEntreesDeBots":        "paquet BOT_METADATA",
-	"internal/grammar/highlight_events.go:findBitMarker":              "chunk des temps forts",
-	"internal/grammar/highlight_events.go:scanHighlightEvents":        "chunk des temps forts",
-	"internal/grammar/player_entities_entetes.go:slotsDEntetesExacts": "payload d'image-cle",
-	"internal/grammar/positions/positions.go:combAt":                  "paquet TYPE_2 plein etat",
-	"internal/grammar/positions/positions.go:findCombs":               "paquet TYPE_2 plein etat",
-	"internal/grammar/signaux/pied_de_film.go:decodeTh10Block":        "chunk de pied de film",
-	"internal/grammar/signaux/pied_de_film.go:scanTh10Events":         "chunk de pied de film",
-	"internal/grammar/signaux/statborg.go:scanFrameAvecReplis":        "trames du statborg",
-	"internal/grammar/weaponscan/scanner.go:ScanFireEventsB5":         "marqueur universel des tirs, outil de la facade hors cuisson",
+	"internal/grammar/bot_metadata.go:balayerLesEntreesDeBots": "paquet BOT_METADATA",
+	"internal/grammar/highlight_events.go:findBitMarker":       "chunk des temps forts",
+	"internal/grammar/highlight_events.go:scanHighlightEvents": "chunk des temps forts",
+	"internal/grammar/positions/positions.go:combAt":           "paquet TYPE_2 plein etat",
+	"internal/grammar/positions/positions.go:findCombs":        "paquet TYPE_2 plein etat",
+	"internal/grammar/signaux/pied_de_film.go:decodeTh10Block": "chunk de pied de film",
+	"internal/grammar/signaux/pied_de_film.go:scanTh10Events":  "chunk de pied de film",
+	"internal/grammar/signaux/statborg.go:scanFrameAvecReplis": "trames du statborg",
+	"internal/grammar/weaponscan/scanner.go:ScanFireEventsB5":  "marqueur universel des tirs, outil de la facade hors cuisson",
 }
 
 func TestAucunBalayageNeufHorsDeLaListe(t *testing.T) {

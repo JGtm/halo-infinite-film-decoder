@@ -39,7 +39,9 @@ import (
 func slotsDEntetesExacts(pay []byte) map[int]bool {
 	out := map[int]bool{}
 	total := len(pay) * 8
-	for q := 0; q+64 <= total; q++ {
+	// [prochainEnteteDeTable] ne saute que des positions dont l eid echoue aux deux gardes ci-dessous.
+	limite := total - 63
+	for q := prochainEnteteDeTable(pay, 0, limite, false); q < limite; q = prochainEnteteDeTable(pay, q+1, limite, false) {
 		id := source.BitsBourres(pay, q, 32)
 		if id>>30 == 0 {
 			continue

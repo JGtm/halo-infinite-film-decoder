@@ -155,7 +155,8 @@ func (b *balayageDeTable) enteteA(at int, accepteGen0 bool) (EnteteDeTable, bool
 func (b *balayageDeTable) premierePasse() []entreeSituee {
 	var out []entreeSituee
 	suivant := uint32(0)
-	for at := debutDeLaTableBit; at < b.fin; {
+	// [prochainEnteteDeTable] ne saute que des positions dont [balayageDeTable.enteteA] refuse l eid.
+	for at := prochainEnteteDeTable(b.pay, debutDeLaTableBit, b.fin, false); at < b.fin; {
 		e, ok := b.enteteA(at, false)
 		switch {
 		case !ok:
@@ -168,6 +169,7 @@ func (b *balayageDeTable) premierePasse() []entreeSituee {
 			suivant = e.Slot() + 1
 			at += teteDEntreeBits
 		}
+		at = prochainEnteteDeTable(b.pay, at, b.fin, false)
 	}
 	return out
 }
@@ -200,20 +202,21 @@ func (b *balayageDeTable) secondePasse(voisines []entreeSituee) []EnteteDeTable 
 func (b *balayageDeTable) generationZeroEntre(a, c borneDeTable) []EnteteDeTable {
 	var out []EnteteDeTable
 	suivant := a.slot + 1
-	for at := a.at + teteDEntreeBits; at < c.at-teteDEntreeBits && at < b.fin; {
+	limite := min(c.at-teteDEntreeBits, b.fin)
+	for at := prochainEnteteDeTable(b.pay, a.at+teteDEntreeBits, limite, true); at < limite; {
 		e, ok := b.enteteA(at, true)
-		if !ok || e.Gen() != 0 {
+		switch s := int(e.Slot()); {
+		case !ok || e.Gen() != 0:
 			at++
-			continue
-		}
-		if s := int(e.Slot()); s < suivant || s >= c.slot {
+		case s < suivant || s >= c.slot:
 			b.ecartes[e.Slot()] = true
 			at++
-			continue
+		default:
+			out = append(out, e)
+			suivant = s + 1
+			at += teteDEntreeBits
 		}
-		out = append(out, e)
-		suivant = int(e.Slot()) + 1
-		at += teteDEntreeBits
+		at = prochainEnteteDeTable(b.pay, at, limite, true)
 	}
 	return out
 }
