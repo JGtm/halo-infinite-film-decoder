@@ -55,6 +55,9 @@ type marcheurDesTrames struct {
 	// interets : les occurrences que les canaux de la marche interpretent ([Distribuer]) ; vide hors
 	// du distributeur.
 	interets interetsResolus
+	// repliques : un canal de tete lit les genres 75 et 76 ([canalDeRepliques]) ; la lecture de la vue A
+	// de chaque trame les range alors.
+	repliques bool
 	// lecteur : le lecteur de la trame en cours pendant sa marche par classes de vue, nil hors d elle.
 	// Sa position date les publications des deserialiseurs ([MarcheDistribuee.positionDeLecture]).
 	lecteur *Lecteur
@@ -183,6 +186,7 @@ func (m *marcheurDesTrames) marcherLePaquet(c int, pk FilmPacket, data []byte) {
 	t.parRangs = m.cfg.Profil.Grammaire.ClassesDeVue
 	t.lecture = lectureDeTrame{debutVueB: -1, finVueB: -1}
 	g := m.fc.grammaireDeLaVueA()
+	g.repliques = m.repliques
 	vueA := rangerLaTete(p, m.cfg.Profil, g)
 	if listeAnnoncee(&p.VueA) { // la continuation annonce une liste d evenements
 		t.debut, p.Debut = debutDeLaVueBDeCuisson(pay, &vueA, g.classe, m.monde, m.cfg)

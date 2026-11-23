@@ -215,23 +215,49 @@ func chargeRechargement(br *Lecteur) bool {
 	return true
 }
 
-// chargeDialogueIA porte `FUN_140f2e634` (`AIDialog`).
+// chargeDialogueIA porte `FUN_140f2e634` (`AIDialog`) : R(5) la priorite ; l identifiant du son
+// (`FUN_1406cf008` puis R(32)) ; l indice de replique (`FUN_140f2e7a4`, garde a 0 puis R(12)) ; l index
+// de joueur (`FUN_1407f2058`, garde a 0 puis R(5)) ; n = R(1) + 1 bits de queue (`FUN_1424e1464`). Les
+// valeurs lues se rangent dans [Lecteur.repliqueLue] quand la lecture de la vue A les recueille.
 func chargeDialogueIA(br *Lecteur) bool {
-	br.Skip(5)                   // FUN_140f2ea18
-	consumeGateR(br, 32)         // FUN_1406cf008 puis FUN_14080d6f0
-	consumeGate0R(br, 12)        // FUN_140f2e7a4
-	consumeGate0R(br, 5)         // FUN_1407f2058
-	n := int(br.ReadBits(1)) + 1 // FUN_1424e1464 : R(1) + 1
-	br.Skip(n)                   // FUN_1406cf008 x n
+	m := lecture.MessageDeReplique{Joueur: lecture.RefAbsente}
+	m.Priorite = uint8(br.ReadBits(5)) //nolint:gosec // R(5), FUN_140f2ea18
+	if br.ReadBit() {
+		m.Son, m.Drapeaux = uint32(br.ReadBits(32)), m.Drapeaux|lecture.RepliqueSon //nolint:gosec // R(32)
+	}
+	if !br.ReadBit() {
+		m.Ligne, m.Drapeaux = uint16(br.ReadBits(12)), m.Drapeaux|lecture.RepliqueLigne //nolint:gosec // R(12)
+	}
+	if !br.ReadBit() {
+		m.Joueur = int8(br.ReadBits(5)) //nolint:gosec // R(5)
+	}
+	m.LargeurQueue = uint8(br.ReadBits(1)) + 1 //nolint:gosec // R(1) + 1
+	m.Queue = uint8(br.ReadBits(uint(m.LargeurQueue)))
+	if br.vueA.repliques {
+		br.repliqueLue = m
+	}
 	return true
 }
 
-// chargeDialogue2D porte `FUN_140f2e87c` (`Dialogue2D`).
+// chargeDialogue2D porte `FUN_140f2e87c` (`Dialogue2D`) : l identifiant du son (`FUN_14080d69c`, garde
+// puis R(32)) ; une seconde valeur gardee de 32 bits, de sens non etabli ; l index de joueur
+// (`FUN_1407f2058`, garde a 0 puis R(5)) ; le masque des destinataires, R(32) (`FUN_1406ce648`). Les
+// valeurs lues se rangent dans [Lecteur.annonceLue] quand la lecture de la vue A les recueille.
 func chargeDialogue2D(br *Lecteur) bool {
-	consumeGateR(br, 32) // FUN_14080d69c
-	consumeGateR(br, 32) // FUN_1406cf008 puis FUN_14080d6f0
-	consumeGate0R(br, 5) // FUN_1407f2058
-	br.Skip(32)          // FUN_1406ce648 : 32 x R(1)
+	m := lecture.MessageDAnnonce{Joueur: lecture.RefAbsente}
+	if br.ReadBit() {
+		m.Son, m.Drapeaux = uint32(br.ReadBits(32)), m.Drapeaux|lecture.AnnonceSon //nolint:gosec // R(32)
+	}
+	if br.ReadBit() { // FUN_1406cf008 puis FUN_14080d6f0
+		m.Opaque, m.Drapeaux = uint32(br.ReadBits(32)), m.Drapeaux|lecture.AnnonceOpaque //nolint:gosec // R(32)
+	}
+	if !br.ReadBit() {
+		m.Joueur = int8(br.ReadBits(5)) //nolint:gosec // R(5)
+	}
+	m.Destinataires = uint32(br.ReadBits(32)) //nolint:gosec // R(32)
+	if br.vueA.repliques {
+		br.annonceLue = m
+	}
 	return true
 }
 

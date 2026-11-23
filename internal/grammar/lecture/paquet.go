@@ -229,6 +229,11 @@ type VueA struct {
 	// Tirs sont TOUS les messages `action_weapon_fire` (genre 36) lus, à n'importe quel rang
 	// ([MessageDeTir]), dans l'ordre.
 	Tirs []MessageDeTir
+	// Repliques sont les messages `AIDialog` (genre 75) lus ([MessageDeReplique]), dans l'ordre ; Annonces
+	// les messages `Dialogue2D` (genre 76, [MessageDAnnonce]). Les deux ne se rangent que sous un lecteur
+	// inscrit auprès de la marche : vides sinon.
+	Repliques []MessageDeReplique
+	Annonces  []MessageDAnnonce
 }
 
 // MessageDePoussee est un message de poussée d'équipement de la vue A, avec ses deux premières

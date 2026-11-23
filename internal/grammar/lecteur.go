@@ -86,6 +86,10 @@ type Lecteur struct {
 	detonationLue lecture.MessageDeDetonation
 	// rechargementLu : la charge du dernier message de rechargement ([chargeRechargement]).
 	rechargementLu lecture.MessageDeRechargement
+	// repliqueLue et annonceLue : la charge du dernier message AIDialog (genre 75, [chargeDialogueIA])
+	// et du dernier message Dialogue2D (genre 76, [chargeDialogue2D]).
+	repliqueLue lecture.MessageDeReplique
+	annonceLue  lecture.MessageDAnnonce
 	// tirLu : la tete du dernier message de tir (genre 36) que sa charge a lu ([chargeTirArme]).
 	tirLu lecture.MessageDeTir
 	// etatComplet : le record en cours est un ETAT COMPLET d image-cle (`FUN_142e2c690`), lu sans
