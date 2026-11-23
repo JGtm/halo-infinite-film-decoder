@@ -215,6 +215,9 @@ WithHole	int	-
 InnerHoles	int	-
 
 ## ControlHoldStats (grammar)
+Holds	int	-
+WithHole	int	-
+InnerHoles	int	-
 Move	types.ControlHoldCount	-
 Crouch	types.ControlHoldCount	-
 Jump	types.ControlHoldCount	-

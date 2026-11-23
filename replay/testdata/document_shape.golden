@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee 6ecb7288ceeb0e45
-empreinte-servie 6ecb7288ceeb0e45
-empreinte-cuite 3bf0750172c18e07
+empreinte-stockee 970bc651f352ade6
+empreinte-servie 970bc651f352ade6
+empreinte-cuite 7c755d0dfef13b9c
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -601,6 +601,7 @@ FlagCarriesCoverage
   OutOfWindow json:"outOfWindow" int
   Overlaps json:"overlaps" int
   OwnFlagRefused json:"ownFlagRefused" int
+  SeatsBeyondBand json:"seatsBeyondBand" int
   Spawns json:"spawns" int
   SpawnsFromFilm json:"spawnsFromFilm,omitempty" int
   Steals json:"steals" int
@@ -889,7 +890,10 @@ MapObjectives
   Zones json:"zones,omitempty" []ObjectiveZoneDTO
 MapWeaponPadDTO
   Family json:"family" string
+  Forward json:"forward,omitempty" []float32
   Pad json:"pad" int
+  Scale json:"scale,omitempty" []float32
+  Up json:"up,omitempty" []float32
   X json:"x" float32
   Y json:"y" float32
   Z json:"z,omitempty" float32

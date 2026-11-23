@@ -61,6 +61,11 @@ var feuillesNonTransportees = map[string]string{
 	"grammar.ShieldVitality.Regen0":       "idem Block64 (decodeObjectShieldVitality)",
 	"grammar.ShieldVitality.HasRegen1":    "idem Block64 (decodeObjectShieldVitality)",
 	"grammar.ShieldVitality.Regen1":       "idem Block64 (decodeObjectShieldVitality)",
+	// Comptes herites de la v1.5.0, gardes pour la compatibilite de l API publiee : ils valent ceux du deplacement
+	// (`ControlHoldStats.Move`, transporte) et se refont au decodage (`decodeCommandes`) ; aucun lecteur de l assemblage.
+	"types.ControlHoldStats.Holds":      "miroir deprecie de Move.Holds, refait par decodeCommandes",
+	"types.ControlHoldStats.WithHole":   "miroir deprecie de Move.WithHole, refait par decodeCommandes",
+	"types.ControlHoldStats.InnerHoles": "miroir deprecie de Move.InnerHoles, refait par decodeCommandes",
 	// Decisions de la marche d'image-cle qui ne servent qu'au diagnostic : l'assemblage ne les lit pas.
 	"grammar.KeyframeWalkStats.ElectionsAttestees": "compteur de diagnostic de la marche " +
 		"(grammar/keyframe_world.go:compter, keyframe_world_attestation.go) ; aucun lecteur hors instruments et tests",

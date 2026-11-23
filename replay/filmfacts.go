@@ -252,7 +252,12 @@ import (
 // v30 : le blob porte L HORLOGE DE MANCHE et les COMPTES A REBOURS de reapparition (`FilmInputs.Horloges`, cf.
 // `filmfacts_horloges.go`), en derniere section, apres la queue. Le document les publie (`roundClock`,
 // `respawnCountdowns`) ; sans eux un rejeu depuis les faits perdrait ces deux calques.
-const filmFactsMagic = "REPLAYINPUTS30\n"
+//
+// v31 (2026-11-23) : chaque delta d inventaire se termine par ses MUNITIONS (`types.InventoryDeltaAmmo` : chargeur, fraction R(12)
+// brute, reserve ; [encodeMunitionsDelta]/[decodeMunitionsDelta]), dans l ordre du film. Elles etaient sorties du fichier faute
+// de lecteur (v15 et v18 les citent comme retirees) : elles y rentrent de nouveau, sans que l assemblage les lise encore, son
+// lecteur arrivant avec un item suivant ; un fichier ecrit avant ne se relit pas (`SchemaDesFaits` 31 les refuse aussi).
+const filmFactsMagic = "REPLAYINPUTS31\n"
 
 // ---------------------------------------------------------------------------
 // LES CHAMPS SERIALISES, PAR TYPE — ce sont ceux que l assemblage consomme :

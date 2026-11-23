@@ -4818,8 +4818,8 @@ package replay
 // LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire, celle des objectifs et le numero des faits ; les resumes d usage sont a reprendre sur `us8`). La recuisson est une
 //                 decision de l utilisateur.
 
-// v127 (2026-11-23, huit apports en une version : les repliques des Spartans et les annonces, les gestes du joueur et les copies d un rechargement, l accroupi et le saut tenus, les
-// eliminations et les actions de score d un bot, le drapeau lu sur tous les sieges et ses trois corrections, la manche courte admise, deux lectures de la vue A, un tri total). Les
+// v127 (2026-11-23, neuf apports en une version : les repliques des Spartans et les annonces, les gestes du joueur et les copies d un rechargement, l accroupi et le saut tenus, les
+// eliminations et les actions de score d un bot, le drapeau lu sur tous les sieges et ses trois corrections, la manche courte admise, deux lectures de la vue A, un tri total, trois axes du socle d arme). Les
 // apports ont ete codes et mesures chacun sur sa branche, puis integres sur une seule ; les mesures sont gardees telles qu elles ont ete prises, branche par branche.
 //
 // PREMIER APPORT : LES REPLIQUES DES SPARTANS ET LES ANNONCES :
@@ -4907,6 +4907,10 @@ package replay
 //
 // HUITIEME APPORT : UN TRI TOTAL DES SEGMENTS DE SCORE :
 // Les segments de score d un joueur se joignent par l instant de leur premier point ; a instant egal, l ordre dependait du parcours d une map. Le tri departage par le slot : aucune valeur n est changee, une sortie qui variait d une execution a l autre ne varie plus (`scoreTimeline.players[].stats.maxSpree`).
+//
+// NEUVIEME APPORT : TROIS AXES SUR LE SOCLE D ARME DE LA COUCHE DE REQUETE :
+// `MapWeaponPadDTO` gagne `forward`, `up` (l orientation propre de l objet d apparition, repere du monde) et `scale` (l echelle locale de l arme posee), trois composantes chacun, optionnels. Ni lus du film ni remplis par le decodeur : l hote les renseigne depuis le fichier de variante de la carte ; absents, le
+// client garde le ratelier droit. Aucun document cuit ne change. S y ajoutent, sans toucher au document : la source de film par chemin (`filmcache`), le catalogue de cartes lu depuis des octets (`decfilm`) et les munitions de chaque delta d inventaire, ecrites dans le fichier de faits (`SchemaDesFaits` 31), sans lecteur dans l assemblage.
 //
 // POURQUOI LA VERSION MONTE. Le premier, le deuxieme, le troisieme et le quatrieme apport ajoutent des calques et des champs optionnels ; le cinquieme et le sixieme changent des valeurs publiees (portages du drapeau, compteurs d objectif, scores de manche) et le cinquieme deprecie un champ de couverture (`seatsBeyondBand`, sans ecrivain) ;
 // le septieme change le nombre de messages que les calques de la vue A lisent. La pratique du depot (v21, v51, v108, v125, v126) monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`.

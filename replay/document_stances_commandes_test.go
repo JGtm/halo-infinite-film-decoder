@@ -83,7 +83,7 @@ func TestLesCommandesFontLAllerRetourDesFaits(t *testing.T) {
 				EndBound: "hole", Entries: 4, Holes: []types.ContinuousFireHole{{StartUS: 4_600_000, EndUS: 4_700_000}}},
 			{Kind: types.MovementJumpCommand, FilmIndex: 31, StartUS: 4_500_000, EndUS: 4_500_000, StartBound: "hole",
 				EndBound: "filmEnd", Entries: 1},
-		}, types.ControlHoldStats{Move: types.ControlHoldCount{Holds: 2, WithHole: 2, InnerHoles: 1},
+		}, types.ControlHoldStats{Holds: 2, WithHole: 2, InnerHoles: 1, Move: types.ControlHoldCount{Holds: 2, WithHole: 2, InnerHoles: 1},
 			Crouch: types.ControlHoldCount{Holds: 3, WithHole: 1}, Jump: types.ControlHoldCount{Holds: 5, InnerHoles: 2},
 			Entries: 9}},
 	}

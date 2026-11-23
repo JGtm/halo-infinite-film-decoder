@@ -113,7 +113,7 @@ All five are identifiers, labels and points, not content of the game: no mesh, t
   read in view A (the melee strike and the started throw), and measured that the reloads written twice at the same instant are copies of the reload in progress. This module's
   readings (`internal/grammar/commandes_de_controle.go`, `internal/grammar/pas_des_commandes.go`, `internal/grammar/gestes.go`, `replay/document_stances_commandes.go`,
   `replay/document_gestes.go`) are written again under its own rules and measured again on the maintainer's films; no line of the fork is copied. The slide the fork deduces from the sprint and the
-  speed is not taken.
+  speed is not taken. Four further additions are taken from the same work and written again: the film source by path (`filmcache/source_par_chemin.go`), the map catalogue read from bytes (`decfilm/catalogue_octets.go`), the three axes (`forward`, `up`, `scale`) of a weapon pad in the query layer (`replay/map_weapon_pads.go`), and the ammunition of each inventory delta kept in the facts file (`replay/filmfacts_munitions_delta.go`).
 
 ## Third-party code
 
