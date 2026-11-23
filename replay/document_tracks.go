@@ -163,6 +163,10 @@ type Track struct {
 	// même règle que les humains : rien plutôt que faux.
 	Bot    string  `json:"bot,omitempty"`
 	Points []Point `json:"points"`
+	// FullRate (optionnel) porte tous les records de position et de visee de la vie, a leur instant, en colonnes
+	// differentielles (cf. [FullRateTrack] et tracks_plein_debit.go). Present seulement quand l hote le demande
+	// ([Options.FullRate]) ; `Points` reste identique, option allumee ou non.
+	FullRate *FullRateTrack `json:"fullRate,omitempty"`
 	// StartFrame / EndFrame (optionnels) bornent la vie de la track sur l'axe de temps :
 	// le client peut masquer l'entité hors de cette fenêtre au lieu de la figer.
 	//

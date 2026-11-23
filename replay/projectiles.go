@@ -42,6 +42,13 @@ type Projectile struct {
 	// Format compact : une trajectoire porte des dizaines de points sur une seconde, et
 	// répéter l'index absolu à chaque point doublerait le poids du document pour rien.
 	P [][3]float32 `json:"p"`
+	// Z (optionnel) est la HAUTEUR de chaque point de P : meme indice, meme arrondi au centieme que les points de piste.
+	// Tableau PARALLELE et non un quatrieme element de P, pour que tout lecteur de [dt, x, y] reste valide. Present
+	// seulement quand l'hote demande la pleine cadence ([Options.FullRate]), avec [Projectile.FullRate].
+	Z []float32 `json:"z,omitempty"`
+	// FullRate (optionnel) est le vol AU DEBIT DU FILM : chaque echantillon replique avant la coupure, a son instant
+	// (cf. [FullRateFlight] et projectiles_plein_debit.go). P et Z restent la vue de la grille, un point par frame.
+	FullRate *FullRateFlight `json:"fullRate,omitempty"`
 	// Rest signale que le dernier point porte `projectile-at-rest-state` — le seul champ qui
 	// CERTIFIE une fin de vol (78 fois sur 79 sur le film de référence). Sans lui, le vol
 	// s'arrête parce que la réplication s'arrête, ce qui n'est pas la même chose.
@@ -142,7 +149,7 @@ func buildProjectiles(tracks []types.ProjectileTrack, origin, step uint64,
 	}
 	kept := make([]withRaw, 0, len(tracks))
 	for raw, tr := range tracks {
-		vol, lu := volPublie(tr, origin, step)
+		vol, lu := volPublie(tr, origin, step, false)
 		if !lu {
 			continue
 		}
@@ -192,6 +199,10 @@ type vol struct {
 	// le vol s'arrête à un pas impossible.
 	dernier types.ProjectileSample
 	coupe   bool
+	// z et plein ne se remplissent que sur demande de volPublie (pleine cadence) : la hauteur de chaque point de pts, et
+	// la serie de tous les echantillons lus avant la coupure (cf. projectiles_plein_debit.go).
+	z     []float32
+	plein *pleinDebitDeVol
 }
 
 // publie dit que le vol se dessine : au moins deux points de grille.
@@ -200,9 +211,12 @@ func (v vol) publie() bool { return len(v.pts) >= 2 }
 // volPublie réduit une piste à son vol retenu. `lu` est faux pour une piste que le rejeu ignore
 // (moins de trois échantillons, ou née avant l'origine). La règle est UNIQUE : [buildProjectiles] la
 // publie, [reposParVie] en lit le dernier point.
-func volPublie(tr types.ProjectileTrack, origin, step uint64) (v vol, lu bool) {
+func volPublie(tr types.ProjectileTrack, origin, step uint64, pleine bool) (v vol, lu bool) {
 	if len(tr.Pts) < 3 || tr.Pts[0].TimestampUS < origin {
 		return vol{}, false
+	}
+	if pleine {
+		v.plein = &pleinDebitDeVol{}
 	}
 	v.t0 = int((tr.Pts[0].TimestampUS - origin) / step)
 	last := -1
@@ -221,12 +235,17 @@ func volPublie(tr types.ProjectileTrack, origin, step uint64) (v vol, lu bool) {
 			break
 		}
 		prec, vuPrec = p, true
+		// LA PLEINE CADENCE VOIT CHAQUE ECHANTILLON AVANT LA DECIMATION, et s'arrete a la meme coupure que les points.
+		v.plein.ajouter(p, origin)
 		f := int((p.TimestampUS - origin) / step)
 		if f == last {
 			continue // un seul point par frame de la grille
 		}
 		last, v.dernier = f, p
 		v.pts = append(v.pts, [3]float32{float32(f - v.t0), round2(p.X), round2(p.Y)})
+		if pleine {
+			v.z = append(v.z, round2(p.Z))
+		}
 	}
 	return v, true
 }

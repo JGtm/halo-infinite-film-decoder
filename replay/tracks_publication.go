@@ -8,7 +8,8 @@ package replay
 // suit une responsabilite : ici vit tout ce qui decide QUELLES vies sont publiees et tient les
 // comptes de ce qui ne l est pas ; `build.go` garde l assemblage du document.
 //
-// DEPLACEMENT PUR pour `decimateTracks` : aucune ligne de logique ne change.
+// DEPLACEMENT PUR pour `decimateTracks` a l origine. La pleine cadence (tracks_plein_debit.go) s y
+// est ajoutee ensuite, derriere une option de l hote : eteinte, la decimation est celle d avant.
 
 import (
 	"cmp"
@@ -66,6 +67,10 @@ type decoupeDesTraces struct {
 	// fin : les morts ecrites, pour finir une vie a la sienne quand elle suit le dernier point
 	// (cf. tracks_fin_de_vie.go). Zero = chaque vie finit a son dernier point.
 	fin clotureParMort
+	// pleineCadence : publier aussi `tracks[].fullRate`, tous les records de position et de visee de
+	// chaque vie (cf. tracks_plein_debit.go). Faux = rien ne se retient et le document est celui
+	// d avant l option.
+	pleineCadence bool
 }
 
 // decimateTracks projette les positions sur la grille de frames (un point par slot et par
@@ -96,34 +101,30 @@ type decoupeDesTraces struct {
 func decimateTracks(sorted []grammar.BipedPosition, in decoupeDesTraces) ([]Track, TrackCoverage) {
 	origin, step := in.origin, in.step
 	bornes := bornesDesVies(sorted, in)
-	type acc struct {
-		done      []vieDecimee // les vies CLOSES de ce slot, dans l'ordre
-		pts       []Point
-		lastFrame int
-		lastUS    uint64
-		vie       int // l'indice, dans `bornes[slot]`, de la vie en cours
-		lacuneMS  int // la lacune que le PROCHAIN point publié portera, en ms ; 0 = aucune
-	}
-	accs := map[uint32]*acc{}
+	accs := map[uint32]*accDeSlot{}
 	var order []uint32
 	cov := TrackCoverage{MinPoints: in.minPoints}
 	for _, p := range sorted {
 		if !p.HasWorld { // quantum sans bornes de carte : pas une coordonnée, on ne publie pas
+			if in.pleineCadence {
+				cov.NoWorld++
+			}
 			continue
 		}
 		frame := int((p.TimestampUS - origin) / step)
 		a := accs[p.Slot]
 		if a == nil {
-			a = &acc{lastFrame: -1, vie: -1}
+			a = &accDeSlot{lastFrame: -1, vie: -1, plein: in.nouveauPleinDebit()}
 			accs[p.Slot] = a
 			order = append(order, p.Slot)
 		}
 		vie := vieDuPoint(bornes[p.Slot], a.vie, p.TimestampUS)
+		rouvre := false
 		switch {
 		case len(a.pts) > 0 && vie != a.vie:
 			// FIN DE VIE ÉCRITE : la track courante se clôt, la suivante s'ouvre.
-			a.done = append(a.done, vieDecimee{a.pts, a.vie})
-			a.pts, a.lastFrame = nil, -1
+			a.done = append(a.done, vieDecimee{a.pts, a.vie, a.plein})
+			a.pts, a.lastFrame, a.plein = nil, -1, in.nouveauPleinDebit()
 		case len(a.pts) > 0 && int64(p.TimestampUS)-int64(a.lastUS) > lifeGapUS:
 			// LACUNE : la réplication s'est tue au-delà du seuil SANS que le film ferme la vie.
 			// Le point qui rouvre la piste la porte, pour que le client ne trace rien au travers.
@@ -131,8 +132,12 @@ func decimateTracks(sorted []grammar.BipedPosition, in decoupeDesTraces) ([]Trac
 			ms := int((int64(p.TimestampUS) - int64(a.lastUS)) / 1000)
 			cov.GapMS += ms
 			a.lacuneMS = ms
+			rouvre = true
 		}
 		a.vie, a.lastUS = vie, p.TimestampUS
+		// LA PLEINE CADENCE VOIT CHAQUE RECORD, AVANT LE TEST DE FRAME : la décimation ne choisit que
+		// les points, jamais ce que la vie porte (cf. tracks_plein_debit.go).
+		a.plein.ajouter(p, origin, rouvre)
 		if frame == a.lastFrame {
 			continue
 		}
@@ -141,10 +146,39 @@ func decimateTracks(sorted []grammar.BipedPosition, in decoupeDesTraces) ([]Trac
 		a.lacuneMS = 0
 		a.pts = append(a.pts, pt)
 	}
+	return in.publierLesVies(order, accs, bornes, &cov), cov
+}
+
+// accDeSlot est l'état de `decimateTracks` pour un slot : ses vies closes, la vie en cours, et ce
+// qu'il faut retenir du record précédent.
+type accDeSlot struct {
+	done      []vieDecimee // les vies CLOSES de ce slot, dans l'ordre
+	pts       []Point
+	plein     *pleinDebit // la pleine cadence de la vie en cours ; nil quand l'option est éteinte
+	lastFrame int
+	lastUS    uint64
+	vie       int // l'indice, dans `bornes[slot]`, de la vie en cours
+	lacuneMS  int // la lacune que le PROCHAIN point publié portera, en ms ; 0 = aucune
+}
+
+// nouveauPleinDebit rend l'accumulateur d'une vie neuve : nil, donc rien à retenir, quand la
+// pleine cadence n'est pas demandée.
+func (in decoupeDesTraces) nouveauPleinDebit() *pleinDebit {
+	if !in.pleineCadence {
+		return nil
+	}
+	return &pleinDebit{}
+}
+
+// publierLesVies rend une Track par vie, dans l'ordre de première apparition des slots, et tient
+// les comptes de ce que le seuil retient et refuse. EXTRAITE de `decimateTracks` quand la pleine
+// cadence y est entrée : la fonction aurait passé les 80 lignes du dépôt.
+func (in decoupeDesTraces) publierLesVies(order []uint32, accs map[uint32]*accDeSlot,
+	bornes map[uint32][]lifeSpan, cov *TrackCoverage) []Track {
 	tracks := make([]Track, 0, len(order))
 	for _, slot := range order {
 		a := accs[slot]
-		for _, v := range append(a.done, vieDecimee{a.pts, a.vie}) {
+		for _, v := range append(a.done, vieDecimee{a.pts, a.vie, a.plein}) {
 			if len(v.pts) < in.minPoints {
 				// LE REFUS SE COMPTE, ET IL NE SE DÉCLENCHE PLUS AU SEUIL PAR DÉFAUT : celui-ci
 				// vaut 1 depuis le lot 1.6.5 (« si le film le dit, on publie »), donc ce compteur
@@ -159,21 +193,26 @@ func decimateTracks(sorted []grammar.BipedPosition, in decoupeDesTraces) ([]Trac
 				Slot:       slot,
 				Team:       -1,
 				Points:     v.pts,
+				FullRate:   v.plein.rendre(),
 				StartFrame: v.pts[0].T,
 				EndFrame:   in.finDeLaVie(bornes[slot], v),
 			})
 			cov.Published++
 			cov.PublishedPoints += len(v.pts)
+			positions, visees := v.plein.echantillons()
+			cov.FullRateSamples += positions
+			cov.FullRateAimSamples += visees
 		}
 	}
-	return tracks, cov
+	return tracks
 }
 
-// vieDecimee est une vie du slot telle que la decimation l a close : ses points et son indice
-// dans `bornes[slot]`.
+// vieDecimee est une vie du slot telle que la decimation l a close : ses points, son indice dans
+// `bornes[slot]` et sa pleine cadence (nil quand l option est eteinte).
 type vieDecimee struct {
-	pts []Point
-	vie int
+	pts   []Point
+	vie   int
+	plein *pleinDebit
 }
 
 // finDeLaVie rend la frame de fin de la vie decimee : celle de sa mort ecrite quand elle suit
@@ -358,6 +397,20 @@ type TrackCoverage struct {
 	// LifeEnds dit comment les pistes publiees finissent, lu dans le film (schema 123, tracks_fin_par_commande.go). Absent
 	// quand la lecture du joueur aux commandes n a pas eu lieu.
 	LifeEnds *LifeEndCoverage `json:"lifeEnds,omitempty"`
+	// LA PLEINE CADENCE (cf. tracks_plein_debit.go), absente tant que l hote ne la demande pas
+	// ([Options.FullRate]) : ces trois compteurs ne se publient alors pas.
+	//
+	//	FullRateSamples     les positions publiees dans `tracks[].fullRate`, toutes vies publiees
+	//	                    confondues
+	//	FullRateAimSamples  les visees de ses colonnes (celles des records de position)
+	//	NoWorld             les positions sans bornes de carte (un quantum, pas une coordonnee), que
+	//	                    ni les points ni la pleine cadence ne publient
+	//
+	// Sur une cuisson au seuil par defaut, les positions que la porte retient valent
+	// FullRateSamples + NoWorld : la decimation ne choisit que les points.
+	FullRateSamples    int `json:"fullRateSamples,omitempty"`
+	FullRateAimSamples int `json:"fullRateAimSamples,omitempty"`
+	NoWorld            int `json:"noWorld,omitempty"`
 }
 
 // logTrackCoverage journalise ce que la publication des traces a refusé et ce que le film a tu.

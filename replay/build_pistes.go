@@ -62,7 +62,7 @@ func (a *assemblage) poserLesPistes() {
 	// découpe vient des VIES du registre, et ce fichier-ci est déjà au-delà du seuil de 500 L.
 	a.trackCov = poserLesTraces(a.ctx, &a.doc, a.sorted, decoupeDesTraces{
 		origin: a.origin, step: a.step, minPoints: a.opt.minPoints(), scoped: a.opt.Scoped,
-		vies: a.reg.Vies(), fb: a.opt.Fallbacks,
+		vies: a.reg.Vies(), fb: a.opt.Fallbacks, pleineCadence: a.opt.FullRate,
 		fin: nouvelleClotureParMort(a.opt.Deaths, a.reg.CalageSiConnu(), a.reg.Vies(), a.opt.Participants, a.horloge()),
 	})
 	// CE QUE LA PORTE DES POSITIONS A ECARTE se publie avec la couverture des traces : un point
@@ -219,12 +219,18 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	var projTronquees int
 	a.doc.Projectiles, pubProjByRaw, projTronquees = buildProjectiles(a.opt.Projectiles, a.origin, a.step,
 		a.opt.Detonations, a.opt.Fallbacks)
+	// LA PLEINE CADENCE DES PROJECTILES (hauteur et vol au debit du film) ne se pose que sur demande de l'hote.
+	projEchantillons := 0
+	if a.opt.FullRate {
+		projEchantillons = poserLaPleineCadenceDesProjectiles(a.doc.Projectiles, a.opt.Projectiles, pubProjByRaw, a.origin, a.step)
+	}
 	// LA COUVERTURE DES PROJECTILES EST CONSTRUITE ICI mais POSEE plus bas : `doc.Coverage`
 	// n'existe qu'apres `buildCoverage`. Nil quand aucune piste n'est fournie — un film sans
 	// projectile ne publie pas trois zeros.
 	if len(a.opt.Projectiles) > 0 {
 		a.projCov = &ProjectileCoverage{
 			Tracks: len(a.opt.Projectiles), Published: len(a.doc.Projectiles), Truncated: projTronquees,
+			FullRateSamples: projEchantillons,
 		}
 		if projTronquees > 0 {
 			// JOURNALISE, JAMAIS AVALE (regle n°3) : une coupure protege le rendu, elle ne
