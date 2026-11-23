@@ -57,6 +57,12 @@ type Loadout struct {
 type Shot struct {
 	// T est l'index de frame, sur le même axe que Point.T.
 	T int `json:"t"`
+	// O (optionnel) est le DÉCALAGE du tir DANS SA FRAME, en millisecondes entières : le reste de la division de l'instant du tir, compté
+	// depuis l'origine de l'axe, par le pas de la grille ([decalageDansLaFrame]). T date le tir à la frame près, T et O ensemble à la
+	// milliseconde. Absent à zéro : le client lit l'absence comme 0, ce qui est juste pour un tir pile sur sa frame, et aussi quand
+	// l'instant ne tombe pas dans sa frame publiée (frame bornée à la dernière de l'axe) : il n'a alors pas de décalage.
+	// Lecture pure de l'horodatage du film ; l'ordre de `shots[]` ne s'en sert pas.
+	O int `json:"o,omitempty"`
 	// Slot est le slot du biped tireur : il désigne la Track d'où part le tir.
 	Slot uint32 `json:"slot"`
 	// X, Y sont l'origine du tir (position du tireur).

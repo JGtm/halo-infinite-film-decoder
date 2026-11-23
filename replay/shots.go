@@ -168,8 +168,10 @@ type poseurDeTirs struct {
 // tir construit le tir publie d un evenement, pose sur le slot et la position donnes, avec la
 // visee du tireur a l instant du tir (cf. shots_visee.go).
 func (b poseurDeTirs) tir(e grammar.FireEvent, slot uint32, p grammar.BipedPosition) Shot {
+	frame := int((e.TimestampUS - b.origin) / b.step)
 	s := Shot{
-		T:    int((e.TimestampUS - b.origin) / b.step),
+		T:    frame,
+		O:    decalageDansLaFrame(e.TimestampUS, b.origin, b.step, frame),
 		Slot: slot,
 		X:    round2(p.X),
 		Y:    round2(p.Y),
@@ -180,6 +182,21 @@ func (b poseurDeTirs) tir(e grammar.FireEvent, slot uint32, p grammar.BipedPosit
 		s.Weapon = formatWeaponID(e.WeaponID)
 	}
 	return s
+}
+
+// decalageDansLaFrame rend, en millisecondes entières, l'écart entre l'instant `tUS` et le début de la frame `frame` de la grille (origine
+// `origin`, pas `step`) : le reste de la division de l'instant par le pas. Zéro quand la grille n'a pas de pas, quand l'instant précède
+// l'origine, ou quand `frame` n'est pas la frame de cet instant (frame bornée à l'axe) : le décalage d'un instant qui n'est pas dans sa
+// frame n'aurait pas de sens.
+func decalageDansLaFrame(tUS, origin, step uint64, frame int) int {
+	if step == 0 || tUS < origin {
+		return 0
+	}
+	delta := tUS - origin
+	if uint64(frame) != delta/step { //nolint:gosec // frame positive : bornée à [0, frames[
+		return 0
+	}
+	return int(delta % step / 1000) //nolint:gosec // reste d'une division par le pas : inférieur au pas
 }
 
 // indexBySlot regroupe les positions par slot, triées par instant. L index ne COPIE aucune position :

@@ -220,7 +220,7 @@ func (b vehicleShotBoard) poserSur(
 		return Shot{}, vehicleShotUnplaced, false
 	}
 	v := b.tracks[at].Slot
-	s := Shot{T: fr, Slot: occupant, X: round2(x), Y: round2(y), Vehicle: &v, tUS: o.ev.TimestampUS}
+	s := Shot{T: fr, O: decalageDansLaFrame(o.ev.TimestampUS, b.clock.origin, b.clock.step, fr), Slot: occupant, X: round2(x), Y: round2(y), Vehicle: &v, tUS: o.ev.TimestampUS}
 	b.viseur.viser(&s, o.ev, occupant)
 	if o.ev.WeaponID != 0 {
 		s.Weapon = formatWeaponID(o.ev.WeaponID)
