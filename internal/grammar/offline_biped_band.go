@@ -144,11 +144,12 @@ func balayerLesPositions(fc *FilmContext, band SlotBand, opt ScanFilmOptions, vo
 	if read == 0 {
 		return nil, ErrNoReadableFilmChunk
 	}
-	out = DropIsolated(out, opt.IsolationGapMS)
+	// `out` est neuf (chaque voie le construit) et personne d autre ne le tient : les filtres le compactent en place.
+	out = ecarterLesIsolesEnPlace(out, opt.IsolationGapMS)
 	if opt.WorldRange == nil {
 		return out, nil // sans coordonnées monde, un seuil en m/s n'a aucun sens
 	}
-	return DropTeleportsExcept(out, opt.MaxSpeedMPS, opt.TeleportExemptions), nil
+	return ecarterLesTeleportationsEnPlace(out, opt.MaxSpeedMPS, opt.TeleportExemptions), nil
 }
 
 // bipedScanChunks refuse les options qui interdisent toute émission de coordonnée, puis rend la
