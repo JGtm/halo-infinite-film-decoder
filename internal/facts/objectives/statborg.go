@@ -277,11 +277,13 @@ const statMinRoundRecords = 25
 
 // materialRounds rend les manches MATERIELLES : celles qui portent au moins
 // [statMinRoundRecords] enregistrements de slot JOUEUR ET au moins [statMinRoundRecordShare] %
-// de ceux de la manche la plus fournie.
+// de ceux de la manche la plus fournie, OU que le film annonce par une remise a zero simultanee des
+// scores de tous ses joueurs ([simultaneousResetRounds]).
 //
 // Les slots d'EQUIPE sont exclus du comptage : ils emettent sur un rythme propre, independant
 // du nombre de joueurs, et deux slots suffiraient a faire passer un ancrage.
 func materialRounds(recs []types.StatRecord) map[int]bool {
+	out := simultaneousResetRounds(recs)
 	parRound := map[int]int{}
 	for _, r := range recs {
 		if IsTeamSlot(r.Slot) {
@@ -295,7 +297,6 @@ func materialRounds(recs []types.StatRecord) map[int]bool {
 			ref = n
 		}
 	}
-	out := map[int]bool{}
 	if ref == 0 {
 		return out
 	}
