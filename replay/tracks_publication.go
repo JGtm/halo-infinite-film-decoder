@@ -9,7 +9,7 @@ package replay
 // comptes de ce qui ne l est pas ; `build.go` garde l assemblage du document.
 //
 // DEPLACEMENT PUR pour `decimateTracks` a l origine. La pleine cadence (tracks_plein_debit.go) s y
-// est ajoutee ensuite, derriere une option de l hote : eteinte, la decimation est celle d avant.
+// est ajoutee ensuite : la decimation des points est restee celle d avant.
 
 import (
 	"cmp"
@@ -67,10 +67,10 @@ type decoupeDesTraces struct {
 	// fin : les morts ecrites, pour finir une vie a la sienne quand elle suit le dernier point
 	// (cf. tracks_fin_de_vie.go). Zero = chaque vie finit a son dernier point.
 	fin clotureParMort
-	// pleineCadence : publier aussi `tracks[].fullRate`, tous les records de position et de visee de
-	// chaque vie (cf. tracks_plein_debit.go). Faux = rien ne se retient et le document est celui
-	// d avant l option.
-	pleineCadence bool
+	// sansPleineCadence : ne pas retenir `tracks[].fullRate` (cf. tracks_plein_debit.go). Vrai seulement pour le
+	// document interne du sync, qui n est pas publie ([Options.documentInterne]) : la pleine cadence s y calculerait pour
+	// rien. Faux, sa valeur zero, est celui de tout document publie.
+	sansPleineCadence bool
 }
 
 // decimateTracks projette les positions sur la grille de frames (un point par slot et par
@@ -106,9 +106,7 @@ func decimateTracks(sorted []grammar.BipedPosition, in decoupeDesTraces) ([]Trac
 	cov := TrackCoverage{MinPoints: in.minPoints}
 	for _, p := range sorted {
 		if !p.HasWorld { // quantum sans bornes de carte : pas une coordonnée, on ne publie pas
-			if in.pleineCadence {
-				cov.NoWorld++
-			}
+			cov.NoWorld++
 			continue
 		}
 		frame := int((p.TimestampUS - origin) / step)
@@ -154,17 +152,17 @@ func decimateTracks(sorted []grammar.BipedPosition, in decoupeDesTraces) ([]Trac
 type accDeSlot struct {
 	done      []vieDecimee // les vies CLOSES de ce slot, dans l'ordre
 	pts       []Point
-	plein     *pleinDebit // la pleine cadence de la vie en cours ; nil quand l'option est éteinte
+	plein     *pleinDebit // la pleine cadence de la vie en cours ; nil sur le document interne du sync
 	lastFrame int
 	lastUS    uint64
 	vie       int // l'indice, dans `bornes[slot]`, de la vie en cours
 	lacuneMS  int // la lacune que le PROCHAIN point publié portera, en ms ; 0 = aucune
 }
 
-// nouveauPleinDebit rend l'accumulateur d'une vie neuve : nil, donc rien à retenir, quand la
-// pleine cadence n'est pas demandée.
+// nouveauPleinDebit rend l'accumulateur d'une vie neuve : nil, donc rien à retenir, pour le document
+// interne (cf. [decoupeDesTraces.sansPleineCadence]).
 func (in decoupeDesTraces) nouveauPleinDebit() *pleinDebit {
-	if !in.pleineCadence {
+	if in.sansPleineCadence {
 		return nil
 	}
 	return &pleinDebit{}
@@ -208,7 +206,7 @@ func (in decoupeDesTraces) publierLesVies(order []uint32, accs map[uint32]*accDe
 }
 
 // vieDecimee est une vie du slot telle que la decimation l a close : ses points, son indice dans
-// `bornes[slot]` et sa pleine cadence (nil quand l option est eteinte).
+// `bornes[slot]` et sa pleine cadence (nil sur le document interne du sync).
 type vieDecimee struct {
 	pts   []Point
 	vie   int
@@ -397,8 +395,7 @@ type TrackCoverage struct {
 	// LifeEnds dit comment les pistes publiees finissent, lu dans le film (schema 123, tracks_fin_par_commande.go). Absent
 	// quand la lecture du joueur aux commandes n a pas eu lieu.
 	LifeEnds *LifeEndCoverage `json:"lifeEnds,omitempty"`
-	// LA PLEINE CADENCE (cf. tracks_plein_debit.go), absente tant que l hote ne la demande pas
-	// ([Options.FullRate]) : ces trois compteurs ne se publient alors pas.
+	// LA PLEINE CADENCE (cf. tracks_plein_debit.go) : trois compteurs, publies sur tout document.
 	//
 	//	FullRateSamples     les positions publiees dans `tracks[].fullRate`, toutes vies publiees
 	//	                    confondues
@@ -408,9 +405,9 @@ type TrackCoverage struct {
 	//
 	// Sur une cuisson au seuil par defaut, les positions que la porte retient valent
 	// FullRateSamples + NoWorld : la decimation ne choisit que les points.
-	FullRateSamples    int `json:"fullRateSamples,omitempty"`
-	FullRateAimSamples int `json:"fullRateAimSamples,omitempty"`
-	NoWorld            int `json:"noWorld,omitempty"`
+	FullRateSamples    int `json:"fullRateSamples"`
+	FullRateAimSamples int `json:"fullRateAimSamples"`
+	NoWorld            int `json:"noWorld"`
 }
 
 // logTrackCoverage journalise ce que la publication des traces a refusé et ce que le film a tu.

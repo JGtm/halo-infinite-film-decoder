@@ -13,12 +13,12 @@ package replay
 // retard et fausse des que le joueur tourne. `FullRate` publie donc TOUT ce que la vie porte, sans
 // rien reechantillonner : les positions a leurs instants, les visees aux leurs.
 //
-// # UNE OPTION DE L HOTE, ETEINTE PAR DEFAUT
+// # PUBLIEE SUR TOUT DOCUMENT
 //
-// La pleine cadence multiplie par plusieurs le poids des pistes. Elle ne se produit donc que sur
-// demande ([Options.FullRate]) ; sans elle aucun champ ni compteur de ce fichier n entre dans le
-// document, et celui-ci est identique a l octet a celui d avant l option. Allumee, elle ne change
-// aucun point : `Track.Points` et tout ce qui s y rapporte restent ceux de la decimation.
+// La pleine cadence ajoute au poids des pistes (de l ordre d un quart a deux cinquiemes du poids
+// compresse du document) et ne change aucun point : `Track.Points` et tout ce qui s y rapporte
+// restent ceux de la decimation. Seul le document interne du sync, qui n est pas publie, ne la
+// retient pas ([decoupeDesTraces.sansPleineCadence]).
 //
 // # L ENCODAGE : DES COLONNES DIFFERENTIELLES D ENTIERS
 //
@@ -77,7 +77,7 @@ type FullRateTrack struct {
 }
 
 // pleinDebit accumule les echantillons d une vie et en tient les derniers absolus, pour ecrire les
-// ecarts. Un recepteur nil est valide et ne retient rien : c est l option eteinte.
+// ecarts. Un recepteur nil est valide et ne retient rien : c est le document interne du sync.
 type pleinDebit struct {
 	piste   FullRateTrack
 	t, aimT int64
@@ -111,8 +111,8 @@ func (d *pleinDebit) ajouter(p grammar.BipedPosition, origineUS uint64, lacune b
 	d.aimT, d.h, d.p = t, h, pi
 }
 
-// rendre rend la piste a pleine cadence, nil quand la vie n a recu aucun echantillon (ou que
-// l option est eteinte).
+// rendre rend la piste a pleine cadence, nil quand la vie n a recu aucun echantillon (ou que c est le
+// document interne du sync).
 func (d *pleinDebit) rendre() *FullRateTrack {
 	if d == nil || len(d.piste.T) == 0 {
 		return nil

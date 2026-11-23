@@ -5,7 +5,7 @@ package replay
 // La grille du rejeu retient UN point par frame : c est `p`, la vue que tous les lecteurs existants
 // dessinent. `z` en porte la hauteur, au meme indice ; `fullRate` porte la MEME trajectoire au debit du
 // film, chaque echantillon lu avant le premier pas impossible, a son instant. Ces tests tiennent trois
-// proprietes : option eteinte rien ne change, option allumee `p` ne change pas, et la coupure au pas
+// proprietes : la construction seule ne publie ni hauteur ni vol, la pleine cadence ne change pas `p`, et la coupure au pas
 // impossible borne les DEUX series.
 
 import (
@@ -64,9 +64,9 @@ func sommeCumulee64(col []int64) []int64 {
 	return out
 }
 
-// TestVolEteintNePublieNiHauteurNiPleineCadence : sans la demande de l hote, un projectile n a ni `z`
-// ni `fullRate`, et la serialisation n en contient pas la balise ; la couverture non plus.
-func TestVolEteintNePublieNiHauteurNiPleineCadence(t *testing.T) {
+// TestLaConstructionSeuleNePublieNiHauteurNiPleineCadence : [buildProjectiles] seule, ce que le document interne du sync
+// appelle, ne porte ni `z` ni `fullRate`, et la serialisation n en contient pas la balise.
+func TestLaConstructionSeuleNePublieNiHauteurNiPleineCadence(t *testing.T) {
 	out, _, _ := buildProjectiles([]types.ProjectileTrack{vol60Hz(15, true)}, origineVol, pasVolUS, nil, nil)
 	if len(out) != 1 || out[0].Z != nil || out[0].FullRate != nil {
 		t.Fatalf("projectile sans option : %d trajectoire(s) %+v", len(out), out)
@@ -79,10 +79,6 @@ func TestVolEteintNePublieNiHauteurNiPleineCadence(t *testing.T) {
 		if strings.Contains(string(blob), balise) {
 			t.Errorf("la serialisation sans option contient %s : %s", balise, blob)
 		}
-	}
-	blob, _ = json.Marshal(ProjectileCoverage{Tracks: 1, Published: 1})
-	if strings.Contains(string(blob), "fullRateSamples") {
-		t.Errorf("la couverture sans option publie son compteur : %s", blob)
 	}
 }
 
@@ -110,7 +106,7 @@ func TestVolGardeSesEchantillonsAuDebitDuFilm(t *testing.T) {
 				wantMS, centiemes(s.X), centiemes(s.Y), centiemes(s.Z))
 		}
 	}
-	// Les points existants sont ceux de l option eteinte, au bit pres.
+	// Les points existants sont ceux de la construction seule, au bit pres.
 	if len(p.P) != len(eteint[0].P) {
 		t.Fatalf("%d points allume, %d eteint", len(p.P), len(eteint[0].P))
 	}
@@ -184,9 +180,9 @@ func TestVolPleineCadenceIgnoreUnePisteTropCourte(t *testing.T) {
 	}
 }
 
-// verifierLesVolsDuDocument : sur un document assemble option allumee, chaque projectile porte sa hauteur et son
+// verifierLesVolsDuDocument : sur un document assemble, chaque projectile porte sa hauteur et son
 // vol, coherents avec ses points ; rend le nombre d echantillons de pleine cadence, et retire la hauteur et le vol pour
-// que le document se compare a celui de l option eteinte.
+// que le document se compare a celui du document interne.
 func verifierLesVolsDuDocument(t *testing.T, doc *ReplayDocument) int {
 	t.Helper()
 	somme := 0

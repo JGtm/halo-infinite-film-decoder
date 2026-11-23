@@ -138,8 +138,8 @@ type ProjectileCoverage struct {
 	// armes ou de deux tireurs : aucun lien publié (cf. linkShotsToProjectiles).
 	ShotAmbiguous int `json:"shotAmbiguous"`
 	// FullRateSamples est le nombre d'echantillons publies dans `projectiles[].fullRate`, toutes trajectoires confondues
-	// (cf. projectiles_plein_debit.go). Absent tant que l'hote ne demande pas la pleine cadence ([Options.FullRate]).
-	FullRateSamples int `json:"fullRateSamples,omitempty"`
+	// (cf. projectiles_plein_debit.go). 0 sur le document interne du sync, qui ne la calcule pas.
+	FullRateSamples int `json:"fullRateSamples"`
 }
 
 // slotFor rend le slot du joueur pi à l'instant tUS, et la cause du rejet le cas échéant.

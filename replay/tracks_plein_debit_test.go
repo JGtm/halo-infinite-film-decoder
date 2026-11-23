@@ -60,11 +60,12 @@ const (
 	pasSynthetique     = 33_000
 )
 
-// traces decime les positions synthetiques avec ou sans la pleine cadence, sur les vies donnees.
-func tracesSynthetiques(pos []grammar.BipedPosition, plein bool, vies []lifeSpan) ([]Track, TrackCoverage) {
+// tracesSynthetiques decime les positions synthetiques sur les vies donnees ; `interne` : comme le document interne du sync,
+// qui ne retient pas la pleine cadence (la decimation des points est alors celle d avant l ajout).
+func tracesSynthetiques(pos []grammar.BipedPosition, interne bool, vies []lifeSpan) ([]Track, TrackCoverage) {
 	return decimateTracks(pos, decoupeDesTraces{
 		origin: origineSynthetique, step: pasSynthetique, minPoints: 1, vies: vies,
-		fb: fallback.NouveauCompteur(), pleineCadence: plein,
+		fb: fallback.NouveauCompteur(), sansPleineCadence: interne,
 	})
 }
 
@@ -169,54 +170,51 @@ func verifierLaViseeDuPoint(t *testing.T, k int, pt Point, d pleinDebitDecode, j
 	}
 }
 
-// TestPleineCadenceEteinteLeDocumentNeChangePas : sans l option, aucune piste ne porte de
-// pleine cadence, aucun compteur n est rempli, et la serialisation ne contient aucun des champs neufs.
-func TestPleineCadenceEteinteLeDocumentNeChangePas(t *testing.T) {
+// TestDocumentInterneNeRetientPasLaPleineCadence : le document interne du sync n est pas publie : aucune piste ne
+// retient de pleine cadence, aucun compteur n est rempli, et ses pistes ne portent pas la balise.
+func TestDocumentInterneNeRetientPasLaPleineCadence(t *testing.T) {
 	pos := positionsA60Hz()
 	pos = append(pos, grammar.BipedPosition{Slot: 100, TimestampUS: 9_500_000, HasWorld: false}) // un quantum sans bornes de carte
 	slices.SortStableFunc(pos, func(a, b grammar.BipedPosition) int { return int(int64(a.TimestampUS) - int64(b.TimestampUS)) })
-	tracks, cov := tracesSynthetiques(pos, false, uneVie())
+	tracks, cov := tracesSynthetiques(pos, true, uneVie())
 	if len(tracks) != 1 || tracks[0].FullRate != nil {
 		t.Fatalf("%d piste(s), pleine cadence presente=%v ; attendu 1 piste qui n en porte pas", len(tracks),
 			len(tracks) == 1 && tracks[0].FullRate != nil)
 	}
-	if cov.FullRateSamples != 0 || cov.FullRateAimSamples != 0 || cov.NoWorld != 0 {
-		t.Errorf("compteurs de la pleine cadence remplis option eteinte : %+v", cov)
+	if cov.FullRateSamples != 0 || cov.FullRateAimSamples != 0 {
+		t.Errorf("compteurs de la pleine cadence remplis sur le document interne : %+v", cov)
 	}
-	blob, err := json.Marshal(struct {
-		T []Track
-		C TrackCoverage
-	}{tracks, cov})
+	blob, err := json.Marshal(tracks)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, nom := range []string{"fullRate", "fullRateSamples", "fullRateAimSamples", "noWorld", `"aimT"`} {
+	for _, nom := range []string{"fullRate", `"aimT"`} {
 		if strings.Contains(string(blob), nom) {
-			t.Errorf("la serialisation sans l option contient %q", nom)
+			t.Errorf("la serialisation du document interne contient %q", nom)
 		}
 	}
 }
 
-// TestPleineCadenceAllumeeNeChangePasLesPoints : les pistes, leurs points, leurs bornes et la
-// couverture d avant sont identiques option allumee ou non ; seuls la pleine cadence et ses
+// TestPleineCadenceNeChangePasLesPoints : les pistes, leurs points, leurs bornes et la
+// couverture d avant sont identiques avec ou sans la pleine cadence (celle du document interne) ; seuls la pleine cadence et ses
 // compteurs s ajoutent.
-func TestPleineCadenceAllumeeNeChangePasLesPoints(t *testing.T) {
+func TestPleineCadenceNeChangePasLesPoints(t *testing.T) {
 	pos := positionsA60Hz()
-	eteint, covEteinte := tracesSynthetiques(pos, false, uneVie())
-	allume, covAllumee := tracesSynthetiques(pos, true, uneVie())
+	eteint, covEteinte := tracesSynthetiques(pos, true, uneVie())
+	allume, covAllumee := tracesSynthetiques(pos, false, uneVie())
 	if len(allume) != len(eteint) {
-		t.Fatalf("%d pistes allumee, %d eteinte", len(allume), len(eteint))
+		t.Fatalf("%d pistes avec la pleine cadence, %d sans", len(allume), len(eteint))
 	}
 	for i := range allume {
 		if allume[i].FullRate == nil {
-			t.Fatalf("piste %d sans pleine cadence, option allumee", i)
+			t.Fatalf("piste %d sans pleine cadence", i)
 		}
 		allume[i].FullRate = nil
 	}
 	if !reflect.DeepEqual(allume, eteint) {
 		t.Errorf("les pistes different hors pleine cadence : points, bornes ou fin de vie ont bouge")
 	}
-	covAllumee.FullRateSamples, covAllumee.FullRateAimSamples, covAllumee.NoWorld = 0, 0, 0
+	covAllumee.FullRateSamples, covAllumee.FullRateAimSamples = 0, 0
 	if covAllumee != covEteinte {
 		t.Errorf("la couverture d avant a bouge : %+v contre %+v", covAllumee, covEteinte)
 	}
@@ -227,7 +225,7 @@ func TestPleineCadenceAllumeeNeChangePasLesPoints(t *testing.T) {
 // sur la decimation par frame.
 func TestPleineCadencePublieChaqueRecordASonInstant(t *testing.T) {
 	pos := positionsA60Hz()
-	tracks, cov := tracesSynthetiques(pos, true, uneVie())
+	tracks, cov := tracesSynthetiques(pos, false, uneVie())
 	if len(tracks) != 1 || tracks[0].FullRate == nil {
 		t.Fatalf("%d piste(s), pleine cadence presente=%v ; attendu 1 piste qui la porte", len(tracks),
 			len(tracks) == 1 && tracks[0].FullRate != nil)
@@ -299,7 +297,7 @@ func TestPleineCadenceSuitLaDecoupeDesVies(t *testing.T) {
 	pos := positionsA60Hz()
 	vies := []lifeSpan{{slot: 100, from: 1_000_000, to: 5_000_000, xuid: 111},
 		{slot: 100, from: 5_000_001, to: 10_000_000, xuid: 222}}
-	tracks, cov := tracesSynthetiques(pos, true, vies)
+	tracks, cov := tracesSynthetiques(pos, false, vies)
 	if len(tracks) != 2 {
 		t.Fatalf("%d pistes, attendu 2", len(tracks))
 	}
@@ -333,7 +331,7 @@ func TestPleineCadenceSuitLaDecoupeDesVies(t *testing.T) {
 func TestPleineCadenceCompteLesPositionsSansBornesDeCarte(t *testing.T) {
 	pos := positionsA60Hz()
 	pos = append(pos, grammar.BipedPosition{Slot: 100, TimestampUS: 9_990_000, HasWorld: false, Q: [3]uint32{1, 2, 3}})
-	tracks, cov := tracesSynthetiques(pos, true, uneVie())
+	tracks, cov := tracesSynthetiques(pos, false, uneVie())
 	if cov.NoWorld != 1 || cov.FullRateSamples != len(pos)-1 || len(tracks[0].FullRate.T) != len(pos)-1 {
 		t.Errorf("sans bornes : %d, echantillons %d (colonne %d), attendu 1 et %d", cov.NoWorld, cov.FullRateSamples,
 			len(tracks[0].FullRate.T), len(pos)-1)
@@ -346,31 +344,31 @@ func TestPleineCadenceUneVieSansVisee(t *testing.T) {
 	for i := range pos {
 		pos[i].HasYaw = false
 	}
-	tracks, cov := tracesSynthetiques(pos, true, uneVie())
+	tracks, cov := tracesSynthetiques(pos, false, uneVie())
 	f := tracks[0].FullRate
 	if f.AimT != nil || f.H != nil || f.P != nil || cov.FullRateAimSamples != 0 {
 		t.Errorf("visee publiee sans visee dans le film : %d lignes, couverture %d", len(f.AimT), cov.FullRateAimSamples)
 	}
 }
 
-// TestPleineCadenceDesBuildsFiges : sur les huit builds figes, l option allumee ne change RIEN au
-// document hors pleine cadence et compteurs (meme JSON, octet pour octet), la somme des colonnes est le
+// TestPleineCadenceDesBuildsFiges : sur les huit builds figes, la pleine cadence ne change RIEN au
+// document hors pleine cadence et compteurs (meme JSON, octet pour octet, que celui du document interne qui ne la retient pas), la somme des colonnes est le
 // compte de la couverture, ce compte n est jamais inferieur a celui des points, et chaque point retrouve
 // son echantillon.
 func TestPleineCadenceDesBuildsFiges(t *testing.T) {
 	for _, b := range goldenBuilds() {
 		t.Run(b.Build+"/"+b.Short8, func(t *testing.T) {
 			g, entry := chargerGoldenBuild(t, b)
-			assembler := func(plein bool) ReplayDocument {
+			assembler := func(interne bool) ReplayDocument {
 				opt := g.options()
 				opt.Bots = botsDuFixture(t, b.Short8)
 				opt.Labels, opt.EquipmentEnergy = goldenCatalog(t), goldenEnergyCatalog(t)
-				opt.MapQuant, opt.FullRate = &entry, plein
+				opt.MapQuant, opt.documentInterne = &entry, interne
 				return BuildFromPositions(context.Background(), b.Short8, "halo_infinite", g.Positions, g.Fire, opt)
 			}
-			eteint, allume := assembler(false), assembler(true)
-			if eteint.Coverage.Tracks.FullRateSamples != 0 || eteint.Coverage.Tracks.NoWorld != 0 {
-				t.Errorf("compteurs remplis option eteinte : %+v", eteint.Coverage.Tracks)
+			eteint, allume := assembler(true), assembler(false)
+			if eteint.Coverage.Tracks.FullRateSamples != 0 {
+				t.Errorf("compteurs remplis sur le document interne : %+v", eteint.Coverage.Tracks)
 			}
 			c, somme, visees := allume.Coverage.Tracks, 0, 0
 			for i := range allume.Tracks {
@@ -390,11 +388,11 @@ func TestPleineCadenceDesBuildsFiges(t *testing.T) {
 			if somme < c.PublishedPoints {
 				t.Errorf("%d echantillons pour %d points : la publication perd des records", somme, c.PublishedPoints)
 			}
-			c.FullRateSamples, c.FullRateAimSamples, c.NoWorld = 0, 0, 0
+			c.FullRateSamples, c.FullRateAimSamples = 0, 0
 			verifierLesVolsDuDocument(t, &allume)
 			a, e := mustJSON(t, allume), mustJSON(t, eteint)
 			if a != e {
-				t.Errorf("le document allume, prive de la pleine cadence et de ses compteurs, differe du document eteint")
+				t.Errorf("le document, prive de la pleine cadence et de ses compteurs, differe du document interne")
 			}
 		})
 	}

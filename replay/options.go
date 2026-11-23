@@ -2,6 +2,13 @@ package replay
 
 // options.go — LE REGLAGE ET LES ENTREES DE DONNEES DE L'ASSEMBLAGE.
 //
+// DEPLACEMENT PUR depuis `build.go` (lot 1 de PLAN_CUISSON_PERF, 2026-09-02) : `Options` et ses
+// deux accesseurs de defaut y occupaient 205 lignes — presque un quart d'un fichier de 928 —
+// alors qu'ils ne sont pas de l'assemblage mais son CONTRAT D'ENTREE. Le lot 0 avait pousse
+// `build.go` de 875 a 922 lignes par l'observateur (note N-G du plan), et la migration vers un
+// film deja charge l'aurait encore alourdi. Le struct, ses commentaires et les deux methodes
+// sont repris TELS QUELS : aucune ligne de logique n'a change.
+//
 // CE QUE `Options` MELANGE, ET POURQUOI CE N'EST PAS UN DEFAUT : du REGLAGE (pas de temps, seuil
 // de publication) et des ENTREES DE DONNEES (loadouts, grenades, projectiles, zones...). Les
 // secondes vivent ici plutot qu'en parametres pour garder `BuildFromPositions` sous la limite de
@@ -24,10 +31,6 @@ type Options struct {
 	FrameIntervalMS int
 	// MinPoints : seuil de publication d'une track ; 0 -> DefaultMinPoints.
 	MinPoints int
-	// FullRate : publier aussi `tracks[].fullRate` (tous les records de position et de visée de chaque vie à leur instant),
-	// `projectiles[].z` et `projectiles[].fullRate` (hauteur et vol au débit du film). Faux (défaut) : aucun champ ni
-	// compteur de plus, document inchangé à l'octet. Cf. tracks_plein_debit.go et projectiles_plein_debit.go.
-	FullRate bool
 	// FilmMajorVersion : la version du film, LUE dans l'en-tete de son registre par l'appelant
 	// qui a charge le film (`grammar.FilmMajorVersion`). nil quand le film ne porte pas son
 	// registre, ou quand l'appelant construit depuis des positions sans film. Republiee telle

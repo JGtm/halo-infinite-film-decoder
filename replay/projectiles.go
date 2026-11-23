@@ -43,8 +43,7 @@ type Projectile struct {
 	// répéter l'index absolu à chaque point doublerait le poids du document pour rien.
 	P [][3]float32 `json:"p"`
 	// Z (optionnel) est la HAUTEUR de chaque point de P : meme indice, meme arrondi au centieme que les points de piste.
-	// Tableau PARALLELE et non un quatrieme element de P, pour que tout lecteur de [dt, x, y] reste valide. Present
-	// seulement quand l'hote demande la pleine cadence ([Options.FullRate]), avec [Projectile.FullRate].
+	// Tableau PARALLELE et non un quatrieme element de P, pour que tout lecteur de [dt, x, y] reste valide.
 	Z []float32 `json:"z,omitempty"`
 	// FullRate (optionnel) est le vol AU DEBIT DU FILM : chaque echantillon replique avant la coupure, a son instant
 	// (cf. [FullRateFlight] et projectiles_plein_debit.go). P et Z restent la vue de la grille, un point par frame.
@@ -199,7 +198,7 @@ type vol struct {
 	// le vol s'arrête à un pas impossible.
 	dernier types.ProjectileSample
 	coupe   bool
-	// z et plein ne se remplissent que sur demande de volPublie (pleine cadence) : la hauteur de chaque point de pts, et
+	// z et plein ne se remplissent que sur demande de volPublie (`pleine`) : la hauteur de chaque point de pts, et
 	// la serie de tous les echantillons lus avant la coupure (cf. projectiles_plein_debit.go).
 	z     []float32
 	plein *pleinDebitDeVol

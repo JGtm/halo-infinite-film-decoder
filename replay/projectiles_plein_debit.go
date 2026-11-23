@@ -14,9 +14,9 @@ package replay
 //     meme codage que `Track.FullRate` (cf. tracks_plein_debit.go). Un projectile suit une parabole
 //     repliquee a ~60 Hz ; la grille n en retient qu un point par frame.
 //
-// LES DEUX NE SE PRODUISENT QUE SUR DEMANDE DE L HOTE ([Options.FullRate]) : le document est sinon
-// identique a l octet a celui d avant. Allumes, ils ne changent aucune des valeurs existantes :
-// `P`, `T0`, `Rest`, la detonation et le lien vers le tir restent ceux de la decimation.
+// LES DEUX SE PUBLIENT SUR TOUT DOCUMENT, et ne changent aucune des valeurs existantes : `P`, `T0`,
+// `Rest`, la detonation et le lien vers le tir restent ceux de la decimation. Seul le document interne
+// du sync, qui n est pas publie, ne les calcule pas.
 //
 // LA COUPURE EST CELLE DU VOL PUBLIE : la serie s arrete au premier pas impossible (cf.
 // [projectileMaxSpeedMPS]), comme `P` ; un echantillon lu apres la coupure n est jamais publie.
@@ -41,7 +41,7 @@ type FullRateFlight struct {
 }
 
 // pleinDebitDeVol accumule la serie d un vol et en tient les derniers absolus, pour ecrire les
-// ecarts. Un recepteur nil est valide et ne retient rien : c est l option eteinte.
+// ecarts. Un recepteur nil est valide et ne retient rien : c est le document interne du sync.
 type pleinDebitDeVol struct {
 	f       FullRateFlight
 	t       int64
@@ -62,7 +62,7 @@ func (d *pleinDebitDeVol) ajouter(p types.ProjectileSample, origineUS uint64) {
 	d.t, d.x, d.y, d.z = t, x, y, z
 }
 
-// rendre rend la serie, nil quand le vol n a recu aucun echantillon (ou que l option est eteinte).
+// rendre rend la serie, nil quand le vol n a recu aucun echantillon (ou que c est le document interne du sync).
 func (d *pleinDebitDeVol) rendre() *FullRateFlight {
 	if d == nil || len(d.f.T) == 0 {
 		return nil
@@ -76,8 +76,8 @@ func (d *pleinDebitDeVol) rendre() *FullRateFlight {
 //
 // ELLE REJOUE [volPublie] SUR LES PISTES PUBLIEES, avec la serie demandee, plutot que de la faire
 // tourner dans [buildProjectiles] : la regle du vol (ou il commence, ou il se coupe) est UNIQUE et vit
-// dans `volPublie`, et la construction des projectiles, appelee de partout, garde sa signature et son
-// cout quand l option est eteinte. `publiesParPiste` est la table piste brute -> rang publie que
+// dans `volPublie`, et la construction des projectiles, appelee de partout (tests compris), garde ses cinq
+// parametres, que le depot borne ; le document interne du sync ne l appelle pas. `publiesParPiste` est la table piste brute -> rang publie que
 // `buildProjectiles` rend ; les pistes sont parcourues dans l ordre, donc la sortie ne depend pas de
 // l ordre d une table.
 func poserLaPleineCadenceDesProjectiles(publies []Projectile, pistes []types.ProjectileTrack,
