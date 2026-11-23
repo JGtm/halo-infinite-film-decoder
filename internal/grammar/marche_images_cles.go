@@ -150,6 +150,25 @@ func (m *marcheDesImagesCles) parcourir(rendre func(*lecture.Paquet) bool) int {
 	return lus
 }
 
+// payloadsDesImagesCles rend, dans l ordre du flux, les payloads non vides des paquets d image-cle des
+// chunks du film, sans les marcher : ce sont ceux que [marcheDesImagesCles.parcourir] range un a un
+// (memes chunks, memes paquets, memes sous-tranches). Pour un travail qui part avant la distribution.
+func (c *FilmContext) payloadsDesImagesCles() [][]byte {
+	var out [][]byte
+	for _, num := range c.ChunkNumbers() {
+		data, pks, ok := c.ChunkAt(num)
+		if !ok {
+			continue
+		}
+		for _, pk := range pks {
+			if pay := pk.Payload(data); pk.Type == PacketTypeKeyframe && len(pay) > 0 {
+				out = append(out, pay)
+			}
+		}
+	}
+	return out
+}
+
 // marcherLePaquet range UN paquet d image-cle dans l arene : ses ancres, dans l ordre des bits, et
 // l etat complet de chacune dont le corps est a parcourir.
 func (m *marcheDesImagesCles) marcherLePaquet(chunk int, pk FilmPacket, data []byte) {
