@@ -58,6 +58,9 @@ type marcheurDesTrames struct {
 	// lecteur : le lecteur de la trame en cours pendant sa marche par classes de vue, nil hors d elle.
 	// Sa position date les publications des deserialiseurs ([MarcheDistribuee.positionDeLecture]).
 	lecteur *Lecteur
+	// recuperee : la liste que les canaux recuperent pour la trame en cours, si elle n est pas
+	// localisee ; remise a zero a chaque trame.
+	recuperee listeRecuperee
 }
 
 // trameLue est ce que la marche rend pour UNE trame delta : la structure, et ce que la marche par
@@ -176,6 +179,7 @@ func (m *marcheurDesTrames) marcherLePaquet(c int, pk FilmPacket, data []byte) {
 	viderLePaquet(p)
 	p.Chunk, p.Index, p.Type, p.TS, p.Payload, p.Entites = c, pk.Index, pk.Type, pk.TimestampUS, pay, m.entites
 	t.debut, p.Debut = movementStateSkipLeadBits, lecture.DebutEnTete
+	m.recuperee = listeRecuperee{}
 	t.parRangs = m.cfg.Profil.Grammaire.ClassesDeVue
 	t.lecture = lectureDeTrame{debutVueB: -1, finVueB: -1}
 	g := m.fc.grammaireDeLaVueA()
