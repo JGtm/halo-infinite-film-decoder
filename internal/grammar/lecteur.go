@@ -86,6 +86,9 @@ type Lecteur struct {
 	detonationLue lecture.MessageDeDetonation
 	// rechargementLu : la charge du dernier message de rechargement ([chargeRechargement]).
 	rechargementLu lecture.MessageDeRechargement
+	// gesteLu : l index de joueur du dernier message de lancer amorce ou de coup de melee ([chargeLancerInitie],
+	// [chargeCorpsACorps]).
+	gesteLu lecture.MessageDeGeste
 	// repliqueLue et annonceLue : la charge du dernier message AIDialog (genre 75, [chargeDialogueIA])
 	// et du dernier message Dialogue2D (genre 76, [chargeDialogue2D]).
 	repliqueLue lecture.MessageDeReplique

@@ -8,6 +8,10 @@ package replay
 // retirees et comptees (`coverage.reloads.copies`). Ce calque pose chaque rechargement sur l axe de frames,
 // avec l index de joueur du film tel que le message l ecrit : le meme espace que l index de tireur d un tir.
 //
+// L INSTANT ET LES COPIES. Chaque ligne porte aussi l instant de la trame a la milliseconde (`ms`) et le nombre de
+// copies du message que le jeu a ecrites dans la meme trame (`copies`, absent quand il n y en a pas) : le calque
+// publie le compte, jamais ce qu une copie veut dire.
+//
 // CE QUE CA NE DONNE PAS. Ni l arme, ni la fin du rechargement, ni la vie : un client compte des
 // rechargements par joueur, rien de plus. Une trame dont la liste d evenements s arrete sur un message non lu
 // perd ceux qui la suivent (`coverage.reloads.stoppedFrames`) : sur ces films le compte est un plancher.
@@ -27,6 +31,14 @@ type Reload struct {
 	// Place est l index de joueur de l auteur tel que le message l ecrit : le meme espace que l index de
 	// tireur d un tir et que `roster[].filmIndex`.
 	Place int `json:"place"`
+	// Ms est l instant de la trame a la milliseconde, depuis l origine de l axe de frames (la frame 0) : la
+	// meme convention que `gestures[].ms`.
+	Ms int `json:"ms"`
+	// Copies est le nombre de copies du message que le jeu a ecrites dans la meme trame (meme auteur, memes
+	// references) et que le calque a retirees ; absent quand le message est ecrit une seule fois. Le calque
+	// publie le compte, pas ce qu il veut dire. La somme sur tout le film est `coverage.reloads.copies`, aux
+	// rechargements ecartes pres.
+	Copies int `json:"copies,omitempty"`
 }
 
 // ReloadCoverage dit ce que le calque a lu et ce qu il a ecarte.
@@ -65,7 +77,7 @@ func buildReloads(in []types.ReloadRead, st types.ReloadStats, axe axeDeFrames) 
 		t, refus := frameDeLAction(m.TimestampUS, axe)
 		switch refus {
 		case refusAucun:
-			out = append(out, Reload{T: t, Place: int(m.Player)})
+			out = append(out, Reload{T: t, Place: int(m.Player), Ms: axe.millisecondes(m.TimestampUS), Copies: m.Copies})
 		case refusAvantOrigine, refusSansOrigine:
 			cov.BeforeOrigin++
 		case refusApresFin:

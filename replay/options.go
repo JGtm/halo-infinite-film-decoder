@@ -132,6 +132,8 @@ type Options struct {
 	// Repliques : les repliques des Spartans et les annonces de la marche des trames, avec ce que leur canal a vu
 	// (document_repliques.go).
 	Repliques grammar.RepliquesLues
+	// Gestures : les gestes de la vue A et la porte de cadence (document_gestes.go).
+	Gestures GestureInput
 	// ControlHolds / ControlHoldStats : les commandes de deplacement tenues de la vue de controle, publiees
 	// en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold

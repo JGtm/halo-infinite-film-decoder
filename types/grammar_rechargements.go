@@ -4,7 +4,8 @@ package types
 //
 // Un message `weapon_reload` (genre 38) porte l index de joueur de l auteur et l unite qui recharge ; il ne
 // nomme pas l arme. Le canal de la grammaire rend un rechargement par (trame, auteur, unite) : le jeu ecrit
-// souvent le meme message deux fois dans la meme trame, et ces copies se comptent ([ReloadStats.Copies]).
+// souvent le meme message deux fois dans la meme trame, et ces copies se comptent ([ReloadStats.Copies] au total,
+// [ReloadRead.Copies] par rechargement).
 
 // ReloadNoPlayer est le [ReloadRead.Player] d un message qui ne porte pas d index de joueur.
 const ReloadNoPlayer = -1
@@ -16,6 +17,10 @@ type ReloadRead struct {
 	// Player est l index de joueur de l auteur tel que le message l ecrit (cinq bits, 0..31), ou
 	// [ReloadNoPlayer].
 	Player int8
+	// Copies est le nombre de copies du message que le jeu a écrites dans la même trame (même auteur, mêmes
+	// références) et que le canal a retirées : zéro quand le message est écrit une seule fois. Leur somme est
+	// [ReloadStats.Copies].
+	Copies int
 }
 
 // ReloadStats dit ce que le canal a vu. Sans ces denominateurs, « N rechargements » ne se juge pas : une

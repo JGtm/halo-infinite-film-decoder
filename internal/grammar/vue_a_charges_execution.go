@@ -1,6 +1,9 @@
 package grammar
 
-import "github.com/JGtm/halo-infinite-film-decoder/internal/profile"
+import (
+	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar/lecture"
+	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
+)
 
 // vue_a_charges_execution.go — LES CHARGES DE LA VUE A GARDEES PAR UNE VALEUR D EXECUTION, ET CE QUI
 // LA FIXE (lot VA de la campagne de grammaire, recherche R2 du 2026-10-04 et etape V3) : Script (15),
@@ -83,7 +86,7 @@ func chargeScript(br *Lecteur) bool {
 
 // chargeLancerInitie porte `FUN_140c6a58c` (`biped_throw_initiate`) : k = R(1) (`FUN_1424d9b10`) ;
 // k = 0 : R(3) (`FUN_1424d9a30`) ; k = 1 : `FUN_14080d69c` puis R(4) (`FUN_142ed0674`) ; puis
-// `FUN_1407f2058`.
+// `FUN_1407f2058`, dont l index de joueur se range sur le lecteur ([Lecteur.gesteLu]).
 func chargeLancerInitie(br *Lecteur) bool {
 	if br.ReadBit() {
 		consumeGateR(br, 32)
@@ -91,7 +94,7 @@ func chargeLancerInitie(br *Lecteur) bool {
 	} else {
 		br.Skip(3)
 	}
-	consumeGate0R(br, 5)
+	br.gesteLu = lecture.MessageDeGeste{Joueur: lireJoueurDuMessage(br)} // FUN_1407f2058
 	return true
 }
 

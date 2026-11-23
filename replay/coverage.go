@@ -183,6 +183,8 @@ type Coverage struct {
 	// Chatter et Announcements disent ce que les calques des repliques et des annonces ont lu, publie et ecarte ; absents quand la marche des trames n a lu aucune trame.
 	Chatter       *ChatterCoverage      `json:"chatter,omitempty"`
 	Announcements *AnnouncementCoverage `json:"announcements,omitempty"`
+	// Gestures dit ce que le calque des gestes a lu, retenu, publie et ecarte ; absent quand la marche des trames n a lu aucune trame.
+	Gestures *GestureCoverage `json:"gestures,omitempty"`
 	// Eliminations dit ce que le calque des éliminations a posé et sait marquer (tirs à la tête, frags parfaits) ; absent sans tableau des scores.
 	Eliminations *EliminationCoverage `json:"eliminations,omitempty"`
 	// Hits dit ce que le calque des touches a lu, pose et ecarte ; absent quand les messages de degat n ont pas ete lus.

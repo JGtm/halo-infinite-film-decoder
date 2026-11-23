@@ -299,6 +299,8 @@ type ReplayDocument struct {
 	// annonces de l annonceur et des scripts de mode (document_repliques_annonces.go).
 	Chatter       []Chatter      `json:"chatter,omitempty"`
 	Announcements []Announcement `json:"announcements,omitempty"`
+	// Gestures : les gestes du joueur engages dans la vue A, coup de melee et lancer amorce, une ligne par (trame, joueur, geste) (document_gestes.go).
+	Gestures []Gesture `json:"gestures,omitempty"`
 	// Eliminations est une ligne par élimination du tableau des scores : tueur, image, victime quand le film la donne, marques
 	// de tir à la tête et de frag parfait à trois états (document_eliminations.go). Absente sans tableau des scores.
 	Eliminations []Elimination `json:"eliminations,omitempty"`

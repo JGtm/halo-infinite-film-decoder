@@ -197,6 +197,10 @@ type FilmInputs struct {
 	// Repliques sont les repliques des Spartans (genre 75 de la vue A) et les annonces (genre 76) des trames delta, avec ce que
 	// leur canal a vu.
 	Repliques grammar.RepliquesLues
+	// Gestures sont les lancers amorces et les coups de melee des trames delta (genres 39 et 40 de la vue A) et
+	// GestureStats ce que leur canal a vu.
+	Gestures     []types.GestureRead
+	GestureStats types.GestureStats
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -311,6 +315,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Damages = HitInput{Read: in.DamagesRead, Messages: in.Damages, Points: in.DamagePoints, Stats: in.DamageStats}
 	opt.Reloads, opt.ReloadStats = in.Reloads, in.ReloadStats
 	opt.Repliques = in.Repliques
+	opt.Gestures = GestureInput{Reads: in.Gestures, Stats: in.GestureStats}
 	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable

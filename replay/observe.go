@@ -72,7 +72,9 @@ var buildFromFilmSteps = []string{
 	// LES RECHARGEMENTS D ARME : la MEME marche, la vue A de chaque trame.
 	"reloads", "reloads.stats",
 	// LES REPLIQUES DES SPARTANS ET LES ANNONCES : la MEME marche, la vue A de chaque trame.
-	"repliques", "repliques.stats", "filmScripts",
+	"repliques", "repliques.stats",
+	// LES GESTES (coup de melee, lancer amorce) : la MEME marche, la vue A de chaque trame.
+	"gestures", "gestures.stats", "filmScripts",
 	// LES MORTS DE VEHICULE ET L OCCUPATION : la MEME marche, le canal des morts ; vides quand le
 	// calque des vehicules n a pas ete balaye.
 	"vehicleDeaths", "vehicleDeaths.stats",

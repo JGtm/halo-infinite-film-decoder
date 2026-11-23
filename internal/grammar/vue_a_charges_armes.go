@@ -83,14 +83,15 @@ func chargeImpact(br *Lecteur) bool {
 const teteCorpsACorpsAvecSuite = 1
 
 // chargeCorpsACorps porte `FUN_140ff8d70` (`biped_melee_initiate`) : `FUN_141102ed0(0x28)` vaut la
-// version native 2, donc la tete est R(3) ; si elle vaut [teteCorpsACorpsAvecSuite], R(2).
+// version native 2, donc la tete est R(3) ; si elle vaut [teteCorpsACorpsAvecSuite], R(2). L index de joueur de
+// l auteur (`FUN_1407f2058`) se range sur le lecteur ([Lecteur.gesteLu]).
 func chargeCorpsACorps(br *Lecteur) bool {
 	if br.ReadBits(3) == teteCorpsACorpsAvecSuite {
 		br.Skip(2)
 	}
 	br.Skip(2)
 	lireArmeEtVariante(br)
-	consumeGate0R(br, 5) // FUN_1407f2058
+	br.gesteLu = lecture.MessageDeGeste{Joueur: lireJoueurDuMessage(br)} // FUN_1407f2058
 	return true
 }
 

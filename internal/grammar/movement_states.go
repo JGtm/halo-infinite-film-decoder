@@ -142,6 +142,9 @@ type MarcheDesTrames struct {
 	ReloadStats types.ReloadStats
 	// Repliques : les repliques des Spartans et les annonces des trames delta (genres 75 et 76 de la vue A) et ce que leur canal a vu.
 	Repliques RepliquesLues
+	// Gestures : les lancers amorces et les coups de melee des trames delta, et ce que leur canal a vu.
+	Gestures     []types.GestureRead
+	GestureStats types.GestureStats
 	// Vitalites : la sante et le bouclier des bipedes, par vie.
 	Vitalites VitalitesLues
 	// LiaisonsParRepliDAnticipation : les liaisons que le repli `repli_liaison_par_anticipation`
@@ -215,9 +218,10 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	jeu := nouveauCanalDesEvenementsDeJeu()
 	degats := nouveauCanalDesDegats()
 	rechargements := nouveauCanalDesRechargements()
+	gestes := nouveauCanalDesGestes()
 	vitalites := nouveauCanalDesVitalites()
 	repliques := nouveauCanalDesRepliques()
-	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques}
+	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -250,6 +254,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.Degats, m.DegatsStats = degats.lus, degats.stats
 	m.Reloads, m.ReloadStats = rechargements.out, rechargements.stats
 	m.Repliques = repliques.resultat()
+	m.Gestures, m.GestureStats = gestes.out, gestes.stats
 	m.Vitalites = vitalites.resultat()
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()
