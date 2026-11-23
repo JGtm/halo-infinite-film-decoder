@@ -47,7 +47,7 @@ func TestTirsEtLancers_AttribuesALaVieALInstant(t *testing.T) {
 	}
 
 	lancer := grammar.GrenadeThrow{TimestampUS: t16, FilmIndex: 1, TypeID: grammar.GrenadeFragmentation}
-	gren, _ := buildGrenades(indexBySlot(in.Positions), []grammar.GrenadeThrow{lancer}, origin, step, occ, nil, nil)
+	gren, _ := buildGrenades(indexBySlot(in.Positions), []grammar.GrenadeThrow{lancer}, origin, step, occ, volsDeGrenades{})
 	if len(gren) != 1 || gren[0].Slot != 100 || gren[0].Src != GrenadeSrcBiped {
 		t.Fatalf("lancer de B a 16 s : %+v, attendu pose sur le corps de B (slot 100, src biped)", gren)
 	}

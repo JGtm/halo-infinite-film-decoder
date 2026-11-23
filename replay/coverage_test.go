@@ -54,7 +54,7 @@ func TestCoverageBalancedWithNoEvents(t *testing.T) {
 	if cov.Available != 0 || !cov.Balanced() {
 		t.Errorf("couverture incoherente sur entree vide : %+v", cov)
 	}
-	_, gcov := buildGrenades(indexBySlot(nil), nil, 0, 100_000, occupantsPlats(nil), nil, nil)
+	_, gcov := buildGrenades(indexBySlot(nil), nil, 0, 100_000, occupantsPlats(nil), volsDeGrenades{})
 	if gcov.Available != 0 || !gcov.Balanced() {
 		t.Errorf("couverture incoherente sur entree vide (grenades) : %+v", gcov)
 	}
@@ -221,7 +221,7 @@ func TestGrenadePlacedFromProjectileWithoutBridge(t *testing.T) {
 	}}}
 	// AUCUNE position de biped, AUCUN pont : le lancer doit quand meme etre situe.
 	// (pubProjByRaw nil : la piste d'un seul point n'est pas publiee, donc pas de lien.)
-	gren, cov := buildGrenades(indexBySlot(nil), throws, 1_000_000, 100_000, occupantsPlats(nil), proj, nil)
+	gren, cov := buildGrenades(indexBySlot(nil), throws, 1_000_000, 100_000, occupantsPlats(nil), volsDeGrenades{Tracks: proj})
 	if len(gren) != 1 {
 		t.Fatalf("le lancer doit etre situe sans pont, obtenu %d : %+v", len(gren), gren)
 	}
@@ -265,7 +265,7 @@ func TestGrenadeLinksItsPublishedProjectile(t *testing.T) {
 	if len(published) != 1 || pubByRaw[0] != 0 {
 		t.Fatalf("projectile attendu publie a l'index 0 : %+v / %+v", published, pubByRaw)
 	}
-	gren, _ := buildGrenades(indexBySlot(nil), throws, 1_000_000, 100_000, occupantsPlats(nil), proj, pubByRaw)
+	gren, _ := buildGrenades(indexBySlot(nil), throws, 1_000_000, 100_000, occupantsPlats(nil), volsDeGrenades{Tracks: proj, PubByRaw: pubByRaw})
 	if len(gren) != 1 {
 		t.Fatalf("le lancer doit etre situe, obtenu %d", len(gren))
 	}

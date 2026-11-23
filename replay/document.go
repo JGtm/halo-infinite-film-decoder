@@ -252,6 +252,13 @@ type ReplayDocument struct {
 	// Forme, chronique et refus de publication : document_ground_weapons.go.
 	WeaponPads []WeaponPad `json:"weaponPads,omitempty"`
 	PadPickups []PadPickup `json:"padPickups,omitempty"`
+	// PadCandidates sont les grappes à UNE seule apparition que la règle « un socle est une
+	// récurrence » écarte de `weaponPads` : un objet que la carte a posé au repos et que personne n'a
+	// pris ne réapparaît pas. Ce ne sont pas des socles et le décodeur n'en promeut aucun ; un lecteur
+	// qui connaît la carte peut les promouvoir. Même forme qu'un socle, une seule ligne dans `spawns`
+	// et `presence`, jamais de `cycle` (ground_weapon_pad_candidates.go). Absent quand aucune grappe
+	// n'est écartée.
+	PadCandidates []WeaponPad `json:"padCandidates,omitempty"`
 	// Grenades est la liste des LANCERS de grenade rattachés à un slot (cf. grenades.go).
 	// Contrairement aux tirs, chaque lancer porte son auteur DANS le film — il n'est pas
 	// deviné. Ce n'est pas l'inventaire de grenades (c'est i22, non résolu) : c'est

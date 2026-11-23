@@ -236,7 +236,8 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	}
 
 	var gren []Grenade
-	gren, a.grenCov = buildGrenades(a.pistes(), a.opt.Grenades, a.origin, a.step, a.reg.Occupants(), a.opt.Projectiles, pubProjByRaw)
+	gren, a.grenCov = buildGrenades(a.pistes(), a.opt.Grenades, a.origin, a.step, a.reg.Occupants(),
+		volsDeGrenades{Tracks: a.opt.Projectiles, PubByRaw: pubProjByRaw, Detonations: a.opt.Detonations})
 	a.doc.Grenades = keepGrenadesOfPublishedTracks(gren, a.doc.Tracks)
 	a.grenCov.Unpublished = countUnpublished(len(gren), len(a.doc.Grenades))
 	a.grenCov.Attached = len(a.doc.Grenades)
