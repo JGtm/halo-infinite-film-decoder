@@ -205,6 +205,10 @@ type FilmInputs struct {
 	// DrawnWeaponStats ce que leur canal a vu.
 	DrawnWeapons     []types.DrawnWeaponRead
 	DrawnWeaponStats types.DrawnWeaponStats
+	// ProjectileAttaches sont les projectiles qui se collent (`i10` ouvert sur la branche attache) des records de
+	// creation et des trames delta, dans l ordre du flux, et ProjectileAttachStats ce que leur canal a vu.
+	ProjectileAttaches    []types.ProjectileAttachRead
+	ProjectileAttachStats types.ProjectileAttachStats
 	// Vitals sont les changements de sante et de bouclier par vie, reduits des lectures du canal des vitalites
 	// ([reduireLesVitalites]) : les lectures entieres ne sont pas persistees, les points de degat qu elles chiffrent le sont.
 	// VitalStats ce que le canal a lu.
@@ -326,6 +330,7 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.Repliques = in.Repliques
 	opt.Gestures = GestureInput{Reads: in.Gestures, Stats: in.GestureStats}
 	opt.DrawnWeapons = DrawnWeaponInput{Reads: in.DrawnWeapons, Stats: in.DrawnWeaponStats}
+	opt.ProjectileAttaches = ProjectileAttachInput{Reads: in.ProjectileAttaches, Stats: in.ProjectileAttachStats}
 	opt.Vitals = VitalsInput{Reads: in.Vitals, Stats: in.VitalStats}
 	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices

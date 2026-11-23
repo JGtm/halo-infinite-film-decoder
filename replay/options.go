@@ -2,12 +2,8 @@ package replay
 
 // options.go — LE REGLAGE ET LES ENTREES DE DONNEES DE L'ASSEMBLAGE.
 //
-// DEPLACEMENT PUR depuis `build.go` (lot 1 de PLAN_CUISSON_PERF, 2026-09-02) : `Options` et ses
-// deux accesseurs de defaut y occupaient 205 lignes — presque un quart d'un fichier de 928 —
-// alors qu'ils ne sont pas de l'assemblage mais son CONTRAT D'ENTREE. Le lot 0 avait pousse
-// `build.go` de 875 a 922 lignes par l'observateur (note N-G du plan), et la migration vers un
-// film deja charge l'aurait encore alourdi. Le struct, ses commentaires et les deux methodes
-// sont repris TELS QUELS : aucune ligne de logique n'a change.
+// `Options` n'est pas de l'assemblage mais son CONTRAT D'ENTREE : il vit hors de `build.go`, que
+// ses champs alourdiraient.
 //
 // CE QUE `Options` MELANGE, ET POURQUOI CE N'EST PAS UN DEFAUT : du REGLAGE (pas de temps, seuil
 // de publication) et des ENTREES DE DONNEES (loadouts, grenades, projectiles, zones...). Les
@@ -133,6 +129,8 @@ type Options struct {
 	Gestures     GestureInput
 	DrawnWeapons DrawnWeaponInput
 	Vitals       VitalsInput
+	// ProjectileAttaches : les projectiles qui se collent et ce que leur canal a vu (projectiles_colles.go).
+	ProjectileAttaches ProjectileAttachInput
 	// ControlHolds / ControlHoldStats : les commandes tenues de la vue de controle, en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
 	ControlHoldStats types.ControlHoldStats

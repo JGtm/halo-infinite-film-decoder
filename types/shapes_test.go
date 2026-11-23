@@ -112,6 +112,8 @@ var formesFigees = []typeDeContrat{
 	{"grammar", types.LifeKey{}},
 	{"grammar", types.DrawnWeaponRead{}},
 	{"grammar", types.DrawnWeaponStats{}},
+	{"grammar", types.ProjectileAttachRead{}},
+	{"grammar", types.ProjectileAttachStats{}},
 	{"grammar", types.EquipmentPlacement{}},
 	{"grammar", types.EquipmentSpawnEvent{}},
 	{"grammar", types.EquipmentSpawnStats{}},

@@ -68,6 +68,7 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.Repliques = m.Repliques
 	s.in.Gestures, s.in.GestureStats = m.Gestures, m.GestureStats
 	s.in.DrawnWeapons, s.in.DrawnWeaponStats = m.DrawnWeapons, m.DrawnWeaponStats
+	s.in.ProjectileAttaches, s.in.ProjectileAttachStats = m.ProjectileAttaches, m.ProjectileAttachStats
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
 	s.in.Vitals, s.in.VitalStats = reduireLesVitalites(m.Vitalites.Lectures)
@@ -106,6 +107,8 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "gestures.stats", s.in.GestureStats)
 	s.opt.observe(s.ctx, "drawnWeapons", s.in.DrawnWeapons)
 	s.opt.observe(s.ctx, "drawnWeapons.stats", s.in.DrawnWeaponStats)
+	s.opt.observe(s.ctx, "projectileAttaches", s.in.ProjectileAttaches)
+	s.opt.observe(s.ctx, "projectileAttaches.stats", s.in.ProjectileAttachStats)
 	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)

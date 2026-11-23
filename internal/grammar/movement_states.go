@@ -163,6 +163,10 @@ type MarcheDesTrames struct {
 	// ([canalDuJeuDArmes]) ; DrawnWeaponStats, leurs denominateurs.
 	DrawnWeapons     []types.DrawnWeaponRead
 	DrawnWeaponStats types.DrawnWeaponStats
+	// ProjectileAttaches : les projectiles qui se collent (`i10` ouvert sur la branche attache), dans l ordre du flux
+	// ([canalDesProjectilesColles]) ; ProjectileAttachStats, leurs denominateurs.
+	ProjectileAttaches    []types.ProjectileAttachRead
+	ProjectileAttachStats types.ProjectileAttachStats
 	// ProprietesGerees sont les valeurs des proprietes reseau de ti=13 que les trames delta portent
 	// ([canalDesProprietesGereesTrames]).
 	ProprietesGerees ProprietesGereesLues
@@ -226,7 +230,8 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	vitalites := nouveauCanalDesVitalites()
 	repliques := nouveauCanalDesRepliques()
 	armes := nouveauCanalDuJeuDArmes(arch)
-	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes, armes}
+	colles := nouveauCanalDesProjectilesColles(reg)
+	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes, armes, colles}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -261,6 +266,7 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.Repliques = repliques.resultat()
 	m.Gestures, m.GestureStats = gestes.out, gestes.stats
 	m.DrawnWeapons, m.DrawnWeaponStats = armes.out, armes.st
+	m.ProjectileAttaches, m.ProjectileAttachStats = colles.out, colles.st
 	m.Vitalites = vitalites.resultat()
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()

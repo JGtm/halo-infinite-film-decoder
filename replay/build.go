@@ -96,6 +96,7 @@ func BuildFromPositions(ctx context.Context, matchID, titleSlug string, pos []gr
 	a.poserGrappinEtPoses()
 	a.poserPrisesEtSocles()
 	a.poserArmesAuSolEtVehicules()
+	a.poserLesProjectilesColles()
 	a.poserObjectifsVivants()
 	a.poserLesMedailles()
 	a.poserLesScoresParAction()
@@ -176,6 +177,8 @@ type assemblage struct {
 	grenCov     LayerCoverage
 	shotOrphans orphelinsDesTirs
 	projCov     *ProjectileCoverage
+	// projParPiste : piste de projectile brute -> rang publie ([buildProjectiles]), que la pose des collages relit.
+	projParPiste map[int]int
 	// birthCov est la couverture des dotations de naissance (schema 69), mesuree a la pose des
 	// loadouts et posee par `composerLaCouverture`.
 	birthCov *BirthLoadoutCoverage
