@@ -80,11 +80,14 @@ type MapWeaponPadDTO struct {
 	// dans cette orientation. Ni lus du film ni remplis par [BuildMapWeaponPads] : l'hôte les
 	// renseigne depuis le fichier de variante. Absents (catalogue qui ne les porte pas), le client
 	// garde le râtelier droit et tourné vers +X.
-	Forward []float32 `json:"forward,omitempty"`
-	Up      []float32 `json:"up,omitempty"`
+	//
+	// Un pointeur vers un tableau de trois composantes, et non une tranche : la structure reste comparable (`==`), comme avant
+	// l ajout, et un axe absent est nil.
+	Forward *[3]float32 `json:"forward,omitempty"`
+	Up      *[3]float32 `json:"up,omitempty"`
 	// Scale est l'échelle locale de l'arme posée dans Forge (trois composantes) ; même origine
 	// et même absence que Forward et Up.
-	Scale []float32 `json:"scale,omitempty"`
+	Scale *[3]float32 `json:"scale,omitempty"`
 }
 
 // BuildMapWeaponPads croise les emplacements d'une carte avec les socles d'un match.

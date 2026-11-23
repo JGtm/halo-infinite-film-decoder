@@ -34,7 +34,7 @@ func TestMapWeaponPadDTO_AxesAbsentsNeChangentPasLaForme(t *testing.T) {
 // leurs trois noms, et un aller-retour les rend identiques.
 func TestMapWeaponPadDTO_AxesVoyagent(t *testing.T) {
 	dto := MapWeaponPadDTO{X: 1, Y: 2, Pad: 3, Family: "rack",
-		Forward: []float32{0, 1, 0}, Up: []float32{0, 0, 1}, Scale: []float32{1, 1, 2}}
+		Forward: &[3]float32{0, 1, 0}, Up: &[3]float32{0, 0, 1}, Scale: &[3]float32{1, 1, 2}}
 	brut, err := json.Marshal(dto)
 	if err != nil {
 		t.Fatal(err)
@@ -48,7 +48,7 @@ func TestMapWeaponPadDTO_AxesVoyagent(t *testing.T) {
 	if err := json.Unmarshal(brut, &relu); err != nil {
 		t.Fatal(err)
 	}
-	if len(relu.Forward) != 3 || relu.Up[2] != 1 || relu.Scale[2] != 2 {
+	if relu.Forward == nil || relu.Up == nil || relu.Scale == nil || relu.Up[2] != 1 || relu.Scale[2] != 2 {
 		t.Errorf("aller-retour : %+v", relu)
 	}
 }
