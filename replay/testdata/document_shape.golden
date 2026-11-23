@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee 37733693de7b63cc
-empreinte-servie 37733693de7b63cc
-empreinte-cuite bc707dc73ef3c757
+empreinte-stockee 64d3451528d27b82
+empreinte-servie 64d3451528d27b82
+empreinte-cuite f7c25b0554619f60
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -284,6 +284,7 @@ CarriedTracked
   Z json:"z,omitempty" *float32
 Chatter
   Line json:"line,omitempty" *int
+  Name json:"name,omitempty" string
   Player json:"player,omitempty" string
   Priority json:"priority" int
   Sound json:"sound,omitempty" string
@@ -295,9 +296,11 @@ ChatterCoverage
   BySpeaker json:"bySpeaker" int
   ClosedFrames json:"closedFrames" int
   Frames json:"frames" int
+  Named json:"named" int
   Published json:"published" int
   Read json:"read" int
   StoppedFrames json:"stoppedFrames" int
+  Unnamed json:"unnamed" int
   WithoutPlayer json:"withoutPlayer" int
 ClockSample
   Left json:"left" float64

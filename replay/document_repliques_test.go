@@ -57,7 +57,7 @@ func TestLesRepliquesSePosentSousLeJoueurDeLUniteQuiParle(t *testing.T) {
 			replique(axeDeRepliques.origin-1, 5, -1, 0x03),
 		},
 	}
-	got, cov := buildChatter(in, pistes, axeDeRepliques)
+	got, cov := buildChatter(in, pistes, axeDeRepliques, "")
 
 	ligne := entierOptionnel(9, true)
 	want := []Chatter{
@@ -72,11 +72,12 @@ func TestLesRepliquesSePosentSousLeJoueurDeLUniteQuiParle(t *testing.T) {
 		t.Errorf("repliques %+v,\nattendu %+v", got, want)
 	}
 	wantCov := ChatterCoverage{Frames: 80, ClosedFrames: 78, StoppedFrames: 2, Read: 8, BeforeOrigin: 1, AfterEnd: 1,
-		Published: 6, BySpeaker: 3, WithoutPlayer: 3, Bots: 1}
+		Published: 6, BySpeaker: 3, WithoutPlayer: 3, Bots: 1, Unnamed: 6}
 	if cov != wantCov {
 		t.Errorf("couverture %+v, attendu %+v", cov, wantCov)
 	}
-	if cov.Read != cov.BeforeOrigin+cov.AfterEnd+cov.Published || cov.Published != cov.BySpeaker+cov.WithoutPlayer {
+	if cov.Read != cov.BeforeOrigin+cov.AfterEnd+cov.Published || cov.Published != cov.BySpeaker+cov.WithoutPlayer ||
+		cov.Published != cov.Named+cov.Unnamed {
 		t.Errorf("l identite de la couverture ne tient pas : %+v", cov)
 	}
 }
@@ -85,7 +86,7 @@ func TestLesRepliquesSePosentSousLeJoueurDeLUniteQuiParle(t *testing.T) {
 // priorite, toujours lue, est publiee meme a zero.
 func TestUneRepliqueSansSonNiIndiceNePorteQueSaPriorite(t *testing.T) {
 	in := grammar.RepliquesLues{Repliques: []grammar.RepliqueLue{{TS: auTemps(3, 0), Joueur: -1}}}
-	got, _ := buildChatter(in, nil, axeDeRepliques)
+	got, _ := buildChatter(in, nil, axeDeRepliques, "")
 	want := []Chatter{{T: 3}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("repliques %+v, attendu %+v", got, want)
@@ -198,6 +199,36 @@ func TestLesRepliquesFontLAllerRetourDesFaits(t *testing.T) {
 			if _ = decodeRepliques(tronque); tronque.err == nil {
 				t.Errorf("un flux tronque doit rendre une erreur")
 			}
+		}
+	}
+}
+
+// TestLeNomDeLaRepliqueVientDeLIndiceEtDuBuild : une replique prend le nom de son INDICE (pas de son son) quand le build du film a
+// une disposition mesuree et que l indice a un nom prouve ; sinon elle est publiee sans nom et comptee. L identite
+// published = named + unnamed tient. MUTATIONS : le nom pris du son, le garde de build retire, une replique sans indice nommee,
+// un nom compte deux fois -> ROUGE.
+func TestLeNomDeLaRepliqueVientDeLIndiceEtDuBuild(t *testing.T) {
+	r := func(f int, son uint32, ligne uint16, aLigne bool) grammar.RepliqueLue {
+		return grammar.RepliqueLue{TS: auTemps(f, 0), Son: son, ASon: true, Ligne: ligne, ALigne: aLigne, Priorite: 7, Joueur: -1}
+	}
+	in := grammar.RepliquesLues{Repliques: []grammar.RepliqueLue{
+		r(1, 0x11, 2926, true), // indice nomme
+		r(2, 0x22, 2926, true), // meme indice, autre voix : meme nom
+		r(3, 0x11, 2822, true), // indice sans nom prouve
+		r(4, 0x11, 0, false),   // sans indice
+	}}
+	got, cov := buildChatter(in, nil, axeDeRepliques, "HI_1_13_0")
+	noms := []string{got[0].Name, got[1].Name, got[2].Name, got[3].Name}
+	if want := []string{"seeingenemynearby", "seeingenemynearby", "", ""}; !reflect.DeepEqual(noms, want) {
+		t.Errorf("noms %v, attendu %v", noms, want)
+	}
+	if cov.Named != 2 || cov.Unnamed != 2 || cov.Published != 4 {
+		t.Errorf("couverture %+v : attendu 2 nommees, 2 sans nom sur 4", cov)
+	}
+	for _, build := range []string{"", "HI_1_11_0", "HI_1_14_0"} {
+		got, cov := buildChatter(in, nil, axeDeRepliques, build)
+		if cov.Named != 0 || cov.Unnamed != 4 || got[0].Name != "" {
+			t.Errorf("build %q : aucun nom attendu, couverture %+v", build, cov)
 		}
 	}
 }

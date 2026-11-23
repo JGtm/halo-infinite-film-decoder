@@ -36,7 +36,7 @@ The four lower layers live under `internal/`, so the compiler closes them. What 
   published without the field); a build that is given no step uses `replay.DefaultFrameIntervalMS`.
 - the shared vocabulary: `types`, `highlightevent`, `objectiveevent`, `playerposition`, `identity`.
 - the embedded name tables, offline and with no game file: `damagetag` (damage source of a death),
-  `killicon` (kill-feed icon of a source), `medalname` (medal identity), `filmshell` (weapons as the film
+  `killicon` (kill-feed icon of a source), `medalname` (medal identity), `chattername` (short name of a Spartan's spoken line), `filmshell` (weapons as the film
   names them), `equipenergy` (equipment energy).
 - `filmcache` (read side of an on-disk film cache), `filmobs` (counters), `memguard` (a memory ceiling
   for one decode, with the caller's callback), `revision` (layer fingerprints), `finalise`.

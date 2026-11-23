@@ -18,9 +18,11 @@ package replay
 // Une replique dont l unite n a pas de piste a cette frame, ou celle d un bot, est publiee SANS joueur et comptee
 // (`coverage.chatter.withoutPlayer` ; `bots` pour la piste d un bot).
 //
-// CE QUE LE FILM NE DIT PAS. Ni la variante audio qui a joue, ni le nom de la replique : le document ne porte que
-// l identifiant du son et l indice de replique que le film ecrit. Un nom court pourra s ajouter a [Chatter] sans changer les
-// autres champs.
+// CE QUE LE FILM NE DIT PAS. Ni la variante audio qui a joue, ni le nom de la replique : le film n ecrit que l identifiant
+// du son et l indice de replique. LE NOM COURT VIENT DE L INDICE (`name`, par [chattername.Lookup]), jamais du son : l indice
+// numerote une entree des tables de vocalisation, commune a toutes les voix ; le son change avec la voix. Le nom n est publie que
+// pour un build dont la disposition de ces tables est mesuree, et pour une entree dont le nom est prouve par son hachage ; toute
+// autre replique est publiee SANS nom et comptee (`coverage.chatter.unnamed`).
 
 import (
 	"cmp"
@@ -28,6 +30,7 @@ import (
 	"log/slog"
 	"slices"
 
+	"github.com/JGtm/halo-infinite-film-decoder/chattername"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
@@ -44,11 +47,15 @@ type Chatter struct {
 	Priority int `json:"priority"`
 	// Line est l indice de replique (douze bits). Absent quand le message n en porte pas.
 	Line *int `json:"line,omitempty"`
+	// Name est le nom court de la replique, en minuscules sans separateur (`seeingenemynearby`). Absent quand le build du film
+	// n a pas de disposition mesuree, ou que l indice n a pas de nom prouve : voir [chattername].
+	Name string `json:"name,omitempty"`
 }
 
 // ChatterCoverage dit ce que le calque a lu, publie et ecarte.
 //
-// L IDENTITES : read = beforeOrigin + afterEnd + published ; published = bySpeaker + withoutPlayer ; bots <= withoutPlayer.
+// L IDENTITES : read = beforeOrigin + afterEnd + published ; published = bySpeaker + withoutPlayer ; bots <= withoutPlayer ;
+// published = named + unnamed.
 type ChatterCoverage struct {
 	// Frames, ClosedFrames, StoppedFrames : les trames delta du film et ce que la lecture de leur liste d evenements en a
 	// fait, lue jusqu au terminateur ou arretee par un message non lu (ceux qui suivent l arret sont perdus : le compte est
@@ -67,6 +74,10 @@ type ChatterCoverage struct {
 	BySpeaker     int `json:"bySpeaker"`
 	WithoutPlayer int `json:"withoutPlayer"`
 	Bots          int `json:"bots"`
+	// Named : les repliques publiees avec un nom court. Unnamed : celles sans nom (build sans disposition mesuree, film sans build
+	// lu, indice absent ou sans nom prouve).
+	Named   int `json:"named"`
+	Unnamed int `json:"unnamed"`
 }
 
 // hexaSurHuitChiffres rend une valeur de 32 bits en hexadecimal sur huit chiffres (un identifiant de son, un masque).
@@ -90,9 +101,10 @@ func joueurDeLaReplique(m grammar.RepliqueLue, r resolveurDeTouches, t int) (xui
 	return xuid, piste && xuid == ""
 }
 
-// buildChatter pose les repliques lues sur l axe de frames, avec le joueur qui parle. Les lignes sont triees par frame, dans
+// buildChatter pose les repliques lues sur l axe de frames, avec le joueur qui parle et le nom court de la replique pour le build
+// `build` du film (vide : film sans build lu, aucun nom). Les lignes sont triees par frame, dans
 // l ordre du film a frame egale.
-func buildChatter(in grammar.RepliquesLues, tracks []Track, axe axeDeFrames) ([]Chatter, ChatterCoverage) {
+func buildChatter(in grammar.RepliquesLues, tracks []Track, axe axeDeFrames, build string) ([]Chatter, ChatterCoverage) {
 	st := in.Stats
 	cov := ChatterCoverage{Frames: st.Trames, ClosedFrames: st.Terminees, StoppedFrames: st.Arretees, Read: len(in.Repliques)}
 	r := resolveurDeTouches{tracks: tracks, axe: axe}
@@ -121,6 +133,14 @@ func buildChatter(in grammar.RepliquesLues, tracks []Track, axe axeDeFrames) ([]
 		if m.ASon {
 			l.Sound = hexaSurHuitChiffres(m.Son)
 		}
+		if m.ALigne {
+			l.Name, _ = chattername.Lookup(build, int(m.Ligne))
+		}
+		if l.Name != "" {
+			cov.Named++
+		} else {
+			cov.Unnamed++
+		}
 		out = append(out, l)
 	}
 	cov.Published = len(out)
@@ -136,11 +156,15 @@ func (a *assemblage) poserLesRepliques() {
 		return
 	}
 	axe := axeDeFrames{a.origin, a.step, a.doc.FrameCount}
-	chatter, cov := buildChatter(in, a.doc.Tracks, axe)
+	build := ""
+	if a.opt.FilmIdentity != nil {
+		build = a.opt.FilmIdentity.Build
+	}
+	chatter, cov := buildChatter(in, a.doc.Tracks, axe, build)
 	a.doc.Chatter = chatter
 	a.doc.Coverage.Chatter = &cov
 	slog.InfoContext(a.ctx, "rejeu : repliques", "lues", cov.Read, "avantOrigine", cov.BeforeOrigin, "apresFin", cov.AfterEnd,
 		"publiees", cov.Published, "parLocuteur", cov.BySpeaker, "sansJoueur", cov.WithoutPlayer,
-		"bots", cov.Bots, "tramesArretees", cov.StoppedFrames, "trames", cov.Frames)
+		"bots", cov.Bots, "nommees", cov.Named, "sansNom", cov.Unnamed, "tramesArretees", cov.StoppedFrames, "trames", cov.Frames)
 	a.poserLesAnnonces(in, axe)
 }

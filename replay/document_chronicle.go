@@ -4818,17 +4818,17 @@ package replay
 // LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire, celle des objectifs et le numero des faits ; les resumes d usage sont a reprendre sur `us8`). La recuisson est une
 //                 decision de l utilisateur.
 
-// v127 (2026-11-23, dix-neuf apports en une version : les repliques des Spartans et les annonces, les gestes du joueur et les copies d un rechargement, l accroupi et le saut tenus, les
-// eliminations et les actions de score d un bot, le drapeau lu sur tous les sieges et ses trois corrections, la manche courte admise, deux lectures de la vue A, un tri total, trois axes du socle d arme, le decalage du tir et les degats a zero point, l arme tiree en main et les munitions portees, les candidats de socle, les socles d equipement et la detonation d un lancer, la pleine cadence, la sante et le bouclier par vie, le tireur par la place de controle, les visees sans position, les projectiles colles, la penalite de suicide ou de trahison, les statistiques du VIP et la victime ambigue). Les
+// v127 (2026-11-23, vingt apports en une version : les repliques des Spartans et les annonces, les gestes du joueur et les copies d un rechargement, l accroupi et le saut tenus, les
+// eliminations et les actions de score d un bot, le drapeau lu sur tous les sieges et ses trois corrections, la manche courte admise, deux lectures de la vue A, un tri total, trois axes du socle d arme, le decalage du tir et les degats a zero point, l arme tiree en main et les munitions portees, les candidats de socle, les socles d equipement et la detonation d un lancer, la pleine cadence, la sante et le bouclier par vie, le tireur par la place de controle, les visees sans position, les projectiles colles, la penalite de suicide ou de trahison, les statistiques du VIP, la victime ambigue et le nom court des repliques). Les
 // apports ont ete codes et mesures chacun sur sa branche, puis integres sur une seule ; les mesures sont gardees telles qu elles ont ete prises, branche par branche.
 //
 // PREMIER APPORT : LES REPLIQUES DES SPARTANS ET LES ANNONCES :
 // Deux calques, lus dans la vue A des trames delta (genre 75 `AIDialog`, genre 76 `Dialogue2D`) par un canal de la marche des trames, et portes par le complement de la section 1 des faits.
 //
-//	`chatter[]`                     {t, player, sound, priority, line} : l image de la trame qui ecrit le message ; `player` le joueur qui parle (xuid), absent quand l unite qui parle n a pas de piste d humain a cette image ; `sound` l identifiant du son
+//	`chatter[]`                     {t, player, sound, priority, line, name} : l image de la trame qui ecrit le message ; `player` le joueur qui parle (xuid), absent quand l unite qui parle n a pas de piste d humain a cette image ; `sound` l identifiant du son
 //	                                (huit chiffres hexadecimaux) ; `priority` la classe de priorite (cinq bits) ; `line` l indice de replique (douze bits). Le film ne dit pas quelle variante audio a joue : le document ne le dit pas non plus.
 //	`announcements[]`               {t, sound, mask} : une ligne par son et par image ; `mask` l union des masques de destinataires des messages de l image qui portent ce son (huit chiffres hexadecimaux, le premier bit lu etant le bit de poids fort).
-//	`coverage.chatter`              {frames, closedFrames, stoppedFrames, read, beforeOrigin, afterEnd, published, bySpeaker, withoutPlayer, bots} ; `read` = `beforeOrigin` + `afterEnd` + `published` ; `published` = `bySpeaker` + `withoutPlayer` ; `bots` <= `withoutPlayer`.
+//	`coverage.chatter`              {frames, closedFrames, stoppedFrames, read, beforeOrigin, afterEnd, published, bySpeaker, withoutPlayer, bots, named, unnamed} ; `read` = `beforeOrigin` + `afterEnd` + `published` ; `published` = `bySpeaker` + `withoutPlayer` = `named` + `unnamed` ; `bots` <= `withoutPlayer`.
 //	`coverage.announcements`        {frames, closedFrames, stoppedFrames, read, beforeOrigin, afterEnd, merged, published} ; `read` = `beforeOrigin` + `afterEnd` + `merged` + `published`.
 //	`layers.chatter`, `layers.announcements`   les calques sont dates par la revision de la grammaire, leur garde est « la marche a lu au moins une trame ».
 //
@@ -4998,6 +4998,13 @@ package replay
 // +3,2 et +4,1 % de rejeu compresse sur ces trois films (la courbe du temps porte un point par pas), rien ailleurs. LA VICTIME D UNE ELIMINATION N EST PLUS APPARIEE AU PLUS PROCHE QUAND PLUSIEURS CANDIDATES RESTENT : une action de score `killPersonalScore` n est donnee a une elimination que si aucune autre image ne la reclame et si les actions candidates de la fenetre (meme
 // image, puis image voisine) ne depassent pas les lignes de l image, sauf si elles nomment toutes la meme victime ; sinon la victime est absente, `coverage.eliminations.victimAmbiguous` compte la ligne, et les candidates sont ecartees pour que nulle autre elimination ne les recoive en silence. Mesure : sur 27 films l ambiguite vaut zero, les listes d eliminations sont identiques a celles d
 // avant et 332 joueurs sur 332 ont des eliminations egales a l API : la regle supprime le choix arbitraire quand il se presente.
+//
+// VINGTIEME APPORT : LE NOM COURT DES REPLIQUES :
+// `chatter[]` gagne `name`, le nom court de la replique (`seeingenemynearby`, `shieldbreak`), en minuscules sans separateur, absent quand il n est pas prouve. Le nom ne vient pas du son (il change avec la voix) mais de l INDICE de replique, qui numerote une entree
+// des tables de vocalisation du jeu, commune a toutes les voix ; le jeu nomme ces entrees par un hachage (MurmurHash3 x86 32 bits, graine 0). Le paquet `chattername` porte 291 couples (indice, hachage, nom) et ne garde un nom que si le hachage du nom egale le hachage
+// enregistre ; le test le recalcule pour chaque ligne. L indice n a de sens que pour la disposition des tables du build : seuls les builds HI_1_12_0 et HI_1_13_0 (priorite du film egale a celle de la table pour 162 sur 165, 363 sur 365 et 414 sur 418 repliques de trois films)
+// recoivent des noms ; les builds 1.10 et 1.11 ont un bloc de 205 entrees de plus, les autres sont non mesures, et un film sans build lu ne recoit aucun nom. Les indices 915 a 2731 ne sont pas nommes (l ordre de deux tables n est pas etabli).
+// `coverage.chatter` gagne `named` et `unnamed` ; `published` = `named` + `unnamed`. Un champ optionnel et deux compteurs : aucun champ existant ne change, et les films des autres builds ne changent pas de contenu.
 //
 // POURQUOI LA VERSION MONTE. Le premier, le deuxieme, le troisieme et le quatrieme apport ajoutent des calques et des champs optionnels ; le cinquieme et le sixieme changent des valeurs publiees (portages du drapeau, compteurs d objectif, scores de manche) et le cinquieme deprecie un champ de couverture (`seatsBeyondBand`, sans ecrivain) ;
 // le septieme change le nombre de messages que les calques de la vue A lisent. La pratique du depot (v21, v51, v108, v125, v126) monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`.
