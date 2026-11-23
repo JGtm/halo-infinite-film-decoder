@@ -391,9 +391,6 @@ type FlagCarriesCoverage struct {
 	// publies sur aucun drapeau, plutot que sur un drapeau INVENTE. Ils restent comptes dans
 	// `carries` : le joueur a bel et bien porte quelque chose, c'est LEQUEL qui n'est pas su.
 	Unresolved int `json:"unresolved"`
-	// SeatsBeyondBand : les sieges du statborg que le calque ne lit pas (au-dela des huit premiers joueurs). Sur un CTF de
-	// plus de huit sieges, leurs portages ne sont pas publies.
-	SeatsBeyondBand int `json:"seatsBeyondBand"`
 	// LES CINQ DENOMINATEURS DE LA JAUGE DE RETOUR (schema 63, cf. flag_return_gauge.go). Ils
 	// separent les QUATRE silences que `returnProgress` absent ne distingue pas : le canal n'a
 	// pas ete lu, il a ete lu et ne porte aucun slot de jauge, il en porte mais aucun ne

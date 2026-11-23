@@ -1564,8 +1564,16 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   terminee sont publiees (`scoreTimeline.players[].frozenRounds[]`, `coverage.score.frozenRounds`), la derniere manche n etant jamais figee, les totaux
 	//   inchanges. Le contenu cuit change, des champs et des calques neufs. `grammar.Rev` et `objectives.Rev` montent : un v125 se lit
 	//   « à redécoder ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 126 {
-		t.Fatalf("SchemaVersion = %d, attendu 126 : incrémenter exige une raison écrite ci-dessus "+
+	// - 127 (2026-11-23, repliques, gestes, commandes d accroupi et de saut, bots, drapeau) : huit apports en une version. (1) `chatter[]` et `announcements[]` portent
+	//   les repliques des Spartans et les annonces (genres 75 et 76 de la vue A), avec leur couverture. (2) `gestures[]` publie le coup de melee et le lancer amorce
+	//   (`place`, `ms`, `kind`) ; `reloads[]` gagne `ms` et `copies`. (3) `stances[]` prend `crouchCommand` et `jumpCommand` avec `ms0` et `ms1`, sur les films a pleine
+	//   cadence seulement (`coverage.stances.control.stepUs`, `fullCadence`). (4) Les eliminations et les actions de score d un bot se publient par `place`. (5) Le drapeau
+	//   lit tous les sieges, une base neutre est un seul drapeau, un siege qui change d occupant coupe ses compteurs, un porteur immobile garde sa position ; le champ
+	//   `coverage.flagCarries.seatsBeyondBand` est retire. (6) Une manche courte est admise quand le film remet a zero tous les joueurs presents. (7) Les genres 13, 27,
+	//   117 et 93 inhibe se lisent, une trame renvoyee en entier n est plus comptee deux fois. (8) Les segments de score se joignent par un tri total. Le contenu cuit change.
+	//   `grammar.Rev` et `objectives.Rev` montent et `SchemaDesFaits` 30 -> 31 : un v126 se lit « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 127 {
+		t.Fatalf("SchemaVersion = %d, attendu 127 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

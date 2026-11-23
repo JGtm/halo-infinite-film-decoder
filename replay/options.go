@@ -129,13 +129,11 @@ type Options struct {
 	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
-	// Repliques : les repliques des Spartans et les annonces de la marche des trames, avec ce que leur canal a vu
-	// (document_repliques.go).
+	// Repliques et Gestures : les repliques, les annonces et les gestes de la vue A, avec ce que leur canal a vu
+	// (document_repliques.go, document_gestes.go).
 	Repliques grammar.RepliquesLues
-	// Gestures : les gestes de la vue A et la porte de cadence (document_gestes.go).
-	Gestures GestureInput
-	// ControlHolds / ControlHoldStats : les commandes de deplacement tenues de la vue de controle, publiees
-	// en `stances[]` (document_stances_commandes.go).
+	Gestures  GestureInput
+	// ControlHolds / ControlHoldStats : les commandes tenues de la vue de controle, en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
 	ControlHoldStats types.ControlHoldStats
 	// AbilityCharges / AbilityChargeStats : les CHARGES RESTANTES lues sur les emplacements

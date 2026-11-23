@@ -303,8 +303,8 @@ package objectives
 // entrees du tableau ne nomment ses lignes que si deux numeros d'equipe distincts se lisent (la lecture, qui ne change pas, rend zero partout
 // quand elle ne tombe pas sur le composant d'entree).
 
-// ENTREE `objectives-2026-11-15.3` (2026-11-15, les sieges au-dela de la bande sure se comptent) : LA SORTIE CHANGE PAR UN COMPTE. [SiegesAuDelaDeLaBandeSure] rend le nombre de slots de
-// joueur que le statborg porte au-dela de [RecordsDeLaBandeSure] : les sieges que le calque du drapeau ne lit pas, et que le document publie dans `coverage.flagCarries.seatsBeyondBand`.
+// ENTREE `objectives-2026-11-15.3` (2026-11-15, les sieges au-dela de la bande sure se comptent) : LA SORTIE CHANGE PAR UN COMPTE. `SiegesAuDelaDeLaBandeSure` (retiree le 2026-11-23) rend le nombre de slots de
+// joueur que le statborg porte au-dela de `RecordsDeLaBandeSure` : les sieges que le calque du drapeau ne lit pas, et que le document publie dans `coverage.flagCarries.seatsBeyondBand`.
 // Les enregistrements, les entrees et les plages ne changent pas ; les faits persistes de la couche et les calques dates `objectives-2026-11-15.2` deviennent `redecoder`. Aucun backlog
 // killsource ne s'ouvre.
 
@@ -329,6 +329,12 @@ package objectives
 // les plages ne changent pas : les faits persistes portent les enregistrements bruts, la regle s applique a la lecture des series, donc `replay.SchemaDesFaits` ne bouge pas ; les faits persistes de la couche et les calques dates
 // `objectives-2026-11-22` deviennent `redecoder`. Aucun backlog killsource ne s ouvre. LA MESURE est a l entree de chronique de `replay.SchemaVersion` 126 (quinzieme apport).
 
+// ENTREE `objectives-2026-11-23` (2026-11-23, le drapeau lit les prises de tous les sieges ; une base neutre est un seul drapeau ; les compteurs d un siege se coupent quand il change d occupant ; une manche courte est admise quand le film remet a zero tous les joueurs presents ; les eliminations d un bot se publient par place) : LA SORTIE CHANGE.
+// (1) LES SIEGES AU DELA DE LA BANDE SURE : `SiegesAuDelaDeLaBandeSure` et `RecordsDeLaBandeSure`, et le compte qu ils alimentaient (`coverage.flagCarries.seatsBeyondBand`), n existent plus ; le calque du drapeau lit les prises de tous les sieges du film. (2) LA COUPURE PAR OCCUPANT (`seat_cuts.go`) : la suite des evenements nommes d un siege se lit
+// separement pour chaque occupant, a la frontiere que le pont d identite lit deja (retombee de tous les compteurs du siege, confirmee par la reprise d un autre occupant), puis se met bout a bout ; un siege qui garde son occupant rend la meme suite. Les vols du partant ne sont plus perdus. (3) LA MANCHE COURTE (`round_reset.go`) : critere d admission
+// ajoute aux criteres existants, sans toucher au seuil de part d enregistrements : le premier enregistrement de chaque joueur present dans la manche remet ses deux scores a zero, tous dans la meme seconde. (4) Les eliminations d un bot : les actions d objectif et le tableau n en changent pas ; le calque `eliminations` se date par cette revision. Les enregistrements,
+// les entrees et les plages ne changent pas : les faits persistes portent les enregistrements bruts, les regles s appliquent a la lecture des series ; les faits persistes de la couche et les calques dates `objectives-2026-11-22.2` deviennent `redecoder`. Aucun backlog killsource ne s ouvre. LA MESURE est a l entree de chronique de `replay.SchemaVersion` 127 (cinquieme et sixieme apports).
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
@@ -340,7 +346,7 @@ package objectives
 // monte ; aucune source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
 //
 // A REVISION CONSTANTE (quatre lectures de la grammaire, 2026-11-15) : la VALEUR de `grammar.Rev` monte quatre fois, jusqu a `grammar-2026-11-15.4` (la
-// suppression d un bipede, les valeurs des proprietes reseau lues par la marche, les messages de degat, la vie des bipedes) ; sa seule source neuve est [SiegesAuDelaDeLaBandeSure] ; les enregistrements qu elle rend ne changent pas. [SiegesAuDelaDeLaBandeSure] compte les sieges que le calque du drapeau ne lit pas.
+// suppression d un bipede, les valeurs des proprietes reseau lues par la marche, les messages de degat, la vie des bipedes) ; sa seule source neuve est `SiegesAuDelaDeLaBandeSure` (retiree le 2026-11-23) ; les enregistrements qu elle rend ne changent pas. `SiegesAuDelaDeLaBandeSure` (retiree le 2026-11-23) compte les sieges que le calque du drapeau ne lit pas.
 // L empreinte du golden est recopiee au meme rang.
 //
 // A REVISION CONSTANTE (rechargements, commande de deplacement, tirs a tout rang, parent des pieces montees, 2026-11-22) : la VALEUR de `grammar.Rev` monte (`grammar-2026-11-22.2`) ; aucune source de cette couche
@@ -352,4 +358,4 @@ package objectives
 // du Drapeau ne se compte plus que sur un film que cette table reconnait. [NamedEventsFromAutreFamille] lit les seuls emplacements que le verdict compte, sans jugement par la table, et [ReplisALaConsultation.Essai] ouvre l'enregistreur a part ; les lectures
 // d'une famille par sa propre table ([NamedEventsFrom]) ne changent pas, aucune serie, aucun evenement, aucun calque ne change : la sortie qui bouge est le compte des replis de six films du corpus (`01e1f945` 515 -> 11, `d9781168` 1 838 -> 0, `60ae07c4` 1 952 -> 0,
 // `696a9d7c` 38 -> 0, `7344d24f` 36 -> 0, `50247b26` 44 -> 4), et il revient en dessous ou au niveau de celui d'avant les deux canaux. Les faits persistes portent les enregistrements bruts : ils ne sont pas perimes. L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-11-22.2"
+const Rev = "objectives-2026-11-23"

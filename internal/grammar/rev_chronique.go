@@ -372,3 +372,25 @@ package grammar
 // LA MESURE (le corpus d equivalence, 20 films, un passage par fusion) : l etape `reloads` rend 9 055 lectures sur les 20 films (12 708 messages lus, 3 653 copies, 9 026 rechargements publies sur 16 films ; les 4 films dont la vue A
 // s arrete tot n en lisent aucun) ; l etape `controlHolds` rend 27 325 commandes tenues ; l etape `fire` passe de 44 837 a 59 249 evenements de tir sur 16 films, les 4 autres (builds dont la vue A s arrete tot) ne changent pas ;
 // la lecture du parent ne change aucune etape de la marche : les etapes `pads` (20 films) et `vehicles` (9 films) changent de digest parce que la creation d equipement porte deux champs de plus, dont, pour les 142 pieces montees de 9 films, le parent lu.
+
+// ENTREE `grammar-2026-11-23` (2026-11-23, les charges des genres 13, 27, 117 et 93 inhibe se lisent ; une trame renvoyee en entier n est plus comptee deux fois ; les repliques, les annonces et les gestes de la vue A se lisent ; l accroupi, le saut et le pas des entrees de controle se lisent). LA LECTURE GAGNE
+// TROIS CANAUX ET QUATRE CHARGES, et ces apports se rangent sous une seule revision : aucun bit deja lu ne change de largeur, mais des messages qui arretaient la lecture d une trame se lisent, la marche rend des faits qu elle ne rendait pas, et un film en rend d autres comptes.
+// Les rejeux et les faits cuits avant se refusent sur cette revision, sur `replay.SchemaVersion` 127 et sur `replay.SchemaDesFaits` 31 : la recuisson est une decision de l utilisateur.
+//
+// PREMIER APPORT : QUATRE CHARGES COURTES DE LA VUE A. `motor_system_interruption` (13), `controlToggleResponse` (27) et `EquipmentTranslocatorTeleportEffects` (117) n avaient pas de lecteur de charge : le premier message de l un de ces genres arretait la lecture de la vue A d une trame, et les messages
+// suivants etaient perdus. Les largeurs sont celles de la bibliotheque libfilmshell de Den (OpenSpartan, MIT), temoin de la lecture, prouvees par le film : chaque trame se lit jusqu a sa fin declaree. `activate_spartan_ability` (93) ne se lit que dans son cas inhibe, le seul que les films montrent ; tout autre
+// cas continue d arreter la lecture. Les valeurs lues se traversent : aucune n est publiee (`vue_a_charges_effets.go`).
+//
+// SECOND APPORT : UNE TRAME RENVOYEE EN ENTIER N EST PLUS COMPTEE DEUX FOIS. Une trame d au moins deux messages de jeu dont tous repetent, a cle identique, ceux d une meme trame de moins de trois secondes est une trame que le jeu renvoie : elle est ecartee et ses messages comptent comme copies ; la fenetre
+// d une seconde reste pour un message isole (`evenements_de_jeu.go`).
+//
+// TROISIEME APPORT : LES REPLIQUES, LES ANNONCES ET LES GESTES. Un canal de la marche rend les messages `AIDialog` (75) et `Dialogue2D` (76) ([canalDesRepliques]) ; la lecture des deux genres existait, le canal les range. Un autre canal rend les gestes : `biped_throw_initiate` (39, `FUN_140c6a58c`) et
+// `biped_melee_initiate` (40, `FUN_140ff8d70`) finissaient sur l index de joueur de l auteur (`FUN_1407f2058` : `R(1)`, puis `R(5)` s il est a zero) que leur charge jetait ; elle le range sur le lecteur et la lecture recueille le message ([recueillirUnGeste], [lecture.MessageDeGeste], seize octets). Le lecteur de
+// l index de joueur est partage ([lireJoueurDuMessage]) avec la charge du rechargement. Le canal des rechargements rend aussi, pour chaque rechargement, le nombre de copies de son message ([types.ReloadRead.Copies]). Etapes observees `repliques`, `repliques.stats`, `gestures` et `gestures.stats`.
+//
+// QUATRIEME APPORT : LES COMMANDES D ACCROUPI ET DE SAUT, ET LE PAS DES ENTREES. Le collecteur du tir continu plie deux commandes tenues de plus a partir de l entree de controle : le bit de valeur 1 des drapeaux `+0x14` (le bouton d accroupi, aussi celui de la glissade) et le bit de valeur 4 (le bouton de
+// saut), par le meme pliage des entrees et des trous que la commande de deplacement (les natures `natureAccroupi` et `natureSaut`). Un champ de drapeaux absent ne tient aucun bouton (`-1 & 4` n est pas nul : l absence se teste avant le masque). Le collecteur mesure aussi le pas des entrees de controle, l ecart le plus
+// frequent entre deux entrees lues d une meme place sans trou entre elles ([pasDesEntrees]) : le fait du film qui separe les films enregistres a pleine cadence (16,7 ms) de ceux enregistres a la moitie (33,3 ms), et que ni la build ni la version du film ne separent.
+//
+// CE QUI MONTE AVEC ELLE : `replay.SchemaVersion` 126 -> 127 et `replay.SchemaDesFaits` 30 -> 31 (le complement de la section 1 porte les repliques, les gestes, les copies de rechargement, le genre des commandes tenues et le pas des entrees), `objectives.Rev` (la meme integration change la sortie des objectifs : voir
+// son entree). `source.Rev`, `profile.Rev` et `killsource.Rev` : aucune lecture d octets ne change dans leur couche ; leurs goldens ne se refigent que si un test le demande (`killsource.Rev` hache la valeur de `grammar.Rev`).

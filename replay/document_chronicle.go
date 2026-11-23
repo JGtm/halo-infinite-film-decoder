@@ -4817,3 +4817,102 @@ package replay
 //
 // LE PARC         un artefact 125 : verdict `a redecoder` (les faits cuits se refusent sur la revision de la grammaire, celle des objectifs et le numero des faits ; les resumes d usage sont a reprendre sur `us8`). La recuisson est une
 //                 decision de l utilisateur.
+
+// v127 (2026-11-23, huit apports en une version : les repliques des Spartans et les annonces, les gestes du joueur et les copies d un rechargement, l accroupi et le saut tenus, les
+// eliminations et les actions de score d un bot, le drapeau lu sur tous les sieges et ses trois corrections, la manche courte admise, deux lectures de la vue A, un tri total). Les
+// apports ont ete codes et mesures chacun sur sa branche, puis integres sur une seule ; les mesures sont gardees telles qu elles ont ete prises, branche par branche.
+//
+// PREMIER APPORT : LES REPLIQUES DES SPARTANS ET LES ANNONCES :
+// Deux calques, lus dans la vue A des trames delta (genre 75 `AIDialog`, genre 76 `Dialogue2D`) par un canal de la marche des trames, et portes par le complement de la section 1 des faits.
+//
+//	`chatter[]`                     {t, player, sound, priority, line} : l image de la trame qui ecrit le message ; `player` le joueur qui parle (xuid), absent quand l unite qui parle n a pas de piste d humain a cette image ; `sound` l identifiant du son
+//	                                (huit chiffres hexadecimaux) ; `priority` la classe de priorite (cinq bits) ; `line` l indice de replique (douze bits). Le film ne dit pas quelle variante audio a joue : le document ne le dit pas non plus.
+//	`announcements[]`               {t, sound, mask} : une ligne par son et par image ; `mask` l union des masques de destinataires des messages de l image qui portent ce son (huit chiffres hexadecimaux, le premier bit lu etant le bit de poids fort).
+//	`coverage.chatter`              {frames, closedFrames, stoppedFrames, read, beforeOrigin, afterEnd, published, bySpeaker, withoutPlayer, bots} ; `read` = `beforeOrigin` + `afterEnd` + `published` ; `published` = `bySpeaker` + `withoutPlayer` ; `bots` <= `withoutPlayer`.
+//	`coverage.announcements`        {frames, closedFrames, stoppedFrames, read, beforeOrigin, afterEnd, merged, published} ; `read` = `beforeOrigin` + `afterEnd` + `merged` + `published`.
+//	`layers.chatter`, `layers.announcements`   les calques sont dates par la revision de la grammaire, leur garde est « la marche a lu au moins une trame ».
+//
+// QUI PARLE : L UNITE, PAS L INDEX DE JOUEUR DE LA CHARGE. Le locuteur est la reference 0 de l en-tete, resolue par la piste de l unite a l image (la voie de l unite blessee d un message de degat). Mesure sur un film de huit joueurs : l unite se resout
+// en un joueur pour les 365 repliques, a travers les huit joueurs, et un meme son ne vient que des joueurs d un meme groupe de voix ; l index de la charge (present sur 199 repliques, valeurs 0 a 5, 190 entre 0 et 2) designe le meme joueur que l unite dans 35 cas
+// sur 199, soit le hasard. Il n est pas publie : son sens n est pas etabli ; il reste dans les faits.
+// LES DESTINATAIRES RESTENT UN MASQUE : le jeu ecrit une annonce par destinataire (951 messages a un seul bit, bits 24 a 31, jamais le 25, en 481 lignes sur l axe plus six avant son origine) ; les ensembles de bits d un son d equipe tombent sur les deux equipes
+// du roster dans les deux sens de numerotation, et les medailles et les morts voisines ne tranchent pas : aucun bit n est relie a un joueur.
+//
+// UN FILM (d9781168, Dredge, 43 645 trames, aucune arretee) : 365 repliques lues et publiees, 365 par le locuteur, 0 sans joueur, 0 hors du match ; 951 annonces lues, 6 avant l origine, 464 reprises, 481 publiees. Le document grossit de 54 162 octets
+// sur 7 441 513 (0,728 %) en JSON brut, de 6 453 sur 1 373 805 (0,470 %) compresse.
+//
+// SECOND APPORT : LES GESTES DU JOUEUR, ET L INSTANT ET LES COPIES D UN RECHARGEMENT :
+// Deux messages de la vue A disent qu un joueur engage un geste : `biped_melee_initiate` (genre 40) et `biped_throw_initiate` (genre 39). Chacun finit par l index de joueur de l auteur, que la charge jetait et que le lecteur garde desormais
+// ([lireJoueurDuMessage], partage avec la charge du rechargement) ; un canal de la marche ([canalDesGestes]) rend un geste par (trame, genre, auteur, references) et compte les copies par genre. Le calque `gestures[]` publie le coup de melee (`melee`) et
+// le lancer amorce (`throwStart`) a l instant ou le jeu l ecrit : `t` (frame), `ms` (milliseconde depuis la frame 0), `place` (index de joueur du film, le meme espace que `reloads[].place` et `roster[].filmIndex`), `kind`. Aucune duree, aucun resultat : le
+// coup part qu il touche ou non (`damage[]` dit ce qui touche), une amorce n est pas une grenade (`grenades[]`). La place se relie a la vie par le roster et sa presence, comme celle d un rechargement.
+//
+//	`gestures[]`                    {t, ms, place, kind}, trie par frame, milliseconde, place et genre ; absent quand la marche des trames n a lu aucune trame ; vide, couverture presente, quand la porte de cadence est fermee.
+//	`coverage.gestures`             {frames, closedFrames, stoppedFrames, read, copies, gated, withoutPlayer, beforeOrigin, afterEnd, published} ; `read` = `copies` + `gated` + `withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`.
+//	`reloads[].ms`, `reloads[].copies`   `ms` (toujours present) est l instant du paquet en millisecondes depuis la frame 0 ; `copies` le nombre de copies du message que le jeu a ecrites dans la meme trame et que le canal a retirees (absent quand le message est ecrit
+//	                                une fois). Les lignes existantes (`t`, `place`) ne changent ni de valeur ni d ordre ; la somme des `copies` est `coverage.reloads.copies`, aux rechargements ecartes pres. Les rechargements ne passent pas par la porte de cadence.
+//
+// LA PORTE DE CADENCE DES GESTES EST CELLE DES COMMANDES (voir le troisieme apport) : le verdict de pleine cadence mesure sur le pas des entrees de controle (`coverage.stances.control.fullCadence`). Sur un film sous la cadence, `gestures[]` est vide et chaque geste lu se compte
+// en `gated`. Mesure sur cinq films recents (15 a 81 coups de melee et 28 a 186 amorces par film) : aucune copie des deux messages, toutes les vues A lues jusqu a leur terminateur ; l empreinte (t, place) des lignes de `reloads[]` est celle de la version precedente, et la somme des `copies`
+// egale `coverage.reloads.copies`. Chaque amorce des 508 mesurees est suivie d une grenade du meme joueur (mediane et 90e centile 0,30 s, extremes 0,07 et 0,45 s) ; 3 des 510 grenades n ont pas d amorce avant elles ; un coup de melee est suivi d un message de degat de melee du meme joueur
+// dans les 2 s dans 60 a 78 % des cas (les autres partent sans toucher, ou touchent ce qui n est pas un joueur).
+//
+// TROISIEME APPORT : L ACCROUPI ET LE SAUT, COMMANDES TENUES :
+// `stances[]` prend deux genres, LUS dans la vue de controle et nommes pour ce qu ils sont, une COMMANDE du joueur et non un etat du corps : `crouchCommand` (le bouton d accroupi tenu : le jeu n a qu un bouton pour l accroupi et la glissade, l intervalle couvre les deux) et `jumpCommand`
+// (le bouton de saut tenu : un bouton enfonce, pas un saut effectue ; le saut mesure sur le corps reste `jumpDerived`, les deux sont publies). Ce sont les bits de valeur 1 et 4 du champ facultatif de cinq bits (`+0x14`) de l entree de controle. Chaque intervalle de ces deux genres porte
+// `ms0` et `ms1`, la milliseconde depuis la frame 0, sans deborder ni l intervalle lu ni les frames `t0` a `t1` : un saut d un tick tient dans une frame, son instant est `ms0`. La glissade n est pas publiee : aucun fait du film ne la distingue de l accroupi.
+//
+// LA PORTE DE CADENCE. Les deux genres ne se publient que sur les films dont les commandes sont enregistrees a pleine cadence : `coverage.stances.control.stepUs` donne le pas des entrees (l ecart le plus frequent entre deux entrees lues d une meme place, sans trou entre elles),
+// `fullCadence` dit qu il est mesurable (au moins `types.EcartsDuPasMin` = 1 000 ecarts qui le portent) et ne depasse pas `types.PasDeCommande60HzMaxUS` = 25 000 µs. Sur le corpus de 22 films : 15 films a 60 Hz (pas de 16 640 a 16 679 µs), 4 a 30 Hz (33 364 a 33 380 µs), 3 sans entree lue.
+// Un film sous la cadence n a ni accroupi ni saut, et chaque commande lue se compte (`gated`). Pourquoi la cadence : un appui d un tick est vu une fois sur deux a 30 Hz (saut : 98,0 % d accord avec les departs du sol a 60 Hz, 53,6 % a 30 Hz). Ni la build ni la version du film ne separent les deux.
+//
+//	`stances[].kind`                `crouchCommand` et `jumpCommand` ; `ms0` et `ms1` (optionnels, ces deux genres seulement).
+//	`coverage.stances.control`      gagne `stepUs`, `fullCadence`, `crouchCommand{...}` et `jumpCommand{...}` ; les champs existants (la commande de deplacement) gardent leur sens et leur valeur. Pour chaque genre : `holds` = `published` + `noTrack` + `noPlayer` + `inVehicle` + `afterHole` + `gated`.
+//
+// Autres conditions, par genre : rien ne se pose pendant un episode de vehicule de l occupant (`inVehicle`) ; un saut dont le debut suit un trou de lecture n a pas de debut connu et se compte (`afterHole`) ; le reste se pose comme `moveCommand` (coupe aux vies publiees de l occupant de la place, muet sur les
+// frames qu un trou couvre entieres). La mesure (22 films, builds 1.4.1 a 1.13.0 ; la verite est la physique lue dans le film, pas un etat que le jeu ecrit) : saut, departs du sol a couverture continue sur les 15 films a 60 Hz, 5 302 sur 5 422 (97,8 %) retrouves par un `jumpCommand` publie a 100 ms (le bit brut : 5 314,
+// 98,0 %) ; accroupi, instants stables a pleine cadence, bit pose a vitesse compatible 55 876 sur 58 663 (95,3 %), bit nul a vitesse debout normale 1 341 044 sur 1 343 572 (99,8 %).
+//
+// QUATRIEME APPORT : LES ELIMINATIONS ET LES ACTIONS DE SCORE D UN BOT :
+// Un bot n a pas d identifiant : ses eliminations etaient absentes du calque et ses actions de score jetees faute de destinataire. Elles se publient avec la place du joueur dans le film, sous le meme nom que `reloads[].place` et dans le meme espace que `roster[].filmIndex`
+// (et non `roster[].seat`, la fiche affichee, qui est autre chose). Les eliminations entre humains ne changent pas.
+//
+//	`scoreActions[]`                gagne `place` (le destinataire bot) et `targetPlace` (la cible bot) ; `xuid` devient optionnel (absent pour un destinataire bot).
+//	`eliminations[]`                gagne `place` (le tueur bot) et `victimPlace` (la victime bot) ; `xuid` devient optionnel. Le tueur bot se lit sur les actions `killPersonalScore` a `place`.
+//	`coverage.scoreActions`         gagne `botRecipient` et `botTarget` ; `coverage.eliminations` gagne `botEliminations` et `victimPlaces` (optionnels).
+//
+// EFFET DE BORD : `coverage.scoreActions.complete` devient vrai sur les films dont les seules pertes etaient des actions de bots (4 des 5 films mesures : faux -> vrai) ; il reste faux sur le CTF, dont la comparaison au tableau accuse un manque. Un lecteur qui supposait `xuid` toujours present
+// sur ces deux calques doit le tester.
+//
+// CINQUIEME APPORT : LE DRAPEAU ET LES COMPTEURS D OBJECTIF SUR TOUS LES SIEGES :
+// Quatre corrections de la lecture des objectifs et du drapeau, mesurees ensemble (joueurs a 2 s de l API sur les 13 films a drapeau : 161 avant, 197 avec la lecture de tous les sieges et la base neutre, 203 avec la coupure par occupant ; aucun joueur juste ne devient faux ; les autres modes : 2 019 -> 2 027 valeurs
+// exactes sur 2 644, aucune ne devient inexacte).
+//
+//	LE DRAPEAU LIT TOUS LES SIEGES du film, et non les huit premiers : sur un CTF de plus de huit sieges (jusqu a 25 et plus), les portages des autres sieges n etaient pas publies. `coverage.flagCarries.seatsBeyondBand` n a plus d ecrivain (il valait 16 sur les films a 25 sieges et plus) : le champ est RETIRE a cette version.
+//	UNE BASE NEUTRE EST UN SEUL DRAPEAU : quand les deux camps volent au meme point, ce point est le socle unique de la variante, meme si le catalogue le range dans une equipe. Trois films a un drapeau publient un drapeau neutre au lieu de deux drapeaux d equipe, quatre etats au socle faux sont regles, dix autres
+//	                                films sont identiques. La lecture compte `spawnsFromFilm` (+1) et ne compte plus de contradiction (`filmBaseContradict`).
+//	UN SIEGE QUI CHANGE D OCCUPANT COUPE SES COMPTEURS : la suite d evenements nommes de chaque occupant se lit separement et se met bout a bout, la frontiere etant le changement d occupant que le pont d identite lit deja ; un siege qui garde son occupant rend la meme suite. Les vols, prises, captures de zone,
+//	                                eliminations de zone et securisations du partant ne sont plus perdus (huit valeurs nouvellement exactes sur quatre films de Bases) ; le calque du crane lit ses tics, ses prises et leur largeur par la meme coupe, et nomme un tic de siege recycle par l instant.
+//	UN PORTEUR IMMOBILE GARDE SA POSITION A TRAVERS UN TROU : un joueur immobile n emet pas de position ; quand aucun point ne tombe dans la tolerance, la position est tenue si le point d avant et le point d apres sont dans la meme vie, a 0,15 m au plus et separes de 2 s au plus. Un film regle, cinq autres identiques a l octet.
+//
+// SIXIEME APPORT : UNE MANCHE COURTE EST ADMISE QUAND LE FILM REMET A ZERO TOUS LES JOUEURS PRESENTS A SON DEBUT :
+// Critere d admission ajoute aux criteres existants, sans toucher au seuil de part d enregistrements : le premier enregistrement de chaque joueur present dans la manche remet ses deux scores a zero, tous dans la meme seconde (`objectives/round_reset.go`). Un film regle (le tableau devient egal a l API :
+// 17 680 -> 18 805), aucune autre manche changee sur les 27 films mesures.
+//
+// SEPTIEME APPORT : DEUX LECTURES DE LA VUE A :
+// (1) Les genres 13 (`motor_system_interruption`), 27 (`controlToggleResponse`) et 117 (`EquipmentTranslocatorTeleportEffects`) ont une charge, et le genre 93 (`activate_spartan_ability`) la sienne dans son seul cas inhibe, le seul que les films montrent : avant, le premier message de l un de ces genres arretait la
+// lecture de la trame et les messages suivants etaient perdus (`stoppedFrames`). Les largeurs des genres 13, 27 et 117 sont celles de la bibliotheque libfilmshell de Den (OpenSpartan, MIT), temoin de la lecture ; la preuve est le film : chaque trame se lit jusqu a sa fin declaree. Aucune valeur n est publiee ;
+// les calques qui lisent la vue A (rechargements, messages de jeu, degats) gagnent les messages qui suivaient. (2) Une trame d au moins deux messages dont tous repetent, a cle identique, ceux d une meme trame de moins de trois secondes est une trame renvoyee en entier par le jeu : elle est ecartee et ses messages
+// se comptent comme copies ; la fenetre d une seconde reste pour un message isole. Le score par action ne compte plus deux fois les actions d une trame renvoyee.
+//
+// HUITIEME APPORT : UN TRI TOTAL DES SEGMENTS DE SCORE :
+// Les segments de score d un joueur se joignent par l instant de leur premier point ; a instant egal, l ordre dependait du parcours d une map. Le tri departage par le slot : aucune valeur n est changee, une sortie qui variait d une execution a l autre ne varie plus (`scoreTimeline.players[].stats.maxSpree`).
+//
+// POURQUOI LA VERSION MONTE. Le premier, le deuxieme, le troisieme et le quatrieme apport ajoutent des calques et des champs optionnels ; le cinquieme et le sixieme changent des valeurs publiees (portages du drapeau, compteurs d objectif, scores de manche) et le cinquieme retire un champ de couverture ;
+// le septieme change le nombre de messages que les calques de la vue A lisent. La pratique du depot (v21, v51, v108, v125, v126) monte la version, parce que la reprise des rejeux de l hote se decide sur `SchemaVersion`.
+//
+// CE QUI MONTE    `SchemaVersion` 126 -> 127, et avec lui `publication-127`. `grammar.Rev` -> `grammar-2026-11-23` : les charges des genres 13, 27, 117 et 93, la trame renvoyee en entier, les repliques et les annonces, les gestes, le pas des entrees de controle et les deux commandes de plus. `objectives.Rev` ->
+// AVEC ELLE       `objectives-2026-11-23` : la manche courte admise, le drapeau lu sur tous les sieges, la base neutre, la coupure par occupant. `SchemaDesFaits` 30 -> 31 : le complement de la section 1 porte les repliques, les gestes, les copies de rechargement, le genre des commandes tenues et le pas des entrees ;
+//                 les faits cuits avant se refusent sur ce numero et sur les revisions. `coverage.flagCarries.seatsBeyondBand` n existe plus.
+//
+// LE PARC         un artefact 126 : verdict `a redecoder`. La recuisson est une decision de l utilisateur.
