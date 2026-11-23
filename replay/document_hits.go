@@ -288,7 +288,7 @@ func compterLesTirs(fire []grammar.FireEvent, r resolveurDeTouches, bilan bilanD
 		}
 		s := bilan.de(xuid)
 		s.ShotEvents++
-		s.Shots += numeros[xuid].saut(int(e.FireNumber), e.Unit.Slot)
+		s.Shots += numeros[xuid].saut(int(e.FireNumber), e.Unit.Slot, e.TimestampUS)
 	}
 }
 
