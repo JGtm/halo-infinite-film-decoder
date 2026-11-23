@@ -224,6 +224,22 @@ func decodeDelta(br *Lecteur, w *World, slot uint32) EntityTrace {
 	return t
 }
 
+// lireLaTeteDeDelta lit la tete d un record sur `br` : le prefixe facultatif des champs
+// supplementaires, le prefixe de type, puis l identifiant. Elle rend l identifiant, son slot, et
+// faux quand le type n est pas DELTA (le curseur est alors apres le prefixe de type). C est la
+// lecture que [TryDeltaAt] fait avant le corps, et la seule : le pre-test du localisateur
+// ([teteDeLaSignature]) la partage, donc lit exactement les memes bits.
+func lireLaTeteDeDelta(br *Lecteur, cfg FrameConfig) (id, slot uint32, ok bool) {
+	if cfg.HasExtraFields {
+		br.Skip(32)
+	}
+	if readRecordType(br) != recDelta {
+		return 0, 0, false
+	}
+	id = readRecordID(br, cfg.IDLowBits, cfg.IDBase)
+	return id, id & 0x3fffffff, true
+}
+
 // TryDeltaAt attempts to decode a single DELTA record starting at bit `bitpos` of buf,
 // resolving the archetype from w. Returns the record, the bit position immediately after
 // it, and whether it decoded cleanly (a recDelta header + a fully-traversed delta,
@@ -237,16 +253,11 @@ func TryDeltaAt(buf []byte, bitpos int, w *World, cfg FrameConfig) (FrameRecord,
 	if br.Remaining() < 24 {
 		return FrameRecord{}, bitpos, false
 	}
-	if cfg.HasExtraFields {
-		br.Skip(32)
-	}
-	typ := readRecordType(br)
-	if typ != recDelta {
+	id, slot, ok := lireLaTeteDeDelta(br, cfg)
+	if !ok {
 		return FrameRecord{}, bitpos, false
 	}
-	id := readRecordID(br, cfg.IDLowBits, cfg.IDBase)
-	slot := id & 0x3fffffff
-	rec := FrameRecord{Type: typ, ID: id, Slot: slot, DesyncAt: -1}
+	rec := FrameRecord{Type: recDelta, ID: id, Slot: slot, DesyncAt: -1}
 	rec.Trace = decodeDelta(br, w, slot)
 	rec.TypeIndex = rec.Trace.TypeIndex
 	rec.DesyncAt = rec.Trace.DesyncAt

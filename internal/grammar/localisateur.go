@@ -89,6 +89,13 @@ package grammar
 // CHAQUE POSITION ESSAYEE EST UN ESSAI : [TryDeltaAt] traverse l entite pour de vrai, donc les
 // deserialiseurs publient. Les trois fonctions du localisateur eteignent les crochets de canal
 // ([Observation.neutraliserLesCrochetsDeCanal]) ; sans observateur, c est sans effet.
+//
+// LA TETE D ABORD ([teteDeLaSignature]). Une position qui ne porte pas, en tete, un record DELTA
+// du slot de signature ne peut etre acceptee ni par la signature stricte ni par le repli : le
+// localisateur ne traverse l entite que pour les positions dont la tete le permet. La tete est
+// lue par le code meme de [TryDeltaAt]. Un essai ecarte ne change ni le monde, ni un compteur
+// publie ; il n alimente plus que les deux histogrammes d index de position de l observateur
+// ([Observation.IndexAbsolus], [Observation.IndexSansLigne]), que seuls des instruments lisent.
 
 import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
@@ -177,8 +184,12 @@ func marchSignature123(pay []byte, s, largeur int, w *World, cfg FrameConfig) bo
 func marchLocateStrict(pay []byte, w *World, cfg FrameConfig) int {
 	defer cfg.Obs.neutraliserLesCrochetsDeCanal()() // essais d offset : aucune lecture publiee
 	nb, largeur := len(pay)*8, largeurDeSignature(cfg)
+	br := LecteurSur(pay)
 	for s := 2; s+largeur < nb; s++ {
 		if !precedeDuTerminateur(pay, s) {
+			continue
+		}
+		if _, ok := teteDeLaSignature(br, s, cfg); !ok {
 			continue
 		}
 		if marchSignature123(pay, s, largeur, w, cfg) {
@@ -194,18 +205,39 @@ func marchLocateStrict(pay []byte, w *World, cfg FrameConfig) int {
 func marchLocateFallback(pay []byte, w *World, cfg FrameConfig) int {
 	defer cfg.Obs.neutraliserLesCrochetsDeCanal()() // essais d offset : aucune lecture publiee
 	nb := len(pay) * 8
+	br := LecteurSur(pay)
 	for s := 2; s+resteMinimalALargeurLibre < nb; s++ {
 		if !precedeDuTerminateur(pay, s) {
 			continue
 		}
-		rec, _, ok := TryDeltaAt(pay, s, w, cfg)
-		if !ok || rec.Slot != marchSignatureSlot ||
-			!w.GenerationMatches(rec.ID, cfg.Profil.Grammaire.GenerationStricte) {
+		id, ok := teteDeLaSignature(br, s, cfg)
+		if !ok || !w.GenerationMatches(id, cfg.Profil.Grammaire.GenerationStricte) {
 			continue
 		}
-		return s
+		if _, _, ok := TryDeltaAt(pay, s, w, cfg); ok {
+			return s
+		}
 	}
 	return -1
+}
+
+// teteDeLaSignature dit si la tete du record lu en `s` est celle d un delta du slot de signature,
+// et rend son identifiant. `br` est un lecteur sur le payload, que le pre-test repositionne : il
+// n en garde rien.
+//
+// C est une CONSEQUENCE NECESSAIRE de l acceptation d une position, par la signature stricte
+// ([marchSignature123]) comme par le repli ([marchLocateFallback]) : toutes deux exigent que
+// [TryDeltaAt] decode, donc que la tete soit un delta (sinon il rend faux), et que le slot de
+// `rec.Slot` soit celui de la signature. La tete est lue par [lireLaTeteDeDelta], le code que
+// [TryDeltaAt] execute avant le corps : memes bits, meme largeur d identifiant, meme bourrage de
+// queue. Elle ne lit ni le monde, ni le profil, ni l observateur, et n ecrit rien : l essai de
+// decodage ne fait que lire le monde (`decodeDelta`), jamais l ecrire ; ecarter une position ne
+// change donc aucune decision ulterieure. Vrai ne dit pas que la position est acceptee, seulement
+// qu elle merite l essai.
+func teteDeLaSignature(br *Lecteur, s int, cfg FrameConfig) (uint32, bool) {
+	br.SetBitPos(s)
+	id, slot, ok := lireLaTeteDeDelta(br, cfg)
+	return id, ok && slot == marchSignatureSlot
 }
 
 // debutParLaVueA rend la fin E de la vue A lue `a` quand elle DECIDE du debut de la vue B d un
