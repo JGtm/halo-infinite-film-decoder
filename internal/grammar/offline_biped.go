@@ -316,7 +316,13 @@ func lireLaPosition(br *Lecteur, r deltaBipedRecord, lay profile.I0Layout, opt S
 // renvoie l'offset bit de i0, le slot et la liste des index de composants du masque.
 // Un record d'une autre région est écarté : ses quanta vivent dans une autre AABB.
 func matchBipedHeader(pay []byte, p, total int, slots SlotBand, gens *GenerationsVivantes, lay profile.I0Layout) (int, uint32, []int, bool) {
-	i0, slot, idx, ok := matchBipedHeaderRaw(pay, p, total, slots, gens, lay.TotalBits())
+	// La largeur d'i0 ne sert qu'après les rejets de l'en-tête : elle n'est calculée que pour
+	// un candidat qui les a passés.
+	slot, mc, ok := teteDEnteteBiped(pay, p, slots, gens)
+	if !ok {
+		return 0, 0, nil, false
+	}
+	i0, idx, ok := masqueDEnteteBiped(pay, p, total, mc, lay.TotalBits())
 	if !ok {
 		return 0, 0, nil, false
 	}
@@ -331,33 +337,53 @@ func matchBipedHeader(pay []byte, p, total int, slots SlotBand, gens *Generation
 // contenu d'i0 : c'est le point d'entrée du détecteur de découpage (i0_layout.go), qui doit
 // justement mesurer i0 sans en présupposer la structure.
 func matchBipedHeaderRaw(pay []byte, p, total int, slots SlotBand, gens *GenerationsVivantes, needBits int) (int, uint32, []int, bool) {
-	if uint32(source.BitsStricts(pay, p, 1)) != 1 {
+	slot, mc, ok := teteDEnteteBiped(pay, p, slots, gens)
+	if !ok {
 		return 0, 0, nil, false
 	}
-	h := LireHandleDelta(pay, p)
-	if !slots.Has(h.Slot) {
-		return 0, 0, nil, false
-	}
-	if !gens.Accepte(h) { // generation vivante du slot, ou repli nomme (generations_vivantes.go)
-		return 0, 0, nil, false
-	}
-	slot := h.Slot
-	if uint32(source.BitsStricts(pay, p+16, 2)) != 0 { // (14e bit id ou LSB tag) + gate — PAS un maskSel
-		return 0, 0, nil, false
-	}
-	mc := int(uint32(source.BitsStricts(pay, p+18, 3)))
-	if mc < bipedMinMaskCnt || mc > bipedMaxMaskCnt {
-		return 0, 0, nil, false
-	}
-	i0 := p + bipedHeaderBits + bipedIndexBits*mc
-	if i0+needBits > total {
-		return 0, 0, nil, false
-	}
-	idx, ok := ascendingFromZero(pay, p+bipedHeaderBits, mc)
+	i0, idx, ok := masqueDEnteteBiped(pay, p, total, mc, needBits)
 	if !ok {
 		return 0, 0, nil, false
 	}
 	return i0, slot, idx, true
+}
+
+// teteDEnteteBiped est la première moitié de [matchBipedHeaderRaw], celle qui ne dépend pas de la
+// largeur d'i0 : marque, slot de la bande, génération vivante (generations_vivantes.go), deux bits
+// nuls, nombre de composants du masque. Elle rend le slot et ce nombre.
+func teteDEnteteBiped(pay []byte, p int, slots SlotBand, gens *GenerationsVivantes) (uint32, int, bool) {
+	if uint32(source.BitsStricts(pay, p, 1)) != 1 {
+		return 0, 0, false
+	}
+	h := LireHandleDelta(pay, p)
+	if !slots.Has(h.Slot) {
+		return 0, 0, false
+	}
+	if !gens.Accepte(h) {
+		return 0, 0, false
+	}
+	if uint32(source.BitsStricts(pay, p+16, 2)) != 0 { // (14e bit id ou LSB tag) + gate — PAS un maskSel
+		return 0, 0, false
+	}
+	mc := int(uint32(source.BitsStricts(pay, p+18, 3)))
+	if mc < bipedMinMaskCnt || mc > bipedMaxMaskCnt {
+		return 0, 0, false
+	}
+	return h.Slot, mc, true
+}
+
+// masqueDEnteteBiped est la seconde moitié de [matchBipedHeaderRaw] : début d'i0 pour `mc`
+// composants, `needBits` bits lisibles après lui, liste d'indices ascendante depuis zéro.
+func masqueDEnteteBiped(pay []byte, p, total, mc, needBits int) (int, []int, bool) {
+	i0 := p + bipedHeaderBits + bipedIndexBits*mc
+	if i0+needBits > total {
+		return 0, nil, false
+	}
+	idx, ok := ascendingFromZero(pay, p+bipedHeaderBits, mc)
+	if !ok {
+		return 0, nil, false
+	}
+	return i0, idx, true
 }
 
 // ascendingFromZero valide la liste d'indices de composants (premier = 0, strictement
