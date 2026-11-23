@@ -33,9 +33,13 @@ import (
 const (
 	puTestOvershield = uint32(0xb781197a)
 	puTestCamo       = uint32(0xe7be9f5c)
-	// puTestMur est un identifiant d'equipement du MEME catalogue qui n'est PAS un power-up :
-	// c'est le temoin negatif du filtre de famille.
+	// puTestMur est un equipement PORTE du MEME catalogue qui n'est pas un power-up : depuis la regle
+	// elargie, il se pose sur un socle comme un power-up.
 	puTestMur = uint32(0x8e2dc574)
+	// puTestMurPose est la forme POSEE du mur (panneau deploye, `kind = "deployed"`), et puTestFrag la
+	// grenade a fragmentation : les deux temoins negatifs de la regle elargie.
+	puTestMurPose = uint32(0x528fce46)
+	puTestFrag    = uint32(0xbcabbe43)
 )
 
 // puTestFamilies est la table d'identite `eqip` que la voie consomme, reduite a ce que ces
@@ -45,13 +49,17 @@ func puTestFamilies() map[uint32]string {
 		puTestOvershield: "powerup_overshield",
 		puTestCamo:       "powerup_camo",
 		puTestMur:        "wall",
+		puTestMurPose:    "wall",
+		puTestFrag:       "grenade_frag",
 	}
 }
 
 // puTestCatalogs rend les deux tables d'identite de la chaine, avec la seule voie `ti=37`
 // renseignee.
 func puTestCatalogs() padCatalogs {
-	return padCatalogs{EquipmentFamilies: puTestFamilies()}
+	return padCatalogs{
+		EquipmentFamilies: puTestFamilies(), DeployedEquipment: map[uint32]bool{puTestMurPose: true},
+	}
 }
 
 // puTestScan monte le cas de reference de la voie `ti=37` : TROIS creations du meme power-up au
@@ -177,19 +185,21 @@ func puTestTracks(cre []types.EquipmentCreation) []types.ProjectileTrack {
 	return out
 }
 
-// TestPowerupPadsFamilleInconnueNeDonneRien : une identite que le manifeste ne resout pas, et
-// une identite qu'il resout en AUTRE CHOSE qu'un power-up, ne donnent aucun socle.
+// TestPowerupPadsFamilleInconnueNeDonneRien : une identite que le manifeste ne resout pas, la
+// grenade et la forme posee d'un objet ne donnent aucun socle.
 //
-// LES DEUX CAS SONT DISTINCTS, et il faut les deux : le premier est le bruit du balayage (un
-// mot de 32 bits quelconque), le second est un objet d'equipement REEL — un mur pose — que rien
-// n'autorise a devenir un socle de power-up.
+// LES TROIS CAS SONT DISTINCTS, et il faut les trois : le premier est le bruit du balayage (un mot
+// de 32 bits quelconque) ; la grenade gît au sol a un point d'apparition de grenade, jamais sur un
+// socle ; la forme posee (panneau de mur deploye) est au repos, et deux panneaux poses au meme endroit
+// feraient un faux socle.
 func TestPowerupPadsFamilleInconnueNeDonneRien(t *testing.T) {
 	for _, cas := range []struct {
 		nom string
 		id  uint32
 	}{
 		{"identite hors manifeste", 0xdeadbeef},
-		{"famille connue mais pas un power-up", puTestMur},
+		{"grenade", puTestFrag},
+		{"forme deployee", puTestMurPose},
 	} {
 		t.Run(cas.nom, func(t *testing.T) {
 			pads, _, cov, _ := buildWeaponPads(
@@ -199,15 +209,39 @@ func TestPowerupPadsFamilleInconnueNeDonneRien(t *testing.T) {
 				t.Fatalf("%d socle(s) publies : %+v", len(pads), pads)
 			}
 			if cov.PowerupKept != 0 {
-				t.Errorf("%d creation(s) retenues alors que l'identite ne resout aucun power-up",
+				t.Errorf("%d creation(s) retenues alors que l'identite ne donne aucun socle",
 					cov.PowerupKept)
 			}
 			if cov.PowerupAccepted != 3 {
 				t.Errorf("le DENOMINATEUR doit rester (%d acceptees, attendu 3) : sans lui, un"+
-					" film non lu et un film sans power-up se liraient pareil",
+					" film non lu et un film sans socle se liraient pareil",
 					cov.PowerupAccepted)
 			}
 		})
+	}
+}
+
+// TestPowerupPadsRetientLEquipementPorte : un equipement porte (ici le mur), recurrent au meme point,
+// fait un socle publie sous sa famille. C'est la regle elargie : avant elle, seule la famille
+// `powerup_*` donnait un socle.
+func TestPowerupPadsRetientLEquipementPorte(t *testing.T) {
+	pads, _, cov, _ := buildWeaponPads(
+		PadScans{Powerups: puTestScan(puTestMur, 10, 10)}, gwTestPositions(nil, 0, 0),
+		gwTestClock(), puTestCatalogs())
+	if len(pads) != 1 || pads[0].Weapon != "wall" {
+		t.Fatalf("1 socle de famille `wall` attendu : %+v", pads)
+	}
+	if cov.PowerupKept != 3 || cov.PowerupPads != 1 {
+		t.Errorf("couverture : retenues=%d socles=%d, attendu 3/1", cov.PowerupKept, cov.PowerupPads)
+	}
+	// SANS TABLE DE FORMES DEPLOYEES, le mur pose ne se distingue pas : l'hote qui ne la fournit pas
+	// n'obtient pas l'exclusion, ce que le test dit pour que l'absence ne passe pas pour une garantie.
+	sans := padCatalogs{EquipmentFamilies: puTestFamilies()}
+	pads, _, _, _ = buildWeaponPads(
+		PadScans{Powerups: puTestScan(puTestMurPose, 10, 10)}, gwTestPositions(nil, 0, 0),
+		gwTestClock(), sans)
+	if len(pads) != 1 {
+		t.Errorf("sans DeployedEquipment la forme posee est un equipement comme un autre : %+v", pads)
 	}
 }
 
@@ -273,7 +307,7 @@ func TestPowerupPadRuleSuitLeManifesteDuTitre(t *testing.T) {
 	if len(familles) == 0 {
 		t.Skip("catalogue d'identite `eqip` vide : le manifeste du titre n'a pas ete lu")
 	}
-	rule := powerupPadRule(familles)
+	rule := powerupPadRule(padCatalogs{EquipmentFamilies: familles})
 	for id, veut := range map[uint32]string{
 		puTestOvershield: "powerup_overshield",
 		puTestCamo:       "powerup_camo",
@@ -284,20 +318,24 @@ func TestPowerupPadRuleSuitLeManifesteDuTitre(t *testing.T) {
 				" change d'identifiant ?", id, got, ok, veut)
 		}
 	}
-	if _, ok := rule.Family(puTestMur); ok {
-		t.Errorf("%#08x (%q) est accepte comme power-up", puTestMur, familles[puTestMur])
-	}
-	// LA REGLE EST UN PREFIXE, PAS UNE LISTE DE DEUX : tout power-up que le manifeste ajoutera
+	// LA REGLE EST « TOUTE FAMILLE NOMMEE SAUF LA GRENADE » : tout equipement que le manifeste ajoutera
 	// doit passer sans qu'on revienne ici. Ce controle le verifie sur le catalogue reel.
 	var vus []string
 	for id, f := range familles {
-		if !strings.HasPrefix(f, padPowerupPrefix) {
-			continue
+		_, ok := rule.Family(id)
+		switch {
+		case strings.HasPrefix(f, padGrenadePrefix):
+			if ok {
+				t.Errorf("%#08x (%q) est une grenade que la regle ACCEPTE", id, f)
+			}
+		case f != "":
+			if !ok {
+				t.Errorf("%#08x (%q) est un equipement du manifeste que la regle REFUSE", id, f)
+			}
 		}
-		if _, ok := rule.Family(id); !ok {
-			t.Errorf("%#08x (%q) est un power-up du manifeste que la regle REFUSE", id, f)
+		if strings.HasPrefix(f, padPowerupPrefix) {
+			vus = append(vus, f)
 		}
-		vus = append(vus, f)
 	}
 	sort.Strings(vus)
 	if len(vus) < 2 {

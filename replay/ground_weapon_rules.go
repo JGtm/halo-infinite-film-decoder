@@ -282,7 +282,24 @@ func gwPadsClusterLess(a, b gwPadCluster) bool {
 func gwPadsKeep(in []gwPadCluster) ([]gwPadCluster, []int) {
 	out, src := make([]gwPadCluster, 0, len(in)), make([]int, 0, len(in))
 	for i, c := range in {
-		if len(c.TS) >= gwPadMinHits {
+		if gwPadRecurs(c) {
+			out, src = append(out, c), append(src, i)
+		}
+	}
+	return out, src
+}
+
+// gwPadRecurs dit qu'une grappe récurre : c'est le critère unique qui sépare un socle d'un candidat,
+// lu par [gwPadsKeep] et par [gwPadsSetAside].
+func gwPadRecurs(c gwPadCluster) bool { return len(c.TS) >= gwPadMinHits }
+
+// gwPadsSetAside rend les grappes que [gwPadsKeep] écarte — celles qui ne récurrent pas, donc à UNE
+// seule apparition — avec leur index d'origine dans `in`. C'est le complément exact de
+// [gwPadsKeep] : toute grappe est dans l'un ou dans l'autre.
+func gwPadsSetAside(in []gwPadCluster) ([]gwPadCluster, []int) {
+	out, src := make([]gwPadCluster, 0, len(in)), make([]int, 0, len(in))
+	for i, c := range in {
+		if !gwPadRecurs(c) {
 			out, src = append(out, c), append(src, i)
 		}
 	}

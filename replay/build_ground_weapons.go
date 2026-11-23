@@ -173,10 +173,11 @@ func attachWeaponPads(ctx context.Context,
 ) []gwPickupObject {
 	// L ADAPTATION DU CATALOGUE SE FAIT ICI, PAS DANS L ASSEMBLAGE : `buildWeaponPads` est PUR
 	// et ne prend que les deux tables qu il consomme, jamais le catalogue entier du titre.
-	var objs []gwPickupObject
-	doc.WeaponPads, doc.PadPickups, doc.Coverage.GroundWeapons, objs = buildWeaponPads(
-		scans, positions, clock,
-		padCatalogs{ObjectiveObjects: cat.ObjectiveObjects, EquipmentFamilies: cat.EquipmentFamilies})
+	c := buildPadsAndCandidates(scans, positions, clock, padCatalogs{
+		ObjectiveObjects: cat.ObjectiveObjects, EquipmentFamilies: cat.EquipmentFamilies,
+		DeployedEquipment: cat.DeployedEquipment})
+	doc.WeaponPads, doc.PadPickups, doc.Coverage.GroundWeapons = c.Pads, c.Picks, c.Cov
+	doc.PadCandidates = c.Candidates
 	logGroundWeaponCoverage(ctx, doc.Coverage.GroundWeapons)
-	return objs
+	return c.Objs
 }

@@ -132,6 +132,11 @@ func encodeEvenements(w *gwriter, g *FilmFacts) {
 		w.u(t.TimestampUS)
 		w.i(int64(t.FilmIndex))
 		w.u(uint64(t.TypeID))
+		w.bool8(t.HasLife)
+		if t.HasLife {
+			w.u(uint64(t.Life.Slot))
+			w.u(uint64(t.Life.Gen))
+		}
 	}
 
 	encodeTracks(w, g.Projectiles)

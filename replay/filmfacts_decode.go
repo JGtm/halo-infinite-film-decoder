@@ -164,12 +164,14 @@ func decodeEvenements(r *greader, g *FilmFacts) {
 		g.Loadouts = append(g.Loadouts, l)
 	}
 
-	n = r.compte(3)
+	n = r.compte(4)
 	g.Grenades = make([]grammar.GrenadeThrow, 0, n)
 	for k := 0; k < n && r.err == nil; k++ {
-		g.Grenades = append(g.Grenades, grammar.GrenadeThrow{
-			TimestampUS: r.u(), FilmIndex: int(r.i()), TypeID: uint32(r.u()),
-		})
+		t := grammar.GrenadeThrow{TimestampUS: r.u(), FilmIndex: int(r.i()), TypeID: uint32(r.u())}
+		if t.HasLife = r.bool8(); t.HasLife {
+			t.Life = types.LifeKey{Slot: uint32(r.u()), Gen: uint32(r.u())}
+		}
+		g.Grenades = append(g.Grenades, t)
 	}
 
 	g.Projectiles = decodeTracks(r)

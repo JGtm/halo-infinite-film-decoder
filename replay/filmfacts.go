@@ -266,7 +266,7 @@ const filmFactsMagic = "REPLAYINPUTS31\n"
 //	                  HasBody+Body.Health · HasShield+Shield.Shield+Shield.Q
 //	FireEvent         TimestampUS · FilmIndex (5 bits, -1) · WeaponID · FireNumber · Unit · HasAim+Aim
 //	KeyframeLoadout   TimestampUS · Slot · Families
-//	GrenadeThrow      TimestampUS · FilmIndex · TypeID
+//	GrenadeThrow      TimestampUS · FilmIndex · TypeID · HasLife+Life(Slot·Gen)
 //	ProjectileTrack   Slot · Gen · Pts(TimestampUS · X/Y/Z · AtRest)
 //	ProjectileDetonation TimestampUS · Genre · HasProjectile+Projectile(Slot·Gen) · HasPosition+X/Y/Z
 //	KeyframeInventory tout, sauf Chunk/PacketIndex (tracabilite dans le film, pas une entree)
