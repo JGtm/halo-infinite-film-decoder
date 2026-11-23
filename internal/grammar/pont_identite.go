@@ -49,6 +49,11 @@ type OptionsDuPont struct {
 	// RosterDesMorts construit le roster de la table d index a partir du fil des morts lu. Il
 	// n est appele que si le fil a rendu au moins une mort ; nil : la table n est pas lue.
 	RosterDesMorts func([]types.Death) []uint64
+	// FaitsDuFilm, quand il n est pas nil, tient les lectures du film seul deja faites par
+	// [LireLesFaitsDuFilmSeul] sur CE film : le pont ne les relit pas et ignore RosterDesMorts (le
+	// roster a ete donne a la lecture). Nil : le pont les lit lui-meme. Dans les deux cas, le pont
+	// verse les replis qu elles ont constates.
+	FaitsDuFilm *FaitsDuFilmSeul
 }
 
 // LecturesDuPont : les six lectures, chacune avec son erreur. Aucune n est fatale ICI.
@@ -113,16 +118,14 @@ func (e etageDuPont) lire(fc *FilmContext, opt OptionsDuPont) LecturesDuPont {
 	// LES DEUX LECTURES DE L ETAGE QUI SE REPLIENT RENDENT LEUR COMPTE (lot J8.7) : le fil des morts lu
 	// au dernier numero faute de manifeste, les chunks de replication sautes par la table d index.
 	// Ils rejoignent le rapport du contexte de l APPELANT.
-	tf := scanTempsForts(film)
-	l.Morts, l.ErrMorts, l.Medailles, l.MedaillesLues = tf.morts, tf.err, tf.medailles, tf.lu
-	fc.NoterReplis(ComptesDesReplis{TempsFortsAuDernierNumero: unSi(tf.auDernierNumero)})
-	if l.ErrMorts == nil && len(l.Morts) > 0 && opt.RosterDesMorts != nil {
-		l.IndexLu = true
-		var sautes int
-		l.Index, sautes, l.ErrIndex = scanPlayerIndices(film, opt.RosterDesMorts(l.Morts))
-		fc.NoterReplis(ComptesDesReplis{ChunksDeReplicationSautes: sautes})
+	// Les lectures du film seul sont celles de [LireLesFaitsDuFilmSeul] ; le pont verse leurs replis ICI,
+	// que les faits viennent de l appelant ou soient lus a l instant.
+	faits := opt.FaitsDuFilm
+	if faits == nil {
+		f := LireLesFaitsDuFilmSeul(film, opt.RosterDesMorts)
+		faits = &f
 	}
-	l.OrigineUS, l.ErrOrigine = ScanClockOrigin(film)
+	faits.verser(fc, &l)
 	return l
 }
 

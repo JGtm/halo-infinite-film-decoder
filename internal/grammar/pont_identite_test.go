@@ -116,3 +116,47 @@ func TestPontDIdentite_CreationsLuesAvantLesPositions(t *testing.T) {
 		t.Errorf("un filtre fourni par l appelant doit etre celui que l etage rend")
 	}
 }
+
+// TestPontAvecFaitsPrecalculesEgalAuPontSeul : le pont qui recoit les lectures du film seul deja
+// faites rend les memes lectures ET verse les memes replis que le pont qui les lit lui-meme. Deux
+// rosters : un roster fourni (table d index lue, chunks sautes comptes) et aucun (table non lue).
+// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : un pont qui verse les replis deux fois quand les faits
+// sont fournis ; un pont qui ignore les faits fournis et lit autre chose.
+func TestPontAvecFaitsPrecalculesEgalAuPontSeul(t *testing.T) {
+	roster := func(d []types.Death) []uint64 {
+		out := make([]uint64, 0, len(d))
+		for _, m := range d {
+			out = append(out, m.XUID)
+		}
+		return out
+	}
+	for nom, r := range map[string]func([]types.Death) []uint64{"avec roster": roster, "sans roster": nil} {
+		t.Run(nom, func(t *testing.T) {
+			film := chargerMiniBobine(t)
+			base := OptionsDuPont{Balayage: DefaultScanFilmOptions(), RosterDesMorts: r}
+			fcSeul := NewFilmContext(film)
+			seul := ScanPontDIdentite(fcSeul, base)
+
+			faits := LireLesFaitsDuFilmSeul(film, r)
+			avec := base
+			avec.FaitsDuFilm = &faits
+			fcAvec := NewFilmContext(film)
+			precalcule := ScanPontDIdentite(fcAvec, avec)
+
+			if seul.ErrMorts != nil || len(seul.Morts) == 0 {
+				t.Fatalf("fil des morts de la mini-bobine : %d morts, err %v", len(seul.Morts), seul.ErrMorts)
+			}
+			if r != nil && !seul.IndexLu {
+				t.Fatal("la table d index n a pas ete lue : le cas n exerce pas l index")
+			}
+			// Le tas de generations est un pointeur propre a chaque contexte : on compare le reste.
+			seul.Generations, precalcule.Generations = nil, nil
+			if !reflect.DeepEqual(seul, precalcule) {
+				t.Errorf("lectures differentes :\n  seul        %+v\n  precalcule  %+v", seul, precalcule)
+			}
+			if a, b := fcSeul.ComptesDesReplis(), fcAvec.ComptesDesReplis(); a != b {
+				t.Errorf("replis verses differents :\n  seul        %+v\n  precalcule  %+v", a, b)
+			}
+		})
+	}
+}
