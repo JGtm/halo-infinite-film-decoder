@@ -144,11 +144,17 @@ type HitCoverage struct {
 	AfterEnd     int `json:"afterEnd"`
 	// Sufficient est le nombre de joueurs dont les données suffisent, sur Players joueurs au bilan.
 	Sufficient int `json:"sufficient"`
-	// Damages est le nombre de lignes de `damage[]` posées, DamagesMeasured celles dont les points viennent de la vie lue autour du coup, DamagesOffUnit les
+	// Damages est le nombre de lignes de `damage[]` posées QUI RETIRENT DES POINTS, DamagesMeasured celles dont les points viennent de la vie lue autour du coup, DamagesOffUnit les
 	// messages dont l unite blessee n a pas de piste a cette frame (un vehicule, un objet) : ni publies ni comptes.
 	Damages         int `json:"damages"`
 	DamagesMeasured int `json:"damagesMeasured"`
 	DamagesOffUnit  int `json:"damagesOffUnit"`
+	// Les messages à zéro point ont leurs compteurs, hors de ceux qui précèdent (qui ne comptent que des dégâts) : DamagesZero les lignes de
+	// `damage[]` dont `shield` et `body` sont nuls (len(damage[]) = Damages + DamagesZero), DamagesZeroOffUnit les messages dont l'unité blessée
+	// n'a pas de piste, DamagesZeroOutOfAxis ceux dont l'instant tombe avant la frame 0 ou après la dernière.
+	DamagesZero          int `json:"damagesZero"`
+	DamagesZeroOffUnit   int `json:"damagesZeroOffUnit"`
+	DamagesZeroOutOfAxis int `json:"damagesZeroOutOfAxis"`
 	// SelfHits est le nombre de touches d une arme sur son propre tireur (une arme a zone), SelfDamages celui des lignes de degat qu un joueur se fait a
 	// lui-meme : ni les unes ni les autres ne sont des touches ni du degat inflige, elles se comptent a part.
 	SelfHits    int `json:"selfHits"`

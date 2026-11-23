@@ -101,6 +101,8 @@ func TestBuildHits(t *testing.T) {
 			c.cov.Estimated, c.cov.MinCoverage, c.cov.MaxDuplicates, c.cov.MaxStoppedShare = true, minCouvertureDesTirs, maxDoublonsDeTouches, maxPartDeTramesArretees
 			c.cov.Messages = len(c.degats)
 			cov.Players, cov.Sufficient = 0, 0
+			// Ces messages sont sans points : ils sont des lignes à zéro point, que TestDegatsAZeroPoint compte ; les touches ne les voient pas.
+			cov.DamagesZero, cov.DamagesZeroOffUnit, cov.DamagesZeroOutOfAxis = 0, 0, 0
 			if cov != c.cov {
 				t.Errorf("couverture %+v, attendu %+v", cov, c.cov)
 			}
