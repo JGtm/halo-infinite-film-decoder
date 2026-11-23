@@ -40,6 +40,9 @@ func comparerAuTableau(actions []ScoreAction, tableau map[string]int, cov *Score
 	}
 	positifs := map[string]int{}
 	for _, a := range actions {
+		if a.XUID == "" { // un bot : le tableau ne le nomme pas, rien à comparer
+			continue
+		}
 		positifs[a.XUID] += max(a.Points, 0)
 	}
 	comparer := func(xuid string) {

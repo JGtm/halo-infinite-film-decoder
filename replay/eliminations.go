@@ -156,11 +156,14 @@ func abs(v int) int {
 	return v
 }
 
-// victimsOf rend, pour chaque élimination (frames croissantes), la victime de l'action de score du joueur qui lui
-// correspond, "" sans action. Les actions sont triées par image. Deux passes : d'abord la même image, dans l'ordre, puis
+// victimsOf rend, pour chaque élimination (frames croissantes), l'index de l'action de score du joueur qui lui
+// correspond, -1 sans action. Les actions sont triées par image. Deux passes : d'abord la même image, dans l'ordre, puis
 // l'image voisine pour ce qui reste ; une action ne sert qu'une fois.
-func victimsOf(frames []int, actions []ScoreAction, maxWindow int) []string {
-	out := make([]string, len(frames))
+func victimsOf(frames []int, actions []ScoreAction, maxWindow int) []int {
+	out := make([]int, len(frames))
+	for i := range out {
+		out[i] = -1
+	}
 	taken := make([]bool, len(frames))
 	used := make([]bool, len(actions))
 	for window := 0; window <= maxWindow; window++ {
@@ -172,7 +175,7 @@ func victimsOf(frames []int, actions []ScoreAction, maxWindow int) []string {
 				if used[j] || abs(a.T-f) > window {
 					continue
 				}
-				out[i], taken[i], used[j] = a.Target, true, true
+				out[i], taken[i], used[j] = j, true, true
 				break
 			}
 		}
@@ -199,6 +202,39 @@ func markHead(e *Elimination, v headVerdict, cov *EliminationCoverage) {
 	case headVerdictGuarded:
 		cov.HeadGuarded++
 	}
+}
+
+// poserLaVictime pose sur `e` la victime que l'action de score donne (un xuid, ou la place d'un bot) et la compte dans cov ;
+// une action qui ne nomme personne ne pose rien.
+func poserLaVictime(e *Elimination, a ScoreAction, cov *EliminationCoverage) {
+	switch {
+	case a.Target != "":
+		e.Victim = a.Target
+	case a.TargetPlace != nil:
+		e.VictimPlace = a.TargetPlace
+		cov.VictimPlaces++
+	default:
+		return
+	}
+	cov.WithVictim++
+}
+
+// eliminationsDeBots rend les éliminations des bots : une par action `killPersonalScore` posée à une place de bot. Le bot n'a
+// ni courbe de tableau ni compteur de tirs à la tête ni médaille rattachée : `headshot` et `perfect` restent absents, et la
+// ligne se compte parmi les inconnus faute de compteur.
+func eliminationsDeBots(actions []ScoreAction, cov *EliminationCoverage) []Elimination {
+	var out []Elimination
+	for _, a := range actions {
+		if a.Name != killScoreActionName || a.XUID != "" || a.Place == nil {
+			continue
+		}
+		e := Elimination{T: a.T, Place: a.Place}
+		poserLaVictime(&e, a, cov)
+		cov.BotEliminations++
+		cov.HeadNoCounter++
+		out = append(out, e)
+	}
+	return out
 }
 
 // eliminationsOfPlayer rend les éliminations d'un joueur et compte dans cov ce qu'elles valent. Rend nil sans pas.
@@ -232,10 +268,9 @@ func eliminationsOfPlayer(p PlayerScore, actions []ScoreAction, medalFrames []in
 			frames = append(frames, s.t)
 		}
 	}
-	for i, v := range victimsOf(frames, actions, windowFrames(victimWindowMS, in.StepMS)) {
-		if v != "" {
-			out[i].Victim = v
-			cov.WithVictim++
+	for i, j := range victimsOf(frames, actions, windowFrames(victimWindowMS, in.StepMS)) {
+		if j >= 0 {
+			poserLaVictime(&out[i], actions[j], cov)
 		}
 	}
 	return out
@@ -261,6 +296,7 @@ func buildEliminations(in eliminationInput) ([]Elimination, EliminationCoverage)
 		out = append(out, eliminationsOfPlayer(p, actionsBy[p.XUID], medalsBy[p.XUID], in, &cov)...)
 		delete(medalsBy, p.XUID)
 	}
+	out = append(out, eliminationsDeBots(in.Actions, &cov)...)
 	for _, frames := range medalsBy {
 		cov.PerfectOrphans += len(frames)
 	}
@@ -268,7 +304,8 @@ func buildEliminations(in eliminationInput) ([]Elimination, EliminationCoverage)
 	cov.HeadUnknown = cov.HeadNoCounter + cov.HeadAmbiguous + cov.HeadGuarded
 	cov.PerfectUnknown = cov.Eliminations - cov.PerfectYes
 	slices.SortStableFunc(out, func(a, b Elimination) int {
-		return cmp.Or(cmp.Compare(a.T, b.T), cmp.Compare(a.XUID, b.XUID), cmp.Compare(a.Victim, b.Victim))
+		return cmp.Or(cmp.Compare(a.T, b.T), cmp.Compare(a.XUID, b.XUID), cmp.Compare(placeOuMoinsUn(a.Place), placeOuMoinsUn(b.Place)),
+			cmp.Compare(a.Victim, b.Victim), cmp.Compare(placeOuMoinsUn(a.VictimPlace), placeOuMoinsUn(b.VictimPlace)))
 	})
 	return out, cov
 }
