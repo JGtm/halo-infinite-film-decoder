@@ -65,6 +65,9 @@ type creationsRelevees struct {
 	fondues      bool
 	finales      []types.EquipmentCreation
 	statsFinales types.EquipmentCreationStats
+	// repli : ce que le rendu des creations a compte au repli `repli_creations_du_monde_apres_la_marche`,
+	// pour que [FilmContext.Fusionner] ne le recompte pas quand le contexte parent portait deja ce rendu.
+	repli int
 }
 
 // creationsDe rend ce qui a ete marche sous la cle `k`.
@@ -128,7 +131,7 @@ func (c *FilmContext) creationsRelevees(w equipCreationWalk) ([]types.EquipmentC
 	if !r.fondues {
 		var recuperees int
 		r.finales, r.statsFinales, recuperees = c.creationsDerriereLaMarche(w, r.creations, r.stats)
-		r.fondues = true
+		r.fondues, r.repli = true, recuperees
 		// Repli `repli_creations_du_monde_apres_la_marche` : les creations que la passe rend derriere
 		// la marche (2.7.d3).
 		c.NoterReplis(ComptesDesReplis{CreationsDuMondeApresLaMarche: recuperees})

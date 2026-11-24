@@ -64,8 +64,10 @@ jobs:
           CGO_ENABLED: "1"
 
   # D-5 (deux films décodés en parallèle ne partagent aucun état) et le décodage d un film sur plusieurs
-  # fils (pré-passage des images-clés dans grammar, tâche de fond dans replay) sont prouvés sous -race :
-  # mini-bobines du dépôt, aucune base. cgo obligatoire pour -race.
+  # fils (pré-passage des images-clés dans grammar, tâche de fond et voies dans replay) sont prouvés sous
+  # -race : mini-bobines et bornes de cartes du dépôt (internal/grammar/testdata), aucune base ni racine de
+  # données. Un test de ce filtre qui se déclarerait absent ne prouverait rien : ceux-ci ne sautent jamais.
+  # cgo obligatoire pour -race.
   film-race:
     name: Film race (grammar, replay)
     runs-on: ubuntu-latest

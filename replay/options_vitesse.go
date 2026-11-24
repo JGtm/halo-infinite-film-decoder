@@ -21,8 +21,12 @@ const MaxFils = 8
 //
 // La valeur zero est valide et vaut le comportement actuel : un seul fil.
 type OptionsVitesse struct {
-	// Fils : nombre de fils que le decodeur a le droit de lancer. 0 ou negatif -> un fil (comportement
-	// actuel). Le nombre reellement employe est FilsEffectifs.
+	// Fils : nombre de fils que le decodeur a le droit d'employer. Borne reelle : a un fil, ou 0 ou
+	// negatif, aucune goroutine n'est lancee ; a `Fils` >= 2, au plus `Fils`+3 goroutines calculent en meme
+	// temps (le pre-passage des images-cles lance `Fils` ouvriers pendant que la tache de fond et les deux
+	// voies du balayage calculent ; la chaine principale attend alors ses ouvriers). Les trois points de
+	// lancement sont comptes par `TestFilsBorneReelleDesFilsQuiCalculent`. Le nombre reellement employe
+	// est FilsEffectifs. La sortie ne depend pas de cette valeur.
 	Fils int
 }
 

@@ -1,6 +1,8 @@
 package grammar
 
-// fils.go — L'UNIQUE SOURCE DE GOROUTINES DU DECODEUR (garde-rail : depottest.TestUneSeuleSourceDeGoroutines).
+// fils.go — L'ASSISTANT DE FILS DE LA GRAMMAIRE, L'UN DES TROIS POINTS DE LANCEMENT DE GOROUTINES DU DECODEUR
+// (les deux autres, dans `replay`, sont la tache de fond et les voies du balayage ; garde-rail :
+// depottest.TestUneSeuleSourceDeGoroutines, qui nomme les trois fichiers et refuse tout autre).
 //
 // executerEnParallele distribue des taches independantes sur au plus n fils, sans rien partager
 // d'autre qu'un compteur : chaque tache s'ecrit dans un emplacement que l'appelant a prevu pour son
@@ -45,6 +47,9 @@ func executerEnParallele(n, nbTaches int, fn func(i int)) {
 	for f := 0; f < n; f++ {
 		go func() {
 			defer jointure.Done()
+			// Le fil cesse de compter AVANT la jointure : l'appelant peut alors rendre ses jetons.
+			SuivreLeCalcul(1)
+			defer SuivreLeCalcul(-1)
 			for {
 				i := int(suivant.Add(1)) - 1
 				if i >= nbTaches {
@@ -60,7 +65,10 @@ func executerEnParallele(n, nbTaches int, fn func(i int)) {
 			}
 		}()
 	}
+	// L'appelant attend : il ne calcule pas pendant que ses fils le font.
+	SuivreLeCalcul(-1)
 	jointure.Wait()
+	SuivreLeCalcul(1)
 	if indiceP >= 0 {
 		panic(panique)
 	}

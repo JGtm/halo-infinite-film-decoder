@@ -34,12 +34,15 @@ package grammar
 //   - la marche gardee pour la cuisson ([memoDesRecuperations.marche]) : elle se consomme (`rendue`,
 //     `prise`), elle reste au parent ;
 //   - les memos des pistes et des creations du monde : ils se mutent apres leur creation
-//     (`finales`, `fondues`) ; la voie qui les demande en est l'unique proprietaire, et le parent ne
-//     doit pas les avoir demandes avant de deriver (sinon la voie les releve de nouveau, et leur repli
-//     « apres la marche » se compte deux fois) ;
+//     (`finales`, `fondues`) ; la voie qui les demande en est l'unique proprietaire. Le parent peut les
+//     avoir demandes avant de deriver : la voie les releve alors de nouveau, pour lire les memes valeurs,
+//     et [FilmContext.Fusionner] n'ajoute pas le repli « apres la marche » que le parent a deja compte ;
 //   - plus d'un fil : une voie est une file serielle, [FilmContext.Fils] y vaut 1.
 
-import "maps"
+import (
+	"errors"
+	"maps"
+)
 
 // etatDeVoie est ce qu'un contexte de voie sait de sa derivation.
 type etatDeVoie struct {
@@ -63,17 +66,19 @@ func (c *FilmContext) laMarcheEstFaite() bool {
 // generations vivantes (donc les creations de bipede et les vies des images-cles) et l'ancrage bipede.
 //
 // Chauffer ne lance JAMAIS la marche des trames : sur un contexte dont la marche n'a pas tourne, les
-// memos qu'elle remplit restent vides et [FilmContext.EstChaud] rend faux. Idempotent. Sans effet sur
+// memos qu'elle remplit restent vides et [FilmContext.EstChaud] rend faux. Idempotent. Rend les erreurs du
+// decoupage d'i0 et du registre : elles sont rangees dans le memo, chaque lecteur les retrouve, et la
+// chauffe continue (un film sans registre ou sans decoupage est chaud, ses lecteurs rendent l'erreur). Sans effet sur
 // un contexte nil.
-func (c *FilmContext) Chauffer() {
+func (c *FilmContext) Chauffer() error {
 	if c == nil {
-		return
+		return nil
 	}
 	c.Observation()
 	c.ChunkNumbers()
 	c.BipedSlots()
-	c.I0Layout()
-	c.Registry()
+	_, errLay := c.I0Layout()
+	_, errReg := c.Registry()
 	c.Profile()
 	c.controleDeCorruptionDuFilm()
 	c.MarcheDImageCle()
@@ -87,6 +92,7 @@ func (c *FilmContext) Chauffer() {
 		// Seul le rangement du memo compte ; l instant passe ne juge aucun record.
 		c.GenerationsVivantesA(0)
 	}
+	return errors.Join(errLay, errReg)
 }
 
 // EstChaud dit si aucun balayage de lecture ne peut plus ecrire dans un memo partage : tous les memos
@@ -156,7 +162,9 @@ func (c *FilmContext) Deriver() *FilmContext {
 //     non declare) ne s'ajoutent que si `c` ne les a pas deja comptes : le premier qui compte gagne, les
 //     autres sont ecartes, et les drapeaux se combinent par OU ;
 //   - les diagnostics, a la suite de ceux de `c` : l'ordre des fusions est celui des diagnostics ;
-//   - les pistes et les creations du monde que `c` ne porte pas encore.
+//   - les pistes et les creations du monde que `c` ne porte pas encore ; ce que la voie a compte au repli
+//     pour un rendu que `c` portait deja n'est pas ajoute : le compte est celui d'un fil, que `c` ait ou
+//     non demande ces memos avant de deriver.
 //
 // Rien d'autre ne remonte : le profil de balayage de la voie et son observation (ses compteurs ne
 // sont lus par aucune production) sont abandonnes. Une voie ne se fusionne qu'une fois, dans son
@@ -167,6 +175,9 @@ func (c *FilmContext) Fusionner(voie *FilmContext) {
 	}
 	voie.voie.fusionnee = true
 	d := voie.replis.comptes
+	pistes, creations := c.reprendreLesMemosDuMonde(voie)
+	d.PistesDuMondeApresLaMarche -= pistes
+	d.CreationsDuMondeApresLaMarche -= creations
 	if c.replis.i0Note {
 		d.I0PorteEtRegionParDefaut = 0
 	}
@@ -181,20 +192,38 @@ func (c *FilmContext) Fusionner(voie *FilmContext) {
 	c.replis.regNote = c.replis.regNote || voie.replis.regNote
 	c.duFilm.compte = c.duFilm.compte || voie.duFilm.compte
 	voie.diag.Verser(&c.diag)
-	c.reprendreLesMemosDuMonde(voie)
 }
 
-// reprendreLesMemosDuMonde range dans `c` les pistes et les creations du monde que la voie a relevees
-// et que `c` ne porte pas deja (meme cle). La voie en est l'unique proprietaire : on prend ses pointeurs.
-func (c *FilmContext) reprendreLesMemosDuMonde(voie *FilmContext) {
+// reprendreLesMemosDuMonde range dans `c` les pistes et les creations du monde que la voie a relevees et
+// que `c` ne porte pas deja (meme cle), et rend ce que la voie a compte au repli pour des rendus que `c`
+// portait deja : le contexte parent les avait comptes, un seul fil ne les aurait pas comptes de nouveau.
+// La voie en est l'unique proprietaire : on prend ses pointeurs. Un rendu que `c` porte sans l'avoir fait
+// (entree relevee, rendu d'un archetype ou des creations absent) est repris de la voie, avec son compte.
+func (c *FilmContext) reprendreLesMemosDuMonde(voie *FilmContext) (dejaComptePistes, dejaCompteCreations int) {
 	for _, p := range voie.recup.pistes {
-		if _, deja := c.recup.pistesDe(p.wr, p.lg, p.slots); !deja {
+		mien, deja := c.recup.pistesDe(p.wr, p.lg, p.slots)
+		if !deja {
 			c.recup.pistes = append(c.recup.pistes, p)
+			continue
+		}
+		for ti, f := range p.finales {
+			if _, fait := mien.finales[ti]; fait {
+				dejaComptePistes += p.recuperes[ti]
+			} else if mien.finales != nil && mien.recuperes != nil {
+				mien.finales[ti], mien.recuperes[ti] = f, p.recuperes[ti]
+			}
 		}
 	}
 	for _, r := range voie.recup.creations {
-		if _, deja := c.recup.creationsDe(r.cle); !deja {
+		mien, deja := c.recup.creationsDe(r.cle)
+		switch {
+		case !deja:
 			c.recup.creations = append(c.recup.creations, r)
+		case mien.fondues:
+			dejaCompteCreations += r.repli
+		case r.fondues:
+			mien.fondues, mien.finales, mien.statsFinales, mien.repli = true, r.finales, r.statsFinales, r.repli
 		}
 	}
+	return dejaComptePistes, dejaCompteCreations
 }

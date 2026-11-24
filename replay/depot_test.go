@@ -15,11 +15,13 @@ import (
 // depot hote. Un test de la brique Halo Infinite le dit en clair : aucune branche sur le titre.
 const titreDeReference = "halo_infinite"
 
-// bornesDeCartes rend le chemin du catalogue versionne des bornes de quantification
-// (`data/titles/halo_infinite/reference/map_quant_bounds.json`) dans le depot hote.
+// bornesDeCartes rend le chemin du catalogue des bornes de quantification que la brique porte dans
+// les fixtures de `internal/grammar` (une seule copie, tenue octet a octet sur le catalogue livre par
+// l'hote par `TestLesBornesDeTestSontLeCatalogueLivre`) : les tests de ce paquet qui ont besoin des
+// bornes d'une carte tournent sans depot hote.
 func bornesDeCartes(t testing.TB) string {
 	t.Helper()
-	return filepath.Join(depottest.Racine(t), "data", "titles", titreDeReference, "reference", "map_quant_bounds.json")
+	return filepath.Join("..", "internal", "grammar", "testdata", "map_quant_bounds.json")
 }
 
 // cacheDuDepot rend le dossier `data/cache` du depot hote (films decoupes, artefacts : le parc

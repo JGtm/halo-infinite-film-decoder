@@ -58,6 +58,7 @@ package replay
 
 import (
 	"errors"
+	"log/slog"
 	"sync/atomic"
 
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
@@ -105,8 +106,10 @@ func (l *voie) arretee() bool { return l.arret.Load() }
 func (l *voie) lancer(corps func()) {
 	l.fini = make(chan struct{})
 	go func() {
+		grammar.SuivreLeCalcul(1)
 		complet := false
 		defer func() {
+			grammar.SuivreLeCalcul(-1)
 			p := recover()
 			if p == nil && !complet && !l.arretee() {
 				p = errVoieInterrompue
@@ -150,7 +153,10 @@ func (s *filmScan) demarrerLesVoies() *voiesDuBalayage {
 	if s.fc.Fils() <= 1 || s.errMarche != nil || s.fond == nil {
 		return nil
 	}
-	s.fc.Chauffer()
+	if err := s.fc.Chauffer(); err != nil {
+		// Memorisee : les lectures des voies et de la chaine retrouvent la meme erreur, comme a un fil.
+		slog.DebugContext(s.ctx, "contexte chauffe avec un decoupage ou un registre illisible", "err", err)
+	}
 	if !s.fc.EstChaud() {
 		return nil
 	}

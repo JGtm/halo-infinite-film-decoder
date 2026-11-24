@@ -107,6 +107,8 @@ func (s *filmScan) demarrerLeFond() *fondDuFilm {
 // lireLeFond est le corps de la tache : les trois lectures, dans l ordre ou le balayage en a besoin (le pont,
 // puis les scripts, puis la table). Chaque valeur est rendue des qu elle est prete.
 func (f *fondDuFilm) lireLeFond(film *source.Film, roster func([]types.Death) []uint64) {
+	grammar.SuivreLeCalcul(1)
+	defer grammar.SuivreLeCalcul(-1)
 	defer f.terminer()
 	f.faits.val = grammar.LireLesFaitsDuFilmSeul(film, roster)
 	f.faits.clore(nil)

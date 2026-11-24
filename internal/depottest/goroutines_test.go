@@ -12,13 +12,15 @@ import (
 )
 
 // fichiersAutorisesAGoroutines nomme les seuls fichiers de production qui portent une instruction
-// `go`. Le decodeur ne lance de fil que par l'assistant de fils de la grammaire, par la tache de
-// fond du balayage de `replay` (une goroutine qui lit, sans contexte de film, ce qui ne depend que du
-// film charge ; elle est toujours attendue par l'appelant) et par les voies du balayage (deux files de
-// lectures d'apres la marche, chacune sur un contexte derive, pendant que le fil principal deroule sa chaine :
-// l'assistant de fils joint avant de rendre la main et ne le permettrait pas ; elles sont toujours jointes
-// avant la sortie du balayage) ; les deux autres entrees sont des outils
-// qui l'entourent (le garde-memoire et le profilage de la commande de mesure) et ne decodent rien.
+// `go`. Le decodeur a TROIS points de lancement, tous nommes ici, et tout autre est refuse : l'assistant
+// de fils de la grammaire (`internal/grammar/fils.go`), la tache de fond du balayage de `replay` (une
+// goroutine qui lit, sans contexte de film, ce qui ne depend que du film charge ; elle est toujours attendue
+// par l'appelant) et les voies du balayage (files de lectures d'apres la marche, chacune sur un contexte
+// derive, pendant que le fil principal deroule sa chaine : l'assistant de fils joint avant de rendre la
+// main et ne le permettrait pas ; elles sont toujours jointes avant la sortie du balayage). Le nombre de
+// goroutines qui calculent en meme temps est borne par `Fils`+3 (voir `OptionsVitesse.Fils`). Les deux
+// autres entrees sont des outils qui l'entourent (le garde-memoire et le profilage de la commande de
+// mesure) et ne decodent rien.
 var fichiersAutorisesAGoroutines = map[string]bool{
 	"internal/grammar/fils.go":  true,
 	"replay/film_scan_fond.go":  true,
@@ -27,7 +29,8 @@ var fichiersAutorisesAGoroutines = map[string]bool{
 	"cmd/film-bench/profil.go":  true,
 }
 
-// TestUneSeuleSourceDeGoroutines : aucune instruction `go` dans le code de production du module
+// TestUneSeuleSourceDeGoroutines (le nom est historique : il y a trois points de lancement nommes) :
+// aucune instruction `go` dans le code de production du module
 // (fichiers non `_test.go`, toutes contraintes de compilation confondues) hors des fichiers de
 // [fichiersAutorisesAGoroutines] ; et la liste ne garde aucune entree sans instruction `go`.
 func TestUneSeuleSourceDeGoroutines(t *testing.T) {
