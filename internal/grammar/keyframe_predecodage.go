@@ -65,10 +65,11 @@ func tacheDesEntetesExacts(_ entreesDuPredecodage, pay []byte) func(c *FilmConte
 	}
 }
 
-// tacheDesAncres calcule la marche d'ancres du payload ([calculerLaMarche]) ; son rangement la pose
-// dans le memo des marches si le payload n'y est pas deja.
+// tacheDesAncres calcule la marche d ancres du payload sous la preuve du film ([MarcheDImageCle.Marcher] sans
+// memo : une fonction pure des octets et de la preuve, que le fil du pre-passage ne fait que lire) ; son
+// rangement la pose dans le memo des marches si le payload n y est pas deja.
 func tacheDesAncres(e entreesDuPredecodage, pay []byte) func(c *FilmContext) {
-	mp := calculerLaMarche(pay, e.preuve)
+	mp := MarcheDImageCle{preuve: e.preuve}.Marcher(pay)
 	return func(c *FilmContext) { c.marches.poserSiAbsent(pay, mp) }
 }
 

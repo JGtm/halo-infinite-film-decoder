@@ -80,7 +80,9 @@ func (m MarcheDImageCle) RecordsStats(pay []byte) ([]KeyframeRec, KeyframeWalkSt
 	return mp.Records, mp.Stats
 }
 
-// Marcher rend tout ce que la marche d'un payload d'image-clé a lu et décidé.
+// Marcher rend tout ce que la marche d'un payload d'image-clé a lu et décidé. Sans mémoire (une valeur
+// construite avec la seule preuve, comme le fait le pré-passage), c'est une fonction pure des octets et de la
+// preuve : l'unique appel de la marche de production, donc sous la preuve du film.
 func (m MarcheDImageCle) Marcher(pay []byte) MarcheDePayload {
 	mem := m.memoire
 	if len(pay) == 0 {
@@ -96,7 +98,7 @@ func (m MarcheDImageCle) Marcher(pay []byte) MarcheDePayload {
 			return mp.copie()
 		}
 	}
-	mp := calculerLaMarche(pay, m.preuve)
+	mp := marcherLaTable(&kfRecherche{buf: pay, total: len(pay) * 8, maxWin: kfScanFenetreBits, preuve: m.preuve})
 	if mem != nil {
 		mem.mu.Lock()
 		mem.parPayload[cle] = mp
@@ -104,14 +106,6 @@ func (m MarcheDImageCle) Marcher(pay []byte) MarcheDePayload {
 		return mp.copie()
 	}
 	return mp
-}
-
-// calculerLaMarche est la marche d'ancres d'un payload sous une preuve : une fonction pure de ses
-// deux arguments, qui n'ecrit rien hors de ses locales (ni memo, ni contexte). Elle est appelee par
-// [MarcheDImageCle.Marcher] et, sur plusieurs fils, par le pre-passage ([tacheDesAncres]) ; la
-// preuve n'y est que lue.
-func calculerLaMarche(pay []byte, preuve *PreuveDImageCle) MarcheDePayload {
-	return marcherLaTable(&kfRecherche{buf: pay, total: len(pay) * 8, maxWin: kfScanFenetreBits, preuve: preuve})
 }
 
 // poserSiAbsent range la marche de `pay` dans le memo si le payload n'y est pas deja (un payload
