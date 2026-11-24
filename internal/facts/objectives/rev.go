@@ -338,6 +338,12 @@ package objectives
 // l instant de l emission qui la porte, et une valeur negative ou un zero portes par une penalite confirmee ne sont plus jetes (`score_penalties.go`, `score.go`, `named_series.go`) ; (6) le tableau d un match VIP lit trois compteurs de mode, `timeAsVip` (23 B), `longestTimeAsVip` (23 A) et `maxSpreeAsVip` (22 B), en courbes par joueur (`scoreboard_stats.go`, `named_kill_bound.go`).
 // LA SORTIE CHANGE : `scoreTimeline.players[].score` recule de la penalite et peut tomber sous zero ; `scoreTimeline.players[].stats` gagne trois courbes sur un film VIP que l hote reconnait. Les enregistrements, les entrees et les plages ne changent pas. Mesure a l entree de chronique de `replay.SchemaVersion` 127 (dix-huitieme et dix-neuvieme apports).
 
+// ENTREE `objectives-2026-11-24` (2026-11-24, deux compteurs de manche admise) : LA SORTIE CHANGE PAR DEUX COMPTEURS, AUCUNE VALEUR DE MANCHE NE CHANGE.
+//
+// `RoundsDecision` gagne `AdmittedByShare` (manches retenues que seul le critere de la matiere admet : plancher d enregistrements et part de la manche la plus fournie, sans suite coherente du score de mode) et `AdmittedByReset` (manches que seule la remise a zero simultanee des scores admet : fenetre d une seconde, deux joueurs au moins, moitie des slots, ni suite coherente ni matiere), publies par la couche de publication sous `coverage.score.roundsAdmittedByShare` et `roundsAdmittedByReset`. Les deux criteres anterieurs n avaient aucun compteur. Les manches retenues, les series et les calques ne changent pas (les tests existants de la couche passent sans changement de valeur) : seule la couverture publiee gagne deux listes, d ou la montee.
+//
+// `grammar.Rev` monte derriere cette ligne (entree `grammar-2026-11-24`).
+
 // Rev est la revision de la sortie des objectifs.//
 // A REVISION CONSTANTE (passes derriere la marche, 2026-11-13) : la VALEUR de `grammar.Rev` (`grammar-2026-11-13`) monte ; aucune
 // source de cette couche ne change. L empreinte du golden est recopiee au meme rang.
@@ -361,4 +367,4 @@ package objectives
 // du Drapeau ne se compte plus que sur un film que cette table reconnait. [NamedEventsFromAutreFamille] lit les seuls emplacements que le verdict compte, sans jugement par la table, et [ReplisALaConsultation.Essai] ouvre l'enregistreur a part ; les lectures
 // d'une famille par sa propre table ([NamedEventsFrom]) ne changent pas, aucune serie, aucun evenement, aucun calque ne change : la sortie qui bouge est le compte des replis de six films du corpus (`01e1f945` 515 -> 11, `d9781168` 1 838 -> 0, `60ae07c4` 1 952 -> 0,
 // `696a9d7c` 38 -> 0, `7344d24f` 36 -> 0, `50247b26` 44 -> 4), et il revient en dessous ou au niveau de celui d'avant les deux canaux. Les faits persistes portent les enregistrements bruts : ils ne sont pas perimes. L empreinte du golden est recopiee au meme rang.
-const Rev = "objectives-2026-11-23"
+const Rev = "objectives-2026-11-24"

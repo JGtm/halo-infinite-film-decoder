@@ -29,7 +29,8 @@ const largeurDirection = 19
 // chargeDuGenre rend le lecteur de la charge d un genre ; nil : charge non portee. La version d un
 // genre (`FUN_141102ed0`) y est la version native : la vue A ne se lit que sur un film qui la
 // declare ([classeDesGenres]). Les trois genres de disposition mesuree ([chargeMesuree]) ne sont portes
-// que sur un film dont le build les etablit ([grammaireDeLaVueA.chargesMesurees]).
+// que sur un film dont le build les etablit ([grammaireDeLaVueA.chargesMesurees]) ; les genres 13, 27, 93 et 117 de meme
+// ([grammaireDeLaVueA.interruptionDuMoteur] et ses trois voisins).
 func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolint:gocyclo // un case par genre de message porte (aiguillage)
 	switch genre {
 	case 0:
@@ -45,7 +46,10 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 	case 9:
 		return chargeRamassage
 	case 13:
-		return chargeInterruptionDuMoteur
+		if g.interruptionDuMoteur {
+			return chargeInterruptionDuMoteur
+		}
+		return nil
 	case 15:
 		return chargeScript
 	case 21:
@@ -53,7 +57,10 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 	case 22:
 		return chargeSortieDeVehicule
 	case 27:
-		return chargeReponseDeBascule
+		if g.basculeDeControle {
+			return chargeReponseDeBascule
+		}
+		return nil
 	case TypeTirArme:
 		return chargeTirArme
 	case GenreRechargement:
@@ -69,7 +76,10 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 	case 88:
 		return chargeRetourDeCarte
 	case 93:
-		return chargeActivationDeCapacite
+		if g.activationDeCapacite {
+			return chargeActivationDeCapacite
+		}
+		return nil
 	case 109:
 		return chargeCycleDeVieIA
 	case GenreJoueurTue:
@@ -77,7 +87,10 @@ func chargeDuGenre(genre int, g grammaireDeLaVueA) func(*Lecteur) bool { //nolin
 	case 116:
 		return chargeEffetsDeTeleportation
 	case 117:
-		return chargeTeleportationDuTranslocateur
+		if g.teleportationDuTranslocateur {
+			return chargeTeleportationDuTranslocateur
+		}
+		return nil
 	case 120:
 		return chargeAppelDeJoueur
 	}

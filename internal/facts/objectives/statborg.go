@@ -257,6 +257,16 @@ const statMinRoundRecords = 25
 // du nombre de joueurs, et deux slots suffiraient a faire passer un ancrage.
 func materialRounds(recs []types.StatRecord) map[int]bool {
 	out := simultaneousResetRounds(recs)
+	for round := range roundsByShare(recs) {
+		out[round] = true
+	}
+	return out
+}
+
+// roundsByShare rend les manches que le critere de la matiere admet seul (plancher absolu et part de la manche
+// la plus fournie), sans la remise a zero simultanee.
+func roundsByShare(recs []types.StatRecord) map[int]bool {
+	out := map[int]bool{}
 	parRound := map[int]int{}
 	for _, r := range recs {
 		if IsTeamSlot(r.Slot) {

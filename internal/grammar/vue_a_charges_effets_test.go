@@ -28,7 +28,9 @@ func (w *bitWriter) ecrireUnSuivant() int {
 // `attendus`.
 func verifierLaLectureJusquAuBout(t *testing.T, nom string, buf []byte, fin int, attendus []int) {
 	t.Helper()
-	a := lireSous(buf, grammaireRecente())
+	g := grammaireRecente()
+	g.interruptionDuMoteur, g.basculeDeControle, g.activationDeCapacite, g.teleportationDuTranslocateur = true, true, true, true
+	a := lireSous(buf, g)
 	if !a.Porte || a.Fin != fin || !slices.Equal(a.Genres, attendus) {
 		t.Errorf("%s : vue A %+v, attendu portee jusqu au bit %d avec les genres %v", nom, a, fin, attendus)
 	}
@@ -121,6 +123,37 @@ func TestUneChargeCourteTronqueeArreteLaLecture(t *testing.T) {
 		a := lireSous(w.buf, grammaireRecente())
 		if a.Porte || a.Fin != fin || !slices.Equal(a.Genres, []int{int(c.genre)}) {
 			t.Errorf("%s tronque : %+v, attendu arretee au bit %d", c.nom, a, fin)
+		}
+	}
+}
+
+// TestUnGenreCourtSArreteSurUnBuildQuiNeLEtablitPas : sans la disposition prouvee par le profil du build, la vue A s arrete sur le
+// message de chacun des genres 13, 27, 93 et 117 sans lire sa charge ; avec elle, la lecture va jusqu au bout. MUTATIONS : la garde du
+// profil retiree sur un genre -> ROUGE.
+func TestUnGenreCourtSArreteSurUnBuildQuiNeLEtablitPas(t *testing.T) {
+	cas := []struct {
+		genre  int
+		charge func(w *bitWriter)
+		ouvre  func(g *grammaireDeLaVueA)
+	}{
+		{13, func(w *bitWriter) { w.bit(1); w.bits(0x55, 7); w.bit(1) }, func(g *grammaireDeLaVueA) { g.interruptionDuMoteur = true }},
+		{27, func(w *bitWriter) { w.bits(3, 2) }, func(g *grammaireDeLaVueA) { g.basculeDeControle = true }},
+		{93, func(w *bitWriter) { w.bits(0x4a5a, 15); w.bit(1) }, func(g *grammaireDeLaVueA) { g.activationDeCapacite = true }},
+	}
+	for _, c := range cas {
+		var w bitWriter
+		w.bit(1)
+		w.ecrireEnTeteDeMessage(uint64(c.genre))
+		c.charge(&w)
+		fin := w.ecrireUnSuivant()
+		a := lireSous(w.buf, grammaireRecente())
+		if a.Porte || !slices.Equal(a.Genres, []int{c.genre}) {
+			t.Errorf("genre %d ferme : vue A %+v, attendu un arret sur le genre", c.genre, a)
+		}
+		g := grammaireRecente()
+		c.ouvre(&g)
+		if a := lireSous(w.buf, g); !a.Porte || a.Fin != fin {
+			t.Errorf("genre %d ouvert : vue A %+v, attendu portee jusqu au bit %d", c.genre, a, fin)
 		}
 	}
 }

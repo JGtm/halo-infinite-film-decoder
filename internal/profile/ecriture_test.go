@@ -10,6 +10,10 @@ func TestEcritureDuBuildPourSuitLaTable(t *testing.T) {
 		champChargesDeVueA:    func(e EcritureDuBuild) bool { return e.ChargesDeVueAMesurees },
 		champCreationParPorte: func(e EcritureDuBuild) bool { return e.CreationParPorte },
 		champProprieteGeree:   func(e EcritureDuBuild) bool { return e.ProprieteGereeComplete },
+		champInterruption:     func(e EcritureDuBuild) bool { return e.InterruptionDuMoteurLue },
+		champBascule:          func(e EcritureDuBuild) bool { return e.BasculeDeControleLue },
+		champCapacite:         func(e EcritureDuBuild) bool { return e.ActivationDeCapaciteLue },
+		champTeleportation:    func(e EcritureDuBuild) bool { return e.TeleportationDuTranslocateurLue },
 	}
 	lignes := map[string]bool{}
 	for _, l := range tableProfilEcriture() {
@@ -24,6 +28,17 @@ func TestEcritureDuBuildPourSuitLaTable(t *testing.T) {
 			if got, want := lire(EcritureDuBuildPour(build)), lignes["build="+build+"|"+champ]; got != want {
 				t.Errorf("build %q, champ %s : %v, la table dit %v", build, champ, got, want)
 			}
+		}
+	}
+	ouverts := map[string][4]bool{ // genres 13, 27, 93, 117
+		"HI_1_11_0": {true, true, true, false},
+		"HI_1_12_0": {false, false, true, true},
+		"HI_1_13_0": {false, true, true, true},
+	}
+	for build, want := range ouverts {
+		e := EcritureDuBuildPour(build)
+		if got := [4]bool{e.InterruptionDuMoteurLue, e.BasculeDeControleLue, e.ActivationDeCapaciteLue, e.TeleportationDuTranslocateurLue}; got != want {
+			t.Errorf("build %s : charges courtes %v, attendu %v", build, got, want)
 		}
 	}
 	for _, build := range []string{"HI_1_11_0", "HI_1_12_0", "HI_1_13_0"} {

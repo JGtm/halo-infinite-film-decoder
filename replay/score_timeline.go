@@ -250,6 +250,8 @@ func attachRoundsCoverage(cov *ScoreCoverage, d objectives.RoundsDecision, fb *f
 	cov.RoundsContradicted = d.Contradicted
 	cov.RoundsContradictedRecords = d.ContradictedRecords
 	cov.RoundsDecreed = d.Decreed
+	cov.RoundsAdmittedByShare = d.AdmittedByShare
+	cov.RoundsAdmittedByReset = d.AdmittedByReset
 	if d.Decreed {
 		fb.Declenche(fallback.NomReplayMancheZeroDecretee)
 	}

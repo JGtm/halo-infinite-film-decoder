@@ -4,9 +4,11 @@ package grammar
 // `motor_system_interruption` (13), `controlToggleResponse` (27), `activate_spartan_ability` (93) et
 // `EquipmentTranslocatorTeleportEffects` (117).
 //
-// Avant ces charges, le premier message de l un de ces genres dans une trame arretait la lecture de la
-// vue A : les messages suivants de la trame etaient perdus et le rejeu se declarait incomplet. Les
-// valeurs lues se TRAVERSENT : aucun champ n en est publie, aucun lecteur ne les attend.
+// Sans charge, le premier message de l un de ces genres dans une trame arrete la lecture de la vue A :
+// les messages suivants de la trame sont perdus et le rejeu se declare incomplet. Chaque charge ne se lit
+// que sur un build dont le profil l etablit ([profile.EcritureDuBuild]) : ouverte la ou la fermeture au bit
+// est prouvee, arretant et comptee partout ailleurs. Les valeurs lues se TRAVERSENT : aucun champ n en est
+// publie, aucun lecteur ne les attend.
 //
 // Les largeurs des genres 13, 27 et 117 sont celles de la bibliotheque libfilmshell de Den (OpenSpartan,
 // MIT), TEMOIN de cette lecture : `src/events.rs`, au `match` du type d evenement. Le temoin ne lit pas le

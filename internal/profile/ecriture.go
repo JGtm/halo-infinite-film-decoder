@@ -2,7 +2,7 @@ package profile
 
 // ecriture.go — CE QUE L ECRIVAIN D UN BUILD ECRIT ET QUE LE FLUX NE DIT PAS, LA OU C EST PROUVE.
 //
-// Trois dispositions de la grammaire ne se lisent ni dans l executable lu (HI_1_13_0) ni dans le flux :
+// Sept dispositions de la grammaire ne se lisent ni dans l executable lu (HI_1_13_0) ni dans le flux :
 // elles se mesurent sur des films, et la mesure dit sur quels builds elles valent. Une disposition mesuree
 // sur un build ne vaut pas pour un autre : un ecrivain plus ancien a ecrit autre chose, et la lire sous la
 // grammaire d un autre build lit des bits a un mauvais alignement sans que rien ne le signale. Chaque champ de
@@ -24,30 +24,51 @@ type EcritureDuBuild struct {
 	// porte la charge de chacune de ses etiquettes, comme celui d une image-cle
 	// (`grammar/default_state_ti13_neuf.go`). Faux : il n en lit que les etiquettes.
 	ProprieteGereeComplete bool
+	// Les quatre charges courtes de la vue A : genre 13 (`motor_system_interruption`), 27 (`controlToggleResponse`), 93
+	// (`activate_spartan_ability`, charge inhibee seule) et 117 (`EquipmentTranslocatorTeleportEffects`). Chacune est ouverte la
+	// ou la fermeture au bit est prouvee : toutes les occurrences lues sur le build sont dans une trame fermee, et elles sont au
+	// moins cinq. Faux : la vue A s arrete sur le message de ce genre, arret compte.
+	InterruptionDuMoteurLue         bool
+	BasculeDeControleLue            bool
+	ActivationDeCapaciteLue         bool
+	TeleportationDuTranslocateurLue bool
 }
 
 // Les champs de la table du profil que ce fichier pose, et la date de leur mesure.
 const (
-	champChargesDeVueA    = "VueA.ChargesMesurees"
-	champCreationParPorte = "Creation.ParPorte"
-	champProprieteGeree   = "Creation.ProprieteGereeComplete"
-	dateEcritureMesuree   = "2026-11-12"
-	valeurEcritureVraie   = "vrai"
+	champChargesDeVueA      = "VueA.ChargesMesurees"
+	champCreationParPorte   = "Creation.ParPorte"
+	champProprieteGeree     = "Creation.ProprieteGereeComplete"
+	champInterruption       = "VueA.InterruptionDuMoteur"
+	champBascule            = "VueA.BasculeDeControle"
+	champCapacite           = "VueA.ActivationDeCapacite"
+	champTeleportation      = "VueA.TeleportationDuTranslocateur"
+	dateEcritureMesuree     = "2026-11-12"
+	dateInterruptionMesuree = "2026-11-24"
+	valeurEcritureVraie     = "vrai"
 )
 
 // EcritureDuBuildPour rend ce que l ecrivain du build `build` ecrit, ou la valeur zero pour un build que la
-// mesure n etablit pas. Les trois champs valent sur les memes builds ; les preuves sont dans
+// mesure n etablit pas. Les trois premiers champs valent sur les memes builds, les quatre charges courtes build par build ; les preuves sont dans
 // [tableProfilEcriture], une ligne par build et par champ.
 func EcritureDuBuildPour(build string) EcritureDuBuild {
+	base := EcritureDuBuild{ChargesDeVueAMesurees: true, CreationParPorte: true, ProprieteGereeComplete: true}
 	switch build {
-	case buildHI1131, buildHI1120, buildHI1110:
-		return EcritureDuBuild{ChargesDeVueAMesurees: true, CreationParPorte: true, ProprieteGereeComplete: true}
+	case buildHI1110:
+		base.InterruptionDuMoteurLue, base.BasculeDeControleLue, base.ActivationDeCapaciteLue = true, true, true
+		return base
+	case buildHI1120:
+		base.ActivationDeCapaciteLue, base.TeleportationDuTranslocateurLue = true, true
+		return base
+	case buildHI1131:
+		base.BasculeDeControleLue, base.ActivationDeCapaciteLue, base.TeleportationDuTranslocateurLue = true, true, true
+		return base
 	}
 	return EcritureDuBuild{}
 }
 
 // tableProfilEcriture : les lignes de [EcritureDuBuildPour], une par build et par champ. Un build absent de
-// cette table n a aucune des trois dispositions.
+// cette table n a aucune de ces dispositions.
 //
 //nolint:funlen // une table de donnees : la decouper masquerait la lecture ligne a ligne
 func tableProfilEcriture() []LigneProfil {
@@ -71,6 +92,46 @@ func tableProfilEcriture() []LigneProfil {
 				"et HI_1_9_0 (9 sur 18) n y sont pas : la fin de vue A lue y contredit le debut de vue B donne par " +
 				"la signature du slot 123 dans 47 cas testables sur 47, et aucune largeur constante ne le retrouve",
 			Date: dateEcritureMesuree,
+		},
+		{
+			Cle: cleBuildHI1110, Champ: champInterruption, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "20 messages de genre 13 lus sur 47 films de ce build (carte du catalogue), les 20 dans une trame fermee au bit. Ouvert la ou la fermeture au bit est prouvee : sur HI_1_10_0 (280 messages) et HI_1_9_0 (26) la lecture arrete la vue A au message suivant dans 23 % des cas, contre 2,5 % en general, et sur HI_1_12_0 (aucun message) et HI_1_13_0 (un seul, non lu) rien ne l etablit",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1110, Champ: champBascule, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "48 messages de genre 27 sur 47 films, les 48 dans une trame fermee au bit",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1131, Champ: champBascule, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "28 messages de genre 27 sur 813 films, les 28 dans une trame fermee au bit. HI_1_12_0 (deux messages) : abstention, moins de cinq",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1110, Champ: champCapacite, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "15 messages de genre 93 lus (charge inhibee) sur 47 films, les 15 dans une trame fermee au bit",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1120, Champ: champCapacite, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "14 messages de genre 93 lus (charge inhibee) sur 97 films, les 14 dans une trame fermee au bit",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1131, Champ: champCapacite, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "52 messages de genre 93 lus (charge inhibee) sur 813 films, les 52 dans une trame fermee au bit",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1120, Champ: champTeleportation, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "54 messages de genre 117 sur 97 films, les 54 dans une trame fermee au bit",
+			Date:   dateInterruptionMesuree,
+		},
+		{
+			Cle: cleBuildHI1131, Champ: champTeleportation, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,
+			Preuve: "160 messages de genre 117 sur 813 films, les 160 dans une trame fermee au bit. HI_1_11_0 : 36 sur 37, abstention",
+			Date:   dateInterruptionMesuree,
 		},
 		{
 			Cle: cleBuildHI1131, Champ: champCreationParPorte, Valeur: valeurEcritureVraie, Source: ProvenanceMesuree,

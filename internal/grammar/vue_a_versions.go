@@ -111,6 +111,9 @@ type grammaireDeLaVueA struct {
 	// ([chargeMesuree]) ; faux, la vue A s arrete sur le message d un de ces genres. Le profil du build
 	// l etablit ([profile.EcritureDuBuild.ChargesDeVueAMesurees]).
 	chargesMesurees bool
+	// Les charges courtes des genres 13, 27, 93 et 117 ne se lisent que sur un build dont le profil les etablit
+	// ([profile.EcritureDuBuild]) ; faux, la vue A s arrete sur le message du genre.
+	interruptionDuMoteur, basculeDeControle, activationDeCapacite, teleportationDuTranslocateur bool
 	// repliques : un lecteur est inscrit auprès de la marche ([canalDeRepliques]) ; les messages des genres
 	// 75 et 76 se rangent alors dans le flux lu ([FluxVueA.Repliques], [FluxVueA.Annonces]). Faux, ils se
 	// traversent exactement de même et rien n'est gardé.
@@ -123,7 +126,9 @@ type grammaireDeLaVueA struct {
 // jouee de l entree de catalogue du profil.
 func grammaireDeLaVueASousFilm(p profile.Profile) grammaireDeLaVueA {
 	g := grammaireDeLaVueA{script: scriptDuFilm(p), positions: tablesDeLaRegionJouee(p.Map()),
-		variante: varianteDuFilm(p), chargesMesurees: p.Ecriture().ChargesDeVueAMesurees}
+		variante: varianteDuFilm(p), chargesMesurees: p.Ecriture().ChargesDeVueAMesurees,
+		interruptionDuMoteur: p.Ecriture().InterruptionDuMoteurLue, basculeDeControle: p.Ecriture().BasculeDeControleLue,
+		activationDeCapacite: p.Ecriture().ActivationDeCapaciteLue, teleportationDuTranslocateur: p.Ecriture().TeleportationDuTranslocateurLue}
 	g.classe, g.genres = tableDesGenresDuFilm(p)
 	return g
 }

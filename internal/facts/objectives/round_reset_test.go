@@ -115,3 +115,18 @@ func TestResetSimultaneNeChangeAucuneMancheDejaDecidee(t *testing.T) {
 		t.Errorf("verdict change : retenues %v, contredites %v", d.Real, d.Contradicted)
 	}
 }
+
+// La manche que seule la remise admet est comptee a part ; la manche pleine, admise par la suite ou la matiere,
+// n'y figure pas.
+func TestResetSimultaneEstComptee(t *testing.T) {
+	d := ResolveRounds(filmDeuxManches(mancheCourteAvecRemise(1, 803_000, zeros(8))))
+	if want := []int{1}; !reflect.DeepEqual(d.AdmittedByReset, want) {
+		t.Errorf("manches admises par la remise = %v, attendu %v", d.AdmittedByReset, want)
+	}
+	if want := []int{0}; !reflect.DeepEqual(d.AdmittedByShare, want) { // la manche 0 du film fabrique n a que la matiere
+		t.Errorf("manches admises par la matiere seule = %v, attendu %v", d.AdmittedByShare, want)
+	}
+	if d := ResolveRounds(filmDeuxManches(mancheCourteAvecRemise(1, 803_000, []int{0, 0, 5000, 0, 0, 0, 0, 0}))); len(d.AdmittedByReset) != 0 {
+		t.Errorf("manche refusee : admise par la remise = %v", d.AdmittedByReset)
+	}
+}
