@@ -5,7 +5,7 @@ package replay
 // La promesse de [OptionsVitesse.Fils] : a `Fils` = 1, une seule goroutine calcule (aucune n'est lancee) ; a
 // `Fils` >= 2, au plus [filsMaxSimultanes] goroutines calculent en meme temps pendant une cuisson, chaine
 // principale comprise, et la sortie ne change pas. Le compte vient du
-// suivi que les trois points de lancement du decodeur alimentent ([grammar.SuivreLeCalcul]) : la chaine
+// suivi que les trois points de lancement du decodeur alimentent ([grammar.FilmContext.SuivreLeCalcul]) : la chaine
 // principale compte pour un, un appelant qui attend la jointure de ses fils ne compte pas.
 
 import (
@@ -13,8 +13,6 @@ import (
 	"runtime"
 	"sync/atomic"
 	"testing"
-
-	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
 // mesurerLeCalcul cuit la bobine a `fils` fils et rend le maximum de fils qui calculaient en meme temps et
@@ -24,15 +22,15 @@ func mesurerLeCalcul(t *testing.T, dossier string, fils int) (maxi, lances int64
 	var actifs, haut, total atomic.Int64
 	actifs.Store(1) // la chaine principale
 	haut.Store(1)
-	defer grammar.PoserLeSuiviDuCalcul(func(delta int) {
+	suivi := func(delta int) {
 		n := actifs.Add(int64(delta))
 		if delta > 0 {
 			total.Add(1)
 		}
 		for h := haut.Load(); n > h && !haut.CompareAndSwap(h, n); h = haut.Load() {
 		}
-	})()
-	doc, faits = cuireLaBobine(t, dossier, fils)
+	}
+	doc, faits = cuireLaBobineSuivie(t, dossier, fils, suivi)
 	return haut.Load(), total.Load(), doc, faits
 }
 

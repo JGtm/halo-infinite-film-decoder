@@ -38,7 +38,7 @@ func classementDuContexte() map[string]entreeDeClassement {
 	creations := func(c *FilmContext) bool { return c.vies.creationsLues }
 	autre := entreeDeClassement{classe: classeAutre}
 	return map[string]entreeDeClassement{
-		"film": autre, "impose": autre, "fils": autre,
+		"film": autre, "impose": autre, "fils": autre, "suivi": autre,
 		"chunks":    chauffe(func(c *FilmContext) bool { return c.chunksLus }),
 		"chunksLus": chauffe(func(c *FilmContext) bool { return c.chunksLus }),
 		"slots":     chauffe(func(c *FilmContext) bool { return c.slotsLus }),
@@ -233,7 +233,7 @@ func TestVoieNEcritPasLeParent(t *testing.T) {
 	parent.PoserMPP(base)
 	voies := [2]*FilmContext{parent.Deriver(), parent.Deriver()}
 	var ecarts atomic.Int32
-	executerEnParallele(2, 2, func(i int) {
+	executerEnParallele(nil, 2, 2, func(i int) {
 		w := profile.MPPWidths{Lead: 20 + i, Index: 30 + i}
 		for k := 0; k < 2000; k++ {
 			prev := voies[i].PoserMPP(w)

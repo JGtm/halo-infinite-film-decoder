@@ -23,7 +23,7 @@ import (
 //
 // Une panique dans fn est capturee ; apres la jointure, celle de la tache d'indice le plus petit
 // est rejouee sur l'appelant. Une panique n'interrompt pas les autres taches deja tirees.
-func executerEnParallele(n, nbTaches int, fn func(i int)) {
+func executerEnParallele(suivi func(delta int), n, nbTaches int, fn func(i int)) {
 	if nbTaches <= 0 {
 		return
 	}
@@ -48,8 +48,8 @@ func executerEnParallele(n, nbTaches int, fn func(i int)) {
 		go func() {
 			defer jointure.Done()
 			// Le fil cesse de compter AVANT la jointure : l'appelant peut alors rendre ses jetons.
-			SuivreLeCalcul(1)
-			defer SuivreLeCalcul(-1)
+			noterLeCalcul(suivi, 1)
+			defer noterLeCalcul(suivi, -1)
 			for {
 				i := int(suivant.Add(1)) - 1
 				if i >= nbTaches {
@@ -66,9 +66,9 @@ func executerEnParallele(n, nbTaches int, fn func(i int)) {
 		}()
 	}
 	// L'appelant attend : il ne calcule pas pendant que ses fils le font.
-	SuivreLeCalcul(-1)
+	noterLeCalcul(suivi, -1)
 	jointure.Wait()
-	SuivreLeCalcul(1)
+	noterLeCalcul(suivi, 1)
 	if indiceP >= 0 {
 		panic(panique)
 	}
@@ -82,4 +82,11 @@ func executerUneTache(i int, fn func(i int), signaler func(v any)) {
 		}
 	}()
 	fn(i)
+}
+
+// noterLeCalcul appelle le suivi du contexte, s'il y en a un.
+func noterLeCalcul(suivi func(delta int), delta int) {
+	if suivi != nil {
+		suivi(delta)
+	}
 }

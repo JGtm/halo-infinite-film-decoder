@@ -106,10 +106,10 @@ func (l *voie) arretee() bool { return l.arret.Load() }
 func (l *voie) lancer(corps func()) {
 	l.fini = make(chan struct{})
 	go func() {
-		grammar.SuivreLeCalcul(1)
+		l.fc.SuivreLeCalcul(1)
 		complet := false
 		defer func() {
-			grammar.SuivreLeCalcul(-1)
+			l.fc.SuivreLeCalcul(-1)
 			p := recover()
 			if p == nil && !complet && !l.arretee() {
 				p = errVoieInterrompue

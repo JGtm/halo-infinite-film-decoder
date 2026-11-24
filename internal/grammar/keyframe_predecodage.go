@@ -86,7 +86,7 @@ func (c *FilmContext) predecoderLesImagesCles(preuve *PreuveDImageCle) {
 	}
 	entrees := entreesDuPredecodage{preuve: preuve}
 	rangements := make([]func(c *FilmContext), len(payloads)*len(taches))
-	executerEnParallele(c.Fils(), len(rangements), func(i int) {
+	executerEnParallele(c.suivi, c.Fils(), len(rangements), func(i int) {
 		rangements[i] = taches[i%len(taches)](entrees, payloads[i/len(taches)])
 	})
 	for _, ranger := range rangements {

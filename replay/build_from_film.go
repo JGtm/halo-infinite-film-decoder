@@ -99,6 +99,7 @@ func BuildFromFilmAvecFaits(ctx context.Context, matchID, titleSlug string, film
 		fc = grammar.NewFilmContextForMap(film, opt.MapQuant, decoupageForce(opt))
 	}
 	poserLesFils(fc, opt.Vitesse)
+	fc.PoserLeSuiviDuCalcul(suiviDuCalculDe(ctx))
 	poserProfilPuisCarte(ctx, fc, matchID, opt)
 	// LA SECTION 2 DE `chunk_00`, POUR L ARTEFACT (schema 61, lot 2.6.3). Le profil du contexte
 	// l a DEJA lue a sa resolution : la reprendre ici ne relit pas un octet. Elle porte la cle du

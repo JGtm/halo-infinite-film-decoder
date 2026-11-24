@@ -149,8 +149,8 @@ func (c *FilmContext) Deriver() *FilmContext {
 			equipementPorte: c.recup.equipementPorte, tables: maps.Clone(c.recup.tables), entetes: c.recup.entetes},
 		obs:    NouvelleObservation(),
 		replis: replisDuContexte{i0Note: c.replis.i0Note, regNote: c.replis.regNote},
-		fils:   1,
-		voie:   &etatDeVoie{parent: c},
+		fils:   1, suivi: c.suivi,
+		voie: &etatDeVoie{parent: c},
 	}
 }
 

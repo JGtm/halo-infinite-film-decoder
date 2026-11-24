@@ -100,15 +100,17 @@ func (s *filmScan) demarrerLeFond() *fondDuFilm {
 		table:   attendue[tableLueDAvance]{pret: make(chan struct{})},
 	}
 	extra := slices.Clone(s.opt.RosterXUIDs)
-	go f.lireLeFond(s.film, func(morts []types.Death) []uint64 { return rosterOf(morts, extra) })
+	go func() {
+		s.fc.SuivreLeCalcul(1)
+		defer s.fc.SuivreLeCalcul(-1)
+		f.lireLeFond(s.film, func(morts []types.Death) []uint64 { return rosterOf(morts, extra) })
+	}()
 	return f
 }
 
 // lireLeFond est le corps de la tache : les trois lectures, dans l ordre ou le balayage en a besoin (le pont,
 // puis les scripts, puis la table). Chaque valeur est rendue des qu elle est prete.
 func (f *fondDuFilm) lireLeFond(film *source.Film, roster func([]types.Death) []uint64) {
-	grammar.SuivreLeCalcul(1)
-	defer grammar.SuivreLeCalcul(-1)
 	defer f.terminer()
 	f.faits.val = grammar.LireLesFaitsDuFilmSeul(film, roster)
 	f.faits.clore(nil)

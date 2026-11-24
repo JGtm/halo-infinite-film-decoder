@@ -11,7 +11,7 @@ func TestExecuterEnParallele_AUnFilAucuneGoroutine(t *testing.T) {
 		avant := runtime.NumGoroutine()
 		maxVu := 0
 		appelant := 0
-		executerEnParallele(n, 50, func(i int) {
+		executerEnParallele(nil, n, 50, func(i int) {
 			appelant++
 			if g := runtime.NumGoroutine(); g > maxVu {
 				maxVu = g
@@ -29,7 +29,7 @@ func TestExecuterEnParallele_AUnFilAucuneGoroutine(t *testing.T) {
 	}
 	// Une seule tache : dans l'appelant meme avec plusieurs fils permis.
 	avant := runtime.NumGoroutine()
-	executerEnParallele(8, 1, func(int) {
+	executerEnParallele(nil, 8, 1, func(int) {
 		if runtime.NumGoroutine() > avant {
 			t.Fatal("une seule tache ne doit lancer aucune goroutine")
 		}
@@ -40,7 +40,7 @@ func TestExecuterEnParallele_ChaqueTacheUneFois(t *testing.T) {
 	for _, n := range []int{2, 4, 8, 64} {
 		const nb = 1000
 		compte := make([]atomic.Int32, nb)
-		executerEnParallele(n, nb, func(i int) { compte[i].Add(1) })
+		executerEnParallele(nil, n, nb, func(i int) { compte[i].Add(1) })
 		for i := range compte {
 			if v := compte[i].Load(); v != 1 {
 				t.Fatalf("n=%d : tache %d executee %d fois", n, i, v)
@@ -50,16 +50,16 @@ func TestExecuterEnParallele_ChaqueTacheUneFois(t *testing.T) {
 }
 
 func TestExecuterEnParallele_ZeroTache(t *testing.T) {
-	executerEnParallele(4, 0, func(int) { t.Fatal("aucune tache attendue") })
+	executerEnParallele(nil, 4, 0, func(int) { t.Fatal("aucune tache attendue") })
 }
 
 func TestExecuterEnParallele_ResultatsParIndice(t *testing.T) {
 	const nb = 500
 	ref := make([]int, nb)
-	executerEnParallele(1, nb, func(i int) { ref[i] = i*i + 7 })
+	executerEnParallele(nil, 1, nb, func(i int) { ref[i] = i*i + 7 })
 	for _, n := range []int{2, 4, 8} {
 		got := make([]int, nb)
-		executerEnParallele(n, nb, func(i int) { got[i] = i*i + 7 })
+		executerEnParallele(nil, n, nb, func(i int) { got[i] = i*i + 7 })
 		for i := range got {
 			if got[i] != ref[i] {
 				t.Fatalf("n=%d : resultat %d = %d, attendu %d", n, i, got[i], ref[i])
@@ -78,7 +78,7 @@ func TestExecuterEnParallele_PaniqueRejoueeSurLAppelant(t *testing.T) {
 					t.Fatalf("n=%d : panique rejouee = %v, attendu tache-3 (plus petit indice)", n, v)
 				}
 			}()
-			executerEnParallele(n, 20, func(i int) {
+			executerEnParallele(nil, n, 20, func(i int) {
 				fait.Add(1)
 				if i == 3 || i == 11 {
 					panic("tache-" + map[int]string{3: "3", 11: "11"}[i])
