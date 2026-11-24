@@ -78,10 +78,24 @@ read to the end, measured on 2026-11-12 on 38 films:
 
 Closure says that packet widths are right, not that every field is decoded; see `FORMAT.md` section 9.
 
+## Speed
+
+`replay.Options.Vitesse` (`OptionsVitesse.Fils`) is the number of threads the decoder may use; the zero value is one thread, which is the behaviour of earlier versions. The real number is the least of the option, `GOMAXPROCS` and `replay.MaxFils` (8), and the number of goroutines that compute at the same time is at most `Fils` + 3 (none at one thread). The document and the facts file do not depend on it: they are identical, byte for byte, at 1, 2, 4 and 8 threads. Decoding the 13 films of `bench/films.tsv` with the minimal options of the bench (the decoder alone, not a full replay generation):
+
+| Version | Threads | 13 films, total (s) |
+|---|---|---|
+| v1.5.0 | 1 | 71.6 |
+| v1.6.0 | 1 | 35.8 |
+| v1.6.0 | 2 | 30.1 |
+| v1.6.0 | 4 | 27.8 |
+| v1.6.0 | 8 | 26.7 |
+
+The readings are in `bench/releves/v1.5.0.tsv` and `bench/releves/v1.6.0.tsv` (protocol in `bench/README.md`). The method of reading the chunks of a film on several threads owes to nuzzles' parser `halo_api`; see [`NOTICE.md`](NOTICE.md).
+
 ## Install
 
 ```
-go get github.com/JGtm/halo-infinite-film-decoder@v1.0.0
+go get github.com/JGtm/halo-infinite-film-decoder@v1.6.0
 ```
 
 Works from any Go module; no `replace` directive is needed. The module requires
