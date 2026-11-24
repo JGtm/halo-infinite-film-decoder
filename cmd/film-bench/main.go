@@ -102,9 +102,9 @@ func lireOptions(args []string, stderr io.Writer) (options, error) {
 func (o options) vitesse() replay.OptionsVitesse { return replay.OptionsVitesse{Fils: o.fils} }
 
 // refuserSousData refuse une sortie rangee sous un dossier `data` : les donnees de l'hote ne
-// s'ecrivent pas.
+// s'ecrivent pas. Les deux separateurs de chemin sont reconnus sur tout systeme.
 func refuserSousData(sortie string) error {
-	for _, seg := range strings.Split(filepath.ToSlash(filepath.Clean(sortie)), "/") {
+	for _, seg := range strings.Split(strings.ReplaceAll(filepath.ToSlash(filepath.Clean(sortie)), `\`, "/"), "/") {
 		if strings.EqualFold(seg, "data") {
 			return errors.New("-sortie sous un dossier data refusee")
 		}
