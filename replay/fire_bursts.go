@@ -104,7 +104,7 @@ func (b fireBurstBoard) publier(r types.ContinuousFireBurst) (FireBurst, bool) {
 		StartBound: r.StartBound, EndBound: r.EndBound}
 	idx, source := b.places.tireur(r.FilmIndex, f.T0)
 	b.lecture.compterRafale(source)
-	if source != tireurParLaPlaceLue {
+	if source == tireurParLeSiege {
 		clock.fb.Declenche(fallback.NomTireurParLeSiegeDeLaPlace)
 	}
 	slots := b.occupants.slotsDe(idx, int64(r.StartUS))

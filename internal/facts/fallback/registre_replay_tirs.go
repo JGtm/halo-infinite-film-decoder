@@ -34,7 +34,8 @@ var registreReplayTirs = []Repli{
 		Mecanisme: "le siege du roster (l entree unique dont un intervalle de presence tenu a la place " +
 			"couvre l instant, `tireursParPlace.occupant`) rend le tireur quand la lecture des places " +
 			"dans les tirs ne tient la place a personne a cet instant ; a defaut d occupant unique, la " +
-			"place elle-meme, comme avant la lecture des places",
+			"place elle-meme, comme avant la lecture des places ; le repli ne compte que les tirs et rafales dont le tireur " +
+			"est effectivement rendu par le siege : un tir sans tenant garde l index du record, hors repli",
 		// LA LECTURE QUI TOURNE ET NE TRANCHE PAS : les tirs dont l unite nomme un occupant lient la
 		// place a un joueur ; une frame hors des tenues que ces liaisons bornent n est tenue par
 		// personne (place jamais liee, ecart que deux presences se disputent, film dont l index de
@@ -42,7 +43,7 @@ var registreReplayTirs = []Repli{
 		Condition: CondNonResolu,
 		Ordre:     OrdreApresLecture,
 		Sites: []Site{
-			{Fichier: pkgReplay + "tirs_par_place.go", Ancre: "horloge.fb.DeclencheN(fallback.NomTireurParLeSiegeDeLaPlace, sansLecture)"},
+			{Fichier: pkgReplay + "tirs_par_place.go", Ancre: "horloge.fb.DeclencheN(fallback.NomTireurParLeSiegeDeLaPlace, parLeSiege)"},
 			{Fichier: pkgReplay + "fire_bursts.go", Ancre: "clock.fb.Declenche(fallback.NomTireurParLeSiegeDeLaPlace)"},
 		},
 		DatePose:     "2026-11-23",

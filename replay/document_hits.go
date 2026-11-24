@@ -192,9 +192,16 @@ func rangerLesTirs(fire []grammar.FireEvent, r resolveurDeTouches) armesDesTirs 
 	return out
 }
 
-// derniereArme rend l'arme du dernier tir de l'auteur `joueur` (un index de film, résolu à l'instant `ts`) entre `ts - fenetreDeLArmeUS` et `ts`, ou "".
-func (a armesDesTirs) derniereArme(joueur int, ts uint64) string {
-	s := a.tirs[a.r.auteur(joueur, ts)]
+// derniereArme rend l'arme du dernier tir du tireur PUBLIE entre `ts - fenetreDeLArmeUS` et `ts`, ou "". `tireur` est le xuid que la touche
+// ou la ligne de dégât publie ; vide (aucun humain résolu), le tireur est l'index `joueur` du message, résolu à l'instant `ts`. C'est le même
+// auteur que celui des tirs rangés ([rangerLesTirs]) : un tir réattribué par la place lue se retrouve sous le joueur qu'il publie, pas sous
+// l'index que le message de dégât porte.
+func (a armesDesTirs) derniereArme(tireur string, joueur int, ts uint64) string {
+	cle := auteurDArme{xuid: tireur}
+	if tireur == "" {
+		cle = a.r.auteur(joueur, ts)
+	}
+	s := a.tirs[cle]
 	i, _ := slices.BinarySearchFunc(s, ts, func(e grammar.FireEvent, ts uint64) int { return cmp.Compare(e.TimestampUS, ts+1) })
 	if i == 0 || ts-s[i-1].TimestampUS > fenetreDeLArmeUS {
 		return ""
@@ -368,7 +375,7 @@ func poserUneTouche(d grammar.DegatLu, tireur string, res issueDuDestinataire, r
 			cov.NoVictim++
 			return Hit{}, false
 		}
-		return Hit{T: t, Shooter: tireur, Victim: victime, Effect: formaterLEffet(d.Tag), Weapon: armes.derniereArme(int(d.Joueur), d.TS)}, true
+		return Hit{T: t, Shooter: tireur, Victim: victime, Effect: formaterLEffet(d.Tag), Weapon: armes.derniereArme(tireur, int(d.Joueur), d.TS)}, true
 	}
 	return Hit{}, false
 }

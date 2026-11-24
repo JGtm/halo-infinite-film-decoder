@@ -77,6 +77,18 @@ func (o occupantsDesSlots) indexA(slot uint32, tUS int64) (int, bool) {
 	return pi, ok
 }
 
+// uniteEstLeCorps dit que l'unite (slot, generation) d'un record de tir est le corps que les records de creation lisent sur ce slot a
+// `tUS` : un slot reutilise par un autre corps plus tard (une autre generation) n'est pas le corps de l'unite qui tire, et le pont par slot ne
+// peut pas en nommer l'occupant. Vrai quand aucun record de creation ne lit ce slot : rien ne contredit alors l'unite.
+func (o occupantsDesSlots) uniteEstLeCorps(slot, gen uint32, tUS int64) bool {
+	c, ok := o.corps[slot]
+	if !ok {
+		return true
+	}
+	d, connu := c.recordA(tUS)
+	return !connu || d.gen == gen
+}
+
 // slotsDe rend, en ordre croissant, les slots que le joueur `pi` tient a `tUS` — la forme inverse de
 // [occupantsDesSlots.indexA], pour les portes qui cherchent le corps d'un TIREUR (tirs embarques,
 // rafales). Le tri rend la decision d'ambiguite independante de l'ordre d'iteration des maps.

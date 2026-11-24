@@ -244,8 +244,8 @@ func TestLaPresenceVientDuRosterEtDesVies(t *testing.T) {
 }
 
 // TestLeSiegeRendLeTireurQuandLaPlaceNEstPasLue — la lecture tient la place 5 (joueur 7) ; la place 6,
-// qu aucun tir a unite n a liee, revient a l occupant de son siege, compte comme repli ; la place 8,
-// sans siege non plus, reste l index du record.
+// qu aucun tir a unite n a liee, revient a l occupant de son siege, compte comme repli ; la place 9,
+// sans siege non plus, reste l index du record et ne compte PAS comme repli (rien n y est remplace).
 func TestLeSiegeRendLeTireurQuandLaPlaceNEstPasLue(t *testing.T) {
 	horloge := vsClock()
 	horloge.fb = fallback.NouveauCompteur()
@@ -270,8 +270,8 @@ func TestLeSiegeRendLeTireurQuandLaPlaceNEstPasLue(t *testing.T) {
 	if cov.ShotsByPlace != 1 || cov.ShotsBySeat != 1 || cov.ShotsUnheld != 1 {
 		t.Errorf("comptes = %+v : attendu 1 tir par la place lue, 1 par le siege, 1 sans tenant", cov)
 	}
-	if n := horloge.fb.Compte(fallback.NomTireurParLeSiegeDeLaPlace); n != 2 {
-		t.Errorf("repli compte %d fois, attendu 2 (le siege et le sans tenant)", n)
+	if n := horloge.fb.Compte(fallback.NomTireurParLeSiegeDeLaPlace); n != 1 {
+		t.Errorf("repli compte %d fois, attendu 1 (le siege seul ; le sans tenant ne remplace rien)", n)
 	}
 	if fire[0].FilmIndex != 5 {
 		t.Error("les evenements de l appelant ont ete modifies")

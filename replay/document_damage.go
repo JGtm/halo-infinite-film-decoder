@@ -178,7 +178,7 @@ func ligneDeDegat(m messageEtPoints, attaquant, victime string, r resolveurDeTou
 		}
 	}
 	if m.d.Joueur >= 0 {
-		l.Weapon = armes.derniereArme(int(m.d.Joueur), m.d.TS)
+		l.Weapon = armes.derniereArme(attaquant, int(m.d.Joueur), m.d.TS)
 	}
 	return l, true
 }

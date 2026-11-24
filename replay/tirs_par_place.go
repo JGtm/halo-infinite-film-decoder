@@ -163,29 +163,30 @@ func (c *ControlPlaceCoverage) compterRafale(s sourceDuTireur) {
 // tirsParPlace rend une COPIE des evenements de tir dont l index est celui du tireur de la place a
 // l instant du tir, et le nombre de tirs rendus a un autre index. Les evenements de l appelant ne
 // sont pas modifies (le registre et la lecture des places les relisent tels que le film les ecrit).
-// Chaque tir est compte sous sa source dans `cov` ; ceux que la lecture ne tient a personne
-// declenchent le repli nomme.
+// Chaque tir est compte sous sa source dans `cov` ; le repli nomme ne compte que les tirs dont le
+// tireur vient du siege de la place : un tir sans tenant garde son index, rien n y est remplace, et il
+// se compte a part (`shotsUnheld`).
 func (t tireursDesPlaces) tirsParPlace(fire []grammar.FireEvent, horloge replayClock, cov *ControlPlaceCoverage) ([]grammar.FireEvent, int) {
 	if len(fire) == 0 {
 		return fire, 0
 	}
 	out := make([]grammar.FireEvent, len(fire))
 	copy(out, fire)
-	autres, sansLecture := 0, 0
+	autres, parLeSiege := 0, 0
 	for i := range out {
 		if !out[i].HasShooter {
 			continue
 		}
 		idx, source := t.tireur(out[i].FilmIndex, horloge.frame(out[i].TimestampUS))
 		cov.compterTir(source)
-		if source != tireurParLaPlaceLue {
-			sansLecture++
+		if source == tireurParLeSiege {
+			parLeSiege++
 		}
 		if idx != out[i].FilmIndex {
 			out[i].FilmIndex = idx
 			autres++
 		}
 	}
-	horloge.fb.DeclencheN(fallback.NomTireurParLeSiegeDeLaPlace, sansLecture)
+	horloge.fb.DeclencheN(fallback.NomTireurParLeSiegeDeLaPlace, parLeSiege)
 	return out, autres
 }

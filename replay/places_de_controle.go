@@ -19,7 +19,10 @@ package replay
 //
 //	P1 LIAISON        une liaison est un fait : a sa frame, ce joueur tient cette place. Deux joueurs
 //	                  lies a la meme place a la meme frame se contredisent : cette frame n est a
-//	                  personne, et les deux liaisons sont comptees (`contested`).
+//	                  personne, et les deux liaisons sont comptees (`contested`). Un record dont l unite
+//	                  n est pas le corps que le registre lit sur son slot a l instant du tir (une autre
+//	                  generation du slot, reutilise plus tard par un autre joueur) ne lie rien : le pont
+//	                  par slot nommerait l occupant d un autre corps. Il est compte (`unitContradicted`).
 //	P2 TENUE LUE      entre deux liaisons CONSECUTIVES d une place qui nomment le meme joueur, ce
 //	                  joueur tient la place : si un autre y avait ete lu entre les deux, elles ne
 //	                  seraient pas consecutives. Un joueur qui revient apres un autre sur la meme
@@ -64,6 +67,10 @@ type ControlPlaceCoverage struct {
 	Handovers  int `json:"handovers"`
 	Returns    int `json:"returns"`
 	Contested  int `json:"contested"`
+	// UnitContradicted : records de tir dont l'unite n'est pas le corps que le registre nomme sur son
+	// slot a cet instant (une autre generation du slot) : le pont par slot nommerait un autre
+	// occupant que celui de l'unite, le record ne lie pas sa place.
+	UnitContradicted int `json:"unitContradicted"`
 	// ShotsByPlace / BurstsByPlace : tirs et rafales dont le tireur est celui que la place lue
 	// designe. ShotsBySeat / BurstsBySeat : ceux que la lecture ne tient a personne et que le siege du
 	// roster rend (repli `repli_tireur_par_le_siege_de_la_place`). ShotsUnheld / BurstsUnheld : ceux
@@ -105,8 +112,9 @@ func lirePlacesDeControle(fire []grammar.FireEvent, occ occupantsDesSlots, horlo
 	if !actif || occ.vide() {
 		return out
 	}
-	liaisons, contestees := liaisonsDesTirs(fire, occ, horloge)
+	liaisons, contestees, ecartees := liaisonsDesTirs(fire, occ, horloge)
 	out.cov.Contested = contestees
+	out.cov.UnitContradicted = ecartees
 	placesDe := map[int]map[int]bool{} // joueur -> places lues
 	parPlace := map[int][]liaisonDePlace{}
 	for _, l := range liaisons {
@@ -137,17 +145,24 @@ func lirePlacesDeControle(fire []grammar.FireEvent, occ occupantsDesSlots, horlo
 	return out
 }
 
-// liaisonsDesTirs rend les liaisons (P1) triees par place puis frame, et le nombre de liaisons
-// contestees : a une frame ou deux joueurs se partagent une place, une seule liaison au joueur
-// `personne` les remplace.
-func liaisonsDesTirs(fire []grammar.FireEvent, occ occupantsDesSlots, horloge replayClock) ([]liaisonDePlace, int) {
+// liaisonsDesTirs rend les liaisons (P1) triees par place puis frame, le nombre de liaisons
+// contestees (a une frame ou deux joueurs se partagent une place, une seule liaison au joueur
+// `personne` les remplace) et le nombre de records dont l'unite n'est pas le corps que le registre
+// nomme sur son slot ([occupantsDesSlots.uniteEstLeCorps]) : ils ne lient rien, la place garde
+// la tenue que les autres records lui lisent.
+func liaisonsDesTirs(fire []grammar.FireEvent, occ occupantsDesSlots, horloge replayClock) ([]liaisonDePlace, int, int) {
 	var tous []liaisonDePlace
+	ecartees := 0
 	for _, e := range fire {
 		if !e.HasShooter || !e.Unit.Present || e.FilmIndex < 0 {
 			continue
 		}
-		pi, ok := occ.indexA(e.Unit.Slot, int64(e.TimestampUS)) //nolint:gosec // horloge du film
+		pi, ok := occ.indexA(e.Unit.Slot, int64(e.TimestampUS))
 		if !ok {
+			continue
+		}
+		if !occ.uniteEstLeCorps(e.Unit.Slot, e.Unit.Gen, int64(e.TimestampUS)) {
+			ecartees++
 			continue
 		}
 		tous = append(tous, liaisonDePlace{place: e.FilmIndex, joueur: pi, frame: horloge.frame(e.TimestampUS)})
@@ -170,7 +185,7 @@ func liaisonsDesTirs(fire []grammar.FireEvent, occ occupantsDesSlots, horloge re
 		out = append(out, tous[i])
 		i = j
 	}
-	return out, contestees
+	return out, contestees, ecartees
 }
 
 // tenuesLues rend les tenues d UNE place (P2) : chaque suite de liaisons consecutives du meme
@@ -271,7 +286,7 @@ func viesParJoueur(tracks []Track, roster []RosterEntry, occ occupantsDesSlots, 
 	}
 	for _, tr := range tracks {
 		for _, fr := range [...]int{tr.StartFrame, (tr.StartFrame + tr.EndFrame) / 2, tr.EndFrame} {
-			if pi, ok := occ.indexA(tr.Slot, int64(horloge.origin+uint64(fr)*horloge.step)); ok { //nolint:gosec // horloge du film
+			if pi, ok := occ.indexA(tr.Slot, int64(horloge.origin+uint64(fr)*horloge.step)); ok {
 				etendre(pi, tr.StartFrame, tr.EndFrame)
 			}
 		}
