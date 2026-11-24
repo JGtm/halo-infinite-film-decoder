@@ -433,7 +433,7 @@ type TrackCoverage struct {
 // ni compteur publié, ni ligne de journal. Les LACUNES l'étaient plus encore : elles découpaient
 // les vies, donc elles ne ressemblaient même pas à un silence.
 func logTrackCoverage(ctx context.Context, matchID string, c TrackCoverage) {
-	c.ViseesSeulesCoverage.journaliser(ctx, matchID)
+	c.journaliser(ctx, matchID)
 	if c.Gaps > 0 {
 		slog.InfoContext(ctx, "rejeu : lacunes de replication DANS une vie",
 			"match_id", matchID, "lacunes", c.Gaps, "duree_ms", c.GapMS,

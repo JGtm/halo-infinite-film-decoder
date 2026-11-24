@@ -357,7 +357,7 @@ func (p teamPublication) tableDesEquipesPourLesDrapeaux() map[string]int {
 func logTeamCoverage(ctx context.Context, matchID string, cov TeamCoverage, niveau slog.Level) {
 	slog.InfoContext(ctx, "rejeu : equipes lues dans le film", "match_id", matchID, "lue", cov.Read,
 		"refus", cov.Refusal, "records", cov.Records, "rejetes", cov.Rejected,
-		"divergences", cov.Divergences, "film", cov.Film, "sansEquipe", cov.NoTeam,
+		"divergences", cov.Divergences, cleJournalFilm, cov.Film, "sansEquipe", cov.NoTeam,
 		"nonLus", cov.Unread, "accord", cov.Accord, "contradiction", cov.Contradiction,
 		"silence", cov.Silence, "vies", cov.Tracks, "viesAvecEquipe", cov.TracksNamed,
 		"viesSlotAmbigu", cov.TracksSlotAmbiguous)

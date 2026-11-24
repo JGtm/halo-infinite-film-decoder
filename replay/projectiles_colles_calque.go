@@ -56,8 +56,11 @@ type cadreDesCollages struct {
 	vehicules []VehicleTrack
 }
 
+// nomCibleJoueur est le mot publie d'une cible resolue en joueur.
+const nomCibleJoueur = "player"
+
 // nomsDesCibles donne le mot publie de chaque cible resolue ; la cible non resolue n'a pas de mot.
-var nomsDesCibles = map[cibleDuCollage]string{cibleJoueur: "player", cibleVehicule: "vehicle"}
+var nomsDesCibles = map[cibleDuCollage]string{cibleJoueur: nomCibleJoueur, cibleVehicule: "vehicle"}
 
 // unitePortee rend le xuid du joueur dont la piste tient le slot `slot` a la frame `t`, et si une piste le tient : la resolution des degats
 // ([resolveurDeTouches.victime]).

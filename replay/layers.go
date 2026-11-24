@@ -115,6 +115,10 @@ import (
 // depuis les faits plutot qu a un decodage complet.
 var revisionDeLaPublication = "publication-" + strconv.Itoa(SchemaVersion)
 
+// etapeVehicles est la cle du calque des vehicules dans les deux tables ci-dessous ; l etape observee du meme nom s ecrit en toutes
+// lettres dans `observe` (le test des etapes lit le texte de ces appels).
+const etapeVehicles = "vehicles"
+
 // couchesDesCalques — LA TABLE. Une entree par champ racine CUIT ; la valeur est la revision de
 // la couche qui DECODE ce que le champ publie (cf. la regle d attribution en tete de fichier).
 //
@@ -175,7 +179,7 @@ var couchesDesCalques = map[string]string{
 	"attachments":         grammar.Rev, // projectiles_colles_calque.go <- FilmInputs.ProjectileAttaches (collages de projectile sans vol publie)
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
 	"objectiveObjects":    grammar.Rev, // build_objective_objects.go <- FilmInputs.Pads.Weapons SEUL : son en-tete mesure « aucune lecture de film ajoutee », ni statborg ni morts
-	"vehicles":            grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles
+	etapeVehicles:         grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles
 	"vehicleCycles":       grammar.Rev, // vehicle_cycles.go <- `doc.Vehicles` SEUL : une couche d ANALYSE sur les vies deja publiees, donc la MEME revision que le calque dont elle derive
 	"stances":             grammar.Rev, // document_stances.go <- FilmInputs.MovementStates (i29/i62/i54, lot 5.3.6)
 	"reloads":             grammar.Rev, // document_reloads.go <- FilmInputs.Reloads (messages weapon_reload, genre 38 de la vue A)
@@ -318,7 +322,7 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	"rules": func(_ *ReplayDocument, opt Options) bool { return !rulesOf(opt.FilmIdentity).vide() },
 	// Archetype ti=40 absent des images-cles, creations illisibles, ou assemblage sur positions
 	// figees sans film (vehicle_tracks.go, `buildVehicleTracks`).
-	"vehicles": func(_ *ReplayDocument, opt Options) bool { return opt.Vehicles.Scanned },
+	etapeVehicles: func(_ *ReplayDocument, opt Options) bool { return opt.Vehicles.Scanned },
 	// Morceau des temps forts illisible ou non designe : aucune medaille ne se lit, et le calque ne se
 	// produit pas plutot que d affirmer « aucune medaille » (document_medals.go, `poserLesMedailles`).
 	"medals": func(_ *ReplayDocument, opt Options) bool { return opt.Medals.Read },

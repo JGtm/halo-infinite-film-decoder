@@ -36,7 +36,7 @@ func prive(f func(parent, voie *FilmContext) bool) entreeDeClassement {
 func classementDuContexte() map[string]entreeDeClassement {
 	derive := func(c *FilmContext) bool { return c.duFilm.derive && (c.duFilm.lue || c.duFilm.compte) }
 	creations := func(c *FilmContext) bool { return c.vies.creationsLues }
-	autre := entreeDeClassement{classe: "autre"}
+	autre := entreeDeClassement{classe: classeAutre}
 	return map[string]entreeDeClassement{
 		"film": autre, "impose": autre, "fils": autre,
 		"chunks":    chauffe(func(c *FilmContext) bool { return c.chunksLus }),

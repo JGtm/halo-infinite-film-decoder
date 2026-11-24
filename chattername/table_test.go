@@ -57,15 +57,15 @@ func TestLookupNeNommeQueLesBuildsMesures(t *testing.T) {
 		nom   string
 		ok    bool
 	}{
-		{"HI_1_13_0", 850, "shieldbreak", true},
-		{"HI_1_12_0", 2788, "shieldsdepleted", true},
-		{"HI_1_13_0", 2926, "seeingenemynearby", true},
-		{"HI_1_13_0", 2897, "lamentsquaddeath", true},
+		{build113, 850, "shieldbreak", true},
+		{build112, 2788, "shieldsdepleted", true},
+		{build113, 2926, "seeingenemynearby", true},
+		{build113, 2897, "lamentsquaddeath", true},
 		{"HI_1_11_0", 2926, "", false}, // l autre disposition : l indice y vaut 205 de plus
 		{"HI_1_14_0", 2926, "", false}, // build non mesure
 		{"", 2926, "", false},          // film sans build lu
-		{"HI_1_13_0", 2822, "", false}, // entree dont le nom n est pas prouve
-		{"HI_1_13_0", 3131, "", false}, // hors des plages nommees
+		{build113, 2822, "", false},    // entree dont le nom n est pas prouve
+		{build113, 3131, "", false},    // hors des plages nommees
 	}
 	for _, c := range cas {
 		nom, ok := Lookup(c.build, c.ligne)

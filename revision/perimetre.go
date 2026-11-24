@@ -135,12 +135,33 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 	if !ok {
 		return Perimetre{}, fmt.Errorf("%w : couche %q absente de la liste des couches", ErrPerimetre, nom)
 	}
-	file, err := m.paquetsDeLArbre(propre.Racine)
+	file, vus, err := m.paquetsDeDepart(propre, couches)
 	if err != nil {
 		return Perimetre{}, err
 	}
+	amonts, file, err := m.fermerLesImports(nom, file, vus, couches)
+	if err != nil {
+		return Perimetre{}, err
+	}
+	p := Perimetre{Paquets: file}
+	slices.Sort(p.Paquets)
+	for _, c := range couches {
+		if amonts[c.Nom] {
+			p.Amonts = append(p.Amonts, c.Nom)
+		}
+	}
+	return p, nil
+}
+
+// paquetsDeDepart rend les paquets d'ou part la fermeture de `propre` : ceux de sa racine, puis ses paquets associes, avec
+// l'ensemble des paquets deja vus.
+func (m Module) paquetsDeDepart(propre Couche, couches []Couche) ([]string, map[string]bool, error) {
+	file, err := m.paquetsDeLArbre(propre.Racine)
+	if err != nil {
+		return nil, nil, err
+	}
 	if len(file) == 0 {
-		return Perimetre{}, fmt.Errorf("%w : %s", ErrRacineSansSource, propre.Racine)
+		return nil, nil, fmt.Errorf("%w : %s", ErrRacineSansSource, propre.Racine)
 	}
 	vus := map[string]bool{}
 	for _, p := range file {
@@ -148,7 +169,7 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 	}
 	associes, err := m.paquetsAssocies(propre, couches)
 	if err != nil {
-		return Perimetre{}, err
+		return nil, nil, err
 	}
 	for _, rel := range associes {
 		if !vus[rel] {
@@ -156,11 +177,17 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 			file = append(file, rel)
 		}
 	}
+	return file, vus, nil
+}
+
+// fermerLesImports suit les imports des paquets de `file` : un paquet d'une autre couche devient un amont de `nom` (il entre par
+// sa valeur), tout autre paquet entre dans le perimetre. Rend les amonts et la liste complete des paquets.
+func (m Module) fermerLesImports(nom string, file []string, vus map[string]bool, couches []Couche) (map[string]bool, []string, error) {
 	amonts := map[string]bool{}
 	for i := 0; i < len(file); i++ {
 		imports, err := m.importsDuPaquet(file[i])
 		if err != nil {
-			return Perimetre{}, err
+			return nil, nil, err
 		}
 		for _, rel := range imports {
 			if autre := coucheDuPaquet(rel, couches); autre != "" {
@@ -175,14 +202,7 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 			}
 		}
 	}
-	p := Perimetre{Paquets: file}
-	slices.Sort(p.Paquets)
-	for _, c := range couches {
-		if amonts[c.Nom] {
-			p.Amonts = append(p.Amonts, c.Nom)
-		}
-	}
-	return p, nil
+	return amonts, file, nil
 }
 
 // paquetsAssocies rend les paquets que `propre` declare ([Couche.Associes]) apres les avoir verifies : un paquet

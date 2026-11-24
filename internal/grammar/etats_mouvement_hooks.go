@@ -136,7 +136,7 @@ func (c EtatMouvementComposant) String() string {
 	case EtatControleUnite:
 		return compUnitControl
 	case EtatVitesse:
-		return "object-translational-velocity-component"
+		return composanteVitesseTranslation
 	case EtatMobilite:
 		return "biped-mobility-action-component"
 	case EtatCapaciteActive:

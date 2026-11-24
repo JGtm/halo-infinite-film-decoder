@@ -108,7 +108,7 @@ func buildChatter(in grammar.RepliquesLues, tracks []Track, axe axeDeFrames, bui
 	st := in.Stats
 	cov := ChatterCoverage{Frames: st.Trames, ClosedFrames: st.Terminees, StoppedFrames: st.Arretees, Read: len(in.Repliques)}
 	r := resolveurDeTouches{tracks: tracks, axe: axe}
-	var out []Chatter
+	out := make([]Chatter, 0, len(in.Repliques))
 	for _, m := range in.Repliques {
 		t, refus := frameDeLAction(m.TS, axe)
 		switch refus {
@@ -144,6 +144,9 @@ func buildChatter(in grammar.RepliquesLues, tracks []Track, axe axeDeFrames, bui
 		out = append(out, l)
 	}
 	cov.Published = len(out)
+	if len(out) == 0 {
+		out = nil // un document sans replique publiee garde la valeur zero, comme avant la reservation
+	}
 	slices.SortStableFunc(out, func(a, b Chatter) int { return cmp.Compare(a.T, b.T) })
 	return out, cov
 }

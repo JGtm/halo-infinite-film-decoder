@@ -311,39 +311,59 @@ func destinatairesDuMessage(e grammar.EvenementDeJeuLu, r reponsesdejeu.Reponse,
 	if refus == refusAucun && ciblePossible(r) {
 		cible, ciblePlace = cibleDeLAction(e, roster, t, cov)
 	}
+	modele := ScoreAction{T: t, Name: r.Nom, Points: r.Points, Target: cible, TargetPlace: ciblePlace}
 	var out []ScoreAction
 	for i := 0; i < grammar.ParticipantsDuFil; i++ {
 		if e.Destinataires&(1<<uint(grammar.ParticipantsDuFil-1-i)) == 0 {
 			continue
 		}
 		cov.Scored++
-		xuid, res := "", destinataireResolu
+		d := destinataireDuMessage{res: destinataireResolu}
 		if refus == refusAucun {
-			xuid, res = xuidALaFrame(roster.humains, i, t)
+			d.xuid, d.res = xuidALaFrame(roster.humains, i, t)
 		}
-		place, avant := roster.placeDeBot(i), len(out)
-		switch {
-		case refus == refusSansOrigine:
-			cov.NoOrigin++
-		case refus == refusAvantOrigine:
-			cov.BeforeOrigin++
-		case refus == refusApresFin:
-			cov.AfterEnd++
-		case res == destinataireSansHumain && place != nil:
-			cov.BotRecipient++
-			out = append(out, ScoreAction{T: t, Place: place, Name: r.Nom, Points: r.Points, Target: cible, TargetPlace: ciblePlace})
-		case res == destinataireSansHumain || res == destinataireAmbigu:
-			cov.NoRecipient++
-		case res == destinataireAbsent:
-			cov.NotPresent++
-		default:
-			out = append(out, ScoreAction{T: t, XUID: xuid, Name: r.Nom, Points: r.Points, Target: cible, TargetPlace: ciblePlace})
-		}
-		if ciblePlace != nil && len(out) > avant {
-			cov.BotTarget++
+		d.place = roster.placeDeBot(i)
+		if action, posee := poserLeDestinataire(modele, refus, d, cov); posee {
+			out = append(out, action)
+			if ciblePlace != nil {
+				cov.BotTarget++
+			}
 		}
 	}
 	return out
+}
+
+// destinataireDuMessage est ce que le film dit d'un destinataire d'un message : son xuid et l'issue de sa résolution à la frame
+// (humain), sa place (bot).
+type destinataireDuMessage struct {
+	xuid  string
+	res   issueDuDestinataire
+	place *int
+}
+
+// poserLeDestinataire classe un destinataire : l'action posée sur `modele` (humain ou bot), ou un compteur de refus. Rend vrai quand
+// une action est posée.
+func poserLeDestinataire(modele ScoreAction, refus refusDePose, d destinataireDuMessage, cov *ScoreActionCoverage) (ScoreAction, bool) {
+	switch {
+	case refus == refusSansOrigine:
+		cov.NoOrigin++
+	case refus == refusAvantOrigine:
+		cov.BeforeOrigin++
+	case refus == refusApresFin:
+		cov.AfterEnd++
+	case d.res == destinataireSansHumain && d.place != nil:
+		cov.BotRecipient++
+		modele.Place = d.place
+		return modele, true
+	case d.res == destinataireSansHumain || d.res == destinataireAmbigu:
+		cov.NoRecipient++
+	case d.res == destinataireAbsent:
+		cov.NotPresent++
+	default:
+		modele.XUID = d.xuid
+		return modele, true
+	}
+	return ScoreAction{}, false
 }
 
 // buildScoreActions pose les réponses de score du film sur l'axe de frames. Les actions rendues sont triées

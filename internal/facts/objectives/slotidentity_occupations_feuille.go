@@ -64,7 +64,7 @@ func (ri RoundIdentity) withLastOccupantsByLines(recs []types.StatRecord, lines 
 		}
 		for i, k := range coreKeys {
 			if series[i] == nil {
-				series[i] = rawSeriesByRound(recs, k, false, nil)
+				series[i] = rawSeriesByRound(recs, k, nil)
 			}
 		}
 		xuid, ok := uniqueLineOf(occupationTriplet(series, round, slot, *last), lines)

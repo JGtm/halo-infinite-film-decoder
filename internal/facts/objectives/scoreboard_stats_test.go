@@ -66,7 +66,7 @@ func TestSeriesDesCompteursNommesTiennentLeVidage(t *testing.T) {
 	if got := cons.ComptesDesReplis().EmissionsHorsDomaineJetees; got != 1 {
 		t.Errorf("%d emission(s) jetee(s) notee(s), attendu 1 (le vidage)", got)
 	}
-	plain := rawSeriesByRound(recs, statSlotKey{Comp: 6, Side: sideA}, false, nil)[10][0]
+	plain := rawSeriesByRound(recs, statSlotKey{Comp: 6, Side: sideA}, nil)[10][0]
 	if kept := longestRun(plain, false); kept[len(kept)-1].Value != 0 {
 		t.Errorf("le temoin (suite sans la regle) ne finit plus sur le vidage : %+v", kept)
 	}

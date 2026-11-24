@@ -21,7 +21,7 @@ import "testing"
 // porter le bon NOM, puisque le lecteur verifie les index par leur etiquette.
 func munAmmoArch() Archetype {
 	comps := []string{
-		"object-position-component", "object-translational-velocity-component",
+		"object-position-component", composanteVitesseTranslation,
 		"object-forward-and-up-component", "object-angular-velocity-component",
 		compObjectBodyVitality, "object-shield-vitality-component",
 		"object-region-state-component", "object-damage-sections-component",

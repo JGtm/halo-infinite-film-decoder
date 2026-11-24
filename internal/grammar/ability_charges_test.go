@@ -36,7 +36,7 @@ func TestAbilityChargeResolutionParNomExact(t *testing.T) {
 		abilityEnergyName, abilityEnergyNameAlt); got != 56 {
 		t.Fatalf("i56 (etiquette -component) resolu a %d, attendu 56", got)
 	}
-	if got := componentIndexOfAny(Archetype{Components: []string{"autre"}},
+	if got := componentIndexOfAny(Archetype{Components: []string{classeAutre}},
 		abilityEnergyName, abilityEnergyNameAlt); got != -1 {
 		t.Fatalf("composant absent resolu a %d, attendu -1", got)
 	}

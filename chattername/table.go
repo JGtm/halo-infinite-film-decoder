@@ -39,7 +39,13 @@ var brut string
 // 1.13, mesures sur trois films (priorite du film egale a celle de la table : 162 sur 165, 363 sur 365, 414 sur 418 ; les
 // ecarts sont tous la meme entree, `knockback`, dont la priorite est reecrite). Les builds 1.10 et 1.11 ont l autre
 // disposition (un bloc de 205 entrees insere), les builds plus anciens et les plus recents sont non mesures.
-var layoutsConnus = map[string]bool{"HI_1_12_0": true, "HI_1_13_0": true}
+// Les builds de [layoutsConnus].
+const (
+	build112 = "HI_1_12_0"
+	build113 = "HI_1_13_0"
+)
+
+var layoutsConnus = map[string]bool{build112: true, build113: true}
 
 // Colonnes d une ligne du fichier.
 const (

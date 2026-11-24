@@ -29,7 +29,7 @@ func TestUnCollageSansVolSePubliePartoutUneSeuleFois(t *testing.T) {
 	if len(a.doc.Attachments) != 1 {
 		t.Fatalf("%d collage(s) publie(s) dans attachments[], attendu 1 : %+v", len(a.doc.Attachments), a.doc.Attachments)
 	}
-	want := Attachment{T: 14, ParentSlot: 561, Target: "player", Victim: "1", Node: 22, Pose: [3]uint32{32214, 33936, 33041},
+	want := Attachment{T: 14, ParentSlot: 561, Target: nomCibleJoueur, Victim: "1", Node: 22, Pose: [3]uint32{32214, 33936, 33041},
 		Tag: "580b8831", By: 600, Attacker: "2", Born: true}
 	if got := a.doc.Attachments[0]; got != want {
 		t.Errorf("collage publie %+v, attendu %+v", got, want)
@@ -88,7 +88,7 @@ func TestLeCreateurDUnCollageSeResoutParLesPistes(t *testing.T) {
 	if at[0].By != 0 || at[0].Attacker != "" || at[1].By != 0 {
 		t.Errorf("un createur sans piste ou absent ne doit pas se resoudre : %+v %+v", at[0], at[1])
 	}
-	if at[2].Target != "player" || at[2].Victim != "" || at[2].By != 600 || at[2].Attacker != "" {
+	if at[2].Target != nomCibleJoueur || at[2].Victim != "" || at[2].By != 600 || at[2].Attacker != "" {
 		t.Errorf("un bot est un joueur sans xuid, createur et cible : %+v", at[2])
 	}
 	if at[3].Target != "vehicle" || at[3].Victim != "" {
@@ -102,7 +102,7 @@ func TestLeCreateurDUnCollageSeResoutParLesPistes(t *testing.T) {
 
 // TestUnCollageSansVolSePublieEnJSON : la forme publiee de `attachments[]` ; les champs sans valeur sont absents.
 func TestUnCollageSansVolSePublieEnJSON(t *testing.T) {
-	plein, err := json.Marshal(Attachment{T: 14, ParentSlot: 561, Target: "player", Victim: "1", Node: 22, Pose: [3]uint32{1, 2, 65535},
+	plein, err := json.Marshal(Attachment{T: 14, ParentSlot: 561, Target: nomCibleJoueur, Victim: "1", Node: 22, Pose: [3]uint32{1, 2, 65535},
 		Tag: "580b8831", By: 600, Attacker: "2", Born: true})
 	if err != nil {
 		t.Fatal(err)

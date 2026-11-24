@@ -96,11 +96,11 @@ func rawSeriesJugees(recs []types.StatRecord, table, juge map[statSlotKey]statSl
 // manches precedentes : la suite rendue est croissante sur tout le match et son dernier point
 // est le total du match. Mesure : les frags d'un Oddball passent de 48 a 87 sur 88 attendus.
 func seriesBySlot(recs []types.StatRecord, key statSlotKey, cons *ReplisALaConsultation) map[int][]types.ScorePoint {
-	return cumulateRounds(rawSeriesByRound(recs, key, false, cons), RealRounds(recs), nil, nil, cons.Diagnostics())
+	return cumulateRounds(rawSeriesByRound(recs, key, cons), RealRounds(recs), nil, nil, cons.Diagnostics())
 }
 
-// rawSeriesByRound groupe les emissions par slot puis par manche, en jetant les ancrages
-// parasites. teams choisit les slots d'equipe plutot que ceux de joueur.
+// rawSeriesByRound groupe les emissions par slot de JOUEUR puis par manche, en jetant les ancrages
+// parasites ([rawSeriesByRoundMarked] choisit aussi les slots d'equipe).
 //
 // LA MANCHE DECLAREE EST CONFRONTEE AU TEMPS (2026-09-06, cf. round_bounds.go) : les manches
 // se jouent dans l'ordre, donc un enregistrement date hors de l'intervalle de la manche qu'il
@@ -110,9 +110,8 @@ func seriesBySlot(recs []types.StatRecord, key statSlotKey, cons *ReplisALaConsu
 //
 // Une emission que [emissionHorsDomaine] jette est notee dans `cons`
 // (`repli_emission_hors_domaine_jetee`, lot J8.7-bis) ; nil ne note rien.
-func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, teams bool,
-	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
-	return rawSeriesByRoundMarked(recs, key, teams, cons, nil)
+func rawSeriesByRound(recs []types.StatRecord, key statSlotKey, cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
+	return rawSeriesByRoundMarked(recs, key, false, cons, nil)
 }
 
 // rawSeriesByRoundMarked est [rawSeriesByRound] pour un emplacement dont les penalites sont lues ([penaltyMarks]) : une
