@@ -58,6 +58,12 @@ type RoundsDecision struct {
 	ContradictedRecords int
 	// Decreed : aucune manche n'a ete admise, la manche 0 a ete DECRETEE (repli).
 	Decreed bool
+	// AdmittedByShare : les manches retenues que SEUL le critere de la matiere (plancher et part de la manche la
+	// plus fournie) admet, sans suite coherente du score de mode. Triees.
+	AdmittedByShare []int
+	// AdmittedByReset : les manches retenues que SEULE la remise a zero simultanee des scores admet (trois seuils :
+	// fenetre, nombre de joueurs, moitie des slots), ni la suite coherente ni la matiere. Triees.
+	AdmittedByReset []int
 }
 
 // RealSet rend les manches retenues sous la forme d'ensemble attendue par les lecteurs.
@@ -87,7 +93,25 @@ func ResolveRounds(recs []types.StatRecord) RoundsDecision {
 		d.Contradicted = append(d.Contradicted, round)
 	}
 	d.ContradictedRecords = recordsOfRounds(recs, d.Contradicted)
+	d.AdmittedByShare, d.AdmittedByReset = admissionsParSeuils(recs, runs, real)
 	return d
+}
+
+// admissionsParSeuils rend, parmi les manches retenues `real`, celles qu'un critere a seuils admet seul : la
+// matiere sans suite coherente, puis la remise a zero simultanee sans suite coherente ni matiere. Une manche n'est
+// rangee que sous le premier critere qui l'admet, dans l'ordre suite, matiere, remise.
+func admissionsParSeuils(recs []types.StatRecord, runs map[int]int, real map[int]bool) (share, reset []int) {
+	byShare, byReset := roundsByShare(recs), simultaneousResetRounds(recs)
+	for _, round := range sortedTrueKeys(real) {
+		switch {
+		case runs[round] >= statMinRoundRun:
+		case byShare[round]:
+			share = append(share, round)
+		case byReset[round]:
+			reset = append(reset, round)
+		}
+	}
+	return share, reset
 }
 
 // admissibleRound dit qu'une manche passe l'un des DEUX criteres d'admission — suite coherente

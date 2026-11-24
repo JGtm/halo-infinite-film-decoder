@@ -55,6 +55,7 @@ func (a *assemblage) poserLibellesEtInventaire() {
 	builtGren := buildGrenadeReads(a.opt.Inventory, a.opt.InventoryDeltas, a.origin, a.step)
 	a.doc.GrenadeReads = keepGrenadeReadsOfPublishedTracks(builtGren, a.doc.Tracks)
 	attachGrenadeReadCoverage(a.ctx, &a.doc, builtGren, a.opt.InventoryDeltaAmmoRefused)
+	a.poserLesMunitions()
 }
 
 // poserCapacitesEtTranslocations publie les rangs de grenade, les lectures de capacite, les

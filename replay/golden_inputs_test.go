@@ -46,6 +46,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 )
 
 var updateGolden = flag.Bool("update", false, "reecrire les fichiers figes de testdata/")
@@ -120,12 +122,24 @@ func TestGoldenInputsRoundTrip(t *testing.T) {
 		t.Fatalf("le codec n est pas un point fixe : %d octets contre %d — un champ se perd "+
 			"ou se reconstruit differemment a chaque tour", len(got), len(blob))
 	}
-	docA := BuildFromPositions(context.Background(), goldenFilm, "halo_infinite", g.Positions, g.Fire, g.options())
-	docB := BuildFromPositions(context.Background(), goldenFilm, "halo_infinite", again.Positions, again.Fire, again.options())
-	if renderAssembly(docA) != renderAssembly(docB) {
-		t.Error("l assemblage differe entre les entrees relues et leur re-serialisation : " +
-			"le codec perd un champ que BuildFromPositions consomme")
+	// LE DOCUMENT SE COMPARE APRES LE CODEC DU FICHIER DE FAITS, qui porte aussi le complement des
+	// entrees (compteurs de lecture, ecoutes de roster) que le blob seul laisse a part, et se compare
+	// en JSON ENTIER : le rendu texte ne montrait pas ces ecarts.
+	entry := goldenEntryPourTest(t)
+	id := &profile.FilmIdentity{Build: "HI_1_13_0", FormatVersion: 27}
+	fichier, err := EncodeFilmFactsFile(&FilmFactsFile{Coverage: *couvertureDuDecodeur(id), Facts: *g,
+		Identity: identiteDeFaits(id), EmpreinteDeCle: EmpreinteDeCle(entry)})
+	if err != nil {
+		t.Fatalf("encodage du fichier de faits : %v", err)
 	}
+	relu, err := DecodeFilmFactsFile(fichier, entry)
+	if err != nil {
+		t.Fatalf("relecture du fichier de faits : %v", err)
+	}
+	docA := BuildFromPositions(context.Background(), goldenFilm, "halo_infinite", g.Positions, g.Fire, g.options())
+	docB := BuildFromPositions(context.Background(), goldenFilm, "halo_infinite", relu.Facts.Positions, relu.Facts.Fire, relu.Facts.options())
+	exigerDocumentsIdentiques(t, "l assemblage differe entre les entrees relues et leur re-serialisation : "+
+		"le codec perd un champ que BuildFromPositions consomme", docA, docB)
 }
 
 // TestGoldenInputsVersionGuard : un fixture d une AUTRE version est refuse par la MAGIE, et le

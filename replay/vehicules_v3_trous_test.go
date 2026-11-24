@@ -317,9 +317,9 @@ func v3dDevenirOccupant(ctx v3dCtx, slot uint32, gs, ge uint64, ferme, aSortie b
 // v3dTrouOuvertA rend l'instant d'ouverture du trou de ce slot le plus proche de `at`, s'il
 // tombe a moins de v3dFenetreMS. Le trou s'OUVRE au dernier echantillon avant le silence.
 func v3dTrouOuvertA(tr slotTrack, at uint64) (uint64, bool) {
-	for i := 1; i < len(tr.pts); i++ {
-		gs := tr.pts[i-1].TimestampUS
-		if tr.pts[i].TimestampUS-gs < uint64(v3dTrouMinMS)*1000 {
+	for i := 1; i < tr.n(); i++ {
+		gs := tr.ts(i - 1)
+		if tr.ts(i)-gs < uint64(v3dTrouMinMS)*1000 {
 			continue
 		}
 		if absI64(int64(gs/1000)-int64(at/1000)) <= v3dFenetreMS {

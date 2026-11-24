@@ -31,20 +31,33 @@ const shotPosToleranceUS = 120_000
 
 // slotTrack est l'index temporel des positions d'un slot, pour la recherche par instant.
 type slotTrack struct {
-	pts []grammar.BipedPosition // triées par TimestampUS
+	// all est le nuage des positions dont la piste est extraite : PARTAGE, JAMAIS COPIE ni modifie.
+	all []grammar.BipedPosition
+	// idx range les rangs de `all` qui sont a ce slot, TRIES par TimestampUS (les ex aequo gardent
+	// l ordre du film). Un rang tient sur 4 octets : une position, 176.
+	idx []int32
 }
+
+// n est le nombre de positions de la piste.
+func (s slotTrack) n() int { return len(s.idx) }
+
+// pt rend la i-eme position de la piste, dans l ordre des instants.
+func (s slotTrack) pt(i int) grammar.BipedPosition { return s.all[s.idx[i]] }
+
+// ts rend l instant de la i-eme position de la piste.
+func (s slotTrack) ts(i int) uint64 { return s.all[s.idx[i]].TimestampUS }
 
 // at renvoie l'échantillon le plus proche de tUS et son écart.
 func (s slotTrack) at(tUS uint64) (grammar.BipedPosition, uint64) {
-	i := sort.Search(len(s.pts), func(i int) bool { return s.pts[i].TimestampUS >= tUS })
+	i := sort.Search(s.n(), func(i int) bool { return s.ts(i) >= tUS })
 	best, bestD := grammar.BipedPosition{}, uint64(math.MaxUint64)
 	for _, j := range []int{i - 1, i} {
-		if j < 0 || j >= len(s.pts) {
+		if j < 0 || j >= s.n() {
 			continue
 		}
-		d := absDiffU64(s.pts[j].TimestampUS, tUS)
+		d := absDiffU64(s.ts(j), tUS)
 		if d < bestD {
-			bestD, best = d, s.pts[j]
+			bestD, best = d, s.pt(j)
 		}
 	}
 	return best, bestD
@@ -84,14 +97,13 @@ type orphelinsDesTirs struct {
 //
 // LA VISEE de chaque tir pose vient de viseur (cf. shots_visee.go), qui en tient la couverture :
 // la porte du vehicule la partage, et cov.Aim pointe la meme.
-func buildShots(pos []grammar.BipedPosition, events []grammar.FireEvent, clock replayClock,
+func buildShots(tracks map[uint32]slotTrack, events []grammar.FireEvent, clock replayClock,
 	occ occupantsDesSlots, viseur *viseurDesTirs) ([]Shot, []orphanShot, LayerCoverage) {
 	cov := LayerCoverage{Available: len(events), Aim: viseur.cov}
-	if len(pos) == 0 || len(events) == 0 || occ.vide() {
+	if len(tracks) == 0 || len(events) == 0 || occ.vide() {
 		cov.NoSlot = len(events) // rien pour rattacher : tout est écarté, et c'est dit
 		return nil, nil, cov
 	}
-	tracks := indexBySlot(pos)
 	pose := poseurDeTirs{origin: clock.origin, step: clock.step, viseur: viseur}
 	var out []Shot
 	var orphans []orphanShot
@@ -156,8 +168,10 @@ type poseurDeTirs struct {
 // tir construit le tir publie d un evenement, pose sur le slot et la position donnes, avec la
 // visee du tireur a l instant du tir (cf. shots_visee.go).
 func (b poseurDeTirs) tir(e grammar.FireEvent, slot uint32, p grammar.BipedPosition) Shot {
+	frame := int((e.TimestampUS - b.origin) / b.step)
 	s := Shot{
-		T:    int((e.TimestampUS - b.origin) / b.step),
+		T:    frame,
+		O:    decalageDansLaFrame(e.TimestampUS, b.origin, b.step, frame),
 		Slot: slot,
 		X:    round2(p.X),
 		Y:    round2(p.Y),
@@ -170,20 +184,49 @@ func (b poseurDeTirs) tir(e grammar.FireEvent, slot uint32, p grammar.BipedPosit
 	return s
 }
 
-// indexBySlot regroupe les positions par slot, triées par instant.
-func indexBySlot(pos []grammar.BipedPosition) map[uint32]slotTrack {
-	m := map[uint32][]grammar.BipedPosition{}
-	for _, p := range pos {
-		m[p.Slot] = append(m[p.Slot], p)
+// decalageDansLaFrame rend, en millisecondes entières, l'écart entre l'instant `tUS` et le début de la frame `frame` de la grille (origine
+// `origin`, pas `step`) : le reste de la division de l'instant par le pas. Zéro quand la grille n'a pas de pas, quand l'instant précède
+// l'origine, ou quand `frame` n'est pas la frame de cet instant (frame bornée à l'axe) : le décalage d'un instant qui n'est pas dans sa
+// frame n'aurait pas de sens.
+func decalageDansLaFrame(tUS, origin, step uint64, frame int) int {
+	if step == 0 || tUS < origin {
+		return 0
 	}
-	out := make(map[uint32]slotTrack, len(m))
-	for s, ps := range m {
+	delta := tUS - origin
+	if uint64(frame) != delta/step { //nolint:gosec // frame positive : bornée à [0, frames[
+		return 0
+	}
+	return int(delta % step / 1000) //nolint:gosec // reste d'une division par le pas : inférieur au pas
+}
+
+// indexBySlot regroupe les positions par slot, triées par instant. L index ne COPIE aucune position :
+// chaque piste garde les rangs de ses positions dans `pos`, qui doit rester inchangee tant que
+// l index sert.
+func indexBySlot(pos []grammar.BipedPosition) map[uint32]slotTrack {
+	nb := map[uint32]int{}
+	for i := range pos {
+		nb[pos[i].Slot]++
+	}
+	// UNE SEULE ALLOCATION de rangs, decoupee par slot : aucune position n est copiee.
+	rangs := make([]int32, len(pos))
+	out := make(map[uint32]slotTrack, len(nb))
+	debut := 0
+	for s, n := range nb {
+		out[s] = slotTrack{all: pos, idx: rangs[debut : debut : debut+n]}
+		debut += n
+	}
+	for i := range pos {
+		t := out[pos[i].Slot]
+		t.idx = append(t.idx, int32(i)) //nolint:gosec // un nuage de plus de 2^31 positions ne tient pas en memoire
+		out[pos[i].Slot] = t
+	}
+	parInstant := func(a, b int32) int { return cmp.Compare(pos[a].TimestampUS, pos[b].TimestampUS) }
+	for _, t := range out {
 		// Les ex aequo (deux positions d un slot au meme horodatage) gardent l ORDRE DU FILM (lot J10.1,
 		// 2026-09-27, DT-9) : `at` rend la plus proche, donc l une d elles, et c est elle qu un tir recoit.
-		slices.SortStableFunc(ps, func(a, b grammar.BipedPosition) int {
-			return cmp.Compare(a.TimestampUS, b.TimestampUS)
-		})
-		out[s] = slotTrack{pts: ps}
+		if !slices.IsSortedFunc(t.idx, parInstant) {
+			slices.SortStableFunc(t.idx, parInstant)
+		}
 	}
 	return out
 }

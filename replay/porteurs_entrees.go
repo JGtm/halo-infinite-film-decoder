@@ -85,15 +85,14 @@ func GardesDeLaVariante(variante string) GardesDesPorteurs {
 // AUCUN FAIT DE MATCH N'ENTRE DANS LE CALQUE : ce qui descend est une TABLE slot -> xuid. Les
 // SOCLES s'y ajoutent chez l'appelant (ils viennent du catalogue de carte, pas du film).
 //
-// LE CALQUE NE LIT QUE LES EQUIPES ET LES HUIT PREMIERS JOUEURS ([objectives.RecordsDeLaBandeSure]) : le
-// statborg se lit jusqu'au dernier siege pour le tableau des scores, mais le calque du drapeau lu sur tous les
-// sieges attribue a un joueur le portage d'un autre quand un siege change d'occupant (le total du film s'ameliore,
-// le portage de certains joueurs devient faux).
-//
-// LES SIEGES AU-DELA SE COMPTENT ([FlagInput.SeatsBeyondBand]) : le calque ne les lit pas, et la couverture le dit.
+// LE CALQUE LIT TOUS LES SIEGES QUE LE FILM DECLARE : les enregistrements arrivent deja bornes par la bande
+// de la table de datums du film ([signaux.LaBandeDuStatborg]), jamais par une constante. Une prise faite depuis
+// le neuvieme siege ou au-dela se lit comme les autres ; sans elle, le drapeau restait publie « au socle » alors
+// qu'il avait ete ramasse, et le premier joueur des huit premiers sieges qui le reprenait semblait le prendre
+// loin de son socle. Seul le repli nomme `repli_bande_statborg_par_defaut` (aucune table de datums lue) limite
+// la lecture aux huit premiers joueurs, et il se compte deja.
 func EntreeDuDrapeau(recs []types.StatRecord, bursts []int, pont *PontParManche) FlagInput {
-	return withFlagIdentity(FlagInput{Scanned: true, Records: objectives.RecordsDeLaBandeSure(recs), Bursts: bursts,
-		SeatsBeyondBand: objectives.SiegesAuDelaDeLaBandeSure(recs)}, pont)
+	return withFlagIdentity(FlagInput{Scanned: true, Records: recs, Bursts: bursts}, pont)
 }
 
 // withFlagIdentity pose le pont COMPLETE sur l'entree du calque — et SEULEMENT sur un film que les

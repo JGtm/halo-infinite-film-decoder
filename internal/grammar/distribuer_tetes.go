@@ -43,7 +43,10 @@ func rangerLaVueA(p *lecture.Paquet, a *FluxVueA) {
 	p.VueA.Poussees = append(p.VueA.Poussees[:0], a.Poussees...)
 	p.VueA.Detonations = append(p.VueA.Detonations[:0], a.Detonations...)
 	p.VueA.Rechargements = append(p.VueA.Rechargements[:0], a.Rechargements...)
+	p.VueA.Gestes = append(p.VueA.Gestes[:0], a.Gestes...)
 	p.VueA.Tirs = append(p.VueA.Tirs[:0], a.Tirs...)
+	p.VueA.Repliques = append(p.VueA.Repliques[:0], a.Repliques...)
+	p.VueA.Annonces = append(p.VueA.Annonces[:0], a.Annonces...)
 	p.VueA.PremierPresume = uint16(a.PremierPresume) //nolint:gosec // rang dans la vue A d un payload
 }
 
@@ -107,6 +110,7 @@ func PacketHeadEventType(pay []byte) (typ int, present bool) {
 func distribuerLesTetes(fc *FilmContext, canaux []CanalDesTetes) int {
 	var p lecture.Paquet
 	bal, g := fc.profilDeLaVueA(), fc.grammaireDeLaVueA()
+	g.repliques = veutLesRepliques(canaux)
 	lus := 0
 	for _, num := range fc.ChunkNumbers() {
 		data, pks, ok := fc.ChunkAt(num)

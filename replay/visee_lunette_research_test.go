@@ -373,7 +373,7 @@ func adsCible(mesure, temoin *adsPop, lunette bool) *adsPop {
 func adsCollecte(tracks map[uint32]slotTrack, slots []uint32, f adsFenetre, p *adsPop) int {
 	n := 0
 	for _, s := range slots {
-		for _, e := range tracks[s].pts {
+		for _, e := range tracks[s].pts() {
 			ms := int64(e.TimestampUS) / 1000
 			if ms < f.debut || ms > f.fin || !e.HasYaw {
 				continue

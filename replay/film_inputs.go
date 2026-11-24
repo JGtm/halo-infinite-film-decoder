@@ -194,6 +194,26 @@ type FilmInputs struct {
 	// canal a vu.
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
+	// Repliques sont les repliques des Spartans (genre 75 de la vue A) et les annonces (genre 76) des trames delta, avec ce que
+	// leur canal a vu.
+	Repliques grammar.RepliquesLues
+	// Gestures sont les lancers amorces et les coups de melee des trames delta (genres 39 et 40 de la vue A) et
+	// GestureStats ce que leur canal a vu.
+	Gestures     []types.GestureRead
+	GestureStats types.GestureStats
+	// DrawnWeapons sont les changements du jeu d armes desire du bipede (`i42`) des trames delta et
+	// DrawnWeaponStats ce que leur canal a vu.
+	DrawnWeapons     []types.DrawnWeaponRead
+	DrawnWeaponStats types.DrawnWeaponStats
+	// ProjectileAttaches sont les projectiles qui se collent (`i10` ouvert sur la branche attache) des records de
+	// creation et des trames delta, dans l ordre du flux, et ProjectileAttachStats ce que leur canal a vu.
+	ProjectileAttaches    []types.ProjectileAttachRead
+	ProjectileAttachStats types.ProjectileAttachStats
+	// Vitals sont les changements de sante et de bouclier par vie, reduits des lectures du canal des vitalites
+	// ([reduireLesVitalites]) : les lectures entieres ne sont pas persistees, les points de degat qu elles chiffrent le sont.
+	// VitalStats ce que le canal a lu.
+	Vitals     []VitalRead
+	VitalStats VitalStats
 	// PlayerIndices est la table identite -> index de joueur, LUE dans le film.
 	//
 	// ELLE N'EST LUE QUE SI LE FIL DES MORTS EST NON VIDE (sans roster, il n'y a rien a
@@ -237,6 +257,10 @@ type FilmInputs struct {
 	// d'un enregistrement du tableau a son instant ([objectives.EntryResolver]).
 	StatborgEntries    []types.StatborgEntry
 	StatborgEntryStats types.StatborgEntryStats
+	// Appearances / AppearanceStats sont l'apparence des humains (bloc de personnalisation des paquets de type 8, codes
+	// bruts) et ce que sa lecture a rencontre ; `AppearanceStats.Scanned` faux = lecture non faite.
+	Appearances     []types.PlayerAppearance
+	AppearanceStats types.AppearanceStats
 	// BipedDeletions / BipedDeletionStats sont les suppressions de bipede (records DEL des trames delta), lues par la
 	// marche des trames dans les records qu elle range, avec leurs denominateurs.
 	BipedDeletions     []types.BipedDeletion
@@ -307,6 +331,11 @@ func (in FilmInputs) applyTo(opt *Options) {
 	opt.ScoreActions = ScoreActionInput{Read: in.GameEventsRead, Events: in.GameEvents, Stats: in.GameEventStats, Scripts: in.Scripts}
 	opt.Damages = HitInput{Read: in.DamagesRead, Messages: in.Damages, Points: in.DamagePoints, Stats: in.DamageStats}
 	opt.Reloads, opt.ReloadStats = in.Reloads, in.ReloadStats
+	opt.Repliques = in.Repliques
+	opt.Gestures = GestureInput{Reads: in.Gestures, Stats: in.GestureStats}
+	opt.DrawnWeapons = DrawnWeaponInput{Reads: in.DrawnWeapons, Stats: in.DrawnWeaponStats}
+	opt.ProjectileAttaches = ProjectileAttachInput{Reads: in.ProjectileAttaches, Stats: in.ProjectileAttachStats}
+	opt.Vitals = VitalsInput{Reads: in.Vitals, Stats: in.VitalStats}
 	opt.ControlHolds, opt.ControlHoldStats = in.ControlHolds, in.ControlHoldStats
 	opt.PlayerIndices = in.PlayerIndices
 	opt.FilmTable = in.FilmTable
@@ -316,5 +345,6 @@ func (in FilmInputs) applyTo(opt *Options) {
 		Controls: in.UnitControls, ControlStats: in.UnitControlStats,
 		Deletions: in.BipedDeletions, DeletionStats: in.BipedDeletionStats}
 	opt.StatborgEntries, opt.StatborgEntryStats = in.StatborgEntries, in.StatborgEntryStats
+	opt.Appearances, opt.AppearanceStats = in.Appearances, in.AppearanceStats
 	opt.FilmClockOriginUS = in.FilmClockOriginUS
 }

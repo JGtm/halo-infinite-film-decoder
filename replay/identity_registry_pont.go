@@ -27,7 +27,11 @@ import (
 //
 // APPELANT UNIQUE : [BuildIdentityRegistry]. Le garde-rail `archlint` l'exige.
 func buildOwners(ctx context.Context, in IdentityInput) (OwnerReport, creationReport, bridgeVerification) {
-	return buildOwnersFromTracks(ctx, indexBySlot(in.Positions), in)
+	pistes := in.pistes
+	if pistes == nil {
+		pistes = indexBySlot(in.Positions)
+	}
+	return buildOwnersFromTracks(ctx, pistes, in)
 }
 
 // buildOwnersFromTracks est [buildOwners] sur des trajectoires DEJA indexees par slot.

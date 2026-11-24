@@ -7,7 +7,7 @@ import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/grammar"
 )
 
-// TestBuildDamage : une ligne par message qui retire des points à une unité qui a une piste, posée à sa frame ; l'auteur se
+// TestBuildDamage : une ligne par message qui touche une unité qui a une piste (zéro point compris, cf. TestDegatsAZeroPoint), posée à sa frame ; l'auteur se
 // résout par le roster, la victime par la piste (absente pour un bot) ; le total infligé exclut ce qu'on se fait à soi-même,
 // le subi ne compte que les joueurs ; une unité sans piste n'est ni publiée ni comptée ; un instant hors de l'axe compte
 // aux totaux sans ligne.
@@ -37,16 +37,18 @@ func TestBuildDamage(t *testing.T) {
 	_, lignes, stats, cov := buildHits(HitInput{Read: true, Messages: messages, Points: points, Stats: grammar.StatsDegats{Trames: 100, Terminees: 100}},
 		nil, roster, pistes, axe)
 	want := []Damage{
-		{T: 3, Attacker: xuidA, Victim: xuidB, Effect: "0000563f", Shield: 25},
-		{T: 4, Attacker: xuidA, Effect: "0000563f", Shield: 10, Body: 5.5, Measured: true},
-		{T: 5, Attacker: xuidB, Victim: xuidB, Effect: "0000563f", Body: 12.3},
-		{T: 6, Victim: xuidC, Effect: "0000563f", Body: 30},
+		{T: 3, Attacker: xuidA, Victim: xuidB, Effect: "0000563f", Shield: 25, Slot: 517},
+		{T: 4, Attacker: xuidA, Effect: "0000563f", Shield: 10, Body: 5.5, Measured: true, Slot: 521},
+		{T: 5, Attacker: xuidB, Victim: xuidB, Effect: "0000563f", Body: 12.3, Slot: 517},
+		{T: 6, Victim: xuidC, Effect: "0000563f", Body: 30, Slot: 518},
+		{T: 8, Attacker: xuidA, Victim: xuidB, Effect: "0000563f", Slot: 517}, // le coup qui ne retire rien : une ligne à zéro point
 	}
 	if !slices.Equal(lignes, want) {
 		t.Errorf("lignes %+v, attendu %+v", lignes, want)
 	}
-	if cov.Damages != 4 || cov.DamagesMeasured != 1 || cov.DamagesOffUnit != 1 || cov.SelfDamages != 1 {
-		t.Errorf("couverture : %d ligne(s) dont %d mesurée(s), %d hors unité, %d sur soi ; attendu 4, 1, 1 et 1", cov.Damages, cov.DamagesMeasured, cov.DamagesOffUnit, cov.SelfDamages)
+	if cov.Damages != 4 || cov.DamagesMeasured != 1 || cov.DamagesOffUnit != 1 || cov.SelfDamages != 1 || cov.DamagesZero != 1 {
+		t.Errorf("couverture : %d ligne(s) dont %d mesurée(s), %d hors unité, %d sur soi, %d à zéro point ; attendu 4, 1, 1, 1 et 1",
+			cov.Damages, cov.DamagesMeasured, cov.DamagesOffUnit, cov.SelfDamages, cov.DamagesZero)
 	}
 	totaux := map[string][2]float64{}
 	for _, s := range stats {

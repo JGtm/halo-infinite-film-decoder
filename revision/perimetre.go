@@ -52,7 +52,23 @@ type Couche struct {
 	// [Module.SurDisque] le resout dans le module courant. Tout paquet sous cette racine est
 	// de la couche.
 	Racine string
+	// Associes : les paquets HORS couche que la fermeture des imports de la couche ne rencontre pas, mais dont
+	// les octets (sources et fichiers embarques) decident ce que le calque de la couche publie : ils entrent dans son
+	// perimetre comme s'ils etaient importes, et leurs propres imports sont suivis a leur tour. Noms historiques, en
+	// slash, relatifs au module. Un paquet qui est deja une couche, ou qui ne porte aucune source de production, est
+	// une faute de declaration ([ErrPerimetre]).
+	//
+	// Une chaine de chemins separes par des espaces, et non une tranche : `Couche` reste comparable (`==`), comme avant
+	// l ajout du champ ; [Couche.PaquetsAssocies] rend les chemins.
+	//
+	// Le cas d'usage est une TABLE DE DONNEES consommee par la publication et pas par la couche : la table des
+	// reponses de jeu (`reponsesdejeu`) nomme les actions de score que `grammar` fait lire ; sans cette association,
+	// une ligne de plus ne changerait aucune revision et le rejeu ne serait jamais a redecoder.
+	Associes string
 }
+
+// PaquetsAssocies rend les chemins de [Couche.Associes], un par paquet.
+func (c Couche) PaquetsAssocies() []string { return strings.Fields(c.Associes) }
 
 // ErrPerimetre : la declaration d une couche et sa fermeture ne s accordent pas (couche inconnue,
 // valeur amont manquante ou superflue). C est une faute de DECLARATION, jamais un resultat.
@@ -119,22 +135,59 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 	if !ok {
 		return Perimetre{}, fmt.Errorf("%w : couche %q absente de la liste des couches", ErrPerimetre, nom)
 	}
-	file, err := m.paquetsDeLArbre(propre.Racine)
+	file, vus, err := m.paquetsDeDepart(propre, couches)
 	if err != nil {
 		return Perimetre{}, err
 	}
+	amonts, file, err := m.fermerLesImports(nom, file, vus, couches)
+	if err != nil {
+		return Perimetre{}, err
+	}
+	p := Perimetre{Paquets: file}
+	slices.Sort(p.Paquets)
+	for _, c := range couches {
+		if amonts[c.Nom] {
+			p.Amonts = append(p.Amonts, c.Nom)
+		}
+	}
+	return p, nil
+}
+
+// paquetsDeDepart rend les paquets d'ou part la fermeture de `propre` : ceux de sa racine, puis ses paquets associes, avec
+// l'ensemble des paquets deja vus.
+func (m Module) paquetsDeDepart(propre Couche, couches []Couche) ([]string, map[string]bool, error) {
+	file, err := m.paquetsDeLArbre(propre.Racine)
+	if err != nil {
+		return nil, nil, err
+	}
 	if len(file) == 0 {
-		return Perimetre{}, fmt.Errorf("%w : %s", ErrRacineSansSource, propre.Racine)
+		return nil, nil, fmt.Errorf("%w : %s", ErrRacineSansSource, propre.Racine)
 	}
 	vus := map[string]bool{}
 	for _, p := range file {
 		vus[p] = true
 	}
+	associes, err := m.paquetsAssocies(propre, couches)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, rel := range associes {
+		if !vus[rel] {
+			vus[rel] = true
+			file = append(file, rel)
+		}
+	}
+	return file, vus, nil
+}
+
+// fermerLesImports suit les imports des paquets de `file` : un paquet d'une autre couche devient un amont de `nom` (il entre par
+// sa valeur), tout autre paquet entre dans le perimetre. Rend les amonts et la liste complete des paquets.
+func (m Module) fermerLesImports(nom string, file []string, vus map[string]bool, couches []Couche) (map[string]bool, []string, error) {
 	amonts := map[string]bool{}
 	for i := 0; i < len(file); i++ {
 		imports, err := m.importsDuPaquet(file[i])
 		if err != nil {
-			return Perimetre{}, err
+			return nil, nil, err
 		}
 		for _, rel := range imports {
 			if autre := coucheDuPaquet(rel, couches); autre != "" {
@@ -149,14 +202,24 @@ func (m Module) Fermeture(nom string, couches []Couche) (Perimetre, error) {
 			}
 		}
 	}
-	p := Perimetre{Paquets: file}
-	slices.Sort(p.Paquets)
-	for _, c := range couches {
-		if amonts[c.Nom] {
-			p.Amonts = append(p.Amonts, c.Nom)
+	return amonts, file, nil
+}
+
+// paquetsAssocies rend les paquets que `propre` declare ([Couche.Associes]) apres les avoir verifies : un paquet
+// d'une couche revisee entrerait par sa valeur et non par ses octets, et un dossier sans source de production ne
+// hacherait rien.
+func (m Module) paquetsAssocies(propre Couche, couches []Couche) ([]string, error) {
+	for _, rel := range propre.PaquetsAssocies() {
+		if autre := coucheDuPaquet(rel, couches); autre != "" {
+			return nil, fmt.Errorf("%w : le paquet associe %s a la couche %s est de la couche %s, qui entre par sa valeur",
+				ErrPerimetre, rel, propre.Nom, autre)
+		}
+		noms, err := sourcesDuDossier(m.SurDisque(rel))
+		if err != nil || len(noms) == 0 {
+			return nil, fmt.Errorf("%w : paquet associe %s a la couche %s (%v)", ErrRacineSansSource, rel, propre.Nom, err)
 		}
 	}
-	return p, nil
+	return propre.PaquetsAssocies(), nil
 }
 
 // coucheNommee rend la couche de ce nom.

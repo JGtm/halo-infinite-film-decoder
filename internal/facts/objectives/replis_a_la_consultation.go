@@ -124,7 +124,7 @@ func (r *ReplisALaConsultation) EmissionsGardees() map[string]int {
 	defer r.mu.Unlock()
 	var out map[string]int
 	for cle := range r.gardees {
-		for _, st := range ScoreboardStats() {
+		for _, st := range tousLesCompteursDuTableau() {
 			if st.Component.key() != cle.key {
 				continue
 			}

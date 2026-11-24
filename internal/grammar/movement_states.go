@@ -140,6 +140,11 @@ type MarcheDesTrames struct {
 	// Reloads : les rechargements d arme des trames delta et ReloadStats ce que leur canal a vu.
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
+	// Repliques : les repliques des Spartans et les annonces des trames delta (genres 75 et 76 de la vue A) et ce que leur canal a vu.
+	Repliques RepliquesLues
+	// Gestures : les lancers amorces et les coups de melee des trames delta, et ce que leur canal a vu.
+	Gestures     []types.GestureRead
+	GestureStats types.GestureStats
 	// Vitalites : la sante et le bouclier des bipedes, par vie.
 	Vitalites VitalitesLues
 	// LiaisonsParRepliDAnticipation : les liaisons que le repli `repli_liaison_par_anticipation`
@@ -154,6 +159,14 @@ type MarcheDesTrames struct {
 	DebutsDeListeParRepliFermeAuBit int
 	// Horloges sont l horloge de manche et les comptes a rebours de reapparition ([canalDesHorloges]).
 	Horloges HorlogesLues
+	// DrawnWeapons : les changements du jeu d armes desire du bipede (`i42`), tries par instant puis slot
+	// ([canalDuJeuDArmes]) ; DrawnWeaponStats, leurs denominateurs.
+	DrawnWeapons     []types.DrawnWeaponRead
+	DrawnWeaponStats types.DrawnWeaponStats
+	// ProjectileAttaches : les projectiles qui se collent (`i10` ouvert sur la branche attache), dans l ordre du flux
+	// ([canalDesProjectilesColles]) ; ProjectileAttachStats, leurs denominateurs.
+	ProjectileAttaches    []types.ProjectileAttachRead
+	ProjectileAttachStats types.ProjectileAttachStats
 	// ProprietesGerees sont les valeurs des proprietes reseau de ti=13 que les trames delta portent
 	// ([canalDesProprietesGereesTrames]).
 	ProprietesGerees ProprietesGereesLues
@@ -213,8 +226,12 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	jeu := nouveauCanalDesEvenementsDeJeu()
 	degats := nouveauCanalDesDegats()
 	rechargements := nouveauCanalDesRechargements()
+	gestes := nouveauCanalDesGestes()
 	vitalites := nouveauCanalDesVitalites()
-	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements}
+	repliques := nouveauCanalDesRepliques()
+	armes := nouveauCanalDuJeuDArmes(arch)
+	colles := nouveauCanalDesProjectilesColles(fc, reg)
+	canaux := []Canal{sc, tir, jeu, degats, vitalites, rechargements, repliques, gestes, armes, colles}
 	if fc.recup.lectures == nil {
 		canaux = append(canaux, nouveauCanalDesLecturesBipedes(fc))
 	}
@@ -246,6 +263,10 @@ func marcherPourLaCuisson(fc *FilmContext, l LecturesDeLaMarche, invites []Canal
 	m.EvenementsDeJeuStats = jeu.stats
 	m.Degats, m.DegatsStats = degats.lus, degats.stats
 	m.Reloads, m.ReloadStats = rechargements.out, rechargements.stats
+	m.Repliques = repliques.resultat()
+	m.Gestures, m.GestureStats = gestes.out, gestes.stats
+	m.DrawnWeapons, m.DrawnWeaponStats = armes.out, armes.st
+	m.ProjectileAttaches, m.ProjectileAttachStats = colles.out, colles.st
 	m.Vitalites = vitalites.resultat()
 	m.ContinuousFireStats.Scanned = true
 	m.UnitControls = sc.controle.publier()
@@ -275,16 +296,6 @@ func nouveauCanalDesEtats(st *types.MovementStateStats, reg *Registry, arch Arch
 		componentIndexOfAny(arch, abilityComponentName, abilityComponentAlt) >= 0
 	return &movementStateScanner{st: st, transmet: transmet, vues: map[movementStateKey]types.MovementStateRead{},
 		physique: occurrencesDe(reg, compVehicleTypePhysics)}
-}
-
-// movementStateKey deduplique une lecture : le chemin d inference de la marche ([decodeInferLoop])
-// re-parcourt un record quand une chaine de transitoires le demande, et le deserialiseur
-// re-publie alors la MEME transition. Compter deux fois la meme gonflerait les denominateurs
-// sans qu aucun compteur ne le dise.
-type movementStateKey struct {
-	slot uint32
-	kind string
-	ts   uint64
 }
 
 // movementStateScanner est le CANAL DES ETATS DE MOUVEMENT de la marche des trames

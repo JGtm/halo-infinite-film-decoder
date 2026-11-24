@@ -81,7 +81,7 @@ func (s SortieDeVueB) String() string {
 	case SortieVueBRejetDeVue:
 		return "rejet de vue"
 	case SortieVueBAutre:
-		return "autre"
+		return classeAutre
 	}
 	return fmt.Sprintf("sortie %d", int(s))
 }
@@ -278,3 +278,6 @@ func compteDesAnticipations(o *Observation) int {
 	}
 	return n
 }
+
+// classeAutre est la classe de ce qu aucune autre classe ne decrit.
+const classeAutre = "autre"

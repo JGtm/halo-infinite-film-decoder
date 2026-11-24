@@ -43,6 +43,9 @@ func replayScoreClock(ctx context.Context, doc *ReplayDocument, intervalMS int, 
 // n'est pas lu — le chemin plat par totaux est conserve a l'octet.
 func attachScoreTimeline(ctx context.Context, doc *ReplayDocument, opt Options, c scoreClock, matchID string) *ScoreCoverage {
 	in, unplayed := scoreInputOfPlayedRounds(opt)
+	if opt.Vip.Scanned {
+		c.family = objectives.ObjectiveTypeVip
+	}
 	c.cons = opt.consultations() // l enregistreur du document (lot J8.7-bis) suit l horloge du calque, comme `fb`
 	tl, cov, seuil := assembleScoreTimeline(in, opt.Deaths, entryResolverOf(opt), c, opt.Fallbacks)
 	doc.ScoreTimeline = tl
@@ -134,13 +137,16 @@ func logScoreCoverage(ctx context.Context, matchID string, cov *ScoreCoverage, t
 		"modePorte", cov.ModeSupported, "equipes", teams, "joueurs", players, "points", cov.Points)
 }
 
+// cleJournalFilm est la cle du journal pour ce que dit le film.
+const cleJournalFilm = "film"
+
 // logHoldThreshold journalise la lecture du seuil de garde d'un match a colline — le detail que
 // le document ne publie pas (cf. hill_hold_threshold.go). WARN quand la table contredit le film.
 func logHoldThreshold(ctx context.Context, matchID string, r *holdThresholdReading) {
 	if r == nil {
 		return
 	}
-	attrs := []any{"match_id", matchID, "source", r.source, "film", r.film, "points", r.points,
+	attrs := []any{"match_id", matchID, "source", r.source, cleJournalFilm, r.film, "points", r.points,
 		"ecartes", r.rejected, "table", r.table, "tableContredite", r.tableDisagrees,
 		"unTicParPoint", r.oneTickPerPoint}
 	if r.tableDisagrees {

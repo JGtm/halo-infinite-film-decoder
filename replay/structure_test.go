@@ -1564,8 +1564,18 @@ func TestStructureIsOptionalInDocument(t *testing.T) {
 	//   terminee sont publiees (`scoreTimeline.players[].frozenRounds[]`, `coverage.score.frozenRounds`), la derniere manche n etant jamais figee, les totaux
 	//   inchanges. Le contenu cuit change, des champs et des calques neufs. `grammar.Rev` et `objectives.Rev` montent : un v125 se lit
 	//   « à redécoder ». Détail : `document_chronicle.go`.
-	if SchemaVersion != 126 {
-		t.Fatalf("SchemaVersion = %d, attendu 126 : incrémenter exige une raison écrite ci-dessus "+
+	// - 127 (2026-11-23, repliques, gestes, commandes d accroupi et de saut, bots, drapeau) : vingt et un apports en une version. (1) `chatter[]` et `announcements[]` portent
+	//   les repliques des Spartans et les annonces (genres 75 et 76 de la vue A), avec leur couverture. (2) `gestures[]` publie le coup de melee et le lancer amorce
+	//   (`place`, `ms`, `kind`) ; `reloads[]` gagne `ms` et `copies`. (3) `stances[]` prend `crouchCommand` et `jumpCommand` avec `ms0` et `ms1`, sur les films a pleine
+	//   cadence seulement (`coverage.stances.control.stepUs`, `fullCadence`). (4) Les eliminations et les actions de score d un bot se publient par `place`. (5) Le drapeau
+	//   lit tous les sieges, une base neutre est un seul drapeau, un siege qui change d occupant coupe ses compteurs, un porteur immobile garde sa position ; le champ
+	//   `coverage.flagCarries.seatsBeyondBand` est deprecie (sans ecrivain, toujours a zero). (6) Une manche courte est admise quand le film remet a zero tous les joueurs presents. (7) Les genres 13, 27,
+	//   117 et 93 inhibe se lisent, une trame renvoyee en entier n est plus comptee deux fois. (8) Les segments de score se joignent par un tri total. (9) Le socle d arme de la couche de requete porte trois axes optionnels (`forward`, `up`, `scale`). (10) `shots[].o`, `damage[].slot` et `by`, les degats a zero point publies et comptes a part. (11) `drawnWeapons[]` et `ammoReads[]`. (12) `padCandidates[]`, les socles d equipement, `grenades[].deto`. (13) `tracks[].fullRate`, `projectiles[].z` et `projectiles[].fullRate`, toujours publies. (14) `vitals[]`, `coverage.vitals`. (15) Le tireur d un tir vient de la place de controle lue (`coverage.controlPlaces`) et le bilan de tirs ne compte plus une relecture comme un tour. (16) Les visees sans position se lisent sur tout film et entrent dans la pleine cadence. (17) `projectiles[].attach`, `attachments[]` et `coverage.projectiles.attach` : les projectiles colles. (18) La courbe du score recule de la penalite de suicide ou de trahison lue dans le film. (19) Les trois statistiques du VIP en courbes par joueur et `coverage.eliminations.victimAmbiguous`. Le contenu cuit change.
+	//   (20) `chatter[]` gagne `name`, le nom court de la replique prouve par hachage (builds 1.12 et 1.13 seulement), et `coverage.chatter` `named` et `unnamed`.
+	//   (21) `roster[].appearance` publie l apparence brute de chaque humain (codes opaques, `size`, `pairs`, `rest`) et `coverage.appearance` la compte.
+	//   `grammar.Rev` et `objectives.Rev` montent et `SchemaDesFaits` 30 -> 31 : un v126 se lit « à redécoder ». Détail : `document_chronicle.go`.
+	if SchemaVersion != 127 {
+		t.Fatalf("SchemaVersion = %d, attendu 127 : incrémenter exige une raison écrite ci-dessus "+
 			"(un champ optionnel de plus n'en est pas une)", SchemaVersion)
 	}
 }

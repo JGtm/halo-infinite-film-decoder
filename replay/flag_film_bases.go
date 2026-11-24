@@ -39,8 +39,8 @@ import (
 // avec le film, une carte pouvant declarer deux socles de camps opposes au meme point — ; un
 // socle apparie sans camp prend celui du film ; une base sans socle a portee est publiee a la
 // position lue. Quand le film lit une base NEUTRE et que l'objet n'a pas tranche « neutre », un
-// socle du catalogue qui ne nomme aucun camp, a portee, devient le socle unique de la variante
-// neutre. L'accord et la contradiction du catalogue avec le film se COMPTENT
+// socle du catalogue a portee (de preference sans camp, sinon le plus proche, meme rangé dans
+// une equipe) devient le socle unique de la variante neutre. L'accord et la contradiction du catalogue avec le film se COMPTENT
 // (`coverage.flagCarries.filmBaseAgree` / `filmBaseContradict`) : une contradiction ne change
 // rien au catalogue, elle se voit.
 //
@@ -253,8 +253,9 @@ func flagRefineBase(owner int, c flagPoint, renaissances []flagPoint) flagFilmBa
 //
 // LE FILM NE L'EMPORTE QUE LA OU LE CATALOGUE SE TAIT : deux bases lues alors que l'objet a
 // tranche « drapeau neutre » se comptent en contradiction et laissent le verdict du catalogue ;
-// une base neutre lue sur une carte du catalogue n'en change les socles que si le socle a sa
-// portee ne nomme aucun camp (cf. [flagChoiceOfNeutralBase]).
+// une base neutre lue sur une carte du catalogue devient le socle unique de la variante des
+// qu'un socle du catalogue est a sa portee, quel que soit le camp qu'il nomme (cf.
+// [flagChoiceOfNeutralBase]).
 func flagResolveSpawns(scan FlagCarryScan, r flagFilmReading, cov *FlagCarriesCoverage,
 	ctx flagCarryCtx) flagSpawnChoice {
 	choix := flagChooseSpawns(scan)
@@ -383,10 +384,13 @@ func flagCampRank(team, owner int) int {
 //   - sans catalogue, la base lue devient le socle unique de la variante ;
 //   - l'objet a tranche « neutre » : la base CONTROLE ce verdict (accord quand le socle unique
 //     retenu est a sa portee) ;
-//   - sinon, un socle du catalogue QUI NE NOMME AUCUN CAMP (sans camp, ou neutre par son label)
-//     a portee de la base devient le socle unique de la variante neutre : les deux camps y
-//     volent, le film tranche la ou le catalogue se tait ;
-//   - sinon, le choix du catalogue reste et la contradiction se compte.
+//   - sinon, un socle du catalogue a portee de la base devient le socle unique de la variante
+//     neutre : les deux camps y volent, le film tranche. Un socle qui ne nomme aucun camp (sans
+//     camp, ou neutre par son label) est préféré ; faute de lui, le plus proche, MÊME s'il nomme
+//     un camp : un point où les deux camps volent n'est le socle d'aucun des deux, et le
+//     rangement du catalogue (une variante à un seul drapeau pose son socle dans une équipe)
+//     décrit une autre variante de la carte ;
+//   - sinon (aucun socle a portee), le choix du catalogue reste et la contradiction se compte.
 func flagChoiceOfNeutralBase(scan FlagCarryScan, choix flagSpawnChoice, b flagFilmBase,
 	cov *FlagCarriesCoverage, fb *fallback.Compteur) flagSpawnChoice {
 	if len(scan.Spawns) == 0 {
@@ -409,12 +413,15 @@ func flagChoiceOfNeutralBase(scan FlagCarryScan, choix flagSpawnChoice, b flagFi
 	}
 	i, ok := flagCamplessSpawnNear(scan.Spawns, b)
 	if !ok {
+		i, ok = flagAnySpawnNear(scan.Spawns, b)
+	}
+	if !ok {
 		cov.FilmBaseContradict++
 		return choix
 	}
 	s := scan.Spawns[i]
-	// Un socle neutre par son label ACCORDE le catalogue au film ; un socle sans camp recoit du
-	// film son role.
+	// Un socle neutre par son label ACCORDE le catalogue au film ; un socle sans camp, ou rangé
+	// dans une équipe, recoit du film son role.
 	if s.Neutral {
 		cov.FilmBaseAgree++
 	} else {
@@ -440,6 +447,18 @@ func flagCamplessSpawnNear(spawns []FlagSpawn, b flagFilmBase) (int, bool) {
 		if !s.Neutral && s.Team != TeamNeutral {
 			continue
 		}
+		if d := sqDist(s.X, s.Y, b.x, b.y); d <= bd {
+			best, bd = i, d
+		}
+	}
+	return best, best >= 0
+}
+
+// flagAnySpawnNear rend l'index du socle du catalogue le plus proche d'une base, a moins de
+// [flagFilmBaseRadiusM], quel que soit le camp qu'il nomme.
+func flagAnySpawnNear(spawns []FlagSpawn, b flagFilmBase) (int, bool) {
+	best, bd := -1, flagFilmBaseRadiusM*flagFilmBaseRadiusM
+	for i, s := range spawns {
 		if d := sqDist(s.X, s.Y, b.x, b.y); d <= bd {
 			best, bd = i, d
 		}

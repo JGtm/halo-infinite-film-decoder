@@ -64,8 +64,10 @@ type FlagInput struct {
 	// une autre grammaire du film, et le signal sans lequel le discriminant de mode ne tient
 	// pas (un film Oddball rend 1 470 « prises » a la table du drapeau).
 	Bursts []int
-	// SeatsBeyondBand compte les sieges du statborg au-dela de la bande que le calque lit ([objectives.RecordsDeLaBandeSure]) :
-	// ils ne sont pas lus, et `coverage.flagCarries.seatsBeyondBand` le dit.
+	// SeatsBeyondBand etait le compte des sieges du statborg au-dela de la bande que le calque lisait.
+	//
+	// Deprecated: le calque lit tous les sieges du film depuis le schema 127 ; ce champ est ignore. Il reste pour la
+	// compatibilite de l API publiee (un champ exporte ne se retire pas en v1).
 	SeatsBeyondBand int
 	// Spawns sont TOUS les socles `flag_spawn` de la carte, en coordonnees monde, lus dans le
 	// catalogue versionne d'objectifs : les deux socles d'equipe ET le socle NEUTRE du centre.
@@ -199,9 +201,6 @@ func attachFlagCarries(ctx context.Context, doc *ReplayDocument, opt Options, re
 	// pas du CTF — ce pont ne sert a RIEN, puisque le calque ne publie rien. On ne le paye plus.
 	if !in.Scanned || !signals.IsFlagFilm() {
 		vide, cov := buildFlagCarries(scan, flagCarryCtx{fb: clock.fb, journal: ctx})
-		if cov != nil {
-			cov.SeatsBeyondBand = in.SeatsBeyondBand
-		}
 		attachFlagLayer(ctx, doc, vide, cov)
 		return
 	}
@@ -224,7 +223,6 @@ func attachFlagCarries(ctx context.Context, doc *ReplayDocument, opt Options, re
 	})
 	if cov != nil {
 		cov.ObjectLives = len(scan.Free)
-		cov.SeatsBeyondBand = in.SeatsBeyondBand
 	}
 	// LA JAUGE DE RETOUR SE POSE APRES L ASSEMBLAGE, ET C EST L ORDRE DE LA PREUVE : le slot de
 	// `ti=13` qui la porte ne se NOMME pas, il se reconnait a la part de ses echantillons qui

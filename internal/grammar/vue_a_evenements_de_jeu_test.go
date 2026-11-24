@@ -152,3 +152,48 @@ func TestLeCanalDesEvenementsDeJeuRetireLesCopies(t *testing.T) {
 		})
 	}
 }
+
+// TestLeCanalDesEvenementsDeJeuRetireLeRenvoiEntierDUneTrame : une trame dont tous les messages (au moins deux)
+// répètent ceux d'une même trame de moins de 3 s est retirée et comptée parmi les copies ; à 3 s ou plus, avec
+// un message qui diffère, d'un seul message, ou à moins d'une seconde (règle d'une seconde), le comportement
+// des messages isolés est conservé.
+//
+// MUTATIONS QUI DOIVENT LE FAIRE ROUGIR : fenêtre de trame à 1 s ou à l'infini ; ne pas exiger tous les
+// messages ; accepter une trame d'un seul message ; mélanger deux trames d'origine.
+func TestLeCanalDesEvenementsDeJeuRetireLeRenvoiEntierDUneTrame(t *testing.T) {
+	a := lecture.EvenementDeJeu{Rang: 78, Sequence: 4, Destinataires: 1 << 31}
+	b := lecture.EvenementDeJeu{Rang: 79, Sequence: 5, Destinataires: 1 << 30}
+	autre := lecture.EvenementDeJeu{Rang: 80, Sequence: 6, Destinataires: 1 << 29}
+	type trame struct {
+		ts  uint64
+		jeu []lecture.EvenementDeJeu
+	}
+	cas := []struct {
+		nom    string
+		suite  []trame
+		gardes int // messages rendus
+		copies int
+	}{
+		{"entière à 2,4 s", []trame{{1_000, []lecture.EvenementDeJeu{a, b}}, {2_401_000, []lecture.EvenementDeJeu{a, b}}}, 2, 2},
+		{"entière à 3,1 s", []trame{{1_000, []lecture.EvenementDeJeu{a, b}}, {3_101_000, []lecture.EvenementDeJeu{a, b}}}, 4, 0},
+		{"un message diffère", []trame{{1_000, []lecture.EvenementDeJeu{a, b}}, {2_401_000, []lecture.EvenementDeJeu{a, autre}}}, 4, 0},
+		{"un seul message à 2 s", []trame{{1_000, []lecture.EvenementDeJeu{a}}, {2_001_000, []lecture.EvenementDeJeu{a}}}, 2, 0},
+		{"entière à moins d'une seconde", []trame{{1_000, []lecture.EvenementDeJeu{a, b}}, {400_000, []lecture.EvenementDeJeu{a, b}}}, 2, 2},
+		{"deux origines différentes", []trame{{1_000, []lecture.EvenementDeJeu{a}}, {500_000, []lecture.EvenementDeJeu{b}},
+			{2_000_000, []lecture.EvenementDeJeu{a, b}}}, 4, 0},
+	}
+	for _, c := range cas {
+		t.Run(c.nom, func(t *testing.T) {
+			k := nouveauCanalDesEvenementsDeJeu()
+			for _, tr := range c.suite {
+				var p lecture.Paquet
+				p.TS = tr.ts
+				p.VueA.Jeu = tr.jeu
+				k.Tete(&p)
+			}
+			if len(k.lus) != c.gardes || k.stats.Messages != c.gardes || k.stats.Copies != c.copies {
+				t.Errorf("rendus %d (stats %d), copies %d ; attendu %d et %d", len(k.lus), k.stats.Messages, k.stats.Copies, c.gardes, c.copies)
+			}
+		})
+	}
+}

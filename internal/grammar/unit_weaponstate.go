@@ -374,7 +374,7 @@ func consumeBipedDesiredWeaponSet(br *Lecteur) {
 		return
 	}
 	if br.obs != nil && br.obs.DesiredWeaponSetHook != nil {
-		br.obs.DesiredWeaponSetHook(j)
+		br.obs.DesiredWeaponSetHook(br.cap.accumSlot, j)
 	}
 }
 

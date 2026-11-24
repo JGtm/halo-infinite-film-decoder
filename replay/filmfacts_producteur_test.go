@@ -122,11 +122,9 @@ func TestBuildFromFactsEgaleLAssemblageDirect(t *testing.T) {
 	}
 	rejoue := BuildFromFacts(context.Background(), goldenFilm, "halo_infinite", f, Options{MapQuant: &entry})
 
-	if renderAssembly(direct) != renderAssembly(rejoue) {
-		t.Error("le document REJOUE DEPUIS LES FAITS differe de l assemblage direct : le fichier " +
-			"de faits perd un champ que `BuildFromPositions` consomme, ou ne restitue pas " +
-			"l identite / les replis du balayage. Comparer `renderAssembly` des deux cotes.")
-	}
+	exigerDocumentsIdentiques(t, "le document REJOUE DEPUIS LES FAITS differe de l assemblage direct : le fichier "+
+		"de faits perd un champ que `BuildFromPositions` consomme, ou ne restitue pas "+
+		"l identite / les replis du balayage", direct, rejoue)
 }
 
 // sectionsLaisseesALAssemblage : les sections que [faitsDuBalayage] NE REMPLIT PAS, et pourquoi.

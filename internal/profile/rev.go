@@ -213,7 +213,13 @@ package profile
 // tirs allies de la variante. Aucune largeur, aucune borne, aucune provenance de la table ne change : la revision monte parce que la
 // forme de l identite change, et que l identite est persistee avec les faits du film (section 2 du fichier de faits).
 
-const Rev = "profile-2026-11-14"
+// ENTREE `profile-2026-11-24` (2026-11-24, quatre charges courtes de la vue A ouvertes build par build) : LA TABLE GAGNE QUATRE LIGNES PAR BUILD ; AUCUNE LARGEUR NI BORNE EXISTANTE NE CHANGE.
+//
+// `ecriture.go` : [EcritureDuBuild] porte quatre champs neufs, `InterruptionDuMoteurLue` (genre 13), `BasculeDeControleLue` (genre 27), `ActivationDeCapaciteLue` (genre 93, charge inhibee) et `TeleportationDuTranslocateurLue` (genre 117), qui disent si la grammaire lit la charge de ce genre sur ce build. Ouverts : genre 13 sur HI_1_11_0 ; genre 27 sur HI_1_11_0 et HI_1_13_0 ; genre 93 sur HI_1_11_0, HI_1_12_0 et HI_1_13_0 ; genre 117 sur HI_1_12_0 et HI_1_13_0, la ou la fermeture au bit des trames est prouvee. Un build absent de la table, ou un genre non ouvert, garde le comportement d avant : le premier message du genre arrete la lecture de la trame.
+//
+// `grammar.Rev` monte derriere cette ligne (entree `grammar-2026-11-24`).
+
+const Rev = "profile-2026-11-24"
 
 // L EMPREINTE DES SOURCES DE LA COUCHE VIT DANS UN GOLDEN, A COTE DE CETTE REVISION :
 // `testdata/profile_rev.golden` porte le couple (revision, empreinte) avec son historique, et

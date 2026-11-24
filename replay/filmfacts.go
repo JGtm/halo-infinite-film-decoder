@@ -252,7 +252,13 @@ import (
 // v30 : le blob porte L HORLOGE DE MANCHE et les COMPTES A REBOURS de reapparition (`FilmInputs.Horloges`, cf.
 // `filmfacts_horloges.go`), en derniere section, apres la queue. Le document les publie (`roundClock`,
 // `respawnCountdowns`) ; sans eux un rejeu depuis les faits perdrait ces deux calques.
-const filmFactsMagic = "REPLAYINPUTS30\n"
+//
+// v31 (2026-11-23) : chaque delta d inventaire se termine par ses MUNITIONS (`types.InventoryDeltaAmmo` : chargeur, fraction R(12)
+// brute, reserve ; [encodeMunitionsDelta]/[decodeMunitionsDelta]), dans l ordre du film. Elles etaient sorties du fichier faute
+// de lecteur (v15 et v18 les citent comme retirees) : elles y rentrent de nouveau, et l assemblage les lit
+// (`ammoReads[]`, `ammo_reads.go`) ; un fichier ecrit avant ne se relit pas (`SchemaDesFaits` 31 les refuse aussi). Le meme numero porte, au complement, le jeu d armes desire (`filmfacts_arme_tiree.go`) et, dans la section des lancers, le
+// handle du projectile de chaque lancer (`GrenadeThrow.HasLife`, `Life` : `bool8 has_life`, puis `slot` et `gen` s il est present). Il porte aussi, au complement, les changements de sante et de bouclier par vie (`FilmInputs.Vitals`, `filmfacts_vitalites.go`).
+const filmFactsMagic = "REPLAYINPUTS31\n"
 
 // ---------------------------------------------------------------------------
 // LES CHAMPS SERIALISES, PAR TYPE — ce sont ceux que l assemblage consomme :
@@ -261,7 +267,7 @@ const filmFactsMagic = "REPLAYINPUTS30\n"
 //	                  HasBody+Body.Health · HasShield+Shield.Shield+Shield.Q
 //	FireEvent         TimestampUS · FilmIndex (5 bits, -1) · WeaponID · FireNumber · Unit · HasAim+Aim
 //	KeyframeLoadout   TimestampUS · Slot · Families
-//	GrenadeThrow      TimestampUS · FilmIndex · TypeID
+//	GrenadeThrow      TimestampUS · FilmIndex · TypeID · HasLife+Life(Slot·Gen)
 //	ProjectileTrack   Slot · Gen · Pts(TimestampUS · X/Y/Z · AtRest)
 //	ProjectileDetonation TimestampUS · Genre · HasProjectile+Projectile(Slot·Gen) · HasPosition+X/Y/Z
 //	KeyframeInventory tout, sauf Chunk/PacketIndex (tracabilite dans le film, pas une entree)

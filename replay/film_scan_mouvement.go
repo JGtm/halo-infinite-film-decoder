@@ -65,9 +65,20 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.in.GameEvents, s.in.GameEventStats, s.in.GameEventsRead = m.EvenementsDeJeu, m.EvenementsDeJeuStats, err == nil
 	s.in.Damages, s.in.DamageStats, s.in.DamagesRead = m.Degats, m.DegatsStats, err == nil
 	s.in.Reloads, s.in.ReloadStats = m.Reloads, m.ReloadStats
+	s.in.Repliques = m.Repliques
+	s.in.Gestures, s.in.GestureStats = m.Gestures, m.GestureStats
+	s.in.DrawnWeapons, s.in.DrawnWeaponStats = m.DrawnWeapons, m.DrawnWeaponStats
+	s.in.ProjectileAttaches, s.in.ProjectileAttachStats = m.ProjectileAttaches, m.ProjectileAttachStats
 	s.in.DamageStats.VitalesNonLues = m.Vitalites.Stats.TramesNonLues
 	s.in.DamagePoints = calculerLesPointsDeDegats(m.Degats, m.Vitalites)
-	s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
+	s.in.Vitals, s.in.VitalStats = reduireLesVitalites(m.Vitalites.Lectures)
+	// LES SCRIPTS NE DEPENDENT QUE DU FILM : la tache de fond les a lus d'avance quand il y en a une
+	// (film_scan_fond.go), sinon ils se lisent ici.
+	if scripts, lus := s.fond.lesScripts(); lus {
+		s.in.Scripts = scripts
+	} else {
+		s.in.Scripts = grammar.ScanScriptsDuFilm(s.film)
+	}
 	if s.in.Vehicles.Scanned {
 		morts := mortsDeVehicule(s.ctx, s.matchID, m)
 		s.in.Vehicles.Deaths, s.in.Vehicles.BipedDeaths = morts.Vehicles, morts.Bipeds
@@ -90,9 +101,23 @@ func (s *filmScan) balayerEtatsDeMouvement() {
 	s.opt.observe(s.ctx, "damages.stats", s.in.DamageStats)
 	s.opt.observe(s.ctx, "reloads", s.in.Reloads)
 	s.opt.observe(s.ctx, "reloads.stats", s.in.ReloadStats)
+	s.opt.observe(s.ctx, "repliques", messagesDeDialogue{Repliques: s.in.Repliques.Repliques, Annonces: s.in.Repliques.Annonces})
+	s.opt.observe(s.ctx, "repliques.stats", s.in.Repliques.Stats)
+	s.opt.observe(s.ctx, "gestures", s.in.Gestures)
+	s.opt.observe(s.ctx, "gestures.stats", s.in.GestureStats)
+	s.opt.observe(s.ctx, "drawnWeapons", s.in.DrawnWeapons)
+	s.opt.observe(s.ctx, "drawnWeapons.stats", s.in.DrawnWeaponStats)
+	s.opt.observe(s.ctx, "projectileAttaches", s.in.ProjectileAttaches)
+	s.opt.observe(s.ctx, "projectileAttaches.stats", s.in.ProjectileAttachStats)
 	s.opt.observe(s.ctx, "filmScripts", s.in.Scripts)
 	s.opt.observe(s.ctx, "vehicleDeaths", mortsEtOccupation{Deaths: s.in.Vehicles.Deaths, Occupancy: s.in.Vehicles.Occupancy})
 	s.opt.observe(s.ctx, "vehicleDeaths.stats", s.in.Vehicles.DeathStats)
+}
+
+// messagesDeDialogue est ce que l etape `repliques` observe : les repliques et les annonces lues, sans leurs comptes.
+type messagesDeDialogue struct {
+	Repliques []grammar.RepliqueLue
+	Annonces  []grammar.AnnonceLue
 }
 
 // mortsEtOccupation est ce que l etape `vehicleDeaths` observe : les morts de vehicule et les

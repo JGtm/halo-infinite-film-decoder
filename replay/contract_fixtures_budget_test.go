@@ -41,7 +41,15 @@ import (
 // desormais les lectures d'horloge (`roundClock`, `respawnCountdowns`, `coverage.clocks` et deux
 // entrees de `layers` gagnent chaque fixture), et le jeu de huit passe de 4 936 939 a 4 992 442 octets,
 // au-dela de l'ancien plafond (4 980 736). Le plafond se releve de 131 072 octets (4<<20 + 7<<17) ; rien n'est coupe, ni calque ni build.
-const contractFixturesBudget = 4<<20 + 7<<17
+//
+// RELEVE A 5 242 880 OCTETS LE 2026-11-23 (schema 127) : le jeu de huit passe de 5 111 808 a 5 226 571 octets mesures avec les calques de la 1.6.0 (les repliques et les annonces, les
+// gestes, les commandes d'accroupi et de saut, les degats a zero point et le decalage des tirs, l'arme tiree et les munitions portees, les candidats de socle) : trois premiers apports a 5 073 607 octets, les trois derniers
+// ajoutent 152 964 octets. Le plafond se releve a 5 Mio pile (5<<20) ; rien n'est coupe, ni calque ni build. Ce relevement est confirme par le mainteneur ; le plafond en vigueur est celui du paragraphe suivant.
+//
+// RELEVE A 11 Mio LE 2026-11-23 (schema 127) : la pleine cadence est toujours publiee (`tracks[].fullRate`, `projectiles[].fullRate` et `projectiles[].z`) et la coupe des points de piste, tenue a 500 ms, ne la touche pas : le jeu de huit
+// passe de 5 226 571 a 11 354 146 octets mesures (10,83 Mio), les vitalites (`vitals[]`) et leurs compteurs s'y ajoutant. Le plafond se releve de 5 a 11 Mio (valeur mesuree arrondie au demi-mebioctet superieur) ; rien n'est coupe, ni calque ni build.
+// Le poids d'un rejeu complet augmente de 24 a 39 % (compresse) : le jeu de fixtures, lui, plus du double, parce que les points de grille y sont coupes mais pas la pleine cadence.
+const contractFixturesBudget = 11 << 20
 
 // TestContractFixturesTiennentDansLeBudget : le jeu entier tient-il sous le plafond, et
 // combien pese chaque fixture ?

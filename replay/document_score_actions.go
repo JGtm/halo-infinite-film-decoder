@@ -41,8 +41,10 @@ package replay
 // ceux du roster (`filmIndex`). Un index se résout en xuid À L'INSTANT DU MESSAGE : parmi les humains du roster
 // qui le portent, celui dont la présence (`presence`) couvre la frame. Un humain parti garde son index dans le
 // roster alors qu'un bot déclaré au même index n'y figure pas (`buildRoster` l'écarte) : un message d'après
-// son départ ne lui revient donc pas, il est compté (`notPresent`). Un index sans humain du roster (un bot,
-// un siège que le film ne nomme pas) n'a pas de xuid : `noRecipient`. La cible est le joueur que le libellé
+// son départ ne lui revient donc pas, il est compté (`notPresent`). Un index que tient un BOT du roster (et
+// aucun humain) n'a pas de xuid : l'action se pose avec `place` (cet index) et sans `xuid` ; la cible bot de même
+// (`targetPlace`). Un index sans humain ni bot du roster (un siège que le film ne nomme pas) : `noRecipient`.
+// La cible est le joueur que le libellé
 // de la réponse nomme : l'ennemi tué (`%pe`), le joueur trahi (`%pa`, le premier participant : le destinataire
 // est alors celui qui trahit).
 
@@ -59,8 +61,12 @@ import (
 type ScoreAction struct {
 	// T est l'index de frame, sur le même axe que Point.T.
 	T int `json:"t"`
-	// XUID est le joueur qui reçoit la réponse, en décimal — même forme que Track.XUID.
-	XUID string `json:"xuid"`
+	// XUID est le joueur humain qui reçoit la réponse, en décimal — même forme que Track.XUID. Absent quand le
+	// destinataire est un bot : la réponse se désigne alors par Place.
+	XUID string `json:"xuid,omitempty"`
+	// Place est l'index de joueur du film du destinataire quand c'est un bot (un bot n'a pas d'identifiant) : le même
+	// espace que `roster[].filmIndex` et que `reloads[].place`. Absent pour un humain ; XUID et Place s'excluent.
+	Place *int `json:"place,omitempty"`
 	// Name est le nom de la réponse dans le script du mode (`killPersonalScore`) : une clé stable, jamais un
 	// libellé d'interface.
 	Name string `json:"name"`
@@ -69,6 +75,9 @@ type ScoreAction struct {
 	// Target est le joueur que le libellé de la réponse nomme, en décimal. Absent quand la réponse ne nomme
 	// personne ou que le roster ne résout pas ce joueur à cet instant.
 	Target string `json:"target,omitempty"`
+	// TargetPlace est l'index de joueur du film de la cible quand c'est un bot (même espace que Place) ; absent
+	// sinon. Target et TargetPlace s'excluent.
+	TargetPlace *int `json:"targetPlace,omitempty"`
 }
 
 // ScoreActionInput est ce que l'assemblage reçoit : les messages de jeu lus dans le film et les scripts qui
@@ -143,6 +152,10 @@ type ScoreActionCoverage struct {
 	// NoTarget compte les messages à points dont le libellé nomme un joueur que le roster ne
 	// résout pas à cet instant.
 	NoTarget int `json:"noTarget"`
+	// BotRecipient est la part de `published` posée à la place d'un bot (sans xuid, avec `place`) ; BotTarget, celle des
+	// actions publiées dont la cible est un bot (`targetPlace`). Absents à zéro.
+	BotRecipient int `json:"botRecipient,omitempty"`
+	BotTarget    int `json:"botTarget,omitempty"`
 }
 
 // axeDeFrames est l'axe sur lequel une action se pose : l'origine (microsecondes du film), le pas et le
@@ -187,6 +200,32 @@ func humainsParIndex(roster []RosterEntry) map[int][]RosterEntry {
 		}
 	}
 	return out
+}
+
+// botsParIndex rend les index de joueur du film que tient un bot du roster. Un index n'y est lu qu'avec
+// [xuidALaFrame] : un humain qui porte le même index l'emporte.
+func botsParIndex(roster []RosterEntry) map[int]bool {
+	out := map[int]bool{}
+	for _, e := range roster {
+		if e.Bot {
+			out[e.FilmIndex] = true
+		}
+	}
+	return out
+}
+
+// indexDuRoster est ce qui résout un index de joueur du film : les humains qui le portent, et s'il est tenu par un bot.
+type indexDuRoster struct {
+	humains map[int][]RosterEntry
+	bots    map[int]bool
+}
+
+// placeDeBot rend l'index `i` quand il est sans humain et tenu par un bot du roster, nil sinon.
+func (r indexDuRoster) placeDeBot(i int) *int {
+	if len(r.humains[i]) == 0 && r.bots[i] {
+		return &i
+	}
+	return nil
 }
 
 // presentALaFrame dit que l'entrée tient sa place à la frame `t` : un de ses intervalles de présence la couvre, de
@@ -265,39 +304,66 @@ func classerLeMessage(groupe *reponsesdejeu.Groupe, e grammar.EvenementDeJeuLu, 
 }
 
 // destinatairesDuMessage pose le message à points `e` chez chacun de ses destinataires et rend les actions posées.
-func destinatairesDuMessage(e grammar.EvenementDeJeuLu, r reponsesdejeu.Reponse, humains map[int][]RosterEntry, axe axeDeFrames,
+func destinatairesDuMessage(e grammar.EvenementDeJeuLu, r reponsesdejeu.Reponse, roster indexDuRoster, axe axeDeFrames,
 	cov *ScoreActionCoverage) []ScoreAction {
 	t, refus := frameDeLAction(e.TS, axe)
-	cible := ""
+	cible, ciblePlace := "", (*int)(nil)
 	if refus == refusAucun && ciblePossible(r) {
-		cible = cibleDeLAction(e, humains, t, cov)
+		cible, ciblePlace = cibleDeLAction(e, roster, t, cov)
 	}
+	modele := ScoreAction{T: t, Name: r.Nom, Points: r.Points, Target: cible, TargetPlace: ciblePlace}
 	var out []ScoreAction
 	for i := 0; i < grammar.ParticipantsDuFil; i++ {
 		if e.Destinataires&(1<<uint(grammar.ParticipantsDuFil-1-i)) == 0 {
 			continue
 		}
 		cov.Scored++
-		xuid, res := "", destinataireResolu
+		d := destinataireDuMessage{res: destinataireResolu}
 		if refus == refusAucun {
-			xuid, res = xuidALaFrame(humains, i, t)
+			d.xuid, d.res = xuidALaFrame(roster.humains, i, t)
 		}
-		switch {
-		case refus == refusSansOrigine:
-			cov.NoOrigin++
-		case refus == refusAvantOrigine:
-			cov.BeforeOrigin++
-		case refus == refusApresFin:
-			cov.AfterEnd++
-		case res == destinataireSansHumain || res == destinataireAmbigu:
-			cov.NoRecipient++
-		case res == destinataireAbsent:
-			cov.NotPresent++
-		default:
-			out = append(out, ScoreAction{T: t, XUID: xuid, Name: r.Nom, Points: r.Points, Target: cible})
+		d.place = roster.placeDeBot(i)
+		if action, posee := poserLeDestinataire(modele, refus, d, cov); posee {
+			out = append(out, action)
+			if ciblePlace != nil {
+				cov.BotTarget++
+			}
 		}
 	}
 	return out
+}
+
+// destinataireDuMessage est ce que le film dit d'un destinataire d'un message : son xuid et l'issue de sa résolution à la frame
+// (humain), sa place (bot).
+type destinataireDuMessage struct {
+	xuid  string
+	res   issueDuDestinataire
+	place *int
+}
+
+// poserLeDestinataire classe un destinataire : l'action posée sur `modele` (humain ou bot), ou un compteur de refus. Rend vrai quand
+// une action est posée.
+func poserLeDestinataire(modele ScoreAction, refus refusDePose, d destinataireDuMessage, cov *ScoreActionCoverage) (ScoreAction, bool) {
+	switch {
+	case refus == refusSansOrigine:
+		cov.NoOrigin++
+	case refus == refusAvantOrigine:
+		cov.BeforeOrigin++
+	case refus == refusApresFin:
+		cov.AfterEnd++
+	case d.res == destinataireSansHumain && d.place != nil:
+		cov.BotRecipient++
+		modele.Place = d.place
+		return modele, true
+	case d.res == destinataireSansHumain || d.res == destinataireAmbigu:
+		cov.NoRecipient++
+	case d.res == destinataireAbsent:
+		cov.NotPresent++
+	default:
+		modele.XUID = d.xuid
+		return modele, true
+	}
+	return ScoreAction{}, false
 }
 
 // buildScoreActions pose les réponses de score du film sur l'axe de frames. Les actions rendues sont triées
@@ -315,11 +381,11 @@ func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrame
 		return nil, cov
 	}
 	cov.Group = groupe.Nom()
-	humains := humainsParIndex(roster)
+	ir := indexDuRoster{humains: humainsParIndex(roster), bots: botsParIndex(roster)}
 	var out []ScoreAction
 	for _, e := range in.Events {
 		if r, aPoints := classerLeMessage(groupe, e, &cov); aPoints {
-			out = append(out, destinatairesDuMessage(e, r, humains, axe, &cov)...)
+			out = append(out, destinatairesDuMessage(e, r, ir, axe, &cov)...)
 		}
 	}
 	cov.Published = len(out)
@@ -327,22 +393,34 @@ func buildScoreActions(in ScoreActionInput, roster []RosterEntry, axe axeDeFrame
 	cov.Complete = cov.Frames > 0 && cov.StoppedFrames == 0 && !cov.ViewAUnreadable && cov.UnconfirmedRank == 0 &&
 		cov.Published == cov.Scored && cov.ScoreboardMissing == 0
 	slices.SortStableFunc(out, func(a, b ScoreAction) int {
-		return cmp.Or(cmp.Compare(a.T, b.T), strings.Compare(a.XUID, b.XUID), strings.Compare(a.Name, b.Name),
-			cmp.Compare(a.Points, b.Points), strings.Compare(a.Target, b.Target))
+		return cmp.Or(cmp.Compare(a.T, b.T), strings.Compare(a.XUID, b.XUID), cmp.Compare(placeOuMoinsUn(a.Place), placeOuMoinsUn(b.Place)),
+			strings.Compare(a.Name, b.Name), cmp.Compare(a.Points, b.Points), strings.Compare(a.Target, b.Target),
+			cmp.Compare(placeOuMoinsUn(a.TargetPlace), placeOuMoinsUn(b.TargetPlace)))
 	})
 	return out, cov
 }
 
+// placeOuMoinsUn rend la place pointée, -1 quand elle est absente : la clé de tri d'un humain, qui précède tout bot.
+func placeOuMoinsUn(p *int) int {
+	if p == nil {
+		return -1
+	}
+	return *p
+}
+
 // cibleDeLAction résout le joueur que le libellé de la réponse nomme (le premier participant du texte) à la
-// frame `t`, ou "" et le compte `noTarget`.
-func cibleDeLAction(e grammar.EvenementDeJeuLu, humains map[int][]RosterEntry, t int, cov *ScoreActionCoverage) string {
+// frame `t` : son xuid pour un humain, sa place pour un bot du roster. Sinon rien, et le compte `noTarget`.
+func cibleDeLAction(e grammar.EvenementDeJeuLu, roster indexDuRoster, t int, cov *ScoreActionCoverage) (string, *int) {
 	if i, ok := e.PremierParticipant(); ok {
-		if xuid, res := xuidALaFrame(humains, i, t); res == destinataireResolu {
-			return xuid
+		if xuid, res := xuidALaFrame(roster.humains, i, t); res == destinataireResolu {
+			return xuid, nil
+		}
+		if place := roster.placeDeBot(i); place != nil {
+			return "", place
 		}
 	}
 	cov.NoTarget++
-	return ""
+	return "", nil
 }
 
 // poserLesScoresParAction publie le calque : seulement quand la marche des trames a lu les messages de jeu,

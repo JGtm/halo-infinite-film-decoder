@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
-schema 126
-empreinte-stockee dffaa24b27dbdad1
-empreinte-servie dffaa24b27dbdad1
-empreinte-cuite a0cc165ccb657c4f
+schema 127
+empreinte-stockee a7693cbf05155b8c
+empreinte-servie a7693cbf05155b8c
+empreinte-cuite 8437343973ceb72f
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -52,10 +52,68 @@ AbilityRead
   Slot json:"slot" uint32
   Src json:"src" string
   T json:"t" int
+AmmoRead
+  Gauge json:"gauge,omitempty" *float32
+  Mag json:"mag,omitempty" *uint32
+  Ms json:"ms" int
+  Res json:"res,omitempty" *uint32
+  Slot json:"slot" uint32
+  Src json:"src" string
+  T json:"t" int
+  W json:"w" int
+AmmoReadCoverage
+  AfterEnd json:"afterEnd,omitempty" int
+  BeforeOrigin json:"beforeOrigin,omitempty" int
+  DeltaRefused json:"deltaRefused,omitempty" bool
+  Empty json:"empty,omitempty" int
+  FromDelta json:"fromDelta" int
+  FromKeyframe json:"fromKeyframe" int
+  NoTrack json:"noTrack,omitempty" int
+  Read json:"read" int
+  Unchanged json:"unchanged,omitempty" int
 AmmoSlot
   Gauge json:"gauge,omitempty" *float32
   Mag json:"mag,omitempty" *uint32
   Res json:"res,omitempty" *uint32
+Announcement
+  Mask json:"mask" string
+  Sound json:"sound,omitempty" string
+  T json:"t" int
+AnnouncementCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  ClosedFrames json:"closedFrames" int
+  Frames json:"frames" int
+  Merged json:"merged" int
+  Published json:"published" int
+  Read json:"read" int
+  StoppedFrames json:"stoppedFrames" int
+Appearance
+  Pairs json:"pairs,omitempty" [][2]uint32
+  Rest json:"rest,omitempty" []uint8
+  Size json:"size" int
+AppearanceCoverage
+  Changed json:"changed" int
+  Distinct json:"distinct" int
+  NoXUID json:"noXUID" int
+  Packets json:"packets" int
+  Pairs json:"pairs" int
+  Raw json:"raw" int
+  Refused json:"refused" int
+  UnknownBuild json:"unknownBuild" bool
+  Unloaded json:"unloaded" int
+  Unmatched json:"unmatched" int
+Attachment
+  Attacker json:"attacker,omitempty" string
+  Born json:"born,omitempty" bool
+  By json:"by,omitempty" uint32
+  Node json:"node" uint32
+  ParentSlot json:"parentSlot" uint32
+  Pose json:"pose" [3]uint32
+  T json:"t" int
+  Tag json:"tag,omitempty" string
+  Target json:"target,omitempty" string
+  Victim json:"victim,omitempty" string
 BipedLinkCounts
   DirectPropagated json:"direct_propage" int
   LinkCounts json:"" LinkCounts
@@ -239,6 +297,26 @@ CarriedTracked
   X json:"x,omitempty" *float32
   Y json:"y,omitempty" *float32
   Z json:"z,omitempty" *float32
+Chatter
+  Line json:"line,omitempty" *int
+  Name json:"name,omitempty" string
+  Player json:"player,omitempty" string
+  Priority json:"priority" int
+  Sound json:"sound,omitempty" string
+  T json:"t" int
+ChatterCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  Bots json:"bots" int
+  BySpeaker json:"bySpeaker" int
+  ClosedFrames json:"closedFrames" int
+  Frames json:"frames" int
+  Named json:"named" int
+  Published json:"published" int
+  Read json:"read" int
+  StoppedFrames json:"stoppedFrames" int
+  Unnamed json:"unnamed" int
+  WithoutPlayer json:"withoutPlayer" int
 ClockSample
   Left json:"left" float64
   Limit json:"limit" float64
@@ -295,25 +373,58 @@ ContinuousFireCoverage
   VehicleNoWeapon json:"vehicleNoWeapon" int
   WeaponUnknown json:"weaponUnknown" int
   WithAction json:"withAction" int
+ControlKindCoverage
+  AfterHole json:"afterHole" int
+  Gated json:"gated" int
+  Holds json:"holds" int
+  InVehicle json:"inVehicle" int
+  InnerHoles json:"innerHoles" int
+  Intervals json:"intervals" int
+  NoPlayer json:"noPlayer" int
+  NoTrack json:"noTrack" int
+  Published json:"published" int
+  WithHole json:"withHole" int
+ControlPlaceCoverage
+  Bindings json:"bindings" int
+  BurstsByPlace json:"burstsByPlace" int
+  BurstsBySeat json:"burstsBySeat" int
+  BurstsUnheld json:"burstsUnheld" int
+  Contested json:"contested" int
+  Handovers json:"handovers" int
+  MultiPlace json:"multiPlace" int
+  Players json:"players" int
+  Read json:"read" bool
+  Returns json:"returns" int
+  ShotsByPlace json:"shotsByPlace" int
+  ShotsBySeat json:"shotsBySeat" int
+  ShotsUnheld json:"shotsUnheld" int
+  UnitContradicted json:"unitContradicted" int
 Coverage
   Abilities json:"abilities,omitempty" *AbilityCoverage
   AbilityCharges json:"abilityCharges,omitempty" *AbilityChargeCoverage
   AbilityImpulses json:"abilityImpulses,omitempty" *AbilityImpulseCoverage
+  AmmoReads json:"ammoReads,omitempty" *AmmoReadCoverage
+  Announcements json:"announcements,omitempty" *AnnouncementCoverage
+  Appearance json:"appearance,omitempty" *AppearanceCoverage
   BirthLoadouts json:"birthLoadouts,omitempty" *BirthLoadoutCoverage
   BombArmings json:"bombArmings,omitempty" *BombArmingsCoverage
   BombCarries json:"bombCarries,omitempty" *BombCarriesCoverage
   Bridge json:"bridge" BridgeHealth
   CarriedEquipment json:"carriedEquipment,omitempty" *CarriedEquipmentCoverage
+  Chatter json:"chatter,omitempty" *ChatterCoverage
   Clocks json:"clocks,omitempty" *ClocksCoverage
   ContinuousFire json:"continuousFire,omitempty" *ContinuousFireCoverage
+  ControlPlaces json:"controlPlaces,omitempty" *ControlPlaceCoverage
   DeathsPaths json:"deathsPaths,omitempty" *DeathsPathsCoverage
   Decoder json:"decoder,omitempty" *DecoderCoverage
+  DrawnWeapons json:"drawnWeapons,omitempty" *DrawnWeaponCoverage
   Eliminations json:"eliminations,omitempty" *EliminationCoverage
   Equipment json:"equipment,omitempty" *EquipmentCoverage
   EquipmentChanges json:"equipmentChanges,omitempty" *EquipmentChangeCoverage
   Fallbacks json:"fallbacks,omitempty" []FallbackHit
   FilmMajorVersion json:"filmMajorVersion,omitempty" *int
   FlagCarries json:"flagCarries,omitempty" *FlagCarriesCoverage
+  Gestures json:"gestures,omitempty" *GestureCoverage
   Grapple json:"grapple,omitempty" *GrappleCoverage
   GrenadeReads json:"grenadeReads,omitempty" *GrenadeReadCoverage
   Grenades json:"grenades" LayerCoverage
@@ -345,14 +456,17 @@ Coverage
   Vehicles json:"vehicles,omitempty" *VehicleCoverage
   Verdict json:"verdict,omitempty" map[string]string
   VipCrown json:"vipCrown,omitempty" *VipCrownCoverage
+  Vitals json:"vitals,omitempty" *VitalCoverage
   WeaponChanges json:"weaponChanges,omitempty" *WeaponChangeCoverage
   Zones json:"zones,omitempty" *ZonesCoverage
 Damage
   Attacker json:"attacker,omitempty" string
   Body json:"body" float64
+  By json:"by,omitempty" uint32
   Effect json:"effect" string
   Measured json:"measured,omitempty" bool
   Shield json:"shield" float64
+  Slot json:"slot,omitempty" uint32
   T json:"t" int
   Victim json:"victim,omitempty" string
   Weapon json:"w,omitempty" string
@@ -384,13 +498,30 @@ DecoderCoverage
   ProfileRev json:"profileRev" string
   Registry json:"registry,omitempty" *RegistryCoverage
   SourceRev json:"sourceRev" string
+DrawnWeapon
+  D json:"d,omitempty" *int
+  D2 json:"d2,omitempty" *int
+  Slot json:"slot" uint32
+  T json:"t" int
+DrawnWeaponCoverage
+  AfterEnd json:"afterEnd,omitempty" int
+  BeforeOrigin json:"beforeOrigin,omitempty" int
+  ComponentAbsent json:"componentAbsent,omitempty" bool
+  Duplicates json:"duplicates,omitempty" int
+  NoTrack json:"noTrack,omitempty" int
+  Published json:"published" int
+  Read json:"read" int
+  SlotUnbound json:"slotUnbound,omitempty" int
 Elimination
   Headshot json:"headshot,omitempty" *bool
   Perfect json:"perfect,omitempty" *bool
+  Place json:"place,omitempty" *int
   T json:"t" int
   Victim json:"victim,omitempty" string
-  XUID json:"xuid" string
+  VictimPlace json:"victimPlace,omitempty" *int
+  XUID json:"xuid,omitempty" string
 EliminationCoverage
+  BotEliminations json:"botEliminations,omitempty" int
   Eliminations json:"eliminations" int
   HeadAmbiguous json:"headAmbiguous" int
   HeadGuarded json:"headGuarded" int
@@ -403,6 +534,8 @@ EliminationCoverage
   PerfectOrphans json:"perfectOrphans" int
   PerfectUnknown json:"perfectUnknown" int
   PerfectYes json:"perfectYes" int
+  VictimAmbiguous json:"victimAmbiguous,omitempty" int
+  VictimPlaces json:"victimPlaces,omitempty" int
   WithVictim json:"withVictim" int
 EquipmentChange
   From json:"from" int
@@ -533,8 +666,14 @@ FlagCarriesCoverage
   GaugePaired json:"gaugePaired" int
   GaugePoints json:"gaugePoints" int
   GaugeReads json:"gaugeReads" int
+  GaugeReadsAmbiguous json:"gaugeReadsAmbiguous" int
+  GaugeReadsOffDrops json:"gaugeReadsOffDrops" int
+  GaugeReadsUnpublished json:"gaugeReadsUnpublished" int
   GaugeScanned json:"gaugeScanned" bool
   GaugeSlots json:"gaugeSlots" int
+  GaugeSlotsFewReads json:"gaugeSlotsFewReads" int
+  GaugeSlotsOffDrops json:"gaugeSlotsOffDrops" int
+  GaugeSlotsTeamTaken json:"gaugeSlotsTeamTaken" int
   GaugeSpans json:"gaugeSpans" int
   GaugeWalkReads json:"gaugeWalkReads" int
   GaugeWalkSpans json:"gaugeWalkSpans" int
@@ -583,9 +722,39 @@ FrozenRoundsCoverage
   Expected json:"expected" int
   PlayersWithout json:"playersWithout" int
   Read json:"read" int
+FullRateFlight
+  T json:"t" []int64
+  X json:"x" []int32
+  Y json:"y" []int32
+  Z json:"z" []int32
+FullRateTrack
+  AimT json:"aimT,omitempty" []int64
+  Gaps json:"gaps,omitempty" []int
+  H json:"h,omitempty" []int32
+  P json:"p,omitempty" []int32
+  T json:"t" []int64
+  X json:"x" []int32
+  Y json:"y" []int32
+  Z json:"z" []int32
 GaugePoint
   T json:"t" int
   V json:"v" float32
+Gesture
+  Kind json:"kind" string
+  Ms json:"ms" int
+  Place json:"place" int
+  T json:"t" int
+GestureCoverage
+  AfterEnd json:"afterEnd" int
+  BeforeOrigin json:"beforeOrigin" int
+  ClosedFrames json:"closedFrames" int
+  Copies json:"copies" int
+  Frames json:"frames" int
+  Gated json:"gated" int
+  Published json:"published" int
+  Read json:"read" int
+  StoppedFrames json:"stoppedFrames" int
+  WithoutPlayer json:"withoutPlayer" int
 GrappleCoverage
   BrokenBodies json:"brokenBodies" int
   HeavyReads json:"heavyReads" int
@@ -601,6 +770,7 @@ GrappleLine
   T0 json:"t0" int
   T1 json:"t1" int
 Grenade
+  Deto json:"deto,omitempty" *GrenadeDetonation
   Idx json:"i" int
   Proj json:"proj,omitempty" *int
   Rank json:"rank" int
@@ -609,6 +779,11 @@ Grenade
   T json:"t" int
   X json:"x" float32
   Y json:"y" float32
+GrenadeDetonation
+  T json:"t" int
+  X json:"x" float32
+  Y json:"y" float32
+  Z json:"z" float32
 GrenadeRead
   G json:"g" []uint32
   Gs json:"gs,omitempty" *int
@@ -640,6 +815,7 @@ GroundWeaponCoverage
   Accepted json:"accepted" int
   Anchors json:"anchors" int
   AtRest json:"atRest" int
+  Candidates json:"candidates" int
   Clusters json:"clusters" int
   Cycles json:"cycles" int
   Dated json:"dated" int
@@ -652,6 +828,7 @@ GroundWeaponCoverage
   Pads json:"pads" int
   PlusieursLieux json:"plusieursLieux" int
   PowerupAccepted json:"powerupAccepted" int
+  PowerupCandidates json:"powerupCandidates" int
   PowerupKept json:"powerupKept" int
   PowerupPads json:"powerupPads" int
   PowerupScanned json:"powerupScanned" bool
@@ -684,6 +861,9 @@ HitCoverage
   Damages json:"damages" int
   DamagesMeasured json:"damagesMeasured" int
   DamagesOffUnit json:"damagesOffUnit" int
+  DamagesZero json:"damagesZero" int
+  DamagesZeroOffUnit json:"damagesZeroOffUnit" int
+  DamagesZeroOutOfAxis json:"damagesZeroOutOfAxis" int
   Estimated json:"estimated" bool
   Frames json:"frames" int
   Hits json:"hits" int
@@ -826,7 +1006,10 @@ MapObjectives
   Zones json:"zones,omitempty" []ObjectiveZoneDTO
 MapWeaponPadDTO
   Family json:"family" string
+  Forward json:"forward,omitempty" *[3]float32
   Pad json:"pad" int
+  Scale json:"scale,omitempty" *[3]float32
+  Up json:"up,omitempty" *[3]float32
   X json:"x" float32
   Y json:"y" float32
   Z json:"z,omitempty" float32
@@ -994,15 +1177,44 @@ PresenceInterval
   To json:"to" int
   ToMax json:"toMax,omitempty" *int
 Projectile
+  Attach json:"attach,omitempty" *ProjectileAttach
   DetoLue json:"detoLue,omitempty" bool
   DetoT json:"detoT" int
   DetoX json:"detoX" float32
   DetoY json:"detoY" float32
+  FullRate json:"fullRate,omitempty" *FullRateFlight
   P json:"p" [][3]float32
   Rest json:"rest,omitempty" bool
   Shot json:"shot,omitempty" *int
   T0 json:"t0" int
+  Z json:"z,omitempty" []float32
+ProjectileAttach
+  FromFrame json:"fromFrame" int
+  Node json:"node" uint32
+  ParentSlot json:"parentSlot" uint32
+  Pose json:"pose" [3]uint32
+ProjectileAttachCoverage
+  AuthorNoTrack json:"authorNoTrack" int
+  AuthorNone json:"authorNone" int
+  Authored json:"authored" int
+  Created json:"created" int
+  Desynced json:"desynced" int
+  Listed json:"listed" int
+  NoTracks json:"noTracks,omitempty" int
+  OnFlight json:"onFlight" int
+  OutOfMatch json:"outOfMatch" int
+  Player json:"player" int
+  Read json:"read" int
+  Records json:"records" int
+  Repeats json:"repeats" int
+  Tagged json:"tagged" int
+  UnreadFrames json:"unreadFrames" int
+  Unresolved json:"unresolved" int
+  Vehicle json:"vehicle" int
+  WideLocations json:"wideLocations" int
 ProjectileCoverage
+  Attach json:"attach,omitempty" *ProjectileAttachCoverage
+  FullRateSamples json:"fullRateSamples" int
   Published json:"published" int
   ShotAmbiguous json:"shotAmbiguous" int
   ShotLinked json:"shotLinked" int
@@ -1014,6 +1226,8 @@ RegistryCoverage
   NamedSlots json:"namedSlots" int
   Status json:"status" string
 Reload
+  Copies json:"copies,omitempty" int
+  Ms json:"ms" int
   Place json:"place" int
   T json:"t" int
 ReloadCoverage
@@ -1031,6 +1245,9 @@ ReplayDocument
   AbilityCharges json:"abilityCharges,omitempty" []AbilityCharge
   AbilityImpulses json:"abilityImpulses,omitempty" []AbilityImpulse
   AbilityLabels json:"abilityLabels,omitempty" map[string]Label
+  AmmoReads json:"ammoReads,omitempty" []AmmoRead
+  Announcements json:"announcements,omitempty" []Announcement
+  Attachments json:"attachments,omitempty" []Attachment
   BombArmings json:"bombArmings,omitempty" []BombArming
   BombCarries json:"bombCarries,omitempty" []BombCarry
   BombEvents json:"bombEvents,omitempty" []BombEvent
@@ -1038,8 +1255,10 @@ ReplayDocument
   Bounds json:"bounds" Bounds
   Bursts json:"bursts,omitempty" []FireBurst
   CarriedEquipment json:"carriedEquipment,omitempty" []CarriedEquipment
+  Chatter json:"chatter,omitempty" []Chatter
   Coverage json:"coverage,omitempty" *Coverage
   Damage json:"damage,omitempty" []Damage
+  DrawnWeapons json:"drawnWeapons,omitempty" []DrawnWeapon
   DurationMS json:"durationMs,omitempty" int
   Eliminations json:"eliminations,omitempty" []Elimination
   EquipmentChanges json:"equipmentChanges,omitempty" []EquipmentChange
@@ -1051,6 +1270,7 @@ ReplayDocument
   FrameIntervalMS json:"frameIntervalMs,omitempty" int
   Geometry json:"geometry,omitempty" []MapObject
   GeometryBounds json:"geometryBounds,omitempty" *Bounds
+  Gestures json:"gestures,omitempty" []Gesture
   GrappleLines json:"grappleLines,omitempty" []GrappleLine
   GrenadeLabels json:"grenadeLabels,omitempty" []Label
   GrenadeReads json:"grenadeReads,omitempty" []GrenadeRead
@@ -1072,6 +1292,7 @@ ReplayDocument
   ObjectiveObjects json:"objectiveObjects,omitempty" []ObjectiveObjectLife
   Objectives json:"objectives,omitempty" []ObjectiveAction
   OriginMs json:"originMs,omitempty" *int64
+  PadCandidates json:"padCandidates,omitempty" []WeaponPad
   PadPickups json:"padPickups,omitempty" []PadPickup
   Pickups json:"pickups,omitempty" []Pickup
   Projectiles json:"projectiles,omitempty" []Projectile
@@ -1100,6 +1321,7 @@ ReplayDocument
   VehicleWeapons json:"vehicleWeapons,omitempty" map[string]VehicleWeapon
   Vehicles json:"vehicles,omitempty" []VehicleTrack
   VipCrown json:"vipCrown,omitempty" []VipPeriod
+  Vitals json:"vitals,omitempty" []Vital
   WeaponChanges json:"weaponChanges,omitempty" []WeaponChange
   WeaponLabels json:"weaponLabels,omitempty" map[string]WeaponLabel
   WeaponPads json:"weaponPads,omitempty" []WeaponPad
@@ -1122,6 +1344,7 @@ RiftPose
   Y json:"y,omitempty" *float32
   Z json:"z,omitempty" *float32
 RosterEntry
+  Appearance json:"appearance,omitempty" *Appearance
   Bid json:"bid,omitempty" string
   Bot json:"bot,omitempty" bool
   FilmIndex json:"filmIndex" int
@@ -1133,13 +1356,17 @@ RosterEntry
   XUID json:"xuid" string
 ScoreAction
   Name json:"name" string
+  Place json:"place,omitempty" *int
   Points json:"points" int
   T json:"t" int
   Target json:"target,omitempty" string
-  XUID json:"xuid" string
+  TargetPlace json:"targetPlace,omitempty" *int
+  XUID json:"xuid,omitempty" string
 ScoreActionCoverage
   AfterEnd json:"afterEnd" int
   BeforeOrigin json:"beforeOrigin" int
+  BotRecipient json:"botRecipient,omitempty" int
+  BotTarget json:"botTarget,omitempty" int
   ClosedFrames json:"closedFrames" int
   Complete json:"complete" bool
   Copies json:"copies" int
@@ -1170,6 +1397,8 @@ ScoreCoverage
   Oracle json:"oracle" string
   Points json:"points" int
   Rounds json:"rounds" int
+  RoundsAdmittedByReset json:"roundsAdmittedByReset,omitempty" []int
+  RoundsAdmittedByShare json:"roundsAdmittedByShare,omitempty" []int
   RoundsContradicted json:"roundsContradicted,omitempty" []int
   RoundsContradictedRecords json:"roundsContradictedRecords,omitempty" int
   RoundsDecreed json:"roundsDecreed,omitempty" bool
@@ -1235,6 +1464,7 @@ SeatCoverage
   TrousDEntite json:"trousDEntite" int
 Shot
   H json:"h,omitempty" float32
+  O json:"o,omitempty" int
   P json:"p,omitempty" float32
   Slot json:"slot" uint32
   T json:"t" int
@@ -1246,6 +1476,7 @@ ShotAimCoverage
   None json:"none" int
   Record json:"record" int
   SameTick json:"sameTick" int
+  SansPosition json:"sansPosition" int
   Track json:"track" int
 ShotStat
   Coverage json:"coverage" float64
@@ -1275,17 +1506,23 @@ SkullCarry
   XUID json:"xuid" string
 Stance
   Kind json:"kind" string
+  Ms0 json:"ms0,omitempty" *int64
+  Ms1 json:"ms1,omitempty" *int64
   Slot json:"slot" uint32
   T0 json:"t0" int
   T1 json:"t1" int
 StanceControlCoverage
+  CrouchCommand json:"crouchCommand" ControlKindCoverage
   Entries json:"entries" int
+  FullCadence json:"fullCadence" bool
   Holds json:"holds" int
   InnerHoles json:"innerHoles" int
   Intervals json:"intervals" int
+  JumpCommand json:"jumpCommand" ControlKindCoverage
   NoPlayer json:"noPlayer" int
   NoTrack json:"noTrack" int
   Published json:"published" int
+  StepUS json:"stepUs" int64
   WithHole json:"withHole" int
 StanceCoverage
   Absent json:"absent,omitempty" bool
@@ -1351,6 +1588,7 @@ Track
   Bot json:"bot,omitempty" string
   EndFrame json:"endFrame,omitempty" int
   EndReason json:"endReason,omitempty" string
+  FullRate json:"fullRate,omitempty" *FullRateTrack
   Name json:"name,omitempty" string
   Points json:"points" []Point
   ReleaseFrame json:"releaseFrame,omitempty" *int
@@ -1360,11 +1598,14 @@ Track
   XUID json:"xuid,omitempty" string
 TrackCoverage
   AvantCreation json:"avantCreation" int
+  FullRateAimSamples json:"fullRateAimSamples" int
+  FullRateSamples json:"fullRateSamples" int
   GapMS json:"gapMs" int
   Gaps json:"gaps" int
   HorsEmprise json:"horsEmprise" int
   LifeEnds json:"lifeEnds,omitempty" *LifeEndCoverage
   MinPoints json:"minPoints" int
+  NoWorld json:"noWorld" int
   Published json:"published" int
   PublishedPoints json:"publishedPoints" int
   RefusedMinPoints json:"refusedMinPoints" int
@@ -1372,6 +1613,7 @@ TrackCoverage
   SlotsArmes json:"slotsArmes" int
   SlotsDesarmes json:"slotsDesarmes" int
   ViesAvantPremiereCreation json:"viesAvantPremiereCreation" int
+  ViseesSeulesCoverage json:"" ViseesSeulesCoverage
 Translocation
   FX json:"fx,omitempty" *float32
   FY json:"fy,omitempty" *float32
@@ -1580,6 +1822,28 @@ VipPeriod
   T0 json:"t0" int
   T1 json:"t1" int
   XUID json:"xuid" string
+ViseesSeulesCoverage
+  AimOnlyBeforeOrigin json:"aimOnlyBeforeOrigin" int
+  AimOnlyNoLife json:"aimOnlyNoLife" int
+  FullRateAimOnlySamples json:"fullRateAimOnlySamples" int
+Vital
+  Dead json:"dead,omitempty" bool
+  Hp json:"hp" float32
+  Ms json:"ms" int
+  Sh json:"sh" float32
+  Slot json:"slot" uint32
+  T json:"t" int
+VitalCoverage
+  AfterDeath json:"afterDeath,omitempty" int
+  AfterEnd json:"afterEnd,omitempty" int
+  BeforeOrigin json:"beforeOrigin,omitempty" int
+  Births json:"births,omitempty" int
+  Deaths json:"deaths,omitempty" int
+  NoTrack json:"noTrack,omitempty" int
+  Published json:"published" int
+  Ramp json:"ramp,omitempty" int
+  Read json:"read" int
+  Unchanged json:"unchanged,omitempty" int
 WeaponChange
   From json:"from,omitempty" string
   K json:"k,omitempty" *int

@@ -2,6 +2,9 @@ package grammar
 
 import "github.com/JGtm/halo-infinite-film-decoder/types"
 
+// composanteVitesseTranslation est le nom de la composante de vitesse de translation d un objet du monde.
+const composanteVitesseTranslation = "object-translational-velocity-component"
+
 // dispatch_object.go — TETE DE LA CHAINE DE DISPATCH DES COMPOSANTS.
 //
 // # POURQUOI UNE CHAINE, ET PAS UN SEUL `switch`
@@ -168,7 +171,7 @@ func consumeByName(br *Lecteur, name string, typeIndex uint32, level uint32) (va
 		// [consumeObjectPositionMonde] : le portage unique ; seule la branche precHigh = 1 reste une exception datee.
 		consumeObjectPositionMonde(br)
 		return variant, nil, true
-	case "object-translational-velocity-component": // world-object i1 (FUN_14076e228)
+	case composanteVitesseTranslation: // world-object i1 (FUN_14076e228)
 		consume14076d528(br) // R(1)[+R(19)+R(10)]
 		return variant, nil, true
 	case "object-forward-and-up-dynamic-precision-component": // i2 de ti=38/39/40/43

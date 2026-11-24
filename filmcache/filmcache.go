@@ -63,6 +63,9 @@ type Source struct {
 	// tailles : `size_bytes` de chaque entree, a la meme position que `chunks` (0 = inconnue,
 	// manifeste historique). Cf. chunk.go.
 	tailles []int64
+	// direct : quand il est pose, c'est le REPERTOIRE DE CHUNKS a lire, a la place de la
+	// disposition (root, short) ; pose par [NewSource] et [OpenManifest] seulement.
+	direct string
 }
 
 // Source implemente la source de film canonique du depot. C'est ce que verifie cette ligne,
@@ -96,7 +99,14 @@ func Open(root, shortID string) (*Source, bool, error) {
 	if err := json.Unmarshal(raw, &mf); err != nil {
 		return nil, false, fmt.Errorf("manifeste de film invalide (%s) : %w", path, err)
 	}
-	src := &Source{root: root, short: shortID, chunks: make([]types.ChunkMeta, 0, len(mf.Chunks)),
+	return mf.source(root, shortID, ""), true, nil
+}
+
+// source construit la [Source] d'un manifeste lu : l'index, et la taille `size_bytes` de chaque
+// entree a la meme position (0 = inconnue). `direct` vide = disposition du cache (root, short).
+func (mf manifestJSON) source(root, shortID, direct string) *Source {
+	src := &Source{root: root, short: shortID, direct: direct,
+		chunks:  make([]types.ChunkMeta, 0, len(mf.Chunks)),
 		tailles: make([]int64, 0, len(mf.Chunks))}
 	for _, c := range mf.Chunks {
 		src.chunks = append(src.chunks, types.ChunkMeta{
@@ -104,7 +114,16 @@ func Open(root, shortID string) (*Source, bool, error) {
 		})
 		src.tailles = append(src.tailles, c.SizeBytes)
 	}
-	return src, true, nil
+	return src
+}
+
+// dirDesChunks rend le repertoire ou [Source.Chunk] et le controle des fichiers lisent : celui
+// qu'ont pose [NewSource] ou [OpenManifest], sinon la disposition du cache.
+func (s *Source) dirDesChunks() string {
+	if s.direct != "" {
+		return s.direct
+	}
+	return ChunkDir(s.root, s.short)
 }
 
 // Meta rend l'index du manifeste, POSITIONNEL : `Meta()[i]` decrit le chunk d'indice `i`, et
@@ -135,7 +154,7 @@ func (s *Source) Chunk(i int) ([]byte, error) {
 	if i < 0 || i >= len(s.chunks) {
 		return nil, fmt.Errorf("filmcache: chunk %d hors bornes (%d au manifeste de %s)", i, len(s.chunks), s.short)
 	}
-	path := CheminDuChunk(ChunkDir(s.root, s.short), s.chunks[i].Index)
+	path := CheminDuChunk(s.dirDesChunks(), s.chunks[i].Index)
 	raw, err := lireChunkValide(path, s.chunks[i].Index, s.tailles[i])
 	if err != nil {
 		return nil, fmt.Errorf("filmcache: chunk %d de %s (%s) : %w", s.chunks[i].Index, s.short, path, err)

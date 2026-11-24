@@ -61,6 +61,11 @@ var feuillesNonTransportees = map[string]string{
 	"grammar.ShieldVitality.Regen0":       "idem Block64 (decodeObjectShieldVitality)",
 	"grammar.ShieldVitality.HasRegen1":    "idem Block64 (decodeObjectShieldVitality)",
 	"grammar.ShieldVitality.Regen1":       "idem Block64 (decodeObjectShieldVitality)",
+	// Comptes herites de la v1.5.0, gardes pour la compatibilite de l API publiee : ils valent ceux du deplacement
+	// (`ControlHoldStats.Move`, transporte) et se refont au decodage (`decodeCommandes`) ; aucun lecteur de l assemblage.
+	"types.ControlHoldStats.Holds":      "miroir deprecie de Move.Holds, refait par decodeCommandes",
+	"types.ControlHoldStats.WithHole":   "miroir deprecie de Move.WithHole, refait par decodeCommandes",
+	"types.ControlHoldStats.InnerHoles": "miroir deprecie de Move.InnerHoles, refait par decodeCommandes",
 	// Decisions de la marche d'image-cle qui ne servent qu'au diagnostic : l'assemblage ne les lit pas.
 	"grammar.KeyframeWalkStats.ElectionsAttestees": "compteur de diagnostic de la marche " +
 		"(grammar/keyframe_world.go:compter, keyframe_world_attestation.go) ; aucun lecteur hors instruments et tests",
@@ -96,10 +101,7 @@ var feuillesNonTransportees = map[string]string{
 		"codec en v18 faute de lecteur (cf. filmfacts.go)",
 	"types.InventoryDelta.Chunk":       tracabilite + "grammar/inventory_delta.go:readRecord",
 	"types.InventoryDelta.PacketIndex": tracabilite + "grammar/inventory_delta.go:readRecord",
-	"types.InventoryDelta.Ammo": "munitions lues dans le delta : ecrites par grammar/inventory_delta_ammo.go:" +
-		"collectAmmo, lues par refuseAmmoIfContaminated (la PORTE du canal, au balayage) ; le VERDICT, " +
-		"InventoryDeltaAmmoRefused, est transporte ; RETIRE du codec en v18 faute de lecteur",
-	"types.HeldWeaponChange.Chunk": tracabilite + "grammar/held_weapon_changes.go:ScanHeldWeaponChanges",
+	"types.HeldWeaponChange.Chunk":     tracabilite + "grammar/held_weapon_changes.go:ScanHeldWeaponChanges",
 	"types.HeldWeaponChange.Low": "mot bas brut de la reference d arme : seul ScanHeldWeaponChanges l ecrit " +
 		"(repere au sondage du 2026-09-28)",
 	"types.BipedPickup.Chunk":        tracabilite + "grammar/biped_pickups.go:ScanBipedPickups",

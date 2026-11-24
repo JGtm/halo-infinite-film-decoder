@@ -96,7 +96,7 @@ func buildVehicleFilmRides(in vehicleRideInputs) (vehicleFilmRides, vehicleFilmT
 		return out, t
 	}
 	lectures := vehicleOccupancyByOccupant(in.occupancy)
-	pts := vehiclePositionsBySlot(in.bipeds)
+	pts := in.bipedsParSlot()
 	for _, o := range in.occupancy {
 		if !o.Attached {
 			continue

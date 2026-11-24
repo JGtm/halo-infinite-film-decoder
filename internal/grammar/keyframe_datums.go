@@ -155,7 +155,8 @@ func (b *balayageDeTable) enteteA(at int, accepteGen0 bool) (EnteteDeTable, bool
 func (b *balayageDeTable) premierePasse() []entreeSituee {
 	var out []entreeSituee
 	suivant := uint32(0)
-	for at := debutDeLaTableBit; at < b.fin; {
+	// [prochainEnteteDeTable] ne saute que des positions dont [balayageDeTable.enteteA] refuse l eid.
+	for at := prochainEnteteDeTable(b.pay, debutDeLaTableBit, b.fin, false); at < b.fin; {
 		e, ok := b.enteteA(at, false)
 		switch {
 		case !ok:
@@ -168,6 +169,7 @@ func (b *balayageDeTable) premierePasse() []entreeSituee {
 			suivant = e.Slot() + 1
 			at += teteDEntreeBits
 		}
+		at = prochainEnteteDeTable(b.pay, at, b.fin, false)
 	}
 	return out
 }
@@ -200,20 +202,21 @@ func (b *balayageDeTable) secondePasse(voisines []entreeSituee) []EnteteDeTable 
 func (b *balayageDeTable) generationZeroEntre(a, c borneDeTable) []EnteteDeTable {
 	var out []EnteteDeTable
 	suivant := a.slot + 1
-	for at := a.at + teteDEntreeBits; at < c.at-teteDEntreeBits && at < b.fin; {
+	limite := min(c.at-teteDEntreeBits, b.fin)
+	for at := prochainEnteteDeTable(b.pay, a.at+teteDEntreeBits, limite, true); at < limite; {
 		e, ok := b.enteteA(at, true)
-		if !ok || e.Gen() != 0 {
+		switch s := int(e.Slot()); {
+		case !ok || e.Gen() != 0:
 			at++
-			continue
-		}
-		if s := int(e.Slot()); s < suivant || s >= c.slot {
+		case s < suivant || s >= c.slot:
 			b.ecartes[e.Slot()] = true
 			at++
-			continue
+		default:
+			out = append(out, e)
+			suivant = s + 1
+			at += teteDEntreeBits
 		}
-		out = append(out, e)
-		suivant = int(e.Slot()) + 1
-		at += teteDEntreeBits
+		at = prochainEnteteDeTable(b.pay, at, limite, true)
 	}
 	return out
 }
@@ -263,6 +266,22 @@ func (c *FilmContext) tableDeDatumsDe(pay []byte) (map[uint32]EnteteDeTable, int
 	table, ambigus := TableDeDatums(pay)
 	c.recup.tables[&pay[0]] = tableDeDatumsMemo{table: table, ambigus: ambigus, bits: len(pay)}
 	return table, ambigus
+}
+
+// poserTableDeDatumsSiAbsente range dans le memo la table `table` du payload `pay` (cle et champs de
+// [FilmContext.tableDeDatumsDe]) si le payload n'y est pas deja ; l'appelant cede la table. Depuis le fil
+// appelant seulement : le memo n'a pas de verrou.
+func (c *FilmContext) poserTableDeDatumsSiAbsente(pay []byte, table map[uint32]EnteteDeTable, ambigus int) {
+	if c == nil || len(pay) == 0 {
+		return
+	}
+	if m, ok := c.recup.tables[&pay[0]]; ok && m.bits == len(pay) {
+		return
+	}
+	if c.recup.tables == nil {
+		c.recup.tables = map[*byte]tableDeDatumsMemo{}
+	}
+	c.recup.tables[&pay[0]] = tableDeDatumsMemo{table: table, ambigus: ambigus, bits: len(pay)}
 }
 
 // LierTableDeDatums pose dans `w` les liaisons de la table d entites des paquets d image-cle d un chunk. Rend le

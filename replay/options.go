@@ -2,12 +2,8 @@ package replay
 
 // options.go — LE REGLAGE ET LES ENTREES DE DONNEES DE L'ASSEMBLAGE.
 //
-// DEPLACEMENT PUR depuis `build.go` (lot 1 de PLAN_CUISSON_PERF, 2026-09-02) : `Options` et ses
-// deux accesseurs de defaut y occupaient 205 lignes — presque un quart d'un fichier de 928 —
-// alors qu'ils ne sont pas de l'assemblage mais son CONTRAT D'ENTREE. Le lot 0 avait pousse
-// `build.go` de 875 a 922 lignes par l'observateur (note N-G du plan), et la migration vers un
-// film deja charge l'aurait encore alourdi. Le struct, ses commentaires et les deux methodes
-// sont repris TELS QUELS : aucune ligne de logique n'a change.
+// `Options` n'est pas de l'assemblage mais son CONTRAT D'ENTREE : il vit hors de `build.go`, que
+// ses champs alourdiraient.
 //
 // CE QUE `Options` MELANGE, ET POURQUOI CE N'EST PAS UN DEFAUT : du REGLAGE (pas de temps, seuil
 // de publication) et des ENTREES DE DONNEES (loadouts, grenades, projectiles, zones...). Les
@@ -40,7 +36,6 @@ type Options struct {
 	// (`grammar.ReadFilmIdentity`, via le profil du contexte). nil quand le film ne porte AUCUNE
 	// section d'identification (5 films du cache, majeures 31 et 33), quand `chunk_00` est
 	// tronqué ou encore compressé, ou quand l'appelant construit depuis des positions sans film.
-	//
 	// DEUX CHAMPS DE `coverage.decoder` EN VIENNENT, ET RIEN D'AUTRE : `build` (la clé du profil,
 	// chaîne VIDE quand cette option est nil — décision V15 (15), le bloc reste présent) et le
 	// bloc `registry` (l'empreinte du registre ECS et sa classification, absent quand cette
@@ -129,8 +124,14 @@ type Options struct {
 	// Reloads / ReloadStats : les rechargements d arme de la marche des trames (document_reloads.go).
 	Reloads     []types.ReloadRead
 	ReloadStats types.ReloadStats
-	// ControlHolds / ControlHoldStats : les commandes de deplacement tenues de la vue de controle, publiees
-	// en `stances[]` (document_stances_commandes.go).
+	// Repliques, Gestures, DrawnWeapons, Vitals : repliques, gestes, arme tiree, vitalites de la marche des trames et ce que leur canal a vu.
+	Repliques    grammar.RepliquesLues
+	Gestures     GestureInput
+	DrawnWeapons DrawnWeaponInput
+	Vitals       VitalsInput
+	// ProjectileAttaches : les projectiles qui se collent et ce que leur canal a vu (projectiles_colles.go).
+	ProjectileAttaches ProjectileAttachInput
+	// ControlHolds / ControlHoldStats : les commandes tenues de la vue de controle, en `stances[]` (document_stances_commandes.go).
 	ControlHolds     []types.ControlHold
 	ControlHoldStats types.ControlHoldStats
 	// AbilityCharges / AbilityChargeStats : les CHARGES RESTANTES lues sur les emplacements
@@ -271,11 +272,13 @@ type Options struct {
 	// Presences : les plages de listage des humains (paquets de type 8) et le joueur aux commandes des bipedes ;
 	// vide = lectures non faites, le roster garde la presence par entites et vies.
 	Presences LecturesDePresence
-	// StatborgEntries / StatborgEntryStats : de qui est chaque ligne du tableau des scores, lu aux images-cles. Avec
-	// `Presences.Listings`, ils nomment le joueur de chaque enregistrement du tableau ; vide ou `Scanned` faux, le
-	// tableau se nomme par le pont d'identite des slots.
+	// StatborgEntries / StatborgEntryStats : de qui est chaque ligne du tableau des scores, lu aux images-cles. Avec `Presences.Listings`,
+	// ils nomment le joueur de chaque enregistrement ; vide ou `Scanned` faux, le tableau se nomme par le pont d'identite des slots.
 	StatborgEntries    []types.StatborgEntry
 	StatborgEntryStats types.StatborgEntryStats
+	// Appearances / AppearanceStats : l'apparence brute des humains, posee sur le roster par xuid ; `Scanned` faux : rien publie.
+	Appearances     []types.PlayerAppearance
+	AppearanceStats types.AppearanceStats
 	// ScoreboardTeams est la table `identifiant -> équipe` de la FEUILLE DE MATCH (xuid d'un humain,
 	// `bid(N.0)` d'un bot). Elle CONTRÔLE : elle alimente `coverage.teams.{accord, contradiction,
 	// silence}` — une contradiction avec le film se compte, elle ne se corrige pas en silence. Elle
@@ -441,6 +444,9 @@ type Options struct {
 	// Contexte : le contexte que l appelant PARTAGE avec la source de degat (`killsource.Options.Contexte`)
 	// apres un decodage reussi ; il garde la marche faite pour les deux et ne se reprend qu UNE fois.
 	Contexte *grammar.FilmContext
+	// Vitesse regle la vitesse du decodage sans en changer le resultat (cf. options_vitesse.go).
+	// Fils a 0 : le contexte n'est pas touche, un contexte partage deja regle garde son reglage.
+	Vitesse OptionsVitesse
 	// Labels : le catalogue de libellés DU TITRE (armes, grenades, capacités), chargé
 	// depuis config/titles/{slug}/mappings/ par l'appelant hors ligne (cf. catalog.go).
 	// Absent = document sans table de libellés : le client affiche les identifiants

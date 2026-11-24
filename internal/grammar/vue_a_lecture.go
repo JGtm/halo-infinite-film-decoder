@@ -94,8 +94,15 @@ type FluxVueA struct {
 	// Rechargements : les messages de rechargement d arme (genre 38) lus, dans l ordre
 	// ([messageDeRechargement]).
 	Rechargements []lecture.MessageDeRechargement
+	// Gestes : les messages de lancer amorce et de coup de melee (genres 39 et 40) lus, dans l ordre
+	// ([recueillirUnGeste]).
+	Gestes []lecture.MessageDeGeste
 	// Tirs : les messages `action_weapon_fire` (genre 36) lus, a tout rang, dans l ordre.
 	Tirs []lecture.MessageDeTir
+	// Repliques et Annonces : les messages des genres 75 et 76 lus, dans l ordre ; rangees seulement
+	// quand un lecteur est inscrit ([canalDeRepliques]).
+	Repliques []lecture.MessageDeReplique
+	Annonces  []lecture.MessageDAnnonce
 }
 
 // refDeMessage est une reference d entite d un message de vue A : sa porte, son index et sa
@@ -158,6 +165,12 @@ func lireLaVueA(pay []byte, debut int, bal ProfilDeBalayage, g grammaireDeLaVueA
 // [lireLaVueA] (lot detonations, 2026-10-22) pour tenir sa complexite sous le seuil du depot — un
 // cas par genre collecte, jamais une decision.
 func recueillirLeMessage(br *Lecteur, out *FluxVueA, genre, debut int) {
+	if recueillirUnDialogue(br, out, genre, debut) {
+		return
+	}
+	if recueillirUnGeste(br, out, genre, debut) {
+		return
+	}
 	if genre == GenreEvenementJoueurCourt {
 		e := br.evenementLu
 		e.Debut = uint32(debut) //nolint:gosec // position dans un payload

@@ -89,8 +89,8 @@ package grammar
 // # CE QU'IL N'EST PAS
 //
 // Ni un cache global (aucun `var` de paquet — le ratchet `archlint/filmdec_package_vars_test.go`
-// gele leur compte), ni un objet partageable entre goroutines : il n'est ni verrouille ni
-// atomique : il appartient au balayage qui l a ouvert, et a lui seul.
+// gele leur compte), ni un objet partageable entre goroutines : ni verrou ni atomique, il appartient
+// au balayage qui l a ouvert ; des balayages simultanes ont chacun leur [FilmContext.Deriver].
 
 import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/constat"
@@ -133,21 +133,16 @@ type FilmContext struct {
 	prof   profile.Profile
 	profLu bool
 
-	// bal est le PROFIL DE BALAYAGE de ce decodage (lot 2.3) : ce que les lecteurs de bits
-	// construits sous ce contexte portent. Il nait a l INVARIANT ; la carte du match
-	// (largeurs d axe objets du monde), la version de format (decoupage MPP) et la
-	// calibration de `killsource` y substituent leurs valeurs, par
-	// [FilmContext.PoserProfilDeBalayage]. C est ce qui a remplace l heritage par l etat du
-	// processus : rien ici n est partage entre deux films.
+	// bal est le PROFIL DE BALAYAGE de ce decodage (lot 2.3), ce que portent les lecteurs de bits
+	// construits sous ce contexte. Il nait a l INVARIANT ; la carte, la version de format et la
+	// calibration de `killsource` y substituent leurs valeurs ([FilmContext.PoserProfilDeBalayage]).
 	bal ProfilDeBalayage
 	// duFilm : la grammaire que le film DECLARE (controle_corruption_du_film.go).
 	duFilm grammaireDuFilm
 	// vies : les CREATIONS de bipede et les GENERATIONS VIVANTES du handle (generations_vivantes.go).
 	vies memoDesVies
-	// obs est l OBSERVATEUR de ce contexte (lot 2.3) : jamais nil, tous ses champs nuls en
-	// production. Un balayage qui publie y installe ses crochets ; un instrument aussi, et
-	// c est la seule surface qui lui reste depuis que les vingt-huit reglages publics ont
-	// disparu. Il ne change AUCUNE consommation de bits.
+	// obs est l OBSERVATEUR de ce contexte : jamais nil, tous ses champs nuls en production. Un
+	// balayage qui publie ou un instrument y installe ses crochets ; aucune consommation de bits.
 	obs *Observation
 	// replis : le RAPPORT des replis de `grammar` et `profile` sur ce film (replis_du_film.go, lot J8.7).
 	replis replisDuContexte
@@ -158,6 +153,10 @@ type FilmContext struct {
 	// diag : les DIAGNOSTICS de ce film (diagnostic.go, lot J12.3) — ce que la couche journalisait,
 	// rendu a l orchestrateur qui l a ouvert ([FilmContext.Diagnostics]).
 	diag constat.Diagnostics
+	// fils : nombre de fils permis a ce decodage, au moins 1 ([FilmContext.PoserFils]).
+	fils int
+	// voie : non nil sur un contexte de voie ([FilmContext.Deriver]), qui garde le lien vers son parent.
+	voie *etatDeVoie
 }
 
 // Observation rend l observateur de ce contexte. Jamais nil.
@@ -254,7 +253,7 @@ func (c *FilmContext) NouveauLecteur(buf []byte) *Lecteur {
 // sont illisibles (`replaybuild.chargerFilm`), et chaque balayage rend alors son
 // [ErrNoFilmChunk] a sa place — exactement comme un repertoire vide avant le lot 1.
 func NewFilmContext(film *source.Film) *FilmContext {
-	return &FilmContext{film: film, bal: ProfilDeBalayageParDefaut()}
+	return &FilmContext{film: film, bal: ProfilDeBalayageParDefaut(), fils: 1}
 }
 
 // NewFilmContextForMap ouvre le contexte d'un film DEJA CHARGE sous LA REGLE DU CATALOGUE (cf.
@@ -267,7 +266,7 @@ func NewFilmContext(film *source.Film) *FilmContext {
 // contexte aux six canaux delta et aux ramassages natifs — un seul decoupage pour tout le film.
 func NewFilmContextForMap(film *source.Film, entry *profile.MapQuantEntry, forced *profile.I0Layout) *FilmContext {
 	c := &FilmContext{film: film, impose: resolveI0Layout(forced, entry),
-		bal: ProfilDeBalayageParDefaut()}
+		bal: ProfilDeBalayageParDefaut(), fils: 1}
 	// LA CARTE DECIDE D UNE BASCULE DE GRAMMAIRE, ET D UNE SEULE : cf. [grammaireSousCarte].
 	// Le decoupage impose est le temoin exact de la PRESENCE des largeurs (il est nil quand ni
 	// l appelant ni le catalogue n en fournit — `resolveI0Layout`).

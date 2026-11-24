@@ -5,6 +5,7 @@ import (
 	"github.com/JGtm/halo-infinite-film-decoder/internal/constat"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/profile"
 	"github.com/JGtm/halo-infinite-film-decoder/internal/source"
+	"github.com/JGtm/halo-infinite-film-decoder/types"
 
 	"cmp"
 	"slices"
@@ -161,6 +162,14 @@ type GrenadeThrow struct {
 	FilmIndex int
 	// TypeID est l'identifiant 32 bits du type de grenade.
 	TypeID uint32
+	// Life est le handle (slot, génération) du PROJECTILE que le lancer crée : le lancer EST le record
+	// NEW de cette entité `ti=41`, et son en-tête écrit le handle avant le motif d'amorce. C'est la même
+	// vie que celle de la piste de position du projectile ([types.ProjectileTrack]) ; le message de
+	// détonation nomme la même vie sans la base de la bande des projectiles. Un lancer dont le vol est
+	// trop court pour être publié (collé à bout portant) garde donc le moyen de retrouver sa détonation.
+	// HasLife est faux quand l'en-tête commence avant le payload : le handle n'est alors pas lu.
+	Life    types.LifeKey
+	HasLife bool
 }
 
 // Rank rend le RANG du type lancé (cf. GrenadeTypeIDsByRank), et s'il est connu. Le
@@ -395,11 +404,16 @@ func lancerA(pay []byte, bp int, g grenadeGrammaire, cov *grenadeCouverture) (Gr
 		if _, ok := GrenadeRankOf(id); !ok {
 			return GrenadeThrow{}, false
 		}
-		return GrenadeThrow{
+		t := GrenadeThrow{
 			BitPos:    bp,
 			FilmIndex: int(source.BitsTolerants(pay, bp+g.amorce.IndexAuteurBit, profile.AmorceGrenadeIndexBits)),
 			TypeID:    id,
-		}, true
+		}
+		// Le handle du projectile créé : celui que [scanGrenadeThrowsJusqua] lit pour interroger la marche.
+		if enTete := bp - motifDepuisLEnTeteNEW; enTete >= 0 {
+			t.Life, t.HasLife = LireHandle(pay, enTete+woNewTypeBits), true
+		}
+		return t, true
 	}
 }
 

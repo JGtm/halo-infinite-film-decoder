@@ -164,12 +164,14 @@ func decodeEvenements(r *greader, g *FilmFacts) {
 		g.Loadouts = append(g.Loadouts, l)
 	}
 
-	n = r.compte(3)
+	n = r.compte(4)
 	g.Grenades = make([]grammar.GrenadeThrow, 0, n)
 	for k := 0; k < n && r.err == nil; k++ {
-		g.Grenades = append(g.Grenades, grammar.GrenadeThrow{
-			TimestampUS: r.u(), FilmIndex: int(r.i()), TypeID: uint32(r.u()),
-		})
+		t := grammar.GrenadeThrow{TimestampUS: r.u(), FilmIndex: int(r.i()), TypeID: uint32(r.u())}
+		if t.HasLife = r.bool8(); t.HasLife {
+			t.Life = types.LifeKey{Slot: uint32(r.u()), Gen: uint32(r.u())}
+		}
+		g.Grenades = append(g.Grenades, t)
 	}
 
 	g.Projectiles = decodeTracks(r)
@@ -198,7 +200,7 @@ func decodeInventaire(r *greader, g *FilmFacts) {
 		g.Inventory = append(g.Inventory, inv)
 	}
 
-	n = r.compte(6)
+	n = r.compte(coutMinimalDeltaInventaire)
 	g.InventoryDeltas = make([]types.InventoryDelta, 0, n)
 	lastTS = 0
 	for k := 0; k < n && r.err == nil; k++ {
@@ -213,6 +215,7 @@ func decodeInventaire(r *greader, g *FilmFacts) {
 		d.SelRead = r.bool8()
 		d.Sel = int(r.i())
 		d.Mask = uint32(r.u())
+		d.Ammo = decodeMunitionsDelta(r)
 		g.InventoryDeltas = append(g.InventoryDeltas, d)
 	}
 

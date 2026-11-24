@@ -201,7 +201,12 @@ func scanBipedAimRecordsJusqua(payload []byte, slots SlotBand, gens *Generations
 	// `i21` le repositionnent par `SetBitPos`, la ou ils en allouaient un chacun PAR CANDIDAT.
 	br := LecteurSur(payload)
 	br.PoserContexte(ctx)
-	for p := 0; p+bipedHeaderBits <= total && p < fin; {
+	limite := min(fin, total-bipedHeaderBits+1) // positions jugees : p < fin et p+bipedHeaderBits <= total
+	for p := 0; p < limite; {
+		// Les positions que le prefixe, la porte ou le compteur de masque ecartent ne se jugent pas.
+		if p = prochainEnteteDelta(payload, p, limite, 1); p >= limite {
+			break
+		}
 		at, slot, ok := matchAimOnlyRecord(br, payload, p, slots, gens)
 		if !ok {
 			p++

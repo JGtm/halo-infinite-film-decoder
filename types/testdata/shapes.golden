@@ -25,7 +25,7 @@
 #
 #   LEVELUP_UPDATE_TYPES_SHAPES=1 go test ./internal/games/halo_infinite/film/types/ \
 #     -run TestFormesDesTypesEgalentLeGolden -update-types-shapes
-revisions	source=source-2026-09-16.2	grammar=grammar-2026-11-22.2	killsource=killsource-2026-11-10	objectives=objectives-2026-11-22.2
+revisions	source=source-2026-09-16.2	grammar=grammar-2026-11-24	killsource=killsource-2026-11-10	objectives=objectives-2026-11-24
 
 ## ChunkMeta (source)
 Index	int	-
@@ -200,6 +200,7 @@ InnerHoles	int	-
 HeldHoleMS	int64	-
 
 ## ControlHold (grammar)
+Kind	string	-
 FilmIndex	int	-
 StartUS	uint64	-
 EndUS	uint64	-
@@ -208,11 +209,22 @@ EndBound	string	-
 Entries	int	-
 Holes	[]types.ContinuousFireHole	-
 
+## ControlHoldCount (grammar)
+Holds	int	-
+WithHole	int	-
+InnerHoles	int	-
+
 ## ControlHoldStats (grammar)
 Holds	int	-
 WithHole	int	-
 InnerHoles	int	-
+Move	types.ControlHoldCount	-
+Crouch	types.ControlHoldCount	-
+Jump	types.ControlHoldCount	-
 Entries	int	-
+Gaps	int	-
+StepGaps	int	-
+StepUS	int64	-
 
 ## DeadState (grammar)
 Mort	bool	-
@@ -301,6 +313,48 @@ WithAmmo	int	-
 Slot	uint32	-
 Gen	uint32	-
 
+## DrawnWeaponRead (grammar)
+TimestampUS	uint64	-
+Slot	uint32	-
+Principal	int8	-
+Second	int8	-
+
+## DrawnWeaponStats (grammar)
+Scanned	bool	-
+Absent	bool	-
+Read	int	-
+SlotUnbound	int	-
+Duplicates	int	-
+
+## ProjectileAttachRead (grammar)
+TimestampUS	uint64	-
+Life	types.LifeKey	-
+BornUS	uint64	-
+HasBirth	bool	-
+Tag	uint32	-
+HasTag	bool	-
+Creator	types.LifeKey	-
+HasCreator	bool	-
+Created	bool	-
+Parent	types.LifeKey	-
+Node	uint32	-
+Pose	[3]uint32	-
+
+## ProjectileAttachStats (grammar)
+Scanned	bool	-
+Absent	bool	-
+Frames	int	-
+UnreadFrames	int	-
+Records	int	-
+Read	int	-
+Created	int	-
+Desynced	int	-
+Repeats	int	-
+NoBirth	int	-
+NoTag	int	-
+NoCreator	int	-
+WideLocations	int	-
+
 ## EquipmentPlacement (grammar)
 Life	types.LifeKey	-
 T0US	uint64	-
@@ -341,6 +395,22 @@ PosQ	[3]uint32	-
 ## GroundWeaponAmmo (grammar)
 Mag	uint32	-
 Res	uint32	-
+
+## GestureCounts (grammar)
+Messages	int	-
+Copies	int	-
+
+## GestureRead (grammar)
+TimestampUS	uint64	-
+Player	int8	-
+Kind	types.GestureKind	-
+
+## GestureStats (grammar)
+Frames	int	-
+Closed	int	-
+Stopped	int	-
+Melee	types.GestureCounts	-
+Throw	types.GestureCounts	-
 
 ## HeldWeaponChange (grammar)
 TimestampUS	uint64	-
@@ -563,6 +633,7 @@ Pts	[]types.ProjectileSample	-
 ## ReloadRead (grammar)
 TimestampUS	uint64	-
 Player	int8	-
+Copies	int	-
 
 ## ReloadStats (grammar)
 Frames	int	-
@@ -583,6 +654,28 @@ Packets	int	-
 Distinct	int	-
 Refused	int	-
 Entries	int	-
+
+## AppearancePair (grammar)
+Key	uint32	-
+Value	uint32	-
+
+## PlayerAppearance (grammar)
+XUID	uint64	-
+Size	int	-
+Pairs	[]types.AppearancePair	-
+Rest	[]uint8	-
+
+## AppearanceStats (grammar)
+Scanned	bool	-
+UnknownBuild	bool	-
+Packets	int	-
+Distinct	int	-
+Refused	int	-
+NoXUID	int	-
+Pairs	int	-
+Raw	int	-
+Unloaded	int	-
+Changed	int	-
 
 ## StatborgEntry (grammar)
 Slot	int	-

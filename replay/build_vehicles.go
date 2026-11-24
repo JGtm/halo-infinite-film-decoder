@@ -70,10 +70,13 @@ type VehicleScan struct {
 	// Events sont les embarquements et les sorties de la liste d evenements des paquets delta.
 	// Absents = episodes d occupation bornes par le seul trou de position (repli mesure).
 	Events []types.VehicleEvent
-	// Aims sont les lectures de VISEE des bipedes qui ne repliquent PLUS leur position — celles
-	// des occupants, donc. Bande `ti=35` (les joueurs), PAS `ti=40` : la visee publiee sur un
-	// episode est celle de l HOMME a bord, jamais du chassis. Absentes = episodes sans serie de
-	// visee, le client retombe sur le cap du chassis (cf. vehicle_rides_aim.go).
+	// Aims sont les lectures de VISEE des bipedes dans des records SANS position : celles des occupants
+	// de vehicule, qui ne repliquent plus la leur, et celles des bipedes a pied dont la position se tait.
+	// LUES SUR TOUT FILM, vehicules ou non, et quelle que soit l issue de la lecture du calque. Bande
+	// `ti=35` (les joueurs), PAS `ti=40` : la visee publiee sur un episode est celle de l HOMME a
+	// bord, jamais du chassis. Absentes = episodes sans serie de visee (le client retombe sur le cap du
+	// chassis, cf. vehicle_rides_aim.go), tirs sans la visee des records sans position (direction du
+	// tir, shots_visee.go) et pleine cadence des vies sans elles (tracks_visees_seules.go).
 	Aims []grammar.BipedAim
 	// Deaths sont les MORTS ECRITES des entites `ti=40` : le composant `object-dead-state` lu par
 	// la marche des trames (`grammar.ScanMarcheDesTrames`), seule voie qui l atteigne — les
@@ -104,6 +107,8 @@ type VehicleScan struct {
 // `decodeFilmPadScan`. Un film sans `ti=40` aux images-cles (aucune bande) n est pas un film dont
 // les creations sont illisibles, et ni l un ni l autre n est un film dont le nuage de positions
 // manque. Le calque se tait entierement plutot que de publier des vehicules sans trajectoire.
+// Les visees sans position (`Aims`) ne sont taiees par aucune de ces pannes : elles se lisent sur tout
+// film (cf. `decodeFilmVehicleScanLecture`).
 //
 // HORS LIGNE — appelee par BuildFromFilm. Elle ne TOUCHE PAS le disque :
 // le film est deja charge et le contexte deja ouvert (lots 1 et 2 de PLAN_CUISSON_PERF), et
@@ -112,33 +117,7 @@ type VehicleScan struct {
 func decodeFilmVehicleScan(ctx context.Context,
 	fc *grammar.FilmContext, matchID string, wr *profile.Vec3Range, mpp profile.MPPWidths,
 ) VehicleScan {
-	defer gwInstallMPPWidths(fc, gwWidthsForFilm(fc, mpp))()
-	kf := grammar.ScanWorldObjectKeyframes(fc, grammar.VehicleTypeIndex)
-	if len(kf.Band) == 0 {
-		slog.InfoContext(ctx, "vehicules : aucun slot ti=40 aux images-cles — film lu, aucun vehicule",
-			"match_id", matchID, "imagesCles", len(kf.TimesUS))
-		return scanBandeVide(kf)
-	}
-	cre, st, err := grammar.ScanVehicleCreationsForBand(fc, wr, kf.Band)
-	if err != nil {
-		slog.WarnContext(ctx, "vehicules : records de creation illisibles — rejeu sans ce calque",
-			"err", err, "match_id", matchID)
-		return VehicleScan{}
-	}
-	pos, err := nuageDesVehicules(fc, kf.Band, wr)
-	if err != nil {
-		slog.WarnContext(ctx, "vehicules : nuage de positions illisible — AUCUN vehicule publie (sans lui, une"+
-			" vie recensee n aurait ni trajectoire ni cap)", "err", err, "match_id", matchID)
-		return VehicleScan{}
-	}
-	out := VehicleScan{Scanned: true, Keyframes: kf, Creations: cre, Stats: st, Positions: pos}
-	out.Events = decodeFilmVehicleEvents(ctx, fc, matchID)
-	out.Aims = decodeFilmOccupantAims(ctx, fc, matchID)
-	slog.InfoContext(ctx, "vehicules : balayage ti=40",
-		"slots", st.Slots, "ancres", st.Anchors, "creationsAcceptees", st.Accepted,
-		"imagesCles", len(kf.TimesUS), "viesRecensees", len(kf.SeenUS),
-		"echantillons", len(pos), "evenements", len(out.Events), "viseesSansPosition", len(out.Aims))
-	return out
+	return journaliserVehicules(ctx, fc, matchID, decodeFilmVehicleScanLecture(fc, wr, mpp))
 }
 
 // scanBandeVide rend le balayage d'un film dont les images-cles ne portent aucun slot `ti=40`.
@@ -248,42 +227,6 @@ func logVehicleDeathReads(ctx context.Context, matchID string, tous, vehicules i
 		"masqueDeclareLeDeadState", declares, "dontDesynchronises", perdus,
 		"recordsAtteints", st.Records[ti], "recordsEntierementPortes", st.CleanRecords[ti],
 		"paquetsAEvenements", st.EventPackets, "paquetsLocalises", st.LocatedPackets)
-}
-
-// decodeFilmOccupantAims lit la VISEE des bipedes dans les records qui ne portent AUCUNE
-// position — la CINQUIEME lecture du calque, et celle qui vaut pour les occupants.
-//
-// ADDITIVE ET NON FATALE, meme doctrine que les evenements : son absence rend les episodes SANS
-// serie de visee, et le client retombe sur le cap du chassis.
-//
-// POURQUOI UNE LECTURE DE PLUS, ET PAS UN CHAMP DE `ScanBipedPositions` : les deux balayages
-// n acceptent pas les memes records. Le nuage de positions exige un `i0` ABSOLU et un masque
-// commencant par 0 ; ce balayage-ci accepte precisement ceux que cette exigence ecarte (lot V11 :
-// 22 963 lectures sur `0d76e8f1`, invisibles au premier). Les fusionner reviendrait a relacher la
-// porte du nuage de positions, qui est celle sous laquelle TOUT le calque a ete mesure. La BANDE,
-// elle, est partagee : c'est celle du contexte, relevee une seule fois.
-func decodeFilmOccupantAims(ctx context.Context, fc *grammar.FilmContext, matchID string) []grammar.BipedAim {
-	aims, err := grammar.ScanBipedAimOnly(fc)
-	if err != nil {
-		slog.WarnContext(ctx, "vehicules : visees sans position illisibles — episodes d occupation sans serie"+
-			" de visee, le cone retombe sur le cap du chassis", "err", err, "match_id", matchID)
-		return nil
-	}
-	return aims
-}
-
-// decodeFilmVehicleEvents lit les embarquements et les sorties. ADDITIF ET NON FATAL : leur
-// absence rend les episodes d occupation au seul trou de position, qui est la primitive de repli
-// MESUREE (86,3 % des trous portent leur sortie, et 100 % de ces sorties ferment le trou a
-// +/-2 s — rapport V3_DESTRUCTION_DATEE_2026-09-02, gate 6).
-func decodeFilmVehicleEvents(ctx context.Context, fc *grammar.FilmContext, matchID string) []types.VehicleEvent {
-	ev, err := grammar.ScanVehicleEvents(fc)
-	if err != nil {
-		slog.WarnContext(ctx, "vehicules : liste d evenements illisible — episodes d occupation bornes par le"+
-			" seul trou de position", "err", err, "match_id", matchID)
-		return nil
-	}
-	return ev
 }
 
 // vehicleScanOptions rend les reglages du nuage `ti=40`. QUATRE ecarts au bipede, tous documentes

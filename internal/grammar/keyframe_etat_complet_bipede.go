@@ -198,7 +198,7 @@ func (l *lectureDEtatComplet) observation(role roleDOccurrence) *Observation {
 			l.surchauffeLue[k], l.surchauffe[k], l.drapeaux[k] = true, q, uint32(bit2u(b1))|uint32(bit2u(b2))<<1
 		}
 	case roleJeuDArmes:
-		obs.DesiredWeaponSetHook = func(j JeuDArmes) { l.jeuLu, l.jeu = true, j }
+		obs.DesiredWeaponSetHook = func(_ uint32, j JeuDArmes) { l.jeuLu, l.jeu = true, j }
 	case roleArme:
 		obs.HeldWeaponHook = func(h, _ uint32) { l.armeLue[k], l.armeHaute[k] = true, h }
 	case roleJeuDeGrenades:

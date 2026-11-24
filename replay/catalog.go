@@ -123,6 +123,12 @@ type LabelCatalog struct {
 	// (diagonale 85 % contre le rang de capacité du poseur) vit dans le TOML, avec ses
 	// chiffres : c'est là qu'on juge, pas ici.
 	EquipmentFamilies map[uint32]string
+	// DeployedEquipment est l'ensemble des GlobalID `eqip` que le manifeste du titre marque
+	// `kind = "deployed"` : la forme POSÉE d'un objet (un panneau de mur déployé), qui n'existe que
+	// déployée. La voie `ti=37` des socles ne les retient pas : un objet posé n'est pas sur un
+	// socle. Posée par la COUCHE TITRE après NewLabelCatalog, comme EquipmentFamilies. Vide = aucune
+	// forme déployée connue : rien n'est écarté de ce chef.
+	DeployedEquipment map[uint32]bool
 	// ObjectiveObjects est la table GlobalID de tag `ti=42` -> NOM D'UN OBJET D'OBJECTIF PORTÉ,
 	// telle que le manifeste du titre la donne. Posée par la COUCHE TITRE après NewLabelCatalog,
 	// comme Icons, Tints et EquipmentFamilies : elle n'entre dans aucune jointure de construction.

@@ -36,7 +36,7 @@ The four lower layers live under `internal/`, so the compiler closes them. What 
   published without the field); a build that is given no step uses `replay.DefaultFrameIntervalMS`.
 - the shared vocabulary: `types`, `highlightevent`, `objectiveevent`, `playerposition`, `identity`.
 - the embedded name tables, offline and with no game file: `damagetag` (damage source of a death),
-  `killicon` (kill-feed icon of a source), `medalname` (medal identity), `filmshell` (weapons as the film
+  `killicon` (kill-feed icon of a source), `medalname` (medal identity), `chattername` (short name of a Spartan's spoken line), `filmshell` (weapons as the film
   names them), `equipenergy` (equipment energy).
 - `filmcache` (read side of an on-disk film cache), `filmobs` (counters), `memguard` (a memory ceiling
   for one decode, with the caller's callback), `revision` (layer fingerprints), `finalise`.
@@ -78,10 +78,24 @@ read to the end, measured on 2026-11-12 on 38 films:
 
 Closure says that packet widths are right, not that every field is decoded; see `FORMAT.md` section 9.
 
+## Speed
+
+`replay.Options.Vitesse` (`OptionsVitesse.Fils`) is the number of threads the decoder may use; the zero value is one thread, which is the behaviour of earlier versions. The real number is the least of the option, `GOMAXPROCS` and `replay.MaxFils` (8), and the number of goroutines that compute at the same time is at most `Fils` + 3 (none at one thread). The document and the facts file do not depend on it: they are identical, byte for byte, at 1, 2, 4 and 8 threads. Decoding the 13 films of `bench/films.tsv` with the minimal options of the bench (the decoder alone, not a full replay generation):
+
+| Version | Threads | 13 films, total (s) |
+|---|---|---|
+| v1.5.0 | 1 | 71.6 |
+| v1.6.0 | 1 | 35.8 |
+| v1.6.0 | 2 | 30.1 |
+| v1.6.0 | 4 | 27.8 |
+| v1.6.0 | 8 | 26.7 |
+
+The readings are in `bench/releves/v1.5.0.tsv` and `bench/releves/v1.6.0.tsv` (protocol in `bench/README.md`). The method of reading the chunks of a film on several threads owes to nuzzles' parser `halo_api`; see [`NOTICE.md`](NOTICE.md).
+
 ## Install
 
 ```
-go get github.com/JGtm/halo-infinite-film-decoder@v1.0.0
+go get github.com/JGtm/halo-infinite-film-decoder@v1.6.0
 ```
 
 Works from any Go module; no `replace` directive is needed. The module requires
@@ -154,6 +168,12 @@ Both typed errors are exported by the facade, `decfilm.ErrUnknownBuild` and `dec
 `replay.CleDeChunk0`, from the bytes of `chunk_00`) returns the key a film writes and, in its `Err` field,
 the error the table opposes to it; `decfilm/erreurs_typees_test.go` plays it on a build and a format that
 the table does not know.
+
+## Credits
+
+- **Den** (libfilmshell, OpenSpartan, MIT): the tables of the score responses, of the medals and of the damage effects, the width of several view A messages and two methods (how a life ends, how a hit is applied). The credit header and the licence text sit next to each table; see [`NOTICE.md`](NOTICE.md).
+- **llampwall** (GitHub, repository `llampwall/installation-08`): the readings of the player's gestures and of the crouch and jump commands, of the shooter by control place, of the aims without a position, of the weapon in hand, of the ammunition carried, of the positions and aim at full rate, of the projectiles that stick to another entity, of the pad candidates and equipment pads, of the offset of a shot in its frame and of the slots on a damage line, all written again under this module's rules, and the 3D replay reader built on this decoder.
+- **nuzzles** (the Rust parser `halo_api`): the method of reading a film's chunks on several threads, behind the parallelism of `replay.Options.Vitesse`; no code taken.
 
 ## License
 

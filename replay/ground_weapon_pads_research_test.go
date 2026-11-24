@@ -205,7 +205,7 @@ func gwPadsPowerups(
 		return nil
 	}
 	scan := decodeFilmPadScanDir(dir, wr, st.Calibration.Widths, worldEquipmentArchetype())
-	objs, rejets := padObjects(scan, powerupPadRule(origineFamilles(t)), lives, pos)
+	objs, rejets := padObjects(scan, powerupPadRule(padCatalogs{EquipmentFamilies: origineFamilles(t)}), lives, pos)
 	out, byFamily := make([]gwPadApparition, 0, len(objs)), map[string]int{}
 	for _, o := range objs {
 		byFamily[o.Appar.Family]++

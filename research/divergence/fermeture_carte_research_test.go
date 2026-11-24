@@ -7,7 +7,7 @@ package divergence
 // carte (la voie de la cuisson, voir ouvrir.go). Pas de temoin : c est la fermeture de NOTRE marche.
 //
 //	FERMETURE_RACINE=<film_chunks> FERMETURE_FILMS=<corpus_151.tsv> FERMETURE_CARTE=<map_quant_bounds.json> \
-//	  FERMETURE_SORTIE=C:\t\marche\A1\fermeture_carte \
+//	  FERMETURE_SORTIE=<dossier>/fermeture_carte \
 //	  go test -tags=research ./research/divergence/ -run TestFermetureCarte -v -timeout 60m
 //
 // Sorties : `fermeture_carte_films.tsv` (une ligne par film : paquets, fermes sans carte, fermes sous

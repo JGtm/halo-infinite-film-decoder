@@ -289,4 +289,11 @@ type ScoreCoverage struct {
 	// que le film reste lisible — le seul REPLI de cette chaine
 	// (`repli_manche_zero_decretee`), et il est aussi compte en `coverage.fallbacks[]`.
 	RoundsDecreed bool `json:"roundsDecreed,omitempty"`
+	// RoundsAdmittedByShare sont les manches retenues que seul le critere de la matiere admet (plancher d'enregistrements
+	// et part de la manche la plus fournie), sans suite coherente du score de mode : une admission a seuils.
+	RoundsAdmittedByShare []int `json:"roundsAdmittedByShare,omitempty"`
+	// RoundsAdmittedByReset sont les manches retenues que seule la remise a zero simultanee des scores admet (fenetre
+	// d'une seconde, deux joueurs au moins, moitie des slots), ni la suite coherente ni la matiere : une admission a
+	// seuils, publiee comme les autres manches.
+	RoundsAdmittedByReset []int `json:"roundsAdmittedByReset,omitempty"`
 }

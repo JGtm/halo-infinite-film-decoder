@@ -28,6 +28,14 @@ const (
 	StatSpawns           = "spawns"
 )
 
+// Les noms publies des compteurs du tableau propres au VIP ([ScoreboardStatsOf]). Les durees sont des DIXIEMES de seconde,
+// comme le film les porte.
+const (
+	StatTimeAsVip        = "timeAsVip"
+	StatLongestTimeAsVip = "longestTimeAsVip"
+	StatMaxSpreeAsVip    = "maxSpreeAsVip"
+)
+
 // ScoreboardStat est un compteur nomme du tableau des scores.
 type ScoreboardStat struct {
 	// Name est le nom publie, en anglais simple.
@@ -56,8 +64,8 @@ func ScoreboardStats() []ScoreboardStat {
 	// sa valeur B, la serie maximale, est lue.
 	spree := StatComponent{Comp: 5, SideB: true, HoldOnClear: true, KillBounded: true}
 	return []ScoreboardStat{
-		{Name: StatSuicides, Component: held(4, false)},
-		{Name: StatBetrayals, Component: held(4, true)},
+		{Name: StatSuicides, Component: held(suicideBetrayalComp, false)},
+		{Name: StatBetrayals, Component: held(suicideBetrayalComp, true)},
 		{Name: StatMaxSpree, Component: spree, Peak: true},
 		{Name: StatHeadshots, Component: heldKills(6, false)},
 		{Name: StatMeleeKills, Component: heldKills(8, false)},
@@ -67,19 +75,64 @@ func ScoreboardStats() []ScoreboardStat {
 	}
 }
 
+// ScoreboardStatsOf rend les compteurs nommes du tableau d'un match de la famille `objectiveType` ([ScoreboardStats] et ceux
+// que le mode ajoute). Le sens d'un emplacement dependant du mode, les compteurs de mode ne se lisent que quand l'appelant
+// reconnait la famille ; une famille sans compteur de mode (ou vide) rend exactement [ScoreboardStats].
+//
+// VIP : `comp 23 B` est le temps passe en VIP (`TimeAsVip`), `comp 23 A` le plus long temps d'une traite
+// (`LongestTimeAsVip`, un maximum) et `comp 22 B` la meilleure serie d'eliminations faite en VIP (`BestKillingSpreeAsVip`, un
+// maximum, borne par les eliminations de la manche). Les durees sont des dixiemes de seconde ; contre l'API, sur les trois
+// films VIP du parc (24 joueurs), `timeAsVip` et la serie sont exacts pour 24 joueurs, `longestTimeAsVip` pour 22 et a un
+// dixieme de seconde pour les deux autres.
+func ScoreboardStatsOf(objectiveType string) []ScoreboardStat {
+	base := ScoreboardStats()
+	mode := modeScoreboardStats[objectiveType]
+	if len(mode) == 0 {
+		return base
+	}
+	return append(base, mode...)
+}
+
+// modeScoreboardStats : par famille, les compteurs du tableau que le mode ajoute. Les emplacements sont ceux de
+// [namedStatSlots] : aucun ne coincide avec un compteur de [ScoreboardStats] (composants 4 a 10).
+var modeScoreboardStats = map[string][]ScoreboardStat{
+	ObjectiveTypeVip: {
+		{Name: StatMaxSpreeAsVip, Component: StatComponent{Comp: 22, SideB: true, HoldOnClear: true, KillBounded: true}, Peak: true},
+		{Name: StatLongestTimeAsVip, Component: StatComponent{Comp: 23, HoldOnClear: true, Joint: true}, Peak: true},
+		{Name: StatTimeAsVip, Component: StatComponent{Comp: 23, SideB: true, HoldOnClear: true, Joint: true}},
+	},
+}
+
+// tousLesCompteursDuTableau rend les compteurs de base et ceux de chaque mode : la table dont se servent les lectures qui
+// ne savent pas de quelle famille est le film (garde par les eliminations, comptes des emissions ecartees).
+func tousLesCompteursDuTableau() []ScoreboardStat {
+	out := ScoreboardStats()
+	for _, mode := range modeScoreboardStats {
+		out = append(out, mode...)
+	}
+	return out
+}
+
 // rawSeries rend les emissions de l'emplacement `c` par slot puis par manche, avec les regles de
 // [StatComponent.HoldOnClear] et [StatComponent.Joint] quand il les demande.
 func rawSeries(recs []types.StatRecord, c StatComponent, teams bool,
 	cons *ReplisALaConsultation) map[int]map[int][]types.ScorePoint {
+	return rawSeriesWithMarks(recs, c, teams, cons, c.penalties(recs))
+}
+
+// rawSeriesWithMarks est [rawSeries] pour un appelant qui a deja lu les penalites du composant ([StatComponent.penalties]) :
+// le score personnel garde ses valeurs negatives et ses retours a zero quand une penalite confirmee les porte.
+func rawSeriesWithMarks(recs []types.StatRecord, c StatComponent, teams bool,
+	cons *ReplisALaConsultation, marks penaltyMarks) map[int]map[int][]types.ScorePoint {
 	if !c.HoldOnClear {
 		if c.DropClears && hasCounterChannels(c.Comp) {
 			recs = withoutNegativeChannels(recs, c, cons)
 		}
-		raw := rawSeriesByRound(recs, c.key(), teams, cons)
+		raw := rawSeriesByRoundMarked(recs, c.key(), teams, cons, marks)
 		if c.DropClears {
 			for slot, byRound := range raw {
 				for round, pts := range byRound {
-					byRound[round] = dropClearPoints(pts, slot, round, c, cons)
+					byRound[round] = dropClearPoints(pts, seatRound{slot, round}, c, cons, marks.at(round, slot))
 				}
 			}
 		}
@@ -159,15 +212,21 @@ func (c StatComponent) ClearsDropped() StatComponent {
 	return c
 }
 
+// seatRound designe un siege dans une manche.
+type seatRound struct{ slot, round int }
+
 // dropClearPoints ecarte d'une suite d'emissions d'un slot et d'une manche celles qui retombent a zero apres une valeur
-// positive, et note chacune dans `cons`. La suite est triee par instant.
-func dropClearPoints(pts []types.ScorePoint, slot, round int, c StatComponent, cons *ReplisALaConsultation) []types.ScorePoint {
+// positive, et note chacune dans `cons`, SAUF celle que porte une penalite confirmee (`pens`, instant -> unites, voir
+// [penaltyMarks]) : un score qui tombe a zero parce que le joueur se suicide n'est pas le vidage de sa ligne. La suite
+// est triee par instant.
+func dropClearPoints(pts []types.ScorePoint, at seatRound, c StatComponent, cons *ReplisALaConsultation,
+	pens map[int]int) []types.ScorePoint {
 	slices.SortStableFunc(pts, func(x, y types.ScorePoint) int { return cmp.Compare(x.TimeMS, y.TimeMS) })
 	out := make([]types.ScorePoint, 0, len(pts))
 	positive := false
 	for _, p := range pts {
-		if p.Value == 0 && positive {
-			cons.noterEmissionJetee(c.key(), types.StatRecord{TimeMS: p.TimeMS, Slot: slot, Round: round})
+		if p.Value == 0 && positive && pens[p.TimeMS] == 0 {
+			cons.noterEmissionJetee(c.key(), types.StatRecord{TimeMS: p.TimeMS, Slot: at.slot, Round: at.round})
 			continue
 		}
 		positive = positive || p.Value > 0

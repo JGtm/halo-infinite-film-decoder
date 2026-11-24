@@ -14,7 +14,8 @@ package replay
 // lui-meme la fonction `CalculateReturnRateHarmonic`.
 //
 // La jauge est `ti=13 i1` TAG 3, mode A, voie DELTA — le MEME canal que la jauge de capture des
-// zones, en production depuis le schema 18 (cf. zone_states_gauge.go). Un slot par drapeau.
+// zones, en production depuis le schema 18 (cf. zone_states_gauge.go). Un slot par EQUIPE : sur une carte ou une equipe a
+// plusieurs drapeaux, la serie du slot sert tour a tour ceux de l equipe qui sont au sol.
 //
 // # L APPARIEMENT EST UNE CORRELATION, ET ELLE EST TOTALE (lot 5.1.6, 2026-09-18)
 //
@@ -30,6 +31,12 @@ package replay
 // 884 echantillons, tous dans un lacher de LEUR drapeau, zero en dehors. Le contraste est fourni
 // par le film lui-meme : le slot 1495 de `bcb6d393` n y tombe qu a 15,8 %. Le seuil vit dans
 // l ecart entre 15,8 % et 100 %, et il est ecrit une seule fois ci-dessous.
+//
+// LA PART SE CALCULE SUR L UNION DES LACHERS DE L EQUIPE : le film ne dit pas lequel des drapeaux d une equipe la jauge sert (le
+// slot ne porte ni identifiant de drapeau ni position), seulement qu elle suit les lachers de l equipe. Sur une carte a trois
+// drapeaux par equipe, un slot tombe a 36 % et 59 % dans les lachers de deux drapeaux et a 94,8 % dans leur union. Chaque echantillon
+// est ensuite pose sur le drapeau de l equipe qui est au sol a son instant ; quand deux le sont ensemble, il n est a aucun et se
+// compte (`gaugeReadsAmbiguous`).
 //
 // L ORACLE QUI VALIDE LA LECTURE EST BINAIRE ET SANS EXCEPTION, par lacher, selon CE QUI LE
 // TERMINE : retour automatique (`home`) 13 / 13 atteignent le plein (>= 0,99) ; repris par un
@@ -116,19 +123,26 @@ func attachFlagReturnGauges(
 			cov.GaugeWalkReads += len(s.samples)
 		}
 	}
-	boundPass := bindFlagGauges(slots, carries)
-	boundWalk := bindFlagGauges(walk, carries)
+	groupes := flagGroupsByTeam(carries)
+	boundPass, rejetsPass := bindFlagGauges(slots, carries, groupes)
+	boundWalk, rejetsWalk := bindFlagGauges(walk, carries, groupes)
+	if cov != nil {
+		rejetsPass.ajouterA(cov)
+		rejetsWalk.ajouterA(cov)
+	}
 	gap := zoneGaugeGapFrames(int(c.step / 1000))
+	seriesPass := flagGaugeSeriesOf(boundPass, carries, cov)
+	seriesWalk := flagGaugeSeriesOf(boundWalk, carries, cov)
 	for f := range carries {
-		sp, okPass := boundPass[f]
-		sw, okWalk := boundWalk[f]
+		sp, okPass := seriesPass[f]
+		sw, okWalk := seriesWalk[f]
 		if !okPass && !okWalk {
 			continue
 		}
 		if cov != nil {
 			cov.GaugePaired++
 		}
-		fillFlagReturnProgress(carries[f].Spans, sw.samples, sp.samples, gap, cov)
+		fillFlagReturnProgress(carries[f].Spans, sw, sp, gap, cov)
 	}
 }
 
@@ -159,61 +173,164 @@ func flagGaugeSlotsOf(reads []grammar.ManagedPropertyRead, c matchClock) []flagG
 	return out
 }
 
-// flagGaugeCouple est un appariement CANDIDAT slot -> drapeau, avec de quoi le departager.
+// flagGaugeCouple est un appariement CANDIDAT slot -> equipe, avec de quoi le departager.
 type flagGaugeCouple struct {
-	flag   int
+	groupe int
 	slot   int
 	share  float64
 	inside int
 }
 
-// bindFlagGauges apparie AU PLUS UN slot par drapeau, et au plus un drapeau par slot.
+// flagGaugeBound est un slot apparie a un GROUPE de drapeaux : ceux d'une meme equipe.
+type flagGaugeBound struct {
+	flags []int
+	slot  flagGaugeSlot
+}
+
+// flagGaugeRejets dit ce que l'appariement a lu sans le publier : des SLOTS (une serie lue), par motif, et le nombre de leurs echantillons.
+type flagGaugeRejets struct {
+	fewSlots, offSlots, takenSlots int
+	reads                          int
+}
+
+// ajouterA verse les rejets de l'appariement d'une voie dans la couverture.
+func (r flagGaugeRejets) ajouterA(cov *FlagCarriesCoverage) {
+	cov.GaugeSlotsFewReads += r.fewSlots
+	cov.GaugeSlotsOffDrops += r.offSlots
+	cov.GaugeSlotsTeamTaken += r.takenSlots
+	cov.GaugeReadsUnpublished += r.reads
+}
+
+// flagGroupsByTeam rend les drapeaux regroupes par equipe, dans l'ordre de leur premier drapeau. Le film dit l'equipe d'une jauge (la
+// correlation de ses echantillons aux lachers de l'equipe), pas lequel des drapeaux de l'equipe elle sert : ce choix se fait echantillon
+// par echantillon ([flagGaugeSeriesOf]).
+func flagGroupsByTeam(carries []FlagCarry) [][]int {
+	var out [][]int
+	index := map[int]int{}
+	for f, c := range carries {
+		g, vu := index[c.Team]
+		if !vu {
+			g = len(out)
+			index[c.Team] = g
+			out = append(out, nil)
+		}
+		out[g] = append(out[g], f)
+	}
+	return out
+}
+
+// bindFlagGauges apparie AU PLUS UN slot par equipe, et au plus une equipe par slot.
 //
-// UN SLOT NE PEUT PAS SERVIR DEUX DRAPEAUX, ET DEUX SLOTS NE PEUVENT PAS SERVIR LE MEME : le jeu
-// attache la propriete a l OBJET, et la mesure le confirme (un slot par drapeau sur les deux
-// films). L appariement prend donc les couples par part DECROISSANTE, et un couple dont l un des
-// deux cotes est deja pris est ecarte — la meme discipline que l appariement des zones.
-func bindFlagGauges(slots []flagGaugeSlot, carries []FlagCarry) map[int]flagGaugeSlot {
+// UN SLOT NE PEUT PAS SERVIR DEUX EQUIPES, ET DEUX SLOTS NE PEUVENT PAS SERVIR LA MEME : le jeu porte une jauge par equipe. La part
+// d'un slot se calcule sur l'UNION des lachers des drapeaux de l'equipe : une serie qui sert tour a tour deux drapeaux de la meme equipe
+// ne passe le seuil sur aucun seul, et le passe sur leur union. L'appariement prend les couples par part DECROISSANTE, et un couple
+// dont l'un des deux cotes est deja pris est ecarte — la meme discipline que l'appariement des zones. Tout slot lu et non apparie
+// est rendu dans [flagGaugeRejets], sous le motif qui dit pourquoi.
+func bindFlagGauges(slots []flagGaugeSlot, carries []FlagCarry, groupes [][]int) ([]flagGaugeBound, flagGaugeRejets) {
 	var cs []flagGaugeCouple
+	atteint := map[int]bool{}
 	for si, s := range slots {
 		if len(s.samples) < flagReturnGaugeMinSamples {
 			continue
 		}
-		for f := range carries {
-			inside := flagSamplesInsideDrops(s.samples, carries[f].Spans)
+		for g, flags := range groupes {
+			inside := flagSamplesInsideGroupDrops(s.samples, carries, flags)
 			share := float64(inside) / float64(len(s.samples))
 			if share < flagReturnGaugeMinShare {
 				continue
 			}
-			cs = append(cs, flagGaugeCouple{flag: f, slot: si, share: share, inside: inside})
+			cs = append(cs, flagGaugeCouple{groupe: g, slot: si, share: share, inside: inside})
+			atteint[si] = true
 		}
 	}
 	slices.SortStableFunc(cs, func(a, b flagGaugeCouple) int {
 		return cmp.Or(cmp.Compare(b.share, a.share), cmp.Compare(b.inside, a.inside))
 	})
-	out := map[int]flagGaugeSlot{}
-	pris := map[int]bool{}
+	var out []flagGaugeBound
+	prisG, prisS := map[int]bool{}, map[int]bool{}
 	for _, c := range cs {
-		if _, deja := out[c.flag]; deja || pris[c.slot] {
+		if prisG[c.groupe] || prisS[c.slot] {
 			continue
 		}
-		out[c.flag] = slots[c.slot]
-		pris[c.slot] = true
+		out = append(out, flagGaugeBound{flags: groupes[c.groupe], slot: slots[c.slot]})
+		prisG[c.groupe], prisS[c.slot] = true, true
 	}
-	return out
+	var rej flagGaugeRejets
+	for si, s := range slots {
+		switch {
+		case prisS[si]:
+			continue
+		case len(s.samples) < flagReturnGaugeMinSamples:
+			rej.fewSlots++
+		case atteint[si]:
+			rej.takenSlots++
+		default:
+			rej.offSlots++
+		}
+		rej.reads += len(s.samples)
+	}
+	return out, rej
 }
 
-// flagSamplesInsideDrops compte les echantillons qui tombent dans un intervalle `dropped` de ce
-// drapeau. Les spans sont tries par T0 et disjoints : une recherche dichotomique suffit.
-func flagSamplesInsideDrops(ss []zoneSample, spans []FlagSpan) int {
-	var n int
-	for _, s := range ss {
-		i := sort.Search(len(spans), func(k int) bool { return spans[k].T1 >= s.t })
-		if i < len(spans) && spans[i].State == FlagStateDropped && s.t >= spans[i].T0 {
+// flagDroppedAt dit que le drapeau est au sol a la frame `t` : les spans sont tries par T0 et disjoints.
+func flagDroppedAt(spans []FlagSpan, t int) bool {
+	i := sort.Search(len(spans), func(k int) bool { return spans[k].T1 >= t })
+	return i < len(spans) && spans[i].State == FlagStateDropped && t >= spans[i].T0
+}
+
+// flagsDroppedAt compte les drapeaux du groupe au sol a la frame `t`.
+func flagsDroppedAt(carries []FlagCarry, flags []int, t int) int {
+	n := 0
+	for _, f := range flags {
+		if flagDroppedAt(carries[f].Spans, t) {
 			n++
 		}
 	}
 	return n
+}
+
+// flagSamplesInsideGroupDrops compte les echantillons qui tombent dans un lacher d'AU MOINS UN drapeau du groupe.
+func flagSamplesInsideGroupDrops(ss []zoneSample, carries []FlagCarry, flags []int) int {
+	n := 0
+	for _, s := range ss {
+		if flagsDroppedAt(carries, flags, s.t) > 0 {
+			n++
+		}
+	}
+	return n
+}
+
+// flagGaugeSeriesOf rend, par drapeau, la serie du slot apparie a son equipe REDUITE aux echantillons que le film permet de poser sur CE
+// drapeau : ceux qui tombent dans un de ses lachers pendant lesquels aucun AUTRE drapeau de l'equipe n'est au sol. Quand deux drapeaux de
+// l'equipe sont au sol a la meme frame, le film ne dit pas auquel la jauge appartient : l'echantillon n'est a aucun des deux et il se
+// compte (`gaugeReadsAmbiguous`). Un echantillon hors de tout lacher de l'equipe se compte aussi (`gaugeReadsOffDrops`). Une equipe a un
+// seul drapeau garde toute sa serie.
+func flagGaugeSeriesOf(bound []flagGaugeBound, carries []FlagCarry, cov *FlagCarriesCoverage) map[int][]zoneSample {
+	out := map[int][]zoneSample{}
+	for _, b := range bound {
+		par := make(map[int][]zoneSample, len(b.flags))
+		for _, s := range b.slot.samples {
+			n := flagsDroppedAt(carries, b.flags, s.t)
+			if n != 1 {
+				if cov != nil && n == 0 {
+					cov.GaugeReadsOffDrops++
+				}
+				if cov != nil && n > 1 {
+					cov.GaugeReadsAmbiguous++
+				}
+				continue
+			}
+			for _, f := range b.flags {
+				if flagDroppedAt(carries[f].Spans, s.t) {
+					par[f] = append(par[f], s)
+				}
+			}
+		}
+		for _, f := range b.flags {
+			out[f] = par[f]
+		}
+	}
+	return out
 }
 
 // fillFlagReturnProgress pose la serie sur chaque intervalle `dropped`, ALLEGEE comme celle des

@@ -156,28 +156,116 @@ func abs(v int) int {
 	return v
 }
 
-// victimsOf rend, pour chaque élimination (frames croissantes), la victime de l'action de score du joueur qui lui
-// correspond, "" sans action. Les actions sont triées par image. Deux passes : d'abord la même image, dans l'ordre, puis
-// l'image voisine pour ce qui reste ; une action ne sert qu'une fois.
-func victimsOf(frames []int, actions []ScoreAction, maxWindow int) []string {
-	out := make([]string, len(frames))
-	taken := make([]bool, len(frames))
-	used := make([]bool, len(actions))
-	for window := 0; window <= maxWindow; window++ {
-		for i, f := range frames {
-			if taken[i] {
-				continue
-			}
-			for j, a := range actions {
-				if used[j] || abs(a.T-f) > window {
-					continue
-				}
-				out[i], taken[i], used[j] = a.Target, true, true
-				break
-			}
+// cleDeVictime est l'identité de la victime que nomme une action de score : le xuid, ou la place d'un bot (-1 sans
+// place). Deux actions qui ont la même clé nomment la même victime.
+type cleDeVictime struct {
+	xuid  string
+	place int
+}
+
+// cleDe rend la clé de victime d'une action.
+func cleDe(a ScoreAction) cleDeVictime {
+	k := cleDeVictime{xuid: a.Target, place: -1}
+	if a.TargetPlace != nil {
+		k.place = *a.TargetPlace
+	}
+	return k
+}
+
+// groupesEnAttente regroupe par image les éliminations pas encore réglées (frames croissantes) : chaque groupe est une
+// image et les index de ses lignes, qui ne se distinguent que par leur victime.
+func groupesEnAttente(frames []int, regle []bool) [][]int {
+	var out [][]int
+	for i, f := range frames {
+		if regle[i] {
+			continue
+		}
+		if n := len(out); n > 0 && frames[out[n-1][0]] == f {
+			out[n-1] = append(out[n-1], i)
+			continue
+		}
+		out = append(out, []int{i})
+	}
+	return out
+}
+
+// candidatesDansLaFenetre rend les index des actions pas encore utilisées à `window` images au plus de `frame`, dans
+// l'ordre des actions.
+func candidatesDansLaFenetre(actions []ScoreAction, used []bool, frame, window int) []int {
+	var out []int
+	for j, a := range actions {
+		if !used[j] && abs(a.T-frame) <= window {
+			out = append(out, j)
 		}
 	}
 	return out
+}
+
+// appariementSur : l'appariement est sûr quand aucune candidate n'est réclamée par un autre groupe d'images, et que les
+// candidates ne dépassent pas les lignes du groupe, sauf si elles nomment toutes la même victime. Sinon plusieurs
+// victimes restent possibles pour ces lignes : le film ne dit pas laquelle.
+func appariementSur(candidates []int, lignes int, reclame map[int]int, actions []ScoreAction) bool {
+	for _, j := range candidates {
+		if reclame[j] > 1 {
+			return false
+		}
+	}
+	if len(candidates) <= lignes {
+		return true
+	}
+	for _, j := range candidates[1:] {
+		if cleDe(actions[j]) != cleDe(actions[candidates[0]]) {
+			return false
+		}
+	}
+	return true
+}
+
+// victimsOf rend, pour chaque élimination (frames croissantes), l'index de l'action de score du joueur qui lui
+// correspond, -1 sans action, et dit lesquelles ont plusieurs victimes possibles. Les actions sont triées par image.
+// Fenêtres croissantes : d'abord la même image, puis l'image voisine pour ce qui reste ; une action ne sert qu'une fois.
+//
+// Une élimination n'est appariée que si son appariement est sûr ([appariementSur]). Quand plusieurs victimes restent
+// possibles, la ligne n'est PAS appariée au plus proche : elle est rendue ambiguë (victime absente) et ses candidates
+// sont écartées pour que nulle autre élimination ne les reçoive en silence. Des lignes de la même image sont
+// interchangeables : elles reçoivent les candidates dans l'ordre.
+func victimsOf(frames []int, actions []ScoreAction, maxWindow int) (victims []int, ambiguous []bool) {
+	victims = make([]int, len(frames))
+	for i := range victims {
+		victims[i] = -1
+	}
+	ambiguous = make([]bool, len(frames))
+	regle := make([]bool, len(frames))
+	used := make([]bool, len(actions))
+	for window := 0; window <= maxWindow; window++ {
+		groupes := groupesEnAttente(frames, regle)
+		candidates := make([][]int, len(groupes))
+		reclame := map[int]int{}
+		for g, lignes := range groupes {
+			candidates[g] = candidatesDansLaFenetre(actions, used, frames[lignes[0]], window)
+			for _, j := range candidates[g] {
+				reclame[j]++
+			}
+		}
+		for g, lignes := range groupes {
+			c := candidates[g]
+			switch {
+			case len(c) == 0:
+			case appariementSur(c, len(lignes), reclame, actions):
+				for k := 0; k < len(lignes) && k < len(c); k++ {
+					victims[lignes[k]], regle[lignes[k]], used[c[k]] = c[k], true, true
+				}
+			default:
+				for _, i := range lignes {
+					ambiguous[i], regle[i] = true, true
+				}
+				for _, j := range c {
+					used[j] = true
+				}
+			}
+		}
+	}
+	return victims, ambiguous
 }
 
 // boolPtr rend un pointeur vers une copie de v : chaque ligne porte le sien.
@@ -199,6 +287,39 @@ func markHead(e *Elimination, v headVerdict, cov *EliminationCoverage) {
 	case headVerdictGuarded:
 		cov.HeadGuarded++
 	}
+}
+
+// poserLaVictime pose sur `e` la victime que l'action de score donne (un xuid, ou la place d'un bot) et la compte dans cov ;
+// une action qui ne nomme personne ne pose rien.
+func poserLaVictime(e *Elimination, a ScoreAction, cov *EliminationCoverage) {
+	switch {
+	case a.Target != "":
+		e.Victim = a.Target
+	case a.TargetPlace != nil:
+		e.VictimPlace = a.TargetPlace
+		cov.VictimPlaces++
+	default:
+		return
+	}
+	cov.WithVictim++
+}
+
+// eliminationsDeBots rend les éliminations des bots : une par action `killPersonalScore` posée à une place de bot. Le bot n'a
+// ni courbe de tableau ni compteur de tirs à la tête ni médaille rattachée : `headshot` et `perfect` restent absents, et la
+// ligne se compte parmi les inconnus faute de compteur.
+func eliminationsDeBots(actions []ScoreAction, cov *EliminationCoverage) []Elimination {
+	var out []Elimination
+	for _, a := range actions {
+		if a.Name != killScoreActionName || a.XUID != "" || a.Place == nil {
+			continue
+		}
+		e := Elimination{T: a.T, Place: a.Place}
+		poserLaVictime(&e, a, cov)
+		cov.BotEliminations++
+		cov.HeadNoCounter++
+		out = append(out, e)
+	}
+	return out
 }
 
 // eliminationsOfPlayer rend les éliminations d'un joueur et compte dans cov ce qu'elles valent. Rend nil sans pas.
@@ -232,10 +353,13 @@ func eliminationsOfPlayer(p PlayerScore, actions []ScoreAction, medalFrames []in
 			frames = append(frames, s.t)
 		}
 	}
-	for i, v := range victimsOf(frames, actions, windowFrames(victimWindowMS, in.StepMS)) {
-		if v != "" {
-			out[i].Victim = v
-			cov.WithVictim++
+	victimes, plusieurs := victimsOf(frames, actions, windowFrames(victimWindowMS, in.StepMS))
+	for i, j := range victimes {
+		switch {
+		case plusieurs[i]:
+			cov.VictimAmbiguous++
+		case j >= 0:
+			poserLaVictime(&out[i], actions[j], cov)
 		}
 	}
 	return out
@@ -261,6 +385,7 @@ func buildEliminations(in eliminationInput) ([]Elimination, EliminationCoverage)
 		out = append(out, eliminationsOfPlayer(p, actionsBy[p.XUID], medalsBy[p.XUID], in, &cov)...)
 		delete(medalsBy, p.XUID)
 	}
+	out = append(out, eliminationsDeBots(in.Actions, &cov)...)
 	for _, frames := range medalsBy {
 		cov.PerfectOrphans += len(frames)
 	}
@@ -268,7 +393,8 @@ func buildEliminations(in eliminationInput) ([]Elimination, EliminationCoverage)
 	cov.HeadUnknown = cov.HeadNoCounter + cov.HeadAmbiguous + cov.HeadGuarded
 	cov.PerfectUnknown = cov.Eliminations - cov.PerfectYes
 	slices.SortStableFunc(out, func(a, b Elimination) int {
-		return cmp.Or(cmp.Compare(a.T, b.T), cmp.Compare(a.XUID, b.XUID), cmp.Compare(a.Victim, b.Victim))
+		return cmp.Or(cmp.Compare(a.T, b.T), cmp.Compare(a.XUID, b.XUID), cmp.Compare(placeOuMoinsUn(a.Place), placeOuMoinsUn(b.Place)),
+			cmp.Compare(a.Victim, b.Victim), cmp.Compare(placeOuMoinsUn(a.VictimPlace), placeOuMoinsUn(b.VictimPlace)))
 	})
 	return out, cov
 }

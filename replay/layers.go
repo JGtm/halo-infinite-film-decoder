@@ -115,6 +115,10 @@ import (
 // depuis les faits plutot qu a un decodage complet.
 var revisionDeLaPublication = "publication-" + strconv.Itoa(SchemaVersion)
 
+// etapeVehicles est la cle du calque des vehicules dans les deux tables ci-dessous ; l etape observee du meme nom s ecrit en toutes
+// lettres dans `observe` (le test des etapes lit le texte de ces appels).
+const etapeVehicles = "vehicles"
+
 // couchesDesCalques — LA TABLE. Une entree par champ racine CUIT ; la valeur est la revision de
 // la couche qui DECODE ce que le champ publie (cf. la regle d attribution en tete de fichier).
 //
@@ -149,6 +153,7 @@ var couchesDesCalques = map[string]string{
 	"grenades":            grammar.Rev, // build_pistes.go <- FilmInputs.Grenades
 	"inventory":           grammar.Rev, // build_inventaire.go <- FilmInputs.Inventory
 	"grenadeReads":        grammar.Rev, // build_inventaire.go <- FilmInputs.Inventory + InventoryDeltas
+	"ammoReads":           grammar.Rev, // build_inventaire.go `poserLesMunitions` <- FilmInputs.Inventory + InventoryDeltas (chargeur, reserve, jauge)
 	"abilities":           grammar.Rev, // build_inventaire.go <- FilmInputs.AbilityRanks + Inventory
 	"equipmentChanges":    grammar.Rev, // build_inventaire.go <- FilmInputs.EquipmentChanges
 	"translocations":      grammar.Rev, // build_inventaire.go <- FilmInputs.Translocations
@@ -170,12 +175,19 @@ var couchesDesCalques = map[string]string{
 	"damage":              grammar.Rev, // document_damage.go <- FilmInputs.Damages + DamagePoints + Fire
 	"weaponPads":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (ti=42 et ti=37)
 	"padPickups":          grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads
+	"padCandidates":       grammar.Rev, // build_ground_weapons.go <- FilmInputs.Pads (grappes a une seule apparition, ti=42 et ti=37)
+	"attachments":         grammar.Rev, // projectiles_colles_calque.go <- FilmInputs.ProjectileAttaches (collages de projectile sans vol publie)
 	"groundWeapons":       grammar.Rev, // build_calques.go `buildGroundWeaponItems` <- FilmInputs.Pads + WeaponChanges
 	"objectiveObjects":    grammar.Rev, // build_objective_objects.go <- FilmInputs.Pads.Weapons SEUL : son en-tete mesure « aucune lecture de film ajoutee », ni statborg ni morts
-	"vehicles":            grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles
+	etapeVehicles:         grammar.Rev, // build_vehicles.go <- FilmInputs.Vehicles
 	"vehicleCycles":       grammar.Rev, // vehicle_cycles.go <- `doc.Vehicles` SEUL : une couche d ANALYSE sur les vies deja publiees, donc la MEME revision que le calque dont elle derive
 	"stances":             grammar.Rev, // document_stances.go <- FilmInputs.MovementStates (i29/i62/i54, lot 5.3.6)
 	"reloads":             grammar.Rev, // document_reloads.go <- FilmInputs.Reloads (messages weapon_reload, genre 38 de la vue A)
+	"chatter":             grammar.Rev, // document_repliques.go <- FilmInputs.Repliques (messages AIDialog, genre 75 de la vue A)
+	"announcements":       grammar.Rev, // document_repliques_annonces.go <- FilmInputs.Repliques (messages Dialogue2D, genre 76 de la vue A)
+	"gestures":            grammar.Rev, // document_gestes.go <- FilmInputs.Gestures (messages biped_melee_initiate et biped_throw_initiate, genres 40 et 39 de la vue A)
+	"drawnWeapons":        grammar.Rev, // document_arme_tiree.go <- FilmInputs.DrawnWeapons (jeu d armes desire i42, trames delta)
+	"vitals":              grammar.Rev, // vitals_reads.go <- FilmInputs.Vitals + Damages (sante et bouclier par vie, changements)
 	"roundClock":          grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=0 i5)
 	"rules":               grammar.Rev, // document_regles.go <- Options.FilmIdentity.InfosDeMatch (la variante de partie de chunk_00)
 	"respawnCountdowns":   grammar.Rev, // document_horloges.go <- FilmInputs.Horloges (ti=5 i1, nommee par l etat de creation de l entite)
@@ -265,6 +277,7 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// reste absente plutot que de publier quatre zeros (inventory.go, `attachInventoryCoverage`).
 	// La tranche NULLE et la tranche VIDE ne disent pas la meme chose.
 	"inventory": func(_ *ReplayDocument, opt Options) bool { return opt.Inventory != nil },
+	"ammoReads": func(_ *ReplayDocument, opt Options) bool { return opt.Inventory != nil },
 	// Le film ne declare NI i57 NI i59 / NI i56 : le balayage n a jamais commence
 	// (build_inventaire.go, `poserImpulsionsEtCharges` — meme patron que l inventaire).
 	"abilityImpulses": func(_ *ReplayDocument, opt Options) bool { return opt.AbilityImpulseStats.Scanned },
@@ -294,13 +307,22 @@ var gardesDeProduction = map[string]func(doc *ReplayDocument, opt Options) bool{
 	// (document_horloges.go, `poserLesHorloges`).
 	"roundClock": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
 	// La marche des trames n a lu aucune trame : aucun rechargement ne se lit (document_reloads.go, `poserLesRechargements`).
-	"reloads":           func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
+	"reloads":      func(_ *ReplayDocument, opt Options) bool { return opt.ReloadStats.Frames > 0 },
+	"gestures":     func(_ *ReplayDocument, opt Options) bool { return opt.Gestures.Stats.Frames > 0 },
+	"drawnWeapons": func(_ *ReplayDocument, opt Options) bool { return opt.DrawnWeapons.Stats.Scanned },
+	"vitals":       func(_ *ReplayDocument, opt Options) bool { return opt.Vitals.Stats.Scanned },
+	"attachments": func(_ *ReplayDocument, opt Options) bool {
+		return opt.ProjectileAttaches.Stats.Scanned && !opt.ProjectileAttaches.Stats.Absent
+	},
+	// La marche des trames n a lu aucune trame : ni replique ni annonce ne se lit (document_repliques.go, `poserLesRepliques`).
+	"chatter":           func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
+	"announcements":     func(_ *ReplayDocument, opt Options) bool { return opt.Repliques.Stats.Trames > 0 },
 	"respawnCountdowns": func(_ *ReplayDocument, opt Options) bool { return opt.Horloges.Stats.Trames > 0 },
 	// Le film n a pas d identite, ou sa variante n a pas ete lue : aucune regle (document_regles.go).
 	"rules": func(_ *ReplayDocument, opt Options) bool { return !rulesOf(opt.FilmIdentity).vide() },
 	// Archetype ti=40 absent des images-cles, creations illisibles, ou assemblage sur positions
 	// figees sans film (vehicle_tracks.go, `buildVehicleTracks`).
-	"vehicles": func(_ *ReplayDocument, opt Options) bool { return opt.Vehicles.Scanned },
+	etapeVehicles: func(_ *ReplayDocument, opt Options) bool { return opt.Vehicles.Scanned },
 	// Morceau des temps forts illisible ou non designe : aucune medaille ne se lit, et le calque ne se
 	// produit pas plutot que d affirmer « aucune medaille » (document_medals.go, `poserLesMedailles`).
 	"medals": func(_ *ReplayDocument, opt Options) bool { return opt.Medals.Read },

@@ -4,7 +4,7 @@ package replay
 // « retours rejeu », 2026-09-23).
 //
 // Il vit hors de `film_scan.go` pour la raison de `film_scan_mouvement.go` : le fichier frôlait
-// le seuil de 500 lignes (règle 5 de CLAUDE.md). La méthode est appelée par `balayerPositions`,
+// le seuil de 500 lignes (règle 5 de CLAUDE.md). Les méthodes sont appelées par `balayerPositions`,
 // juste après les images-clés.
 
 import (
@@ -14,19 +14,26 @@ import (
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
-// balayerNaissances lit la DOTATION DE NAISSANCE de chaque corps : les emplacements d'arme de son
-// record NEW de création (cf. `grammar/birth_loadouts.go`).
+// lireNaissances lit la DOTATION DE NAISSANCE de chaque corps : les emplacements d'arme de son
+// record NEW de création (cf. `grammar/birth_loadouts.go`). `creations` sont les créations de bipède
+// publiées plus haut, qui l'ancrent. CE QU'ELLE TOUCHE DU CONTEXTE : le registre et les lectures bipèdes.
 //
 // ELLE VIENT APRÈS LES CRÉATIONS, QUI L'ANCRENT, ET AVANT LES PRISES D'ARME, dont elle qualifie la
 // première émission de chaque vie (`spawnSetFrom`). Une dotation dont le record ne se ferme pas
 // n'est PAS publiée — aucune lecture de repli — et le refus est compté par cause.
+func (s *filmScan) lireNaissances(creations []grammar.BipedCreation,
+) lectureStats[[]types.BirthLoadout, types.BirthLoadoutStats] {
+	return lireAvecStats(grammar.ScanBirthLoadouts(s.fc, creations))
+}
+
+// publierNaissances journalise la lecture des dotations, les pose et observe les etapes `birthLoadouts`.
 //
 // ABSENCE NON FATALE : le rejeu sort sans armes de naissance, jamais avec des armes devinées.
-func (s *filmScan) balayerNaissances() {
-	births, st, err := grammar.ScanBirthLoadouts(s.fc, s.in.BipedCreations)
-	if err != nil {
+func (s *filmScan) publierNaissances(lu lectureStats[[]types.BirthLoadout, types.BirthLoadoutStats]) {
+	births, st := lu.val, lu.st
+	if lu.err != nil {
 		slog.WarnContext(s.ctx, "dotations de naissance illisibles — rejeu sans armes de naissance",
-			"err", err, "match_id", s.matchID)
+			"err", lu.err, "match_id", s.matchID)
 		births, st = nil, types.BirthLoadoutStats{Creations: len(s.in.BipedCreations)}
 	} else {
 		slog.InfoContext(s.ctx, "naissance : dotations lues",

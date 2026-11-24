@@ -147,6 +147,8 @@ message, and were not re-read in the executable.
 **Player table.** The body ends with 32 player records, one per slot of the match (the writer's bound, `0x28A00 / 0x1450`),
 occupied or vacant:
 
+**Appearance block.** The personalisation block of each record (1852, 1492, 1312 or 2052 bytes by build) is all zeros in the chunk 0 table and filled in the type 8 roster packets (same record body; the block ends 352 bits before the end of the entry). Read in stream byte order: a 32-bit count n (22 on every measured build), a zero word, n pairs of two little-endian 32-bit words (key, value), then the rest. The keys are the same for every player of a build; the values are per player. They are opaque codes: they are not tag ids, not fields of the module entries, and not found in the tags of the `any/globals` modules; their meaning (names) is unknown to the decoder, and a table of names is outside it. The last non-zero block of a player is the one published; a zero block never replaces a read one, and a player whose blocks are all zero has no object. The document publishes `roster[].appearance` (`size` the block width, `pairs` the n pairs as `[key, value]`, `rest` the remaining bytes in base64 without their trailing zeros, found again by completing with zeros up to `size`; every byte is published once, and when the head does not read, with a count of 0 or above 256, a non-zero word or pairs outside the block, `pairs` is absent and `rest` carries the whole block) with `coverage.appearance`: `pairs`, `raw`, `unloaded` (players read in pairs, as a whole block, or never loaded), `changed` (players whose non-zero block differs between two packets), `unknownBuild` (a build outside the profile reads nothing, with no error), `packets`, `distinct`, `refused`, `noXUID` and `unmatched` (appearances read for a player with no roster entry). A bot has no appearance. The reference decoder read nothing of it; libfilmshell skips the block. *Sources: `internal/grammar/roster_apparences.go`, `replay/document_apparence.go`.*
+
 ```
  85 bits    header: 3 booleans (1/0/0 when occupied), u32, signed 2-bit value, 48-bit token
  64 bits    XUID (Xbox user id, 0x0009... to 0x000A..., read most-significant first)
@@ -276,7 +278,9 @@ A `%pe` (the enemy killed) or `%pa` (the player betrayed) in the response's labe
 `betrayalPersonalScore` the recipient is the betrayer and the first participant the betrayed player. The replay document publishes these as
 `scoreActions[]`, on the frame `(TS - origin) / step` of the positions, with `coverage.scoreActions` counting what was read, published and
 left out: messages that are not score (announcements, medals, kill-feed lines), score responses the game pays zero, ranks outside the tree,
-ranks the message does not confirm, and the actions not placed. `coverage.scoreActions.complete` says the reading is whole (no stopped
+ranks the message does not confirm, and the actions not placed. A bot has no identifier: an action whose recipient (or target) is a bot of the film is published with `place`
+(`targetPlace`), the player index of the film, the same index space as `reloads[].place` and `roster[].filmIndex` (not `roster[].seat`, the displayed
+sheet), and without `xuid`; `coverage.scoreActions.botRecipient` and `botTarget` count them. `coverage.scoreActions.complete` says the reading is whole (no stopped
 frame, a readable view A, a known script group, no unconfirmed rank, every action with points placed, no player whose scoreboard score is above the sum of their published positive points). It is necessary, not sufficient, for
 a player's sum of points to equal the personal score: the points come from the response table, which can differ from the game (vehicle
 actions on older builds) or know nothing of a mode written outside the tree. False, the consumer shows "insufficient data"; a consumer
@@ -284,7 +288,7 @@ that holds the official score compares the sum to it. A mode written without a p
 gives points: nothing is invented. `coverage.scoreActions.scoreboardCompared` counts the players compared with the scoreboard (one with a
 published action or a line in `scoreTimeline.players`); `scoreboardMissing` those whose last scoreboard `score` is above the sum of their
 published actions with POSITIVE points (the scoreboard shows points the layer does not publish), and `scoreboardBehind` those for whom it is
-below (the scoreboard lags the published points). The game does remove a penalty from the score, but the published scoreboard curve (the longest non-decreasing run of the readings) never goes down, so its readings stay within the sum of the positive points; a player
+below (the scoreboard lags the published points). The game removes a penalty from the score (a suicide or a betrayal, 100 points): the published scoreboard curve drops by it at the instant of the reading that carries it, when the matching counter (suicides, component 4 A; betrayals, 4 B) rises in the same reading and the drop is exactly its units times 100, so a total can be negative; any other drop (a row emptied when a player leaves, a change of occupant of a seat) is never published. Its readings stay within the sum of the positive points; a player
 with no total counts zero; the three are zero when the film publishes no scoreboard player, and nothing is compared. `complete` is false when
 `scoreboardMissing` is above zero; `scoreboardBehind` does not change it.
 
@@ -306,12 +310,34 @@ reading of their event list did: read to its terminator, or stopped at an unread
 a film with stopped frames the count is a floor), `read`, `copies`, `withoutPlayer` (no player index in the message), `beforeOrigin` and
 `afterEnd` (outside the frame axis), `published`; `read` = `copies` + `withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`. On
 builds whose view A stops early (the 1.4.1 and 1.8 builds and the film versions 31 and 33 of the 20-film set) no message is read and
-`reloads` is empty: the coverage says why.
+`reloads` is empty: the coverage says why. Each line also carries `ms` (the instant of the packet in milliseconds since frame 0) and `copies` (how many copies of the message the game
+wrote in the same frame and the decoder removed; absent when the message is written once). The decoder publishes the count, not what a copy
+means: the sum of `copies` over the film is `coverage.reloads.copies`, less the copies of the reloads the coverage drops (`withoutPlayer`,
+`beforeOrigin`, `afterEnd`).
+
+**Gestures.** Two messages of view A say that a player starts a gesture: `biped_melee_initiate` (genre 40: the melee strike leaves) and
+`biped_throw_initiate` (genre 39: the throw is started). Each ends with the author's player index, as the reload message does. The message
+gives the instant the gesture starts, never its result: a strike leaves whether it hits or not (the document says that a blow was given, not that it landed), and a started throw is not yet a grenade (the
+projectile is born later and stays in `grenades[]`; the started throw and the release are two facts). The replay document publishes
+`gestures[]` (`t` frame of the packet that writes the message, `ms` the instant in milliseconds since frame 0, `place` the author's player
+index as the message writes it, the same index space as `reloads[].place` and `roster[].filmIndex`, `kind` `melee` or `throwStart`), with
+`coverage.gestures`: `frames`, `closedFrames` and `stoppedFrames` (as for the reloads), `read`, `copies` (messages that copy a message of the
+same frame, same genre, author and references), `gated`, `withoutPlayer`, `beforeOrigin`, `afterEnd`, `published`; `read` = `copies` + `gated` +
+`withoutPlayer` + `beforeOrigin` + `afterEnd` + `published`. `gated` counts the gestures held back by the cadence gate (see *Held commands*): gestures are published
+only for films whose commands are recorded at full cadence, and `gestures[]` is empty (the coverage present) on the others. Measured on five
+recent films (about 15 to 81 strikes and 28 to 186 started throws each): the game wrote no copy of either message, and every view A was read to
+its terminator. Every one of the 508 started throws is followed by a grenade of the same player (median and
+90th percentile 0.30 s, extremes 0.07 and 0.45 s), and 3 of the 510 grenades have no started throw before them. A strike is followed by a
+melee damage message of the same player within 2 s for 60 to 78 % of the strikes (the others leave without touching, or touch something that is
+not a player).
+
+**Spartan chatter and announcements.** A genre-75 message (`AIDialog`) of view A is a line spoken by a unit: a 5-bit priority, a gated 32-bit sound id, a gated 12-bit line index, a gated 5-bit player index and 1 or 2 opaque tail bits; the speaker is reference 0 of the header. A genre-76 message (`Dialogue2D`) is an announcement: a gated 32-bit sound id, a gated opaque 32-bit value, a gated 5-bit player index and a 32-bit recipient mask. The film does not say which audio variant played, and the document does not either. The speaker of a line is the player whose track carries the unit of reference 0 at that frame (the same route as the wounded unit of a damage message): on the film measured, the unit resolves to a player for all 365 lines, over all eight players, and one sound only comes from the players of one voice group, whereas the player index of the payload (present on 199 lines, values 0 to 5) names the same player as the unit in 35 cases of 199, which is chance; it is not published. The document publishes `chatter[]` (`t` frame, `player` the speaker's xuid, absent when the unit has no human track at that frame, `sound` as eight hexadecimal digits, `priority`, `line`, `name`) with `coverage.chatter`: `frames`, `closedFrames` and `stoppedFrames` (as for reloads), `read`, `beforeOrigin` and `afterEnd` (outside the frame axis), `published`, `bySpeaker`, `withoutPlayer` (no reference, no track at that frame, or a bot's track), `bots`, `named` and `unnamed`; `read` = `beforeOrigin` + `afterEnd` + `published`, `published` = `bySpeaker` + `withoutPlayer` = `named` + `unnamed`. `name` is the line's short name (lowercase, no separator), read from the line index in the game's vocalization tables, which name each entry by a hash: it is published only for films of the builds HI_1_12_0 and HI_1_13_0, whose table layout is measured, and only for an entry whose name hashes to the recorded value (`chattername`); it is absent otherwise and the line is counted in `unnamed`. The game writes an announcement once per recipient in the same frame (one mask bit each, bits 24 to 31, bit 25 never set on the film measured); the document publishes `announcements[]` (`t`, `sound`, `mask`), one line per sound and frame whose mask is the union of the masks of the messages merged into it, with `coverage.announcements` (`merged` counts the messages folded into an earlier line; `read` = `beforeOrigin` + `afterEnd` + `merged` + `published`). No mask bit is tied to a player: the bit sets of team sounds fit both teams of the roster whichever way the bits are numbered.
 
 **Eliminations, headshots and perfect kills.** The scoreboard writes a player's elimination counter and headshot counter in the same entity
 record: on the 1,455 films of the corpus, 36,839 of the 36,847 rises of the headshot counter (99.98 %) fall on the same frame as exactly one
 step of the same player's elimination counter. The replay document publishes `eliminations[]`, one line per unit of each rise of
-`scoreTimeline.players[].kills.total` (frame `t`, killer `xuid`), so a step of n units gives n lines on one frame. Two marks, each with three
+`scoreTimeline.players[].kills.total` (frame `t`, killer `xuid`; a bot killer is published as `place`, a bot victim as `victimPlace`, without `xuid`, counted by
+`coverage.eliminations.botEliminations` and `victimPlaces`), so a step of n units gives n lines on one frame. Two marks, each with three
 states (true, false, absent for unknown), come from the game's own counters, never from an estimate:
 `headshot` is true when the same player's `stats.headshots` rises on that frame by as many units as the step, false when the player has a
 published headshot counter that does not rise there, and unknown otherwise: no headshot counter for the player (an absent series is not a
@@ -348,8 +374,13 @@ against the API's `shots_hit`, the hits of those players are within 10 % for abo
 four in five (chronicle v125). When they are not sufficient the consumer shows "insufficient data", never a count. A film whose messages the view
 A cannot read to the end has no hit: all its players are insufficient.
 
-**Damage in points.** Each damage message that removes points from a unit with a track becomes a `damage[]` row (frame, attacker, victim, effect,
-weapon, points taken from the shield and from the body, tenths of a point). The points come from the amounts table of libfilmshell
+**Damage in points.** Each damage message that lands on a unit with a track becomes a `damage[]` row (frame, attacker, victim, effect,
+weapon, points taken from the shield and from the body, tenths of a point, and `slot` / `by`, the track slots of the victim and of the responsible unit).
+A message that removes no points is a row whose `shield` and `body` are zero: the film writes them for damage a unit does to itself, for a duplicate
+of a message with points in the same frame, for a victim already dead. They are neither damage nor hits: no total of `shotStats[]` and no
+`coverage.hits` damage count sees them (they have their own counters `damagesZero`, `damagesZeroOffUnit`, `damagesZeroOutOfAxis`), and a
+reader that counts damage from `damage[]` skips the rows whose two values are zero. `slot` is the slot of the victim's track (a bot has no
+`victim` xuid but has a `slot`); `by` is the slot of the responsible unit's track when the message names a unit with a track at that frame. The points come from the amounts table of libfilmshell
 (`damageeffects`, MIT, credited in `NOTICE.md`) applied to the unit's real life, which the film writes in the biped's two vitality components
 (`object-body-vitality`, health from -1 to 1; `object-shield-vitality`, shield from 0 to 4, 1 being full): the messages of one unit at one instant are
 computed together from the life read just before that instant; a direct hit of a fixed-amount effect at full scale (15) removes its amount from the
@@ -357,8 +388,88 @@ shield, then the body (multipliers and flags of the table); a known effect that 
 unknown effect) is *measured* from what the life loses, shared between the measured hits and never beyond what remains. A shield rises only when
 the film writes it, never by an assumed delay. A Spartan has 90 body points and 140 shield points. `shotStats[]` adds `damageDealt` and `damageTaken`
 (a player's damage to himself is not counted as dealt; taken counts players only), under the same `sufficient` verdict as the hits. A message whose
-unit has no track (a vehicle, an object) is neither published nor counted. Estimates: against the API's `damage_dealt` and `damage_taken`, for the `sufficient` players the median
+unit has no track (a vehicle, an object) is neither published nor counted (a zero-point message on such a unit is counted in `damagesZeroOffUnit`). Estimates: against the API's `damage_dealt` and `damage_taken`, for the `sufficient` players the median
 ratio is 1.01 and 1.02 and about three players in four are within 10 % (chronicle v125).
+
+**Shot offset.** `shots[].o` is the offset of the shot inside its frame, in whole milliseconds (the remainder of the shot's time, counted from the axis
+origin, by the grid step); absent at zero, and absent when the shot's frame is clamped to the last of the axis. `t` and `o` together date a shot to the
+millisecond. It is a pure reading of the film's timestamp: the order of `shots[]` does not change. 97 to 98 % of the shots of three recent films carry an `o`.
+
+**Drawn weapon.** `drawnWeapons[]` is the weapon slot the player holds, at each change. `d` is the weapon slot desired in the main hand (0 and 1 carry a
+weapon, 2 is bare hands or an objective item), `d2` the one of the second hand (absent outside dual wielding). The film writes it in component `i42` of the
+biped's delta frames; it is the same quantity as `inventory[].d`, which is only read at keyframes. `d` precedes the weapon actually in hand. A client takes,
+for a slot, the last row whose `t` is at most the frame, and falls back on `inventory[].d` before the first. To name the weapon: `loadouts[].k` and
+`weaponChanges[].k` give the weapon of each slot. `coverage.drawnWeapons`: `read` = `noTrack` + `beforeOrigin` + `afterEnd` + `published` (`componentAbsent`,
+`slotUnbound` and `duplicates` say what the reading dropped).
+
+**Ammunition carried.** `ammoReads[]` are the ammunition values the film writes, at keyframes (about every 20 s) and in delta frames (at each change): `w`
+is the slot rank (0 or 1, as `inventory[].am[]`), not a weapon family; `mag` and `res` the magazine and the reserve; `gauge` the fraction CONSUMED (from 0 to 1,
+the quantum over 4095: the complement of a remaining charge); `src` is `kf` or `delta`. A row carries only the fields the film writes: an absent field is "not
+transmitted", never zero. A client takes, for a life and a slot, the last value of each field up to the frame; the two channels can differ, the most recent
+reading is the one to trust. `coverage.ammoReads`: `read` = `beforeOrigin` + `afterEnd` + `noTrack` + `unchanged` + `fromKeyframe` + `fromDelta`; `empty` counts the keyframe slots that carry no value at all (a charge weapon at full writes none); it is outside the identity, as is `deltaRefused`: a film whose
+scanner refuses the ammunition channel publishes no delta reading and reads none in `read`.
+
+**Pad candidates and equipment pads.** A ground-weapon pad is a recurrence: a spawn point that the film shows more than once at rest. `padCandidates[]` publishes the
+clusters seen a single time at rest, which that rule keeps out of `weaponPads[]` (weapons first, then equipment): the same shape as a pad (one line in `spawns` and
+in `presence`), never a `cycle`, and not a pad; absent when there are none, counted by `coverage.groundWeapons.candidates` and `powerupCandidates`. The `ti=37` way of the pads keeps
+every equipment family of the manifest except `grenade_*` and the deployed forms the host names (`LabelCatalog.DeployedEquipment`): `weaponPads[]`, and through it `padPickups[]` and the
+shared counters, include equipment pads. The translocator beacon is not left out: the film shows that these are real pad objects. The equipment pads come after the weapon pads, in the order of the manifest's chain: on a film that already published power-up pads, their rank in `weaponPads[]` (and so `padPickups[].pad`) moved by the number of equipment pads that precede them, while the ranks of the weapon pads did not; a client must not keep the rank of a power-up pad from an older artifact (the stable key is `weapon` plus the position).
+
+**Detonation of a throw.** `grenades[].deto` (`t`, `x`, `y`, `z`) is the explosion (the genre-5 message `projectile_detonate`) of the projectile of a throw that has no `proj`, tied by
+the projectile handle (the message's reference + 0x400, same generation) within 8 s after the throw (the window is validated on the film). The record that creates the throw writes the
+handle at its header (`GrenadeThrow.HasLife`, `Life`), and the facts file keeps it. Absent when the throw has a `proj`.
+
+**Full rate.** `tracks[].fullRate` keeps every position and aim record that the film replicates for the life, each at its own instant. `points[]` keeps one sample per frame
+of the grid (the first of the frame); `fullRate` keeps everything, with no resampling (60 or 30 per second, depending on the film). The columns are integer differences:
+the first value is absolute, each following one is the step from the previous; the client rebuilds by cumulative sum, without loss. `t` is milliseconds from the grid origin
+(truncated), so `floor(t * 1000 / (frameIntervalMs * 1000))` is the frame index of the matching point. `x`, `y`, `z` are hundredths of a world unit. `gaps` are the indices
+(in `t`, `x`, `y`, `z`) of the samples that a gap precedes; the client holds the position until them. `aimT`, `h`, `p` are the aim, at its own instant (the aim is not replicated
+with each position record): `h` is the 12-bit heading quantum (degrees = (h + 0.5) * 360 / 4096) and `p` the 11-bit elevation quantum (degrees = (p + 0.5) * 360 / 2048 - 180);
+the heading is not wrapped to the turn (a pass from 4095 to 0 is written -4095). Each point of `points[]` is the first sample of its frame: same position to the hundredth, same
+instant to the millisecond, and `points[].h` / `points[].p` are the degrees of its quanta rounded to the tenth. Two records can carry the same millisecond: the aim then attaches to
+its position by order only. On old builds the film already replicates at the grid's cadence: `fullRate` has as many samples as `points`. The aim the film replicates in records WITHOUT a position (component `i21` of the biped travels alone) is in it too: each such aim is placed on the life of its slot whose bounds cover its instant, the two series are merged in time order (the aim of the position record first at the same millisecond), and an aim that no published life covers is dropped and counted. `coverage.tracks`: `fullRateSamples`, `fullRateAimSamples` (of which `fullRateAimOnlySamples` are the aims without a position), `aimOnlyBeforeOrigin` (dropped: instant before the grid origin), `aimOnlyNoLife` (dropped: no published life of the slot covers the instant) and `noWorld` (positions with no map bounds, which no representation publishes), always present. For a projectile,
+`z` is the height of each point of `p`, at the same index; `fullRate` is the flight at the film's rate, `t`, `x`, `y`, `z` as for a track, up to the same first impossible step as `p`
+(`p` and `z` stay the grid's view); `coverage.projectiles.fullRateSamples` is present with the block. The compressed weight of every replay grows by 24 to 39 % on the five films measured. The
+sync's internal document (the one that only feeds the carrier layers, never published) does not compute the full rate.
+
+**Stuck projectiles.** A projectile that stuck to another entity is published once, in one of two places. `projectiles[].attach` ends a PUBLISHED flight: `fromFrame` (same axis as `points[].t`),
+`parentSlot`, `node` and `pose`. `attachments[]` holds every other stuck projectile (born stuck, or whose flight is too short to be published): `t`, `parentSlot`, `node`, `pose`, plus `target`
+(`player` or `vehicle`, when a published track or vehicle holds `parentSlot` at `t`; absent otherwise), `victim` (the target player's xuid, absent for a bot), `tag`, `by` and `attacker`, `born`.
+`parentSlot` is the slot of the object it stuck to (a player's `tracks[].slot`, a `vehicles[].slot`, a weapon, an object). `node` is an index of the parent's render model, raw. `pose` is THREE RAW
+16-BIT INTEGERS, in the film's order: the film gives neither their range nor their unit (they cover 0 to 65,535 and do not form a unit vector), so none is published. `tag` is the projectile's
+type: the 32-bit word of its creation (the `proj` tag id, eight hexadecimal digits; the host names it). `by` and `attacker` are the creator of the projectile (the track slot and the xuid of the unit
+its creation state names, resolved as the author of a damage line); absent when the creation names none or its unit holds no track at `t`. No shot and no weapon is published for a stuck projectile.
+Published once means: the first « attach » record of the projectile's life. A life ends when its slot is deleted or another entity is created under it; later « attach » records of the same life are counted in `coverage.projectiles.attach.repeats` and not published (measured: none repeats the first one exactly, 42 % name another parent). A stuck projectile whose creation was not read is published without `tag`, `by` and `attacker`. With no projectile track read, every stuck projectile is listed in `attachments[]` and counted in `coverage.projectiles.attach.noTracks`.
+`coverage.projectiles.attach` counts what the channel read and where it went. `records`: projectile records whose parent state was read to the end (stuck or not); `read`: those that open the « attach » door, which are the readings (a projectile read twice counts twice, once published, the repeats counted apart); `created`: among the readings, those of a projectile born stuck; `wideLocations`: record lists the walk had not located and that the channel recovered at a free width. Where the readings went: `outOfMatch` (before the axis origin or after its last frame), `onFlight` (put on a published flight), `listed` (published in `attachments[]`); `outOfMatch + onFlight + listed = read`. The targets: `player`, `vehicle`, `unresolved` (`player + vehicle + unresolved = onFlight + listed`). For `listed`, the types and creators read: `tagged`, `authored`, `authorNoTrack`, `authorNone`. What the channel discarded: `desynced` (records whose parent state was read before a desynchronisation) and `unreadFrames` (frames whose record list is announced and stays unreadable); `repeats` (later « attach » records of a life already read stuck) and `noTracks` (stuck projectiles published in `attachments[]` because no projectile track was read).
+
+**VIP counters.** On a VIP match (the host passes the family, `Options.Vip.Scanned`) the score table publishes three more per-player counters under `scoreTimeline.players[].stats`: `timeAsVip` (component 23 B, cumulative, in tenths of a second),
+`longestTimeAsVip` (23 A) and `maxSpreeAsVip` (22 B), maxima: per-round curves only, no total (the spree is bounded by the eliminations of the round). Their meaning depends on the mode, which is why they are read only on the host's word.
+Against the API on the three VIP films of the corpus (24 players): time as VIP 24 of 24 exact, best spree 24 of 24, longest time 22 of 24 exact and the two others within 0.1 s. The compressed weight of these replays grows by 3.1 to 4.1 %.
+
+**Ambiguous victim.** A `killPersonalScore` action is given to an elimination only if no other frame claims it and the candidate actions of the window (the same frame, then the neighbouring one) do not exceed the rows of the frame, unless they all name the same victim;
+otherwise the elimination has no `victim` and `coverage.eliminations.victimAmbiguous` counts the row (the victim is never matched to the nearest one); the candidates are set aside so that no other elimination receives them silently. On 27 films the ambiguity is zero.
+
+**Health and shield.** `vitals[]` publishes the health and the shield of each life at every change, one row per (instant, slot): `t` the frame, `ms` the instant in milliseconds
+from frame 0, `slot` the track slot, `sh` the shield as a fraction of a full shield (1 is full, up to 4; to the thousandth), `hp` the health as a fraction (0 to 1; to the thousandth) and
+`dead` on the first row of a life whose health is zero, written after the end of the track. They are the same fractions as `tracks[].points[].sh` and `.hp`, but `sh` is not capped at 1
+(an overshield reads); in points, `sh` times 140 and `hp` times 90 (the full shield and body of a Spartan). A life is born full, so no row is written at its birth. The film writes the recharge
+at every frame, one notch (1/64) at a time: a *ramp* row, whose shield rises, health being equal, between two rows whose right-hand one recovers it to
+one notch, is dropped, except at the instant of a hit, just before it, at the death and as the last row of the life. `coverage.vitals`: `read` (health or shield readings of the channel), `unchanged` (readings equal to the state the life already had), `beforeOrigin` and `afterEnd` (readings outside the frame axis), `noTrack` (slot without a published track), `afterDeath` (readings of a life later than the row of its death), `ramp` (changes dropped because a recharge ramp carries them), `published` (rows), and `read = unchanged + beforeOrigin + afterEnd + noTrack + afterDeath + ramp + published`; outside that identity, `births` (life births read; a birth is not a value reading) and `deaths` (among the published rows, the `dead` ones). A client takes, for a life, the last row up to the frame.
+
+**Aim without a position.** The film also replicates the aim (`i21`) of a biped in records that carry no position (a vehicle occupant, or a biped on foot whose position stays silent). It is read on every film, vehicles or not;
+it serves the direction of the shots (`shots[].h` and `p` take the last aim of the shooter, including one from a record without a position) and the aim columns of the full rate. `fullRateAimOnlySamples` + `aimOnlyBeforeOrigin` + `aimOnlyNoLife` =
+`coverage.vehicles.aimReads`, which is now filled on every film; `coverage.shots.aim.sansPosition` counts, among the shots whose direction comes from a held aim, those whose aim comes from a record without a position.
+
+**Shooter by control place.** A shot record writes a control place (an index the game reassigns when a player leaves and another arrives, not the roster index) and the unit that fires. When that unit is a biped whose occupant the registry knows,
+the record binds the place to that player at that frame. The place a player holds runs between two consecutive bindings of that player, extended to his presence when he read a single place; a frame where two players share a place belongs to
+nobody. The player a shot, a burst, a hit or a shot tally is given to is the one the place read designates, not the occupant of the roster seat; the seat stays the fallback, named `repli_tireur_par_le_siege_de_la_place` and counted, and the
+place itself the last resort. `coverage.controlPlaces`: `read` (the reading took place: the shooter index is the place on this film, otherwise nothing is read, `repli_index_de_tireur_hors_place`), `bindings` (distinct bindings of a place to a player, one per (place, frame, player): two shots of the same player at the same place in the same frame make ONE binding, so this is not a shot count; the contested ones are apart),
+`players` and `multiPlace` (players bound, players read at several places), `handovers` and `returns` (hand-overs read on a place, and hand-overs where a player takes back a place another held meanwhile), `contested` (bindings dropped because two
+players share a place at the same frame), `unitContradicted` (shot records whose unit is not the body the registry reads on that slot at that instant, a later generation of a reused slot: they bind nothing and are counted), `shotsByPlace` and `burstsByPlace` (shooter is the one the place read designates), `shotsBySeat` and `burstsBySeat` (the reading holds the place for nobody and the roster seat gives the shooter: the named
+fallback), `shotsUnheld` and `burstsUnheld` (neither the reading nor the seat holds it: the record's index stays); the three shot counts and the three burst counts partition the shots and bursts whose shooter was decided. Measured on 28 films
+(90,160 shots): 99.94 % of the shots are given by the place read, 53 by the seat, 3 to nobody. `shotStats[].shots` estimates a player's shots from the game's per-player numbering (modulo 256): a number the SAME unit already wrote, behind the head by less
+than half a turn, that the time since the head does not allow as a full turn at the titles's maximum fire rate (`256 - lag` rounds at the fastest weapon's cadence, 60 rounds per second), is a re-read of an event already written; it adds nothing and
+does not move the head. The film republishes its last events in the following packets, with the same place, unit, weapon and number.
 The totals of `shotStats[]` cover the whole film, while `damage[]` holds only the messages whose instant falls inside the frame axis (before frame 0
 or after the last frame a message counts in the totals and has no row). A weapon hit on the shooter himself (an area weapon) is neither a hit nor
 damage dealt: it is counted apart (`coverage.hits.selfHits`, `selfDamages`). The biped's vitality records are re-read on the lists the walk does not
@@ -382,19 +493,28 @@ kinds 1 and 2: a body that depends on run-time state        kind 3: no handler, 
 copies the entry into the player's case: a state persists until the player's next entry read, as for a trigger. The decoder folds the
 movement command like a continuous-fire burst: held from the first entry read with a scalar off zero to the first entry read with both at
 zero (an entry without the block says nothing), a packet whose view C is not read being a hole that is carried, never filled; a command
-held before and after a hole carries the hole, and one released after it ends at the hole's start. The replay document publishes the
-held command as `stances[]` of kind `moveCommand` (never the series of values), cut at the limits of each published life of the player
-who holds the seat at that frame and silent over the frames a hole covers entirely; `coverage.stances.control` counts `holds` read
-(`withHole`, `innerHoles`), the `entries` read, those `published` (`intervals` published), and those that no published life covers
-(`noTrack`) or that no life of the seat's occupant covers (`noPlayer`); `holds` = `published` + `noTrack` + `noPlayer`.
-The 5-bit field is not published. Its bit of value 4 looks like the jump button (libfilmshell calls the field `stance` and names its bit
-`0x10` the jump button; the bit that agrees here is the one of value 4): on the 20 films of the equivalence set, the rising edge of that bit
-falls within 100 ms of 87.6 to 97.2 % of the derived jumps (`jumpDerived`) on 12 films (builds 1.8, 1.12 and 1.13, and one film of 1.10), of
-50 to 61 % on 4 films (builds 1.9 to 1.11), and of none on the 3 films where view C is almost never read (film versions 31 and 33, build
-1.4.1). The pooled agreement is 63 % (the same edges shifted by 5 s: 5 %), under the 90 % the publication requires; the reverse, a rising
-edge within 100 ms of a derived jump, is 57 %.
+held before and after a hole carries the hole, and one released after it ends at the hole's start. The replay document publishes three held commands as `stances[]` (never the series of values), each cut at the limits of each published life of the player
+who holds the seat at that frame and silent over the frames a hole covers entirely: `moveCommand` (the movement command), `crouchCommand` (the crouch button) and
+`jumpCommand` (the jump button). The 5-bit field is the `+0x14` flags: the bit of value 1 is the crouch button (the game has one button for crouching and sliding,
+so the interval covers both; the slide is not published, the film holds no fact that tells it from a crouch), the bit of value 4 the jump button (libfilmshell
+calls the field `stance` and names its bit `0x10` the jump button; the bit that agrees here is the one of value 4). A field absent from the stream holds no button.
+The jump button is a button pressed, not a jump performed: the derived jump (`jumpDerived`, the integral of the vertical speed) is another fact and both are published.
+`crouchCommand` and `jumpCommand` carry `ms0` and `ms1`, the interval to the millisecond from frame 0, within the interval read and the frames `t0` to `t1`; the instant of a jump is `ms0`.
 
-Not published: the jump button (the agreement above is under the bar). The crouch (`i29`) and slide (`i62`) states are published only where the film announces them: films of version 37 and later do not announce those two components in the biped's deltas, so `stances[]` carries no `crouch` or `slide` interval for them, and zero published does not say that nobody crouched or slid.
+*Cadence gate.* A film records the control entries at every 60 Hz tick or at every other one; neither the build nor the film version tells which (two films of the same build and format
+have both). The decoder measures the step of the entries: the most frequent gap between two entries read of the same seat, with no unread packet between them. `coverage.stances.control.stepUs`
+is that step (16,640 to 16,679 us at 60 Hz, 33,364 to 33,380 us at 30 Hz on the 22 films of the reference corpus) and `fullCadence` says it is measurable (at least 1,000 gaps carry it) and
+no larger than 25,000 us. `crouchCommand` and `jumpCommand` are published only on a film with `fullCadence`: a press of one tick is seen once in two at 30 Hz. On the 15 films at 60 Hz,
+the ground departures (vertical speed from at most 0.6 to 2.5 to 3.5, with a continuous run of entries over 100 ms) are found within 100 ms of a published `jumpCommand` in 97.8 % of cases
+(5,302 of 5,422; the raw bit: 98.0 %), against 53.6 % at 30 Hz; the crouch bit is set at a speed that fits a crouch or a slide in 95.3 % of the stable instants and clear at a normal standing speed in 99.8 %
+(the reference is the physics read in the film, not a state the game writes). The gestures below (`gestures[]`) pass through the same gate; the reloads do not.
+
+Beyond the gate, a command is not published during a vehicle ride of the occupant (`inVehicle`), and a jump whose start follows a hole is not published (`afterHole`: its start is unknown).
+`coverage.stances.control` counts the movement command with `holds` read (`withHole`, `innerHoles`), the `entries` read, those `published` (`intervals` published), and those that no published life covers
+(`noTrack`) or that no life of the seat's occupant covers (`noPlayer`); `holds` = `published` + `noTrack` + `noPlayer`. `crouchCommand` and `jumpCommand` count each kind
+the same way, with `inVehicle`, `afterHole` and `gated` (film under the cadence); `holds` = `published` + `noTrack` + `noPlayer` + `inVehicle` + `afterHole` + `gated`.
+
+The crouch (`i29`) and slide (`i62`) states are published only where the film announces them: films of version 37 and later do not announce those two components in the biped's deltas, so `stances[]` carries no `crouch` or `slide` interval for them, and zero published does not say that nobody crouched or slid; `crouchCommand` says what the player asked, on the films at full cadence.
 
 **Closure.** View C is the last rank, so a correct reading ends on its terminator with 0 to 7 zero bits left. A packet is *closed*
 when it ends so and no rule of the game's writer is contradicted; a reading that reaches a terminator without closing the packet
@@ -554,7 +674,7 @@ round is played. The reader keeps the mask of rounds that ever show a non-zero o
 A round is played when its number is at most the last decided round plus one (the round in progress). Records of a round beyond that
 are anchored noise (a single component, value 32, carrying a valid round designator) and do not make a scoreboard round; the rounds
 dropped are listed in `coverage.score.roundsUnplayed`. The round clock cannot tell them apart: 18 of 51 films of several rounds have
-a silent clock. A row that is cleared when its player leaves does not retract the player's last value: a zero after a positive value of
+a silent clock. The rounds kept by one criterion alone are counted: `coverage.score.roundsAdmittedByShare` lists those that only the matter criterion admits (floor of records and share of the fullest round), `coverage.score.roundsAdmittedByReset` those that only the simultaneous reset of the scores admits (a one-second window, two players at least, half of the slots), with no coherent run of the mode score; the published value of a round does not change. Both are absent when empty. A row that is cleared when its player leaves does not retract the player's last value: a zero after a positive value of
 a base counter (kills, deaths, assists, personal score) is dropped.
 
 **Entity table and guard.** The reader keeps a table slot -> (full id, archetype, provenance of the binding). The game's guard on an
@@ -609,6 +729,8 @@ property too: on 1,039 dropped flags of 30 films, the walk alone lacks the serie
 at 0.95 or more) and has 35 that the pass lacks, so the publication takes, for each dropped interval, the walk's series when it has
 one and the pass's otherwise. The values of a zone's state (owner, capture gauge) are read by the pass and not by the walk: on 9
 Strongholds films the pass finds all of the 335 captures that the statborg names, within three frames, the walk 333.
+
+The gauge is one per TEAM, not one per flag: the property carries no flag identifier nor position. A slot is matched to a team by the share of its samples that fall in a drop of ANY flag of that team (0.80 minimum, 8 samples minimum), then each sample is placed on the flag of the team that is on the ground at its instant; when two flags of the team are on the ground at once the sample belongs to neither and is counted (`gaugeReadsAmbiguous`). Every series read and not published is counted under its reason, over the two readings (the pass and the walk, each matched on its own): `gaugeSlotsFewReads` (slot under the sample floor), `gaugeSlotsOffDrops` (no team holds the share), `gaugeSlotsTeamTaken` (holds the share for a team whose slot is another one, or for another team), with their samples in `gaugeReadsUnpublished`; `gaugeReadsOffDrops` counts the samples of a matched slot that fall outside every drop of its team. `gaugePaired` counts the flags whose team has a matched slot. For each reading, the samples of its slots are exactly those unpublished, off drops, ambiguous, and those placed on a flag (of which the published points are a thinned subset).
 
 **Status.** Read: record type, id, mask, and the components with a ported reader, in NEW and DELTA records. Recovered: the
 archetype of a slot with no NEW in view, from the bindings above; records anchored by header patterns where a body cannot be
@@ -773,7 +895,7 @@ map in the catalogue:
 Closure says whether packet widths are right, not whether every field is decoded to a fact: a closed packet may hold components
 skipped by width. The profile holds values read from the executable only for `HI_1_12_0` and `HI_1_13_0`; for the other builds
 they are measured on witness films. Fallbacks and recoveries still fire on films of every build. The fallback registry
-(`internal/facts/fallback/`) holds about 130 entries across all layers (127 declarations at the time of writing); each fallback
+(`internal/facts/fallback/`) holds about 130 entries across all layers (128 declarations at the time of writing); each fallback
 that fired is counted in the replay document.
 
 **Open questions**, as the code leaves them:

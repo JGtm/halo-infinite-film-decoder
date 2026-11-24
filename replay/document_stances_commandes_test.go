@@ -16,14 +16,13 @@ func entreeDesCommandes(holds ...types.ControlHold) controlStanceInputs {
 			{Slot: 514, StartFrame: 12, EndFrame: 30},
 			{Slot: 520, StartFrame: 0, EndFrame: 30},
 		},
-		occ:    occupantsPlats(map[uint32]int{513: 3, 514: 3, 520: 7}),
-		places: tireursParPlace{},
-		clock:  replayClock{origin: 0, step: 1000, frames: 100},
+		pont: pontDesPlaces{occ: occupantsPlats(map[uint32]int{513: 3, 514: 3, 520: 7}), places: tireursParPlace{},
+			clock: replayClock{origin: 0, step: 1000, frames: 100}},
 	}
 }
 
 func holdDeTest(place int, debut, fin uint64, trous ...types.ContinuousFireHole) types.ControlHold {
-	return types.ControlHold{FilmIndex: place, StartUS: debut, EndUS: fin, Holes: trous}
+	return types.ControlHold{Kind: types.MovementMoveCommand, FilmIndex: place, StartUS: debut, EndUS: fin, Holes: trous}
 }
 
 // TestUneCommandeSeCoupeAuxViesDeLOccupant : un intervalle qui traverse deux vies du joueur donne un intervalle
@@ -48,7 +47,7 @@ func TestUneCommandeSansVieDeSonOccupantSeCompte(t *testing.T) {
 		holdDeTest(3, 40_000, 50_000), // aucune vie apres la frame 30
 		holdDeTest(9, 1_000, 5_000),   // la place 9 n a aucun occupant lu
 	)
-	in.stats = types.ControlHoldStats{Holds: 2}
+	in.stats = types.ControlHoldStats{Move: types.ControlHoldCount{Holds: 2}}
 	got, cov := buildControlStances(in)
 	if len(got) != 0 || cov.NoTrack != 1 || cov.NoPlayer != 1 || cov.Published != 0 ||
 		cov.Holds != cov.Published+cov.NoTrack+cov.NoPlayer {
@@ -62,7 +61,7 @@ func TestUneCommandeSansVieDeSonOccupantSeCompte(t *testing.T) {
 func TestLesTrousDeLaLectureSeTaisentSurLesFramesQuIlsCouvrentEntieres(t *testing.T) {
 	long := types.ContinuousFireHole{StartUS: 14_000, EndUS: 17_000} // frames 14, 15 et 16 muettes
 	court := types.ContinuousFireHole{StartUS: 20_100, EndUS: 20_300}
-	in := entreeDesCommandes(types.ControlHold{FilmIndex: 7, StartUS: 12_000, EndUS: 25_000,
+	in := entreeDesCommandes(types.ControlHold{Kind: types.MovementMoveCommand, FilmIndex: 7, StartUS: 12_000, EndUS: 25_000,
 		Holes: []types.ContinuousFireHole{long, court}})
 	got, _ := buildControlStances(in)
 	want := []Stance{{Slot: 520, Kind: "moveCommand", T0: 12, T1: 13}, {Slot: 520, Kind: "moveCommand", T0: 17, T1: 25}}
@@ -80,10 +79,13 @@ func TestLesCommandesFontLAllerRetourDesFaits(t *testing.T) {
 	}{
 		{nil, types.ControlHoldStats{}},
 		{[]types.ControlHold{
-			{FilmIndex: 3, StartUS: 4_500_000, EndUS: 4_900_000, StartBound: "pressed",
+			{Kind: types.MovementMoveCommand, FilmIndex: 3, StartUS: 4_500_000, EndUS: 4_900_000, StartBound: "pressed",
 				EndBound: "hole", Entries: 4, Holes: []types.ContinuousFireHole{{StartUS: 4_600_000, EndUS: 4_700_000}}},
-			{FilmIndex: 31, StartUS: 4_500_000, EndUS: 4_500_000, StartBound: "hole", EndBound: "filmEnd", Entries: 1},
-		}, types.ControlHoldStats{Holds: 2, WithHole: 2, InnerHoles: 1, Entries: 9}},
+			{Kind: types.MovementJumpCommand, FilmIndex: 31, StartUS: 4_500_000, EndUS: 4_500_000, StartBound: "hole",
+				EndBound: "filmEnd", Entries: 1},
+		}, types.ControlHoldStats{Holds: 2, WithHole: 2, InnerHoles: 1, Move: types.ControlHoldCount{Holds: 2, WithHole: 2, InnerHoles: 1},
+			Crouch: types.ControlHoldCount{Holds: 3, WithHole: 1}, Jump: types.ControlHoldCount{Holds: 5, InnerHoles: 2},
+			Entries: 9}},
 	}
 	for _, c := range cas {
 		w := &gwriter{}

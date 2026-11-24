@@ -34,20 +34,20 @@ func TestTirsEtLancers_AttribuesALaVieALInstant(t *testing.T) {
 
 	tirB := fireAt(t16, 1, 90)
 	tirB.HasShooter = true
-	shots, _, _ := buildShots(in.Positions, []grammar.FireEvent{tirB}, replayClock{origin: origin, step: step}, occ, nouveauViseur(in.Positions, nil, nil))
+	shots, _, _ := buildShots(indexBySlot(in.Positions), []grammar.FireEvent{tirB}, replayClock{origin: origin, step: step}, occ, nouveauViseur(in.Positions, nil, nil))
 	if len(shots) != 1 || shots[0].Slot != 100 {
 		t.Fatalf("tir de B a 16 s : %+v, attendu pose sur le slot 100 (son corps a l'instant)", shots)
 	}
 	tirA := fireAt(t16, 0, 90)
 	tirA.HasShooter = true
-	shots, _, cov := buildShots(in.Positions, []grammar.FireEvent{tirA}, replayClock{origin: origin, step: step}, occ, nouveauViseur(in.Positions, nil, nil))
+	shots, _, cov := buildShots(indexBySlot(in.Positions), []grammar.FireEvent{tirA}, replayClock{origin: origin, step: step}, occ, nouveauViseur(in.Positions, nil, nil))
 	if len(shots) != 0 || cov.NoSlot != 1 {
 		t.Fatalf("tir de A a 16 s : %+v (couverture %+v), attendu SANS slot — le slot 100 est le "+
 			"corps de B a cet instant", shots, cov)
 	}
 
 	lancer := grammar.GrenadeThrow{TimestampUS: t16, FilmIndex: 1, TypeID: grammar.GrenadeFragmentation}
-	gren, _ := buildGrenades(in.Positions, []grammar.GrenadeThrow{lancer}, origin, step, occ, nil, nil)
+	gren, _ := buildGrenades(indexBySlot(in.Positions), []grammar.GrenadeThrow{lancer}, origin, step, occ, volsDeGrenades{})
 	if len(gren) != 1 || gren[0].Slot != 100 || gren[0].Src != GrenadeSrcBiped {
 		t.Fatalf("lancer de B a 16 s : %+v, attendu pose sur le corps de B (slot 100, src biped)", gren)
 	}

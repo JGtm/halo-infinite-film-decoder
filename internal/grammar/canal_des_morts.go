@@ -153,20 +153,52 @@ func debutRecupere(pay []byte, w *World, cfg FrameConfig) (int, bool) {
 	return LocaliserBoucleDeRecords(pay, w, cfg, SignaturePuisLargeurLibre)
 }
 
-// recupererLaListe lit la vue B de la trame en cours, dont la marche n a pas localise la liste
-// d evenements, depuis [debutRecupere]. Le monde de la marche est rendu intact, et l observation
-// n est pas posee : aucun crochet ne publie ces records. Rend les records, s ils ont ete lus, et si
-// le debut vient du repli a largeur libre.
+// listeRecuperee est la liste recuperee d UNE trame ([MarcheDistribuee.recupererLaListe]) : son
+// verdict, rendu tel quel a chaque canal qui la demande. Elle ne vaut que pour la trame en cours : la
+// marche la remet a zero au debut de chaque trame ([marcheurDesTrames.marcherLePaquet]).
+type listeRecuperee struct {
+	faite      bool
+	recs       []FrameRecord
+	lus, libre bool
+}
+
+// recupererLaListe rend la vue B de la trame en cours, dont la marche n a pas localise la liste
+// d evenements, lue depuis [debutRecupere]. La recuperation se fait UNE fois par trame, quel que
+// soit le nombre de canaux qui la demandent : ce qu elle rend ne depend que du payload, du cadre et
+// des liaisons du monde, et le monde de la marche ne change pas entre deux canaux (aucun ne le
+// modifie, et une recuperation le rend intact). Les canaux se partagent donc les memes records, en
+// lecture seule, comme ceux que la marche a lus ([MarcheDistribuee.recordsDeLaTrame]). Rend les
+// records, s ils ont ete lus, et si le debut vient du repli a largeur libre.
 func (m *MarcheDistribuee) recupererLaListe() (recs []FrameRecord, lus, libre bool) {
+	r := &m.marche.recuperee
+	if !r.faite {
+		r.recs, r.lus, r.libre = m.lireLaListeRecuperee()
+		r.faite = true
+	}
+	return r.recs, r.lus, r.libre
+}
+
+// lireLaListeRecuperee fait la recuperation de [MarcheDistribuee.recupererLaListe]. Le monde de la
+// marche est rendu intact, et l observation n est pas posee : aucun crochet ne publie ces records.
+//
+// Sur une trame que la marche n a pas localisee, la signature stricte est deja connue absente : la
+// marche l a cherchee dans ce payload, sous ce monde, et [localiserLaListe] ne rend -1 que si elle a
+// echoue. [debutRecupere] n a alors plus que le repli a largeur libre a essayer ([debutApresLaStricte]).
+func (m *MarcheDistribuee) lireLaListeRecuperee() (recs []FrameRecord, lus, libre bool) {
 	mt := m.marche
 	cfg := mt.cfg
 	cfg.Obs = nil
 	pay := m.Paquet.Payload
-	s, libre := debutRecupere(pay, mt.monde, cfg)
+	var s int
+	if mt.trame.debut < 0 {
+		s, libre = debutApresLaStricte(pay, mt.monde, cfg)
+	} else {
+		s, libre = debutRecupere(pay, mt.monde, cfg)
+	}
 	if s < 0 {
 		return nil, false, false
 	}
-	defer mt.monde.Restore(mt.monde.Snapshot())
+	defer mt.monde.annulerLEssai(mt.monde.ouvrirUnEssai())
 	br := LecteurSur(pay)
 	br.poserCadre(cfg)
 	br.Skip(s)

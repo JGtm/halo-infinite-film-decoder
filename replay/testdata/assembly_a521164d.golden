@@ -6,7 +6,7 @@
 
 ## AXE DE TEMPS
 10293 frames · intervalle 33 ms · duree 339669 ms
-schema 126 · titre halo_infinite
+schema 127 · titre halo_infinite
 version majeure du film : 33
 origine de la frame 0 sur l horloge du fil : 27811 ms
 coup d envoi lu par l horloge de manche : 44335 ms · source roundClock · depart lu false · marge depuis la frame 0 : 16524 ms
@@ -480,9 +480,9 @@ provenance : 0 evenement(s) 103 lu(s) sur 4956 liste(s) d evenements non vides
 ## SOCLES D ARME AU SOL — la RECURRENCE fait le socle, et le film dit quand il se vide
 balaye=true · bande 1426 slot(s) · 600 ancre(s) -> 597 acceptee(s) -> 398 retenue(s) par l IDENTITE (199 ecartee(s))
 161 lachee(s) a une mort · 237 apparue(s) sans mort a proximite, dont 110 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
-58 grappe(s) -> 31 socle(s) publie(s) · 94 occupation(s) : 59 datee(s) · 10 sans passage · 25 jamais videe(s)
-8 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 14 retenue(s) par l IDENTITE `powerup_*` -> 3 socle(s) publie(s)
+58 grappe(s) -> 31 socle(s) publie(s) · 133 occupation(s) : 88 datee(s) · 12 sans passage · 33 jamais videe(s)
+17 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
+POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 106 retenue(s) par l IDENTITE `powerup_*` -> 16 socle(s) publie(s)
   socle 0 0x2FB21C87 pos=(18.05, 34.01, 7.03) apparitions=[0 1573] cycle=non etabli
     presence t0=0 prouvee jusqu a 370, absente a 977
     presence t0=1573 prouvee jusqu a 9471, absente a 10078
@@ -597,21 +597,73 @@ POWER-UPS (voie ti=37) — balaye=true · 688 creation(s) acceptee(s) -> 14 rete
   socle 30 0xFD98554C pos=(54.94, -65.26, 3.29) apparitions=[0 4834] cycle=non etabli
     presence t0=0 prouvee jusqu a 3403, absente a 4010
     presence t0=4834 prouvee jusqu a 10078, absente a 10292
-  socle 31 powerup_camo pos=(8.40, 14.26, 3.27) apparitions=[2 3248 4168] cycle=non etabli
+  socle 31 grapple pos=(28.98, 31.19, -0.40) apparitions=[2 4632 6940 8801] cycle=60.7 s (p10 60.6 · p90 60.7 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 2796, absente a 3403
+    presence t0=4632 prouvee jusqu a 4632, absente a 5223
+    presence t0=6940 prouvee jusqu a 6940, absente a 7044
+    presence t0=8801 prouvee jusqu a 10078, absente a 10292
+  socle 32 grapple pos=(34.90, 55.82, 3.14) apparitions=[2 2827 5143 7609] cycle=60.7 s (p10 60.7 · p90 60.7 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 977, absente a 1584
+    presence t0=2827 prouvee jusqu a 2827, absente a 3403
+    presence t0=5143 prouvee jusqu a 5223, absente a 5830
+    presence t0=7609 prouvee jusqu a 10078, absente a 10292
+  socle 33 grapple pos=(40.60, -8.50, 3.94) apparitions=[2 3781 9014] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 1584, absente a 2190
+    presence t0=3781 prouvee jusqu a 7044, absente a 7650
+    presence t0=9014 prouvee jusqu a 10078, absente a 10292
+  socle 34 grapple pos=(61.40, -5.80, 3.97) apparitions=[2 4825 7509] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 2796, absente a 3403
+    presence t0=4825 prouvee jusqu a 5223, absente a 5830
+    presence t0=7509 prouvee jusqu a 9471, absente a 10078
+  socle 35 grapple pos=(72.74, -46.29, -0.40) apparitions=[2 2620 5539] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 370, absente a 977
+    presence t0=2620 prouvee jusqu a 3403, absente a 4010
+    presence t0=5539 prouvee jusqu a 10078, absente a 10292
+  socle 36 powerup_camo pos=(8.40, 14.26, 3.27) apparitions=[2 3248 4168] cycle=non etabli
     presence t0=2 prouvee jusqu a 2190, absente a 2796
     presence t0=3248 prouvee jusqu a 4010, absente a 4618
     presence t0=4168 prouvee jusqu a 7650, absente a 8257
-  socle 32 powerup_overshield pos=(47.60, -52.57, 0.89) apparitions=[2 3623 4168] cycle=non etabli
+  socle 37 powerup_overshield pos=(47.60, -52.57, 0.89) apparitions=[2 3623 4168] cycle=non etabli
     presence t0=2 prouvee jusqu a 3403, absente a 4010
     presence t0=3623 prouvee jusqu a 4010, absente a 4618
     presence t0=4168 prouvee jusqu a 10078, absente a 10292
-  socle 33 powerup_overshield pos=(54.44, 37.50, 0.89) apparitions=[2 3631 4168 6888 7807] cycle=non etabli
+  socle 38 powerup_overshield pos=(54.44, 37.50, 0.89) apparitions=[2 3631 4168 6888 7807] cycle=non etabli
     presence t0=2 prouvee jusqu a 3403, absente a 4010
     presence t0=3631 prouvee jusqu a 4010, absente a 4618
     presence t0=4168 prouvee jusqu a 5830, absente a 6437
     presence t0=6888 prouvee jusqu a 7650, absente a 8257
     presence t0=7807 prouvee jusqu a 10078, absente a 10292
-69 occupation(s) achevee(s) publiee(s) · 42 datee(s) a l instant exact par l evenement natif · 42 avec un ramasseur nomme
+  socle 39 repulsor pos=(20.50, 9.70, 5.30) apparitions=[2 4704 9626] cycle=60.8 s (p10 60.8 · p90 60.8 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 2796, absente a 3403
+    presence t0=4704 prouvee jusqu a 7650, absente a 8257
+    presence t0=9626 prouvee jusqu a 10078, absente a 10292
+  socle 40 repulsor pos=(36.21, 18.57, 5.17) apparitions=[2 2779 4727 6889] cycle=60.8 s (p10 60.7 · p90 60.8 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 370, absente a 977
+    presence t0=2779 prouvee jusqu a 2796, absente a 3403
+    presence t0=4727 prouvee jusqu a 4727, absente a 5223
+    presence t0=6889 prouvee jusqu a 10078, absente a 10292
+  socle 41 repulsor pos=(65.91, -32.30, 4.92) apparitions=[2 2676 6093] cycle=60.7 s (p10 60.7 · p90 60.7 · 2 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 370, absente a 977
+    presence t0=2676 prouvee jusqu a 4010, absente a 4618
+    presence t0=6093 prouvee jusqu a 9471, absente a 10078
+  socle 42 repulsor pos=(81.38, -24.66, 5.36) apparitions=[2 8715] cycle=non etabli
+    presence t0=2 prouvee jusqu a 6437, absente a 7044
+    presence t0=8715 prouvee jusqu a 8715, absente a 8864
+  socle 43 shroud_screen pos=(38.80, -52.00, 2.71) apparitions=[2 5989] cycle=non etabli
+    presence t0=2 prouvee jusqu a 4010, absente a 4618
+    presence t0=5989 prouvee jusqu a 10078, absente a 10292
+  socle 44 shroud_screen pos=(92.38, -44.55, 7.16) apparitions=[2 7001] cycle=non etabli
+    presence t0=2 prouvee jusqu a 4618, absente a 5223
+    presence t0=7001 prouvee jusqu a 10078, absente a 10292
+  socle 45 wall pos=(29.20, -23.00, 7.09) apparitions=[2 3280 5526 8191] cycle=60.7 s (p10 60.7 · p90 60.7 · 3 ecarts mesures, 0 manques)
+    presence t0=2 prouvee jusqu a 977, absente a 1584
+    presence t0=3280 prouvee jusqu a 3403, absente a 4010
+    presence t0=5526 prouvee jusqu a 5830, absente a 6437
+    presence t0=8191 prouvee jusqu a 8257, absente a 8864
+  socle 46 wall pos=(72.73, 8.60, 7.04) apparitions=[2 8802] cycle=non etabli
+    presence t0=2 prouvee jusqu a 6437, absente a 7044
+    presence t0=8802 prouvee jusqu a 9471, absente a 10078
+100 occupation(s) achevee(s) publiee(s) · 58 datee(s) a l instant exact par l evenement natif · 58 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
 337 loadout(s) publie(s) · 17 famille(s) distincte(s)
@@ -644,11 +696,11 @@ repli_fin_de_vie_sans_tableau_api                17
 repli_identite_premier_occupant_du_siege         68
 repli_index_de_tireur_hors_place                 896
 repli_lien_prise_arme_abandonne                  1
-repli_origine_au_sol_lachee_par_fenetre          161
+repli_origine_au_sol_lachee_par_fenetre          200
 repli_piece_engendree_sans_evenement             2
 repli_place_du_remplacant_par_chainage_d_equipe  4
 repli_position_hors_emprise_ecartee              36
-repli_prise_de_socle_premiere_du_cycle           13
+repli_prise_de_socle_premiere_du_cycle           20
 
 ## LIBELLES D ARMES — le tag brut reste A COTE du libelle, jamais a sa place
 17 identifiant(s) nomme(s) ; un identifiant absent garde son hexadecimal a l ecran et
@@ -704,4 +756,834 @@ groupe "" (absent : true) · trames 11130 (lues 6174, arrêtées 4956, vue A ill
 ## TOUCHES ET DEGATS EN POINTS (ESTIMATION) — effets de dégât d'arme, une touche par (auteur, unité, trame) ; absents si les messages de dégât n'ont pas été lus
 0 message(s) · 0 d'arme · 0 touche(s) · 0 posée(s) · 0 sans auteur · 0 sans victime · 0 avant la frame 0 · 0 après la fin · 0 joueur(s) dont 0 suffisant(s) (couverture >= 0.7, doublons < 1.2)
 0 ligne(s) de dégât dont 0 mesurée(s) · 0 message(s) sans piste · 0 touche(s) et 0 dégât(s) sur soi · 4956 trame(s) arrêtée(s) et 0 de vitalités non lues sur 11130
+
+## DOCUMENT COMPLET — chaque champ publie, son compte et l empreinte de son contenu
+schemaVersion : 127 · 922c7954216c
+matchId : "a521164d" · 70d6ca90d241
+titleSlug : "halo_infinite" · b625a6eb80ab
+frameCount : 10293 · d9adc0ef69e9
+bounds : ddcab77d374d
+bounds.minX : -0.14 · 69cc0f0fceeb
+bounds.minY : -68 · f4634da169b1
+bounds.maxX : 100.58 · 8759e6856dca
+bounds.maxY : 62.09 · c14d67c7a2ff
+bounds.minZ : -0.39 · 48272d94b1e3
+bounds.maxZ : 15.42 · 7dca2f2954b2
+tracks : n=128 · ac43ef272aaa
+frameIntervalMs : 33 · c6f3ac57944a
+durationMs : 339669 · e1ee9ef78b7b
+originMs : 3f83f35f7539
+t0FilmMs : d3dcd5e33015
+geometry : n=0 · 74234e98afe7
+geometryBounds : absent
+structure : n=0 · 74234e98afe7
+structureBounds : absent
+shots : n=1362 · 3bf9cc43b20e
+bursts : n=0 · 74234e98afe7
+loadouts : n=337 · 2ec1bffc19bd
+inventory : n=395 · 358652508d2d
+grenadeLabels : n=4 · 4e0f62d5c394
+abilities : n=58 · 8f329b3ea094
+grenadeReads : n=524 · 954b4e84d713
+ammoReads : n=420 · bc832329383b
+abilityLabels : n=6 · 47a221150fad
+equipmentEpisodes : n=10 · 856c812a3a9b
+stances : n=1543 · 7d77548ab9a8
+grappleLines : n=16 · 2ad5ab617673
+equipmentPlacements : n=274 · 8d3c5dc21132
+weaponChanges : n=78 · 9ed3c579bf3d
+pickups : n=190 · c02d574ad864
+equipmentChanges : n=65 · cf22921cd2df
+translocations : n=0 · 74234e98afe7
+knockbacks : n=0 · 74234e98afe7
+carriedEquipment : n=34 · d271d72cea69
+riftPoses : n=0 · 74234e98afe7
+abilityImpulses : n=0 · 74234e98afe7
+abilityCharges : n=39 · 1d345118a332
+groundWeapons : n=288 · 66b356929a32
+vehicles : n=74 · 1c2427c9430c
+vehicleLabels : n=0 · 74234e98afe7
+vehicleWeapons : n=0 · 74234e98afe7
+vehicleScenery : absent
+vehicleCycles : n=0 · 74234e98afe7
+weaponPads : n=47 · ebcb0a42f44e
+padPickups : n=100 · aba497b9f3ea
+padCandidates : n=37 · 255ddbb04340
+grenades : n=100 · da00deb84a93
+projectiles : n=175 · 8579c6fa18c1
+weaponLabels : n=17 · 42979e8b406d
+killEffects : n=31 · 610d4bb81323
+neutralDeaths : n=0 · 74234e98afe7
+medals : n=38 · 0e68ed00cb5e
+medalLabels : n=0 · 74234e98afe7
+scoreActions : n=0 · 74234e98afe7
+hits : n=0 · 74234e98afe7
+damage : n=0 · 74234e98afe7
+shotStats : n=0 · 4f53cda18c2b
+reloads : n=0 · 74234e98afe7
+chatter : n=0 · 74234e98afe7
+announcements : n=0 · 74234e98afe7
+gestures : n=0 · 74234e98afe7
+attachments : n=0 · 74234e98afe7
+drawnWeapons : n=0 · 74234e98afe7
+vitals : n=0 · 74234e98afe7
+eliminations : n=0 · 74234e98afe7
+roster : n=28 · be6c0a64b157
+mapObjectives : absent
+mapWeaponPads : absent
+weaponTiers : absent
+objectives : n=0 · 4f53cda18c2b
+scoreTimeline : absent
+flagCarries : n=0 · 74234e98afe7
+flagReturnZone : absent
+objectiveObjects : n=0 · 74234e98afe7
+zoneStates : n=0 · 74234e98afe7
+vipCrown : n=0 · 74234e98afe7
+bombArmings : n=0 · 74234e98afe7
+skullCarries : n=0 · 74234e98afe7
+bombCarries : n=0 · 74234e98afe7
+bombStats : absent
+bombEvents : n=0 · 74234e98afe7
+coverage : 3bd1d86ae500
+coverage.shots : 2870a17690f2
+coverage.shots.available : 1476 · 826958d9ae5a
+coverage.shots.attached : 1362 · a2cdc3e5a34c
+coverage.shots.noSlot : 114 · 9f1f9dce319c
+coverage.shots.ambiguous : 0 · 5feceb66ffc8
+coverage.shots.outOfWindow : 0 · 5feceb66ffc8
+coverage.shots.unpublished : 0 · 5feceb66ffc8
+coverage.shots.refusedByRoster : 0 · 5feceb66ffc8
+coverage.shots.byUnit : 1361 · 2ee1a4c2b1f1
+coverage.shots.unitOtherIndex : 0 · 5feceb66ffc8
+coverage.shots.aim : 3d26ce035bb6
+coverage.shots.aim.track : 1362 · a2cdc3e5a34c
+coverage.shots.aim.sameTick : 1324 · dd49477b0b97
+coverage.shots.aim.sansPosition : 34 · 86e501496586
+coverage.shots.aim.record : 0 · 5feceb66ffc8
+coverage.shots.aim.none : 0 · 5feceb66ffc8
+coverage.grenades : aa84f2eed0d9
+coverage.grenades.available : 105 · 1253e9373e78
+coverage.grenades.attached : 100 · ad5736686512
+coverage.grenades.noSlot : 5 · ef2d127de37b
+coverage.grenades.ambiguous : 0 · 5feceb66ffc8
+coverage.grenades.outOfWindow : 0 · 5feceb66ffc8
+coverage.grenades.unpublished : 0 · 5feceb66ffc8
+coverage.grenades.refusedByRoster : 0 · 5feceb66ffc8
+coverage.grenades.byUnit : 0 · 5feceb66ffc8
+coverage.grenades.unitOtherIndex : 0 · 5feceb66ffc8
+coverage.grenades.aim : absent
+coverage.tracks : e6ca0f254fdd
+coverage.tracks.published : 128 · 2747b7c71856
+coverage.tracks.publishedPoints : 133712 · 5deac6033f9d
+coverage.tracks.refusedMinPoints : 0 · 5feceb66ffc8
+coverage.tracks.refusedPoints : 0 · 5feceb66ffc8
+coverage.tracks.minPoints : 1 · 6b86b273ff34
+coverage.tracks.gaps : 55 · 02d20bbd7e39
+coverage.tracks.gapMs : 755913 · b7b0e67d1abd
+coverage.tracks.avantCreation : 1 · 6b86b273ff34
+coverage.tracks.viesAvantPremiereCreation : 1 · 6b86b273ff34
+coverage.tracks.horsEmprise : 0 · 5feceb66ffc8
+coverage.tracks.slotsArmes : 128 · 2747b7c71856
+coverage.tracks.slotsDesarmes : 0 · 5feceb66ffc8
+coverage.tracks.lifeEnds : absent
+coverage.tracks.fullRateSamples : 136140 · 2ee56e451b69
+coverage.tracks.fullRateAimSamples : 93704 · c0f121e56b32
+coverage.tracks.noWorld : 0 · 5feceb66ffc8
+coverage.tracks.fullRateAimOnlySamples : 13091 · 93f999005da6
+coverage.tracks.aimOnlyBeforeOrigin : 0 · 5feceb66ffc8
+coverage.tracks.aimOnlyNoLife : 13573 · 524f89401c32
+coverage.teams : e70101d2db01
+coverage.teams.read : true · b5bea41b6c62
+coverage.teams.refusal : "" · 12ae32cb1ec0
+coverage.teams.records : 449 · 4a30a219a9d7
+coverage.teams.rejected : 0 · 5feceb66ffc8
+coverage.teams.divergences : 0 · 5feceb66ffc8
+coverage.teams.film : 28 · 59e19706d51d
+coverage.teams.noTeam : 0 · 5feceb66ffc8
+coverage.teams.unread : 0 · 5feceb66ffc8
+coverage.teams.accord : 0 · 5feceb66ffc8
+coverage.teams.contradiction : 0 · 5feceb66ffc8
+coverage.teams.silence : 28 · 59e19706d51d
+coverage.teams.tracks : 128 · 2747b7c71856
+coverage.teams.tracksNamed : 128 · 2747b7c71856
+coverage.teams.tracksSlotAmbiguous : 0 · 5feceb66ffc8
+coverage.seats : eeb2c171d41f
+coverage.seats.entrees : 28 · 59e19706d51d
+coverage.seats.sieges : 24 · c2356069e9d1
+coverage.seats.lus : 24 · c2356069e9d1
+coverage.seats.placesTirs : 0 · 5feceb66ffc8
+coverage.seats.apparies : 4 · 4b227777d4dd
+coverage.seats.placesOuvertes : 0 · 5feceb66ffc8
+coverage.seats.sansPlace : 0 · 5feceb66ffc8
+coverage.seats.reprisesEcrites : 0 · 5feceb66ffc8
+coverage.seats.arrivants : 4 · 4b227777d4dd
+coverage.seats.presencesCloses : 5 · ef2d127de37b
+coverage.seats.sansPresence : 1 · 6b86b273ff34
+coverage.seats.occupantsMax : 24 · c2356069e9d1
+coverage.seats.capacite : 12 · 6b51d431df5d
+coverage.seats.depassements : 0 · 5feceb66ffc8
+coverage.seats.placesEnTrop : 0 · 5feceb66ffc8
+coverage.seats.sansEquipe : 0 · 5feceb66ffc8
+coverage.seats.identitesHorsRoster : 0 · 5feceb66ffc8
+coverage.seats.botsSuccesseurs : 0 · 5feceb66ffc8
+coverage.seats.presencesParLesVies : 0 · 5feceb66ffc8
+coverage.seats.presencesListees : 27 · 670671cd9740
+coverage.seats.relaisBornes : 0 · 5feceb66ffc8
+coverage.seats.chevauchements : 0 · 5feceb66ffc8
+coverage.seats.tirsContestes : 0 · 5feceb66ffc8
+coverage.seats.tirsIndexTronque : false · fcbcf165908d
+coverage.seats.tirsParPlace : 0 · 5feceb66ffc8
+coverage.seats.tirsIndexNonPlace : true · b5bea41b6c62
+coverage.seats.presences : "film" · df55fa23b811
+coverage.seats.entitesNonLiees : 0 · 5feceb66ffc8
+coverage.seats.entitesContestees : 0 · 5feceb66ffc8
+coverage.seats.trousDEntite : 0 · 5feceb66ffc8
+coverage.seats.imagesClesDouteuses : 0 · 5feceb66ffc8
+coverage.seats.bornesDifferees : 0 · 5feceb66ffc8
+coverage.seats.sansTableDuFilm : false · fcbcf165908d
+coverage.seats.capaciteSource : "estimee" · 79801733ac2f
+coverage.seats.rameneesALaTaille : 0 · 5feceb66ffc8
+coverage.seats.botsRelevesALaTaille : 0 · 5feceb66ffc8
+coverage.seats.botsRelevesEnJeu : 0 · 5feceb66ffc8
+coverage.seats.absencesTenuesParUnBot : 0 · 5feceb66ffc8
+coverage.controlPlaces : c6453f6a9aed
+coverage.controlPlaces.read : false · fcbcf165908d
+coverage.controlPlaces.bindings : 0 · 5feceb66ffc8
+coverage.controlPlaces.players : 0 · 5feceb66ffc8
+coverage.controlPlaces.multiPlace : 0 · 5feceb66ffc8
+coverage.controlPlaces.handovers : 0 · 5feceb66ffc8
+coverage.controlPlaces.returns : 0 · 5feceb66ffc8
+coverage.controlPlaces.contested : 0 · 5feceb66ffc8
+coverage.controlPlaces.unitContradicted : 0 · 5feceb66ffc8
+coverage.controlPlaces.shotsByPlace : 0 · 5feceb66ffc8
+coverage.controlPlaces.shotsBySeat : 0 · 5feceb66ffc8
+coverage.controlPlaces.shotsUnheld : 0 · 5feceb66ffc8
+coverage.controlPlaces.burstsByPlace : 0 · 5feceb66ffc8
+coverage.controlPlaces.burstsBySeat : 0 · 5feceb66ffc8
+coverage.controlPlaces.burstsUnheld : 0 · 5feceb66ffc8
+coverage.projectiles : c3c5cd20a955
+coverage.projectiles.tracks : 178 · 01d54579da44
+coverage.projectiles.published : 175 · dac53c17c250
+coverage.projectiles.truncated : 10 · 4a44dc153642
+coverage.projectiles.shotLinked : 26 · 5f9c4ab08cac
+coverage.projectiles.shotAmbiguous : 0 · 5feceb66ffc8
+coverage.projectiles.fullRateSamples : 5995 · acb3c9307d7b
+coverage.projectiles.attach : absent
+coverage.objectives : 576eaef279f6
+coverage.objectives.available : 0 · 5feceb66ffc8
+coverage.objectives.attached : 0 · 5feceb66ffc8
+coverage.objectives.noSlot : 0 · 5feceb66ffc8
+coverage.objectives.ambiguous : 0 · 5feceb66ffc8
+coverage.objectives.outOfWindow : 0 · 5feceb66ffc8
+coverage.objectives.unpublished : 0 · 5feceb66ffc8
+coverage.objectives.refusedByRoster : 0 · 5feceb66ffc8
+coverage.objectives.byUnit : 0 · 5feceb66ffc8
+coverage.objectives.unitOtherIndex : 0 · 5feceb66ffc8
+coverage.objectives.aim : absent
+coverage.equipment : 185d46fbf6a5
+coverage.equipment.tracksTotal : 128 · 2747b7c71856
+coverage.equipment.camoLives : 3 · 4e07408562be
+coverage.equipment.camoEpisodes : 7 · 7902699be42c
+coverage.equipment.overshieldLives : 3 · 4e07408562be
+coverage.equipment.overshieldEpisodes : 3 · 4e07408562be
+coverage.equipment.killsRead : false · fcbcf165908d
+coverage.stances : b9a622c8e78a
+coverage.stances.scanned : true · b5bea41b6c62
+coverage.stances.absent : false · fcbcf165908d
+coverage.stances.records : 148040 · 7cb9e4c47daa
+coverage.stances.desyncs : 0 · 5feceb66ffc8
+coverage.stances.reads : 7905 · 91cf42608863
+coverage.stances.intervals : 1543 · 50a0a04f2d67
+coverage.stances.jumpEpisodes : 2571 · e001dad6f306
+coverage.stances.jumpsDerived : 493 · 560aa3e6e943
+coverage.stances.byKind : n=5 · 441cff6329f4
+coverage.stances.lives : 121 · 89aa1e580023
+coverage.stances.tracksTotal : 128 · 2747b7c71856
+coverage.stances.dropped : 0 · 5feceb66ffc8
+coverage.stances.eventPacketsUnlocated : 1286 · 2adf89afa76f
+coverage.stances.forgottenBindings : 1036 · 56cc29cee9e8
+coverage.stances.refusedNews : 5 · ef2d127de37b
+coverage.stances.refusedNewFalseReads : 5 · ef2d127de37b
+coverage.stances.refusedNewLostCreations : 0 · 5feceb66ffc8
+coverage.stances.refusedNewUndecided : 0 · 5feceb66ffc8
+coverage.stances.control : 61523e539142
+coverage.stances.control.holds : 0 · 5feceb66ffc8
+coverage.stances.control.withHole : 0 · 5feceb66ffc8
+coverage.stances.control.innerHoles : 0 · 5feceb66ffc8
+coverage.stances.control.entries : 0 · 5feceb66ffc8
+coverage.stances.control.published : 0 · 5feceb66ffc8
+coverage.stances.control.intervals : 0 · 5feceb66ffc8
+coverage.stances.control.noTrack : 0 · 5feceb66ffc8
+coverage.stances.control.noPlayer : 0 · 5feceb66ffc8
+coverage.stances.control.stepUs : 0 · 5feceb66ffc8
+coverage.stances.control.fullCadence : false · fcbcf165908d
+coverage.stances.control.crouchCommand : df650a99230c
+coverage.stances.control.crouchCommand.holds : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.withHole : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.innerHoles : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.published : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.intervals : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.noTrack : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.noPlayer : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.inVehicle : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.afterHole : 0 · 5feceb66ffc8
+coverage.stances.control.crouchCommand.gated : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand : df650a99230c
+coverage.stances.control.jumpCommand.holds : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.withHole : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.innerHoles : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.published : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.intervals : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.noTrack : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.noPlayer : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.inVehicle : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.afterHole : 0 · 5feceb66ffc8
+coverage.stances.control.jumpCommand.gated : 0 · 5feceb66ffc8
+coverage.stances.mapWidths : [17,17,15] · 318cb00f70b9
+coverage.grapple : c86f986fe0f2
+coverage.grapple.lightReads : 22 · 785f3ec7eb32
+coverage.grapple.heavyReads : 16 · b17ef6d19c7a
+coverage.grapple.pulls : 16 · b17ef6d19c7a
+coverage.grapple.pullLives : 6 · e7f6c011776e
+coverage.grapple.unpairedFires : 6 · e7f6c011776e
+coverage.grapple.brokenBodies : 0 · 5feceb66ffc8
+coverage.placements : 6cde3b485bda
+coverage.placements.scanned : true · b5bea41b6c62
+coverage.placements.widths : "8/3" · 11de3885c5f4
+coverage.placements.calibrated : true · b5bea41b6c62
+coverage.placements.lives : 405 · a73b320dc0d3
+coverage.placements.anchors : 794 · 5283f1b4e664
+coverage.placements.confirmed : 274 · 718127812c05
+coverage.placements.placements : 274 · 718127812c05
+coverage.placements.named : 274 · 718127812c05
+coverage.placements.other : 0 · 5feceb66ffc8
+coverage.placements.withOwner : 226 · 8f1f64db81c4
+coverage.placements.withHeading : 195 · 1dfacb2ea5a0
+coverage.placements.byFamily : n=8 · 6e0483857709
+coverage.placements.deployed : 2 · d4735e3a265e
+coverage.placements.dropped : 210 · d29d53701d3c
+coverage.placements.unknown : 62 · 81b8a03f97e8
+coverage.placements.endSeen : 267 · 8acc23987b89
+coverage.placements.endOpen : 7 · 7902699be42c
+coverage.placements.byFamilyOrigin : n=15 · 0f7eae1b0d51
+coverage.placements.spawnEvents : 0 · 5feceb66ffc8
+coverage.placements.spawnLists : 4956 · 2e18e12a751b
+coverage.placements.byCause : n=5 · 246c7a8baa0b
+coverage.placements.lifeLinked : 1 · 6b86b273ff34
+coverage.placements.lifeAmbiguous : 0 · 5feceb66ffc8
+coverage.placements.lifeEnds : 0 · 5feceb66ffc8
+coverage.groundWeapons : d7a585ca33d8
+coverage.groundWeapons.scanned : true · b5bea41b6c62
+coverage.groundWeapons.slots : 1426 · 2c29bd822988
+coverage.groundWeapons.anchors : 600 · 284b7e6d788f
+coverage.groundWeapons.accepted : 597 · fcf1e4bf9cc9
+coverage.groundWeapons.kept : 398 · 188c1fdca79d
+coverage.groundWeapons.rejected : 199 · 5a39cadd1b00
+coverage.groundWeapons.objectives : 0 · 5feceb66ffc8
+coverage.groundWeapons.dropped : 161 · bb668ca95563
+coverage.groundWeapons.spawned : 237 · f0bc318fb896
+coverage.groundWeapons.atRest : 110 · 9bdb2af67992
+coverage.groundWeapons.clusters : 58 · 6208ef0f7750
+coverage.groundWeapons.pads : 31 · eb1e33e8a81b
+coverage.groundWeapons.occupancies : 133 · d2f483672c02
+coverage.groundWeapons.dated : 88 · 8b940be7fb78
+coverage.groundWeapons.unknown : 12 · 6b51d431df5d
+coverage.groundWeapons.never : 33 · c6f3ac57944a
+coverage.groundWeapons.cycles : 17 · 4523540f1504
+coverage.groundWeapons.powerupScanned : true · b5bea41b6c62
+coverage.groundWeapons.powerupAccepted : 688 · 1c63ed9164d6
+coverage.groundWeapons.powerupKept : 106 · 482d9673cfee
+coverage.groundWeapons.powerupPads : 16 · b17ef6d19c7a
+coverage.groundWeapons.horsEmprise : 0 · 5feceb66ffc8
+coverage.groundWeapons.releves : 0 · 5feceb66ffc8
+coverage.groundWeapons.plusieursLieux : 0 · 5feceb66ffc8
+coverage.groundWeapons.candidates : 27 · 670671cd9740
+coverage.groundWeapons.powerupCandidates : 10 · 4a44dc153642
+coverage.score : absent
+coverage.flagCarries : absent
+coverage.vipCrown : absent
+coverage.skullCarries : absent
+coverage.bombCarries : absent
+coverage.bombArmings : absent
+coverage.weaponChanges : 75fd6e0f2275
+coverage.weaponChanges.decoded : 78 · 349c41201b62
+coverage.weaponChanges.published : 78 · 349c41201b62
+coverage.weaponChanges.restated : 0 · 5feceb66ffc8
+coverage.weaponChanges.beforeOrigin : 0 · 5feceb66ffc8
+coverage.weaponChanges.unarmedGrants : 0 · 5feceb66ffc8
+coverage.weaponChanges.taken : 63 · da4ea2a5506f
+coverage.weaponChanges.dropped : 9 · 19581e27de7c
+coverage.weaponChanges.swapped : 6 · e7f6c011776e
+coverage.keyframes : e48c0c67334a
+coverage.keyframes.keyframes : 19 · 9400f1b21cb5
+coverage.keyframes.records : 15457 · b14efec7f9e6
+coverage.keyframes.bipeds : 403 · d26eae87829a
+coverage.keyframes.neighbors : 10043 · 2b08a540da4b
+coverage.keyframes.jumps : 2776 · 9b3cea3bd878
+coverage.keyframes.resyncs : 109 · 0fd42b3f73c4
+coverage.keyframes.elections : 2510 · ff150bc51704
+coverage.keyframes.refutations : 0 · 5feceb66ffc8
+coverage.keyframes.contradictoryProofs : 0 · 5feceb66ffc8
+coverage.keyframes.slides : 0 · 5feceb66ffc8
+coverage.keyframes.framedAbsentBipeds : 0 · 5feceb66ffc8
+coverage.birthLoadouts : b617ae91c9d1
+coverage.birthLoadouts.creations : 128 · 2747b7c71856
+coverage.birthLoadouts.closed : 19 · 9400f1b21cb5
+coverage.birthLoadouts.read : 9 · 19581e27de7c
+coverage.birthLoadouts.desync : 0 · 5feceb66ffc8
+coverage.birthLoadouts.overflow : 0 · 5feceb66ffc8
+coverage.birthLoadouts.unconfirmed : 109 · 0fd42b3f73c4
+coverage.birthLoadouts.noWeaponComponent : 0 · 5feceb66ffc8
+coverage.birthLoadouts.published : 9 · 19581e27de7c
+coverage.birthLoadouts.snapped : 5 · ef2d127de37b
+coverage.birthLoadouts.noLife : 0 · 5feceb66ffc8
+coverage.birthLoadouts.beforeOrigin : 0 · 5feceb66ffc8
+coverage.birthLoadouts.nonWeapon : 21 · 6f4b6612125f
+coverage.birthLoadouts.unarmedGrants : 0 · 5feceb66ffc8
+coverage.birthLoadouts.noDisplayable : 10 · 4a44dc153642
+coverage.pickups : 1f701573ed7e
+coverage.pickups.decoded : 194 · 7559ca4a957c
+coverage.pickups.published : 190 · 2397346b4582
+coverage.pickups.named : 190 · 2397346b4582
+coverage.pickups.weapons : 90 · 69f59c273b6e
+coverage.pickups.items : 100 · ad5736686512
+coverage.pickups.unknownFamilies : 4 · 4b227777d4dd
+coverage.pickups.unarmedGrants : 4 · 4b227777d4dd
+coverage.pickups.beforeOrigin : 0 · 5feceb66ffc8
+coverage.pickups.multiEvent : 142 · d4ee9f58e586
+coverage.pickups.refused : 0 · 5feceb66ffc8
+coverage.pickups.originSpawner : 0 · 5feceb66ffc8
+coverage.pickups.originGround : 8 · 2c624232cdd2
+coverage.pickups.originUnknown : 92 · 8241649609f8
+coverage.pickups.spawnPointsState : "map_absent" · bb2c493793d1
+coverage.pickups.mapCatalogPoints : 0 · 5feceb66ffc8
+coverage.pickups.spawnerByPointKind : n=0 · 74234e98afe7
+coverage.medals : d91df2e46221
+coverage.medals.decoded : 38 · aea92132c4cb
+coverage.medals.published : 38 · aea92132c4cb
+coverage.medals.noOrigin : 0 · 5feceb66ffc8
+coverage.medals.beforeOrigin : 0 · 5feceb66ffc8
+coverage.medals.afterEnd : 0 · 5feceb66ffc8
+coverage.medals.unknownName : 0 · 5feceb66ffc8
+coverage.scoreActions : d2061ba059e4
+coverage.scoreActions.complete : false · fcbcf165908d
+coverage.scoreActions.group : "" · 12ae32cb1ec0
+coverage.scoreActions.groupMissing : true · b5bea41b6c62
+coverage.scoreActions.scoreboardCompared : 0 · 5feceb66ffc8
+coverage.scoreActions.scoreboardMissing : 0 · 5feceb66ffc8
+coverage.scoreActions.scoreboardBehind : 0 · 5feceb66ffc8
+coverage.scoreActions.frames : 11130 · 23335e596586
+coverage.scoreActions.closedFrames : 6174 · 982cba6c0950
+coverage.scoreActions.stoppedFrames : 4956 · 2e18e12a751b
+coverage.scoreActions.viewAUnreadable : true · b5bea41b6c62
+coverage.scoreActions.messages : 0 · 5feceb66ffc8
+coverage.scoreActions.copies : 0 · 5feceb66ffc8
+coverage.scoreActions.scoreMessages : 0 · 5feceb66ffc8
+coverage.scoreActions.unrelated : 0 · 5feceb66ffc8
+coverage.scoreActions.namedWithoutPoints : 0 · 5feceb66ffc8
+coverage.scoreActions.outsideTree : 0 · 5feceb66ffc8
+coverage.scoreActions.unconfirmedRank : 0 · 5feceb66ffc8
+coverage.scoreActions.treeShift : 0 · 5feceb66ffc8
+coverage.scoreActions.scored : 0 · 5feceb66ffc8
+coverage.scoreActions.published : 0 · 5feceb66ffc8
+coverage.scoreActions.noRecipient : 0 · 5feceb66ffc8
+coverage.scoreActions.notPresent : 0 · 5feceb66ffc8
+coverage.scoreActions.noOrigin : 0 · 5feceb66ffc8
+coverage.scoreActions.beforeOrigin : 0 · 5feceb66ffc8
+coverage.scoreActions.afterEnd : 0 · 5feceb66ffc8
+coverage.scoreActions.noTarget : 0 · 5feceb66ffc8
+coverage.scoreActions.botRecipient : 0 · 5feceb66ffc8
+coverage.scoreActions.botTarget : 0 · 5feceb66ffc8
+coverage.reloads : absent
+coverage.appearance : absent
+coverage.chatter : absent
+coverage.announcements : absent
+coverage.gestures : absent
+coverage.drawnWeapons : absent
+coverage.vitals : absent
+coverage.eliminations : absent
+coverage.hits : 08daf115e7ec
+coverage.hits.estimated : true · b5bea41b6c62
+coverage.hits.minCoverage : 0.7 · 973b372a514f
+coverage.hits.maxDuplicates : 1.2 · 77ac319bfe19
+coverage.hits.frames : 11130 · 23335e596586
+coverage.hits.stoppedFrames : 4956 · 2e18e12a751b
+coverage.hits.vitalsUnread : 0 · 5feceb66ffc8
+coverage.hits.maxStoppedShare : 0.005 · 07e17407c791
+coverage.hits.messages : 0 · 5feceb66ffc8
+coverage.hits.weaponMessages : 0 · 5feceb66ffc8
+coverage.hits.hits : 0 · 5feceb66ffc8
+coverage.hits.published : 0 · 5feceb66ffc8
+coverage.hits.noShooter : 0 · 5feceb66ffc8
+coverage.hits.noVictim : 0 · 5feceb66ffc8
+coverage.hits.beforeOrigin : 0 · 5feceb66ffc8
+coverage.hits.afterEnd : 0 · 5feceb66ffc8
+coverage.hits.sufficient : 0 · 5feceb66ffc8
+coverage.hits.damages : 0 · 5feceb66ffc8
+coverage.hits.damagesMeasured : 0 · 5feceb66ffc8
+coverage.hits.damagesOffUnit : 0 · 5feceb66ffc8
+coverage.hits.damagesZero : 0 · 5feceb66ffc8
+coverage.hits.damagesZeroOffUnit : 0 · 5feceb66ffc8
+coverage.hits.damagesZeroOutOfAxis : 0 · 5feceb66ffc8
+coverage.hits.selfHits : 0 · 5feceb66ffc8
+coverage.hits.selfDamages : 0 · 5feceb66ffc8
+coverage.hits.players : 0 · 5feceb66ffc8
+coverage.padDating : c0d76234740f
+coverage.padDating.occupations : 100 · ad5736686512
+coverage.padDating.dated : 58 · 6208ef0f7750
+coverage.padDating.named : 58 · 6208ef0f7750
+coverage.padDating.ambiguous : 10 · 4a44dc153642
+coverage.padDating.uncovered : 32 · e29c9c180c62
+coverage.padDating.powerupOccupations : 40 · d59eced1ded0
+coverage.padDating.firstOfCycle : 20 · f5ca38f748a1
+coverage.equipmentChanges : 0563a13d1d79
+coverage.equipmentChanges.decoded : 65 · 108c995b953c
+coverage.equipmentChanges.published : 65 · 108c995b953c
+coverage.equipmentChanges.taken : 58 · 6208ef0f7750
+coverage.equipmentChanges.spent : 7 · 7902699be42c
+coverage.equipmentChanges.spawned : 0 · 5feceb66ffc8
+coverage.equipmentChanges.beforeOrigin : 0 · 5feceb66ffc8
+coverage.equipmentChanges.lives : 53 · 2858dcd1057d
+coverage.equipmentChanges.missedEstimate : 0 · 5feceb66ffc8
+coverage.equipmentChanges.counterJumps : 0 · 5feceb66ffc8
+coverage.equipmentChanges.livesFirstOffSpec : 0 · 5feceb66ffc8
+coverage.equipmentChanges.repeats : 0 · 5feceb66ffc8
+coverage.equipmentChanges.recovered : 0 · 5feceb66ffc8
+coverage.translocations : d2a0ade8938f
+coverage.translocations.events : 0 · 5feceb66ffc8
+coverage.translocations.published : 0 · 5feceb66ffc8
+coverage.translocations.beforeOrigin : 0 · 5feceb66ffc8
+coverage.translocations.unpublished : 0 · 5feceb66ffc8
+coverage.translocations.positioned : 0 · 5feceb66ffc8
+coverage.knockbacks : 0f409272d40f
+coverage.knockbacks.read104 : 0 · 5feceb66ffc8
+coverage.knockbacks.read105 : 0 · 5feceb66ffc8
+coverage.knockbacks.paired : 0 · 5feceb66ffc8
+coverage.knockbacks.unpaired : 0 · 5feceb66ffc8
+coverage.knockbacks.published : 0 · 5feceb66ffc8
+coverage.knockbacks.beforeOrigin : 0 · 5feceb66ffc8
+coverage.knockbacks.noIdentity : 0 · 5feceb66ffc8
+coverage.knockbacks.withoutImpulse : 0 · 5feceb66ffc8
+coverage.knockbacks.withoutAuthor : 0 · 5feceb66ffc8
+coverage.carriedEquipment : 5eb537ffd314
+coverage.carriedEquipment.created : 262 · 9e6a72557ada
+coverage.carriedEquipment.attached : 251 · c75d3f1f5bcd
+coverage.carriedEquipment.published : 34 · 86e501496586
+coverage.carriedEquipment.noIdentity : 56 · 7688b6ef5255
+coverage.carriedEquipment.beforeOrigin : 0 · 5feceb66ffc8
+coverage.carriedEquipment.endedBeforeOrigin : 0 · 5feceb66ffc8
+coverage.carriedEquipment.readsBeforeOrigin : 0 · 5feceb66ffc8
+coverage.carriedEquipment.noGlobalId : 0 · 5feceb66ffc8
+coverage.carriedEquipment.grenades : 90 · 69f59c273b6e
+coverage.carriedEquipment.unresolved : 71 · 7f2253d7e228
+coverage.carriedEquipment.conflicting : 0 · 5feceb66ffc8
+coverage.carriedEquipment.withCost : 34 · 86e501496586
+coverage.carriedEquipment.noCatalog : 0 · 5feceb66ffc8
+coverage.carriedEquipment.ambiguousCost : 0 · 5feceb66ffc8
+coverage.carriedEquipment.energyReads : 17 · 4523540f1504
+coverage.carriedEquipment.uses : 7 · 7902699be42c
+coverage.carriedEquipment.riftPoses : 0 · 5feceb66ffc8
+coverage.carriedEquipment.positionedByObject : 0 · 5feceb66ffc8
+coverage.carriedEquipment.positionedByCarrier : 0 · 5feceb66ffc8
+coverage.carriedEquipment.unpositioned : 0 · 5feceb66ffc8
+coverage.carriedEquipment.teleportsWithoutPose : 0 · 5feceb66ffc8
+coverage.carriedEquipment.trackedObjects : 3 · 4e07408562be
+coverage.carriedEquipment.trackedEnds : 1 · 6b86b273ff34
+coverage.carriedEquipment.trackedPositioned : 1 · 6b86b273ff34
+coverage.carriedEquipment.trackedUnpositioned : 2 · d4735e3a265e
+coverage.carriedEquipment.trackedEffects : 0 · 5feceb66ffc8
+coverage.carriedEquipment.trackedEffectEnds : 0 · 5feceb66ffc8
+coverage.carriedEquipment.trackedEffectsAmbiguous : 0 · 5feceb66ffc8
+coverage.carriedEquipment.trackedEffectsUnlinked : 2 · d4735e3a265e
+coverage.carriedEquipment.riftEndsRead : 0 · 5feceb66ffc8
+coverage.carriedEquipment.riftEndsUnread : 0 · 5feceb66ffc8
+coverage.abilityImpulses : 6bbc17ec3fba
+coverage.abilityImpulses.reads : 1 · 6b86b273ff34
+coverage.abilityImpulses.episodes : 1 · 6b86b273ff34
+coverage.abilityImpulses.published : 0 · 5feceb66ffc8
+coverage.abilityImpulses.beforeOrigin : 0 · 5feceb66ffc8
+coverage.abilityImpulses.unpublished : 0 · 5feceb66ffc8
+coverage.abilityImpulses.noIdentity : 1 · 6b86b273ff34
+coverage.abilityImpulses.otherFamily : 0 · 5feceb66ffc8
+coverage.abilityImpulses.noResolver : 0 · 5feceb66ffc8
+coverage.abilityImpulses.componentAbsent : false · fcbcf165908d
+coverage.abilityImpulses.scan : abf462afc5a1
+coverage.abilityImpulses.scan.records : 167715 · 35409a15b7d3
+coverage.abilityImpulses.scan.withI57 : 1852 · 501883ce12ba
+coverage.abilityImpulses.scan.withI59 : 1895 · 5932cb6e58ef
+coverage.abilityImpulses.scan.read : 3747 · 5cadc087c21a
+coverage.abilityImpulses.scan.unread : 0 · 5feceb66ffc8
+coverage.abilityImpulses.scan.tag1 : 1 · 6b86b273ff34
+coverage.abilityCharges : aadcbc1e55ee
+coverage.abilityCharges.reads : 39 · 0b918943df09
+coverage.abilityCharges.published : 39 · 0b918943df09
+coverage.abilityCharges.beforeOrigin : 0 · 5feceb66ffc8
+coverage.abilityCharges.unpublished : 0 · 5feceb66ffc8
+coverage.abilityCharges.noIdentity : 0 · 5feceb66ffc8
+coverage.abilityCharges.otherFamily : 0 · 5feceb66ffc8
+coverage.abilityCharges.noResolver : 0 · 5feceb66ffc8
+coverage.abilityCharges.componentAbsent : false · fcbcf165908d
+coverage.groundWeaponItems : d7a550ba2c9b
+coverage.groundWeaponItems.objects : 398 · 188c1fdca79d
+coverage.groundWeaponItems.published : 288 · 23c657f2efda
+coverage.groundWeaponItems.atRest : 110 · 9bdb2af67992
+coverage.groundWeaponItems.dropperNamed : 161 · bb668ca95563
+coverage.groundWeaponItems.takesTotal : 69 · c75cb66ae28d
+coverage.groundWeaponItems.pickupLinked : 5 · ef2d127de37b
+coverage.groundWeaponItems.endPickup : 5 · ef2d127de37b
+coverage.groundWeaponItems.endSeen : 266 · ea5b27556fbb
+coverage.groundWeaponItems.endOpen : 17 · 4523540f1504
+coverage.groundWeaponItems.ammoRead : 287 · d7cdaa5ca058
+coverage.vehicles : cd5bb974f9f4
+coverage.vehicles.scanned : true · b5bea41b6c62
+coverage.vehicles.lives : 109 · 0fd42b3f73c4
+coverage.vehicles.published : 74 · eb624dbe56eb
+coverage.vehicles.noPosition : 8 · 2c624232cdd2
+coverage.vehicles.echantillonsHorsEmprise : 8 · 2c624232cdd2
+coverage.vehicles.spawnsHorsEmprise : 28 · 59e19706d51d
+coverage.vehicles.echantillonsAuTraversDUnSilence : 0 · 5feceb66ffc8
+coverage.vehicles.silencesNonTranches : 0 · 5feceb66ffc8
+coverage.vehicles.merged : 27 · 670671cd9740
+coverage.vehicles.withSpawn : 70 · ff5a1ae012af
+coverage.vehicles.withChassis : 70 · ff5a1ae012af
+coverage.vehicles.familyResolved : 43 · 44cb730c4204
+coverage.vehicles.familyUnknown : 4 · 4b227777d4dd
+coverage.vehicles.unknownChassis : n=2 · a238038cbf46
+coverage.vehicles.samples : 33041 · de348a203788
+coverage.vehicles.withHeading : 24119 · a6bf3abb22b5
+coverage.vehicles.deathsRead : 12 · 6b51d431df5d
+coverage.vehicles.deathsMatched : 12 · 6b51d431df5d
+coverage.vehicles.deathsUnmatched : 0 · 5feceb66ffc8
+coverage.vehicles.deathsTailDesync : 0 · 5feceb66ffc8
+coverage.vehicles.keyframesEmptiedAtOnce : 0 · 5feceb66ffc8
+coverage.vehicles.endsPastEmptiedKeyframe : 0 · 5feceb66ffc8
+coverage.vehicles.endDestroyed : 10 · 4a44dc153642
+coverage.vehicles.endFilmEnd : 32 · e29c9c180c62
+coverage.vehicles.endUnknown : 32 · e29c9c180c62
+coverage.vehicles.samplesAfterEnd : 81 · 5316ca1c5ddc
+coverage.vehicles.rides : 47 · 31489056e091
+coverage.vehicles.vehiclesRidden : 30 · 624b60c58c9d
+coverage.vehicles.ridesNamed : 47 · 31489056e091
+coverage.vehicles.ridesRead : 38 · aea92132c4cb
+coverage.vehicles.ridesProximity : 9 · 19581e27de7c
+coverage.vehicles.ridesWithSeat : 34 · 86e501496586
+coverage.vehicles.aimReads : 26664 · 8e4178253fb4
+coverage.vehicles.ridesWithAim : 46 · 25fc0e7096fc
+coverage.vehicles.aimSamples : 12868 · affd505d590d
+coverage.vehicles.aimRideFrames : 20029 · 0dd1c3686e0d
+coverage.vehicles.ambiguous : 3 · 4e07408562be
+coverage.vehicles.shots : 1 · 6b86b273ff34
+coverage.vehicles.shotsAmbiguous : 0 · 5feceb66ffc8
+coverage.vehicles.shotsUnplaced : 0 · 5feceb66ffc8
+coverage.vehicles.shotsNoRide : 114 · 9f1f9dce319c
+coverage.vehicles.shotsByUnit : 1 · 6b86b273ff34
+coverage.vehicles.shotsByUnitNoRide : 1 · 6b86b273ff34
+coverage.vehicles.shotsVehicleWeapon : 1 · 6b86b273ff34
+coverage.vehicles.turrets : 23 · 535fa30d7e25
+coverage.vehicles.turretsOnCarrier : 23 · 535fa30d7e25
+coverage.vehicles.turretsByRead : 23 · 535fa30d7e25
+coverage.vehicles.turretParentUnknown : 0 · 5feceb66ffc8
+coverage.vehicles.turretCarrierBirthMismatch : 0 · 5feceb66ffc8
+coverage.vehicles.turretRides : 5 · ef2d127de37b
+coverage.vehicles.turretRidesDropped : 1 · 6b86b273ff34
+coverage.vehicles.turretRidesOutOfWindow : 1 · 6b86b273ff34
+coverage.vehicles.turretRidesAlreadyAboard : 0 · 5feceb66ffc8
+coverage.vehicles.shotsOnCarrier : 0 · 5feceb66ffc8
+coverage.vehicles.variants : 2 · d4735e3a265e
+coverage.vehicles.cycleLocations : 26 · 5f9c4ab08cac
+coverage.vehicles.cycles : 0 · 5feceb66ffc8
+coverage.vehicles.cycleGaps : 6 · e7f6c011776e
+coverage.vehicles.cycleMissing : 15 · e629fa6598d7
+coverage.vehicles.destructions : ae0826d78ffc
+coverage.vehicles.destructions.destroyed : 3 · 4e07408562be
+coverage.vehicles.destructions.pieces : 7 · 7902699be42c
+coverage.vehicles.destructions.published : 2 · d4735e3a265e
+coverage.vehicles.destructions.byHuman : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.byBot : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.killerAbsent : 3 · 4e07408562be
+coverage.vehicles.destructions.killerOutOfRoster : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.killerAmbiguous : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.cause : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.causeUnresolved : 3 · 4e07408562be
+coverage.vehicles.destructions.causeAbsent : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.occupant : 2 · d4735e3a265e
+coverage.vehicles.destructions.killed : 1 · 6b86b273ff34
+coverage.vehicles.destructions.killedOccupants : 1 · 6b86b273ff34
+coverage.vehicles.destructions.killedNoIdentity : 0 · 5feceb66ffc8
+coverage.vehicles.destructions.killedCleanup : 0 · 5feceb66ffc8
+coverage.continuousFire : af1a8fbe9ead
+coverage.continuousFire.packets : 11130 · 23335e596586
+coverage.continuousFire.reached : 9833 · 88d5306b2934
+coverage.continuousFire.closed : 771 · 0fbc9039145b
+coverage.continuousFire.holes : 10359 · 4cb08c34129a
+coverage.continuousFire.holeRuns : 7 · 7902699be42c
+coverage.continuousFire.holesUnlocated : 1286 · 2adf89afa76f
+coverage.continuousFire.holesOpenViewB : 11 · 4fc82b26aecb
+coverage.continuousFire.holesOverflow : 1 · 6b86b273ff34
+coverage.continuousFire.holesKind : 187 · 38b2d03f3256
+coverage.continuousFire.holesBlockBC : 138 · d6a403173361
+coverage.continuousFire.holesCap : 0 · 5feceb66ffc8
+coverage.continuousFire.holesNotClosing : 8736 · 4b06b9094858
+coverage.continuousFire.entries : 1 · 6b86b273ff34
+coverage.continuousFire.withAction : 1 · 6b86b273ff34
+coverage.continuousFire.firing : 0 · 5feceb66ffc8
+coverage.continuousFire.burstsRead : 0 · 5feceb66ffc8
+coverage.continuousFire.burstsWithHole : 0 · 5feceb66ffc8
+coverage.continuousFire.innerHoles : 0 · 5feceb66ffc8
+coverage.continuousFire.heldHoleMs : 0 · 5feceb66ffc8
+coverage.continuousFire.published : 0 · 5feceb66ffc8
+coverage.continuousFire.onVehicle : 0 · 5feceb66ffc8
+coverage.continuousFire.onFoot : 0 · 5feceb66ffc8
+coverage.continuousFire.otherInput : 0 · 5feceb66ffc8
+coverage.continuousFire.noPlayer : 0 · 5feceb66ffc8
+coverage.continuousFire.ambiguous : 0 · 5feceb66ffc8
+coverage.continuousFire.vehicleNoWeapon : 0 · 5feceb66ffc8
+coverage.continuousFire.noTrack : 0 · 5feceb66ffc8
+coverage.continuousFire.weaponUnknown : 0 · 5feceb66ffc8
+coverage.continuousFire.notContinuous : 0 · 5feceb66ffc8
+coverage.continuousFire.empty : 0 · 5feceb66ffc8
+coverage.continuousFire.byPlace : 0 · 5feceb66ffc8
+coverage.continuousFire.clippedToMount : 0 · 5feceb66ffc8
+coverage.continuousFire.shots : 0 · 5feceb66ffc8
+coverage.clocks : 0a64cf64ad07
+coverage.clocks.frames : 9844 · 9416a40b88ff
+coverage.clocks.framesUnread : 1286 · 2adf89afa76f
+coverage.clocks.clockReads : 173 · 4a8596a7790b
+coverage.clocks.clockPublished : 173 · 4a8596a7790b
+coverage.clocks.clockImpossible : 0 · 5feceb66ffc8
+coverage.clocks.clockUnmeasuredState : 0 · 5feceb66ffc8
+coverage.clocks.countdownReads : 375 · de5872c6bb44
+coverage.clocks.countdownImpossible : 22 · 785f3ec7eb32
+coverage.clocks.countdownNoPlayer : 0 · 5feceb66ffc8
+coverage.clocks.countdownIsolated : 14 · 8527a891e224
+coverage.clocks.withheldUnknownIndex : 0 · 5feceb66ffc8
+coverage.clocks.withheldReusedIndex : 0 · 5feceb66ffc8
+coverage.clocks.withheldOutsidePresence : 6 · e7f6c011776e
+coverage.clocks.countdowns : 87 · bdd2d3af3a5a
+coverage.clocks.startDeduced : 93 · 6e4001871c0c
+coverage.clocks.endDeduced : 89 · cd70bea023f7
+coverage.objectiveObjects : 491cc2876dbd
+coverage.objectiveObjects.scanned : true · b5bea41b6c62
+coverage.objectiveObjects.declared : 0 · 5feceb66ffc8
+coverage.objectiveObjects.lives : 0 · 5feceb66ffc8
+coverage.objectiveObjects.points : 0 · 5feceb66ffc8
+coverage.objectiveObjects.motionless : 0 · 5feceb66ffc8
+coverage.objectiveObjects.outOfAxis : 0 · 5feceb66ffc8
+coverage.inventory : 6a8b4d00a53a
+coverage.inventory.decoded : 403 · d26eae87829a
+coverage.inventory.droppedBeforeOrigin : 0 · 5feceb66ffc8
+coverage.inventory.unpublished : 8 · 2c624232cdd2
+coverage.inventory.published : 395 · a3af7b3808c4
+coverage.grenadeReads : d15d8bd4414f
+coverage.grenadeReads.fromKeyframe : 322 · f10d91a7596b
+coverage.grenadeReads.fromDelta : 202 · c17edaae86e4
+coverage.grenadeReads.unpublished : 0 · 5feceb66ffc8
+coverage.grenadeReads.ammoRefused : true · b5bea41b6c62
+coverage.ammoReads : e6e0fd41513c
+coverage.ammoReads.read : 644 · 87e50b287059
+coverage.ammoReads.empty : 0 · 5feceb66ffc8
+coverage.ammoReads.beforeOrigin : 0 · 5feceb66ffc8
+coverage.ammoReads.afterEnd : 0 · 5feceb66ffc8
+coverage.ammoReads.noTrack : 0 · 5feceb66ffc8
+coverage.ammoReads.unchanged : 224 · 84a5092e4a5b
+coverage.ammoReads.fromKeyframe : 420 · db55da3fc309
+coverage.ammoReads.fromDelta : 0 · 5feceb66ffc8
+coverage.ammoReads.deltaRefused : true · b5bea41b6c62
+coverage.abilities : 613e3e4adf8e
+coverage.abilities.reads : 58 · 6208ef0f7750
+coverage.abilities.scanNoise : 0 · 5feceb66ffc8
+coverage.abilities.unpublished : 0 · 5feceb66ffc8
+coverage.abilities.published : 58 · 6208ef0f7750
+coverage.zones : absent
+coverage.originResolved : true · b5bea41b6c62
+coverage.t0Film : 9260f0bb065d
+coverage.t0Film.detected : true · b5bea41b6c62
+coverage.t0Film.reason : "" · 12ae32cb1ec0
+coverage.t0Film.source : "roundClock" · 282bc11cbc7b
+coverage.t0Film.startRead : false · fcbcf165908d
+coverage.t0Film.tracks : 0 · 5feceb66ffc8
+coverage.t0Film.moving : 0 · 5feceb66ffc8
+coverage.t0Film.burst : 0 · 5feceb66ffc8
+coverage.t0Film.marginMs : 16524 · e3d42bda8223
+coverage.filmMajorVersion : c6f3ac57944a
+coverage.verdict : n=4 · cfd181a70d78
+coverage.bridge : 85e0c252d89c
+coverage.bridge.slots : 128 · 2747b7c71856
+coverage.bridge.fromReading : 128 · 2747b7c71856
+coverage.bridge.livesNamed : 85 · b4944c6ff08d
+coverage.bridge.livesTotal : 128 · 2747b7c71856
+coverage.bridge.deathsFeed : "read" · 6f3658822a73
+coverage.bridge.indexReadings : 19 · 9400f1b21cb5
+coverage.bridge.indexDisagreements : 0 · 5feceb66ffc8
+coverage.bridge.slotCollisions : 0 · 5feceb66ffc8
+coverage.bridge.concordant : 80 · 48449a14a4ff
+coverage.bridge.discordant : 5 · ef2d127de37b
+coverage.bridge.bridgeNamedLives : 0 · 5feceb66ffc8
+coverage.bridge.directByCreation : 128 · 2747b7c71856
+coverage.bridge.directByCreationPropagated : 0 · 5feceb66ffc8
+coverage.bridge.bodiesWithCreation : 128 · 2747b7c71856
+coverage.bridge.namedByPreviousLife : 0 · 5feceb66ffc8
+coverage.bridge.namedByNextLife : 0 · 5feceb66ffc8
+coverage.bridge.namedBySlotBridge : 0 · 5feceb66ffc8
+coverage.bridge.unnamedLives : 0 · 5feceb66ffc8
+coverage.bridge.unnamedLivesContested : 0 · 5feceb66ffc8
+coverage.bridge.deathOffsetMatched : 87 · bdd2d3af3a5a
+coverage.bridge.deathOffsetRunnerUp : 22 · 785f3ec7eb32
+coverage.bridge.deathOffsetMs : 58876f316aeb
+coverage.bridge.closedByShot : 0 · 5feceb66ffc8
+coverage.bridge.closedByRespawn : 0 · 5feceb66ffc8
+coverage.bridge.closedContested : 0 · 5feceb66ffc8
+coverage.bridge.closedRefused : 0 · 5feceb66ffc8
+coverage.fallbacks : n=13 · 7e4e9916a0f9
+coverage.decoder : 7b444260364e
+coverage.decoder.sourceRev : "source-2026-09-16.2" · e0d35cdb4213
+coverage.decoder.profileRev : "profile-2026-11-24" · e045269d897c
+coverage.decoder.grammarRev : "grammar-2026-11-24" · 8274ecc81b02
+coverage.decoder.killsourceRev : "killsource-2026-11-10" · 85b5ff61a8f8
+coverage.decoder.objectivesRev : "objectives-2026-11-24" · 634e23511a4b
+coverage.decoder.build : "" · 12ae32cb1ec0
+coverage.decoder.registry : absent
+coverage.deathsPaths : absent
+roundClock : n=173 · afa2d4c1af85
+respawnCountdowns : n=87 · 10d0628d0e11
+rules : absent
+identity : 7741bccde297
+identity.players : n=28 · baf913c93621
+identity.bipedSlots : n=128 · 8d15f5cef1cc
+identity.statborgSlots : n=0 · 74234e98afe7
+identity.coverage : f108dfd5b7c4
+identity.coverage.filmIndex : a213a9c2ee94
+identity.coverage.filmIndex.direct : 28 · 59e19706d51d
+identity.coverage.filmIndex.catalogue : 0 · 5feceb66ffc8
+identity.coverage.filmIndex.externe : 0 · 5feceb66ffc8
+identity.coverage.filmIndex.deduit : 0 · 5feceb66ffc8
+identity.coverage.filmIndex.non_resolu : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot : 7c10b7463dec
+identity.coverage.bipedSlot.direct : 128 · 2747b7c71856
+identity.coverage.bipedSlot.catalogue : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.externe : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.deduit : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.non_resolu : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.direct_propage : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.non_resolu_par_cause : b3609068ba20
+identity.coverage.bipedSlot.non_resolu_par_cause.index_hors_table : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.non_resolu_par_cause.sans_record : 0 · 5feceb66ffc8
+identity.coverage.bipedSlot.non_resolu_par_cause.lectures_divergentes : 0 · 5feceb66ffc8
+identity.coverage.statborgSlot : a69c1dd55ca3
+identity.coverage.statborgSlot.direct : 0 · 5feceb66ffc8
+identity.coverage.statborgSlot.catalogue : 0 · 5feceb66ffc8
+identity.coverage.statborgSlot.externe : 0 · 5feceb66ffc8
+identity.coverage.statborgSlot.deduit : 0 · 5feceb66ffc8
+identity.coverage.statborgSlot.non_resolu : 0 · 5feceb66ffc8
+identity.coverage.filmTable : f9590fa47a08
+identity.coverage.filmTable.lu : true · b5bea41b6c62
+identity.coverage.filmTable.refus : "" · 12ae32cb1ec0
+identity.coverage.filmTable.sieges : 24 · c2356069e9d1
+identity.coverage.filmTable.direct : 24 · c2356069e9d1
+identity.coverage.filmTable.repli : 4 · 4b227777d4dd
+identity.coverage.filmTable.accord : 23 · 535fa30d7e25
+identity.coverage.filmTable.contradiction : 0 · 5feceb66ffc8
+identity.coverage.filmTable.silence : 1 · 6b86b273ff34
+identity.coverage.filmTable.collisionsIndex : 0 · 5feceb66ffc8
+layers : n=52 · f8d0771fcb77
 

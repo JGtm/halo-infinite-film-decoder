@@ -6,7 +6,8 @@ package grammar
 // l auteur ([chargeRechargement]). La premiere reference est l unite qui recharge ; aucun message ne
 // nomme l arme. Le canal rend, dans l ordre du flux, un rechargement par (trame, auteur, references) :
 // le jeu ecrit souvent le meme message deux fois dans la meme trame, et ces copies ne sont pas des
-// rechargements de plus (elles se comptent, [StatsRechargements.Copies]). Deux messages d une meme trame
+// rechargements de plus : elles se comptent, [types.ReloadStats.Copies], et chaque rechargement rendu porte le
+// nombre de copies de son message ([types.ReloadRead.Copies]). Deux messages d une meme trame
 // qui ne different que par leurs booleens sont une seule identite : le message ne dit pas laquelle des
 // deux copies vaut mieux, et aucun ne decrit l arme.
 //
@@ -48,8 +49,10 @@ type identiteDeRechargement struct {
 type canalDesRechargements struct {
 	out   []types.ReloadRead
 	stats types.ReloadStats
-	// vus : les identites deja rendues par la trame en cours (au plus quelques unes).
-	vus []identiteDeRechargement
+	// vus : les identites deja rendues par la trame en cours (au plus quelques unes), et rangs la position
+	// dans `out` du rechargement rendu pour chacune.
+	vus   []identiteDeRechargement
+	rangs []int
 }
 
 func nouveauCanalDesRechargements() *canalDesRechargements { return &canalDesRechargements{} }
@@ -70,25 +73,26 @@ func (c *canalDesRechargements) Tete(p *lecture.Paquet) {
 	case lecture.VueArretee:
 		st.Stopped++
 	}
-	c.vus = c.vus[:0]
+	c.vus, c.rangs = c.vus[:0], c.rangs[:0]
 	for _, m := range p.VueA.Rechargements {
 		id := identiteDeRechargement{joueur: m.Joueur, drapeaux: m.Drapeaux, ref: m.Ref, gen: m.Gen}
-		if c.dejaVu(id) {
+		if k := c.dejaVu(id); k >= 0 {
 			st.Copies++
+			c.out[c.rangs[k]].Copies++
 			continue
 		}
-		c.vus = append(c.vus, id)
+		c.vus, c.rangs = append(c.vus, id), append(c.rangs, len(c.out))
 		c.out = append(c.out, types.ReloadRead{TimestampUS: p.TS, Player: m.Joueur})
 		st.Messages++
 	}
 }
 
-// dejaVu dit que la trame en cours a deja rendu un rechargement de cette identite.
-func (c *canalDesRechargements) dejaVu(id identiteDeRechargement) bool {
-	for _, v := range c.vus {
+// dejaVu rend le rang, dans `vus`, de l identite que la trame en cours a deja rendue, ou -1.
+func (c *canalDesRechargements) dejaVu(id identiteDeRechargement) int {
+	for k, v := range c.vus {
 		if v == id {
-			return true
+			return k
 		}
 	}
-	return false
+	return -1
 }

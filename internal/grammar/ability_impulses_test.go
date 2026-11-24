@@ -28,7 +28,7 @@ func TestComponentIndexOfAnyResoutParNomExact(t *testing.T) {
 	if got := componentIndexOfAny(arch, grappleComponentName, grappleComponentNameAlt); got != 59 {
 		t.Fatalf("i59 resolu a %d, attendu 59", got)
 	}
-	if got := componentIndexOfAny(Archetype{Components: []string{"autre"}},
+	if got := componentIndexOfAny(Archetype{Components: []string{classeAutre}},
 		abilityPredictedName, abilityPredictedNameAlt); got != -1 {
 		t.Fatalf("composant absent resolu a %d, attendu -1", got)
 	}

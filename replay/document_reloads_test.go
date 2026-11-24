@@ -16,14 +16,14 @@ func TestLesRechargementsSePosentSurLAxeEtSeComptent(t *testing.T) {
 	st := types.ReloadStats{Frames: 50, Closed: 40, Stopped: 10, Messages: 6, Copies: 3}
 	in := []types.ReloadRead{
 		{TimestampUS: 1_000_000 + 40_000*7, Player: 5},
-		{TimestampUS: 1_000_000 + 40_000*7 + 39_999, Player: 2},
+		{TimestampUS: 1_000_000 + 40_000*7 + 39_999, Player: 2, Copies: 2},
 		{TimestampUS: 1_000_000 + 40_000*3, Player: types.ReloadNoPlayer},
 		{TimestampUS: 999_999, Player: 1},
 		{TimestampUS: 1_000_000 + 40_000*100, Player: 1},
-		{TimestampUS: 1_000_000 + 40_000*99, Player: 31},
+		{TimestampUS: 1_000_000 + 40_000*99, Player: 31, Copies: 1},
 	}
 	got, cov := buildReloads(in, st, axe)
-	want := []Reload{{T: 7, Place: 2}, {T: 7, Place: 5}, {T: 99, Place: 31}}
+	want := []Reload{{T: 7, Place: 2, Ms: 319, Copies: 2}, {T: 7, Place: 5, Ms: 280}, {T: 99, Place: 31, Ms: 3960, Copies: 1}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("rechargements %+v, attendu %+v", got, want)
 	}
@@ -47,8 +47,8 @@ func TestLesRechargementsFontLAllerRetourDesFaits(t *testing.T) {
 		{nil, types.ReloadStats{}},
 		{nil, types.ReloadStats{Frames: 3, Closed: 3}},
 		{[]types.ReloadRead{
-			{TimestampUS: 4_517_903_000, Player: 4}, {TimestampUS: 4_517_903_000, Player: 31},
-			{TimestampUS: 4_517_999_000, Player: types.ReloadNoPlayer},
+			{TimestampUS: 4_517_903_000, Player: 4, Copies: 1}, {TimestampUS: 4_517_903_000, Player: 31},
+			{TimestampUS: 4_517_999_000, Player: types.ReloadNoPlayer, Copies: 7},
 		}, types.ReloadStats{Frames: 9000, Closed: 8990, Stopped: 10, Messages: 3, Copies: 1}},
 	}
 	for _, c := range cas {

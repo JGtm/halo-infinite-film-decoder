@@ -44,7 +44,8 @@ func TestLaChargeDeRechargementLitQuatreBooleensEtLAuteur(t *testing.T) {
 // par leurs booleens sont un seul rechargement ; un autre auteur ou d autres references en sont d autres ; le
 // meme message dans une trame suivante reste un rechargement, et les trames se comptent par etat de leur vue A.
 // MUTATIONS : l identite sans les references, les booleens dans l identite, l identite gardee d une trame a
-// l autre -> ROUGE.
+// l autre, une copie comptee sur la mauvaise ligne ou plus du tout -> ROUGE. Chaque rechargement rendu porte le
+// nombre de copies de son message ; leur somme est le compte du canal.
 func TestLeCanalDesRechargementsRetireLesCopiesDeLaTrame(t *testing.T) {
 	msg := func(joueur int8, ref uint16, booleens uint8) lecture.MessageDeRechargement {
 		return lecture.MessageDeRechargement{Joueur: joueur, Ref: [3]uint16{ref}, Gen: [3]uint8{1},
@@ -60,8 +61,8 @@ func TestLeCanalDesRechargementsRetireLesCopiesDeLaTrame(t *testing.T) {
 	trame(200, lecture.VueArretee, msg(3, 17, 3))
 	trame(300, lecture.VueTerminee, msg(lecture.RefAbsente, 5, 2), msg(lecture.RefAbsente, 5, 2))
 
-	attendus := []types.ReloadRead{{TimestampUS: 100, Player: 3}, {TimestampUS: 100, Player: 4}, {TimestampUS: 100, Player: 3},
-		{TimestampUS: 200, Player: 3}, {TimestampUS: 300, Player: types.ReloadNoPlayer}}
+	attendus := []types.ReloadRead{{TimestampUS: 100, Player: 3, Copies: 2}, {TimestampUS: 100, Player: 4}, {TimestampUS: 100, Player: 3},
+		{TimestampUS: 200, Player: 3}, {TimestampUS: 300, Player: types.ReloadNoPlayer, Copies: 1}}
 	if got := c.out; len(got) != len(attendus) {
 		t.Fatalf("%d rechargements, attendu %d : %+v", len(got), len(attendus), got)
 	} else {
@@ -74,5 +75,12 @@ func TestLeCanalDesRechargementsRetireLesCopiesDeLaTrame(t *testing.T) {
 	want := types.ReloadStats{Frames: 3, Closed: 2, Stopped: 1, Messages: 5, Copies: 3}
 	if c.stats != want {
 		t.Errorf("comptes %+v, attendu %+v", c.stats, want)
+	}
+	somme := 0
+	for _, m := range c.out {
+		somme += m.Copies
+	}
+	if somme != c.stats.Copies {
+		t.Errorf("la somme des copies par ligne est %d, le compte du canal %d", somme, c.stats.Copies)
 	}
 }

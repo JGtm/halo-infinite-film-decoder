@@ -73,7 +73,7 @@ func buildPlayerScoresFlat(recs []types.StatRecord, identity map[int]string, c s
 	kills := loadScoreSeries(recs, objectives.KillsComponent(), false, c.cons)
 	deaths := loadScoreSeries(recs, objectives.DeathsComponent(), false, c.cons)
 	assists := loadScoreSeries(recs, objectives.AssistsComponent(), false, c.cons)
-	stats := loadNamedStats(recs, c.cons)
+	stats := loadNamedStats(recs, c)
 
 	slots := make([]int, 0, len(identity))
 	for slot := range identity {
@@ -185,11 +185,15 @@ func playerRoundsByXUID(recs []types.StatRecord, comp objectives.StatComponent, 
 }
 
 // joinSegments met bout a bout les segments d'un joueur dans une manche, dans l'ordre de leur premier point.
+// Le comparateur est total : a egalite d'instant de debut, le segment du plus petit slot passe d'abord (le slot est porte par
+// chaque point), de sorte que la sortie ne depend pas de l'ordre dans lequel les segments arrivent.
 func joinSegments(segs [][]types.ScorePoint, cumulative bool) []types.ScorePoint {
 	if len(segs) == 1 {
 		return segs[0]
 	}
-	slices.SortStableFunc(segs, func(a, b []types.ScorePoint) int { return cmp.Compare(a[0].TimeMS, b[0].TimeMS) })
+	slices.SortStableFunc(segs, func(a, b []types.ScorePoint) int {
+		return cmp.Or(cmp.Compare(a[0].TimeMS, b[0].TimeMS), cmp.Compare(a[0].Slot, b[0].Slot))
+	})
 	var out []types.ScorePoint
 	var offset int64
 	for _, seg := range segs {

@@ -35,6 +35,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/JGtm/halo-infinite-film-decoder/internal/facts/fallback"
 	"github.com/JGtm/halo-infinite-film-decoder/types"
 )
 
@@ -42,24 +43,36 @@ import (
 type fireBurstBoard struct {
 	vehicules vehicleShotBoard
 	occupants occupantsDesSlots
-	places    tireursParPlace
+	places    tireursDesPlaces
+	// lecture recoit le compte des rafales par source (`coverage.controlPlaces`) ; nil ne compte rien.
+	lecture   *ControlPlaceCoverage
 	vies      map[uint32][][2]int // fenetres [premiere, derniere frame] des pistes publiees, par slot
 	dotations map[uint32][]Loadout
 	prises    map[uint32][]WeaponChange
 	cov       *ContinuousFireCoverage
 }
 
+// entreesDesRafales : les rafales lues, leurs comptes, le tireur de chaque place et la couverture
+// de ces places, ou chaque rafale se compte sous sa source (`lecture` nil ne compte rien).
+type entreesDesRafales struct {
+	lues    []types.ContinuousFireBurst
+	stats   types.ContinuousFireStats
+	places  tireursDesPlaces
+	lecture *ControlPlaceCoverage
+}
+
 // buildFireBursts publie les rafales et rend leur couverture. Nil sans aucune lecture.
-func buildFireBursts(ctx context.Context, doc *ReplayDocument, in []types.ContinuousFireBurst, st types.ContinuousFireStats,
+func buildFireBursts(ctx context.Context, doc *ReplayDocument, e entreesDesRafales,
 	occ occupantsDesSlots, clock replayClock) ([]FireBurst, *ContinuousFireCoverage) {
-	if !st.Scanned {
+	if !e.stats.Scanned {
 		return nil, nil
 	}
-	cov := coverageFromStats(st)
+	in := e.lues
+	cov := coverageFromStats(e.stats)
 	b := fireBurstBoard{
 		vehicules: vehicleShotBoard{rides: vehicleRidesByOccupant(doc.Vehicles), tracks: doc.Vehicles,
 			lives: vehicleLifeIndex(doc.Vehicles), clock: clock},
-		occupants: occ, places: nouveauxTireursParPlace(doc.Roster),
+		occupants: occ, places: e.places, lecture: e.lecture,
 		vies: fenetresDesPistes(doc.Tracks), dotations: dotationsParSlot(doc.Loadouts),
 		prises: prisesParSlot(doc.WeaponChanges), cov: cov,
 	}
@@ -89,7 +102,11 @@ func (b fireBurstBoard) publier(r types.ContinuousFireBurst) (FireBurst, bool) {
 	clock := b.vehicules.clock
 	f := FireBurst{T0: clock.frame(r.StartUS), T1: clock.frame(r.EndUS),
 		StartBound: r.StartBound, EndBound: r.EndBound}
-	idx, parPlace := b.places.tireur(r.FilmIndex, f.T0)
+	idx, source := b.places.tireur(r.FilmIndex, f.T0)
+	b.lecture.compterRafale(source)
+	if source == tireurParLeSiege {
+		clock.fb.Declenche(fallback.NomTireurParLeSiegeDeLaPlace)
+	}
 	slots := b.occupants.slotsDe(idx, int64(r.StartUS))
 	if len(slots) == 0 {
 		b.cov.NoPlayer++
@@ -112,7 +129,7 @@ func (b fireBurstBoard) publier(r types.ContinuousFireBurst) (FireBurst, bool) {
 		return FireBurst{}, false
 	}
 	b.poserLesTrous(&f, r.Holes)
-	if parPlace {
+	if idx != r.FilmIndex {
 		b.cov.ByPlace++
 	}
 	b.cov.Published++

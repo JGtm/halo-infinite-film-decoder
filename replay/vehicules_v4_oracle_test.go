@@ -109,7 +109,7 @@ func v4OracleEtat(
 ) (v4OracleCause, float64, float64) {
 	best, bestDist, bestSil := v4OracleSansSlot, 0.0, 0.0
 	for _, s := range slots {
-		pts := slotTracks[s].pts
+		pts := slotTracks[s].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > atUS })
 		if i == 0 {
 			continue // le flux de ce slot commence apres le tir : ce n est pas le bon slot

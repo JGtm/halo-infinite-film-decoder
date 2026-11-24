@@ -265,14 +265,9 @@ func vehicleRideBorders(g vehicleGap, boards, exits []types.VehicleEvent) int {
 }
 
 // vehicleGaps releve les interruptions >= vehicleGapMinMS du flux de position de chaque bipede.
-// L ordre de sortie est deterministe (slots tries, echantillons tries par instant).
-func vehicleGaps(bipeds []grammar.BipedPosition) []vehicleGap {
-	bySlot := map[uint32][]grammar.BipedPosition{}
-	for _, b := range bipeds {
-		if b.HasWorld {
-			bySlot[b.Slot] = append(bySlot[b.Slot], b)
-		}
-	}
+// L ordre de sortie est deterministe (slots tries, echantillons tries par instant). `bySlot` est le
+// resultat de [vehiclePositionsBySlot] : seuls les echantillons situes, deja tries par instant.
+func vehicleGaps(bySlot map[uint32][]grammar.BipedPosition) []vehicleGap {
 	slots := make([]uint32, 0, len(bySlot))
 	for s := range bySlot {
 		slots = append(slots, s)
@@ -281,7 +276,6 @@ func vehicleGaps(bipeds []grammar.BipedPosition) []vehicleGap {
 	var out []vehicleGap
 	for _, s := range slots {
 		ech := bySlot[s]
-		slices.SortStableFunc(ech, func(a, b grammar.BipedPosition) int { return cmp.Compare(a.TimestampUS, b.TimestampUS) })
 		for i := 1; i < len(ech); i++ {
 			if (ech[i].TimestampUS-ech[i-1].TimestampUS)/1000 < vehicleGapMinMS {
 				continue
@@ -415,4 +409,14 @@ func gapUS(a, b uint64) uint64 {
 		return a - b
 	}
 	return b - a
+}
+
+// bipedsParSlot rend l'index par slot du nuage des bipedes : celui que l'appelant a deja construit
+// (`bipedsBySlot`), sinon le sien. L'index est partage et en LECTURE SEULE : un seul parcours du
+// nuage pour les trous, les episodes lus et la pose des pieces montees.
+func (in vehicleRideInputs) bipedsParSlot() map[uint32][]grammar.BipedPosition {
+	if in.bipedsBySlot != nil {
+		return in.bipedsBySlot
+	}
+	return vehiclePositionsBySlot(in.bipeds)
 }

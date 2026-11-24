@@ -225,7 +225,7 @@ func v2dTightEnd(vt slotTrack, firstSeen, goneBy uint64) (uint64, [3]float64, bo
 	var endUS uint64
 	var pos [3]float64
 	var has bool
-	for _, p := range vt.pts {
+	for _, p := range vt.pts() {
 		if p.TimestampUS < firstSeen || p.TimestampUS > goneBy {
 			continue
 		}

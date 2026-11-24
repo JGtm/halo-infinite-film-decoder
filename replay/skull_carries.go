@@ -30,7 +30,7 @@ import (
 //
 // # PAR MANCHE, et c'est structurel
 //
-// Les tics sont lus MANCHE PAR MANCHE (`SeriesByRound`), et le porteur d'un train est nomme par
+// Les tics sont lus MANCHE PAR MANCHE (`SeriesByRoundBySeat`), et le porteur d'un train est nomme par
 // l'identite de SA manche ([objectives.RoundIdentity.AtRound]) : le slot d'entite est
 // reattribue d'une manche a l'autre. Une bascule de manche NE FERME PAS un portage par une fausse
 // prise — les trains sont bornes par les seuls TROUS DE TICS, et chaque manche est un parcours
@@ -78,7 +78,7 @@ const skullTickGapMS = 3000
 // — un film dont tous les trains tiennent en un seul tic, ou un axe sans echelle.
 func skullTickWidthFrames(recs []types.StatRecord, ctx matchClock, cons *objectives.ReplisALaConsultation) int {
 	var ecarts []int
-	for _, byRound := range objectives.SeriesByRound(recs, objectives.SkullTicksComponent(), false, cons) {
+	for _, byRound := range objectives.SeriesByRoundBySeat(recs, objectives.SkullTicksComponent(), false, cons) {
 		for _, pts := range byRound {
 			inst := skullTickInstants(pts)
 			for i := 1; i < len(inst); i++ {
@@ -234,9 +234,13 @@ func buildSkullCarries(scan SkullCarryScan, ctx matchClock, presence carrierPres
 // PAR MANCHE et par slot, chaque train nomme par l'identite de sa manche. Ordre TOTAL (instant,
 // puis manche, puis xuid) : sans lui le parcours de map rendrait une sortie differente a chaque
 // execution.
+//
+// UN SIEGE QUI CHANGE D'OCCUPANT RENDRA LES TICS DES DEUX ([objectives.SeriesByRoundBySeat]) ET CHAQUE TIC EST
+// NOMME PAR SON INSTANT ([objectives.RoundIdentity.At]) : un train se ferme aussi quand l'occupant change. Un
+// siege qui garde son occupant se nomme par l'identite de la manche, comme avant.
 func skullCarryIntervals(recs []types.StatRecord, identity objectives.RoundIdentity,
 	cons *objectives.ReplisALaConsultation) []skullRawCarry {
-	bySlot := objectives.SeriesByRound(recs, objectives.SkullTicksComponent(), false, cons)
+	bySlot := objectives.SeriesByRoundBySeat(recs, objectives.SkullTicksComponent(), false, cons)
 	var out []skullRawCarry
 	for slot, byRound := range bySlot {
 		for round, pts := range byRound {
@@ -244,12 +248,18 @@ func skullCarryIntervals(recs []types.StatRecord, identity objectives.RoundIdent
 			if len(inst) == 0 {
 				continue
 			}
-			xuid := identity.AtRound(round, slot)
-			start, last := inst[0], inst[0]
+			recycle := identity.Occupations(round, slot) != nil
+			ownerOf := func(t int) string {
+				if recycle {
+					return identity.At(slot, t)
+				}
+				return identity.AtRound(round, slot)
+			}
+			start, last, xuid := inst[0], inst[0], ownerOf(inst[0])
 			for _, t := range inst[1:] {
-				if t-last > skullTickGapMS {
+				if x := ownerOf(t); t-last > skullTickGapMS || x != xuid {
 					out = append(out, skullRawCarry{xuid: xuid, round: round, t0MS: start, t1MS: last})
-					start = t
+					start, xuid = t, x
 				}
 				last = t
 			}
@@ -278,7 +288,7 @@ func skullTickInstants(pts []types.ScorePoint) []int {
 // denominateur de couverture, independant des trains de tics.
 func skullGrabCount(recs []types.StatRecord, cons *objectives.ReplisALaConsultation) int {
 	total := 0
-	for _, byRound := range objectives.SeriesByRound(recs, objectives.SkullGrabsComponent(), false, cons) {
+	for _, byRound := range objectives.SeriesByRoundBySeat(recs, objectives.SkullGrabsComponent(), false, cons) {
 		for _, pts := range byRound {
 			if n := len(pts); n > 0 {
 				total += int(pts[n-1].Value)

@@ -391,8 +391,10 @@ type FlagCarriesCoverage struct {
 	// publies sur aucun drapeau, plutot que sur un drapeau INVENTE. Ils restent comptes dans
 	// `carries` : le joueur a bel et bien porte quelque chose, c'est LEQUEL qui n'est pas su.
 	Unresolved int `json:"unresolved"`
-	// SeatsBeyondBand : les sieges du statborg que le calque ne lit pas (au-dela des huit premiers joueurs). Sur un CTF de
-	// plus de huit sieges, leurs portages ne sont pas publies.
+	// SeatsBeyondBand : les sieges du statborg que le calque ne lisait pas (au-dela des huit premiers joueurs).
+	//
+	// Deprecated: le calque lit tous les sieges du film depuis le schema 127 et plus rien n ecrit ce compte : il
+	// vaut toujours zero. Le champ reste au schema (un champ publie ne se retire pas en v1).
 	SeatsBeyondBand int `json:"seatsBeyondBand"`
 	// LES CINQ DENOMINATEURS DE LA JAUGE DE RETOUR (schema 63, cf. flag_return_gauge.go). Ils
 	// separent les QUATRE silences que `returnProgress` absent ne distingue pas : le canal n'a
@@ -418,6 +420,20 @@ type FlagCarriesCoverage struct {
 	// intervalles dont la serie est celle de la marche (les autres portent celle de la passe).
 	GaugeWalkReads int `json:"gaugeWalkReads"`
 	GaugeWalkSpans int `json:"gaugeWalkSpans"`
+	// Ce que la jauge a LU SANS LE PUBLIER, sur les deux voies (passe et marche) ; une serie lue ne disparait jamais sans motif.
+	// GaugeSlotsFewReads : slots de moins d'echantillons que le plancher, non juges. GaugeSlotsOffDrops : slots juges dont aucune equipe
+	// ne tient le seuil (la jauge n'est pas celle d'un drapeau). GaugeSlotsTeamTaken : slots qui tiennent le seuil pour une equipe dont
+	// un autre slot, de meilleure part, est deja apparie (ou qui l'est pour une autre equipe). GaugeReadsUnpublished : les echantillons
+	// de ces trois familles de slots.
+	GaugeSlotsFewReads    int `json:"gaugeSlotsFewReads"`
+	GaugeSlotsOffDrops    int `json:"gaugeSlotsOffDrops"`
+	GaugeSlotsTeamTaken   int `json:"gaugeSlotsTeamTaken"`
+	GaugeReadsUnpublished int `json:"gaugeReadsUnpublished"`
+	// GaugeReadsAmbiguous : echantillons d'un slot apparie a une equipe dont deux drapeaux sont au sol a cet instant, que rien ne pose
+	// sur l'un ou l'autre. GaugeReadsOffDrops : echantillons d'un slot apparie qui tombent hors de tout lacher de son equipe (la
+	// jauge se vide ou se tait quand le drapeau est a sa base).
+	GaugeReadsAmbiguous int `json:"gaugeReadsAmbiguous"`
+	GaugeReadsOffDrops  int `json:"gaugeReadsOffDrops"`
 }
 
 // Balanced verifie les TROIS invariants du calque : toute prise de l'oracle est soit publiee, soit

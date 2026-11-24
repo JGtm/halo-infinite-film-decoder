@@ -75,6 +75,19 @@ type MapWeaponPadDTO struct {
 	// Un socle du match qu'AUCUN emplacement ne confirme n'a pas d'entrée ici du tout : son
 	// niveau est « non classé », et c'est l'absence qui le dit (2,95 % des prises du parc).
 	Family string `json:"family"`
+	// Forward et Up sont les axes propres de l'objet d'apparition, dans le repère du monde, tels
+	// que la variante de la carte le pose (trois composantes chacun). Un râtelier tient son arme
+	// dans cette orientation. Ni lus du film ni remplis par [BuildMapWeaponPads] : l'hôte les
+	// renseigne depuis le fichier de variante. Absents (catalogue qui ne les porte pas), le client
+	// garde le râtelier droit et tourné vers +X.
+	//
+	// Un pointeur vers un tableau de trois composantes, et non une tranche : la structure reste comparable (`==`), comme avant
+	// l ajout, et un axe absent est nil.
+	Forward *[3]float32 `json:"forward,omitempty"`
+	Up      *[3]float32 `json:"up,omitempty"`
+	// Scale est l'échelle locale de l'arme posée dans Forge (trois composantes) ; même origine
+	// et même absence que Forward et Up.
+	Scale *[3]float32 `json:"scale,omitempty"`
 }
 
 // BuildMapWeaponPads croise les emplacements d'une carte avec les socles d'un match.

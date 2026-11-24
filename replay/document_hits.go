@@ -144,11 +144,17 @@ type HitCoverage struct {
 	AfterEnd     int `json:"afterEnd"`
 	// Sufficient est le nombre de joueurs dont les données suffisent, sur Players joueurs au bilan.
 	Sufficient int `json:"sufficient"`
-	// Damages est le nombre de lignes de `damage[]` posées, DamagesMeasured celles dont les points viennent de la vie lue autour du coup, DamagesOffUnit les
+	// Damages est le nombre de lignes de `damage[]` posées QUI RETIRENT DES POINTS, DamagesMeasured celles dont les points viennent de la vie lue autour du coup, DamagesOffUnit les
 	// messages dont l unite blessee n a pas de piste a cette frame (un vehicule, un objet) : ni publies ni comptes.
 	Damages         int `json:"damages"`
 	DamagesMeasured int `json:"damagesMeasured"`
 	DamagesOffUnit  int `json:"damagesOffUnit"`
+	// Les messages à zéro point ont leurs compteurs, hors de ceux qui précèdent (qui ne comptent que des dégâts) : DamagesZero les lignes de
+	// `damage[]` dont `shield` et `body` sont nuls (len(damage[]) = Damages + DamagesZero), DamagesZeroOffUnit les messages dont l'unité blessée
+	// n'a pas de piste, DamagesZeroOutOfAxis ceux dont l'instant tombe avant la frame 0 ou après la dernière.
+	DamagesZero          int `json:"damagesZero"`
+	DamagesZeroOffUnit   int `json:"damagesZeroOffUnit"`
+	DamagesZeroOutOfAxis int `json:"damagesZeroOutOfAxis"`
 	// SelfHits est le nombre de touches d une arme sur son propre tireur (une arme a zone), SelfDamages celui des lignes de degat qu un joueur se fait a
 	// lui-meme : ni les unes ni les autres ne sont des touches ni du degat inflige, elles se comptent a part.
 	SelfHits    int `json:"selfHits"`
@@ -186,9 +192,16 @@ func rangerLesTirs(fire []grammar.FireEvent, r resolveurDeTouches) armesDesTirs 
 	return out
 }
 
-// derniereArme rend l'arme du dernier tir de l'auteur `joueur` (un index de film, résolu à l'instant `ts`) entre `ts - fenetreDeLArmeUS` et `ts`, ou "".
-func (a armesDesTirs) derniereArme(joueur int, ts uint64) string {
-	s := a.tirs[a.r.auteur(joueur, ts)]
+// derniereArme rend l'arme du dernier tir du tireur PUBLIE entre `ts - fenetreDeLArmeUS` et `ts`, ou "". `tireur` est le xuid que la touche
+// ou la ligne de dégât publie ; vide (aucun humain résolu), le tireur est l'index `joueur` du message, résolu à l'instant `ts`. C'est le même
+// auteur que celui des tirs rangés ([rangerLesTirs]) : un tir réattribué par la place lue se retrouve sous le joueur qu'il publie, pas sous
+// l'index que le message de dégât porte.
+func (a armesDesTirs) derniereArme(tireur string, joueur int, ts uint64) string {
+	cle := auteurDArme{xuid: tireur}
+	if tireur == "" {
+		cle = a.r.auteur(joueur, ts)
+	}
+	s := a.tirs[cle]
 	i, _ := slices.BinarySearchFunc(s, ts, func(e grammar.FireEvent, ts uint64) int { return cmp.Compare(e.TimestampUS, ts+1) })
 	if i == 0 || ts-s[i-1].TimestampUS > fenetreDeLArmeUS {
 		return ""
@@ -282,7 +295,7 @@ func compterLesTirs(fire []grammar.FireEvent, r resolveurDeTouches, bilan bilanD
 		}
 		s := bilan.de(xuid)
 		s.ShotEvents++
-		s.Shots += numeros[xuid].saut(int(e.FireNumber), e.Unit.Slot)
+		s.Shots += numeros[xuid].saut(int(e.FireNumber), e.Unit.Slot, e.TimestampUS)
 	}
 }
 
@@ -362,7 +375,7 @@ func poserUneTouche(d grammar.DegatLu, tireur string, res issueDuDestinataire, r
 			cov.NoVictim++
 			return Hit{}, false
 		}
-		return Hit{T: t, Shooter: tireur, Victim: victime, Effect: formaterLEffet(d.Tag), Weapon: armes.derniereArme(int(d.Joueur), d.TS)}, true
+		return Hit{T: t, Shooter: tireur, Victim: victime, Effect: formaterLEffet(d.Tag), Weapon: armes.derniereArme(tireur, int(d.Joueur), d.TS)}, true
 	}
 	return Hit{}, false
 }

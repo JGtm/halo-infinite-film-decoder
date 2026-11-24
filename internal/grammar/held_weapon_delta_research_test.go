@@ -124,7 +124,7 @@ func hwInstall(c *hwCapture) func() {
 	SetDesiredWeaponSetHook(func(j JeuDArmes) { c.sel, c.gotSel = j.Demande, true })
 	return func() {
 		SetHeldWeaponHook(prevW)
-		SetDesiredWeaponSetHook(prevS)
+		observateur.DesiredWeaponSetHook = prevS
 	}
 }
 

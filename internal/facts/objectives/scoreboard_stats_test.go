@@ -66,7 +66,7 @@ func TestSeriesDesCompteursNommesTiennentLeVidage(t *testing.T) {
 	if got := cons.ComptesDesReplis().EmissionsHorsDomaineJetees; got != 1 {
 		t.Errorf("%d emission(s) jetee(s) notee(s), attendu 1 (le vidage)", got)
 	}
-	plain := rawSeriesByRound(recs, statSlotKey{Comp: 6, Side: sideA}, false, nil)[10][0]
+	plain := rawSeriesByRound(recs, statSlotKey{Comp: 6, Side: sideA}, nil)[10][0]
 	if kept := longestRun(plain, false); kept[len(kept)-1].Value != 0 {
 		t.Errorf("le temoin (suite sans la regle) ne finit plus sur le vidage : %+v", kept)
 	}
@@ -250,4 +250,37 @@ func TestNegativeCounter(t *testing.T) {
 			t.Errorf("%s : %v, attendu %v", c.nom, got, c.want)
 		}
 	}
+}
+
+// TestCompteursDeModeDuTableau : le VIP ajoute trois compteurs, qui ne reprennent ni un nom ni un emplacement de la table de base ;
+// une autre famille, ou aucune, rend exactement la table de base.
+func TestCompteursDeModeDuTableau(t *testing.T) {
+	base := ScoreboardStats()
+	vip := ScoreboardStatsOf(ObjectiveTypeVip)
+	if len(vip) != len(base)+3 {
+		t.Fatalf("VIP : %d compteurs, attendu %d", len(vip), len(base)+3)
+	}
+	prisN, slots := map[string]bool{}, map[[2]int]bool{}
+	for _, st := range base {
+		prisN[st.Name] = true
+		slots[[2]int{st.Component.Comp, b2i(st.Component.SideB)}] = true
+	}
+	for _, st := range vip[len(base):] {
+		k := [2]int{st.Component.Comp, b2i(st.Component.SideB)}
+		if prisN[st.Name] || slots[k] || !st.Component.HoldOnClear {
+			t.Errorf("%s : nom ou emplacement deja pris, ou lu sans les regles des compteurs nommes", st.Name)
+		}
+	}
+	for _, famille := range []string{"", ObjectiveTypeFlag, ObjectiveTypeZone} {
+		if got := ScoreboardStatsOf(famille); len(got) != len(base) {
+			t.Errorf("famille %q : %d compteurs, attendu la table de base (%d)", famille, len(got), len(base))
+		}
+	}
+}
+
+func b2i(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }

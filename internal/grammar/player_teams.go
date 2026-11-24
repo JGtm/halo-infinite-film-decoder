@@ -163,7 +163,7 @@ func scanPlayerTeamsAvec(fc *FilmContext, marche MarcheDImageCle) (map[int]int, 
 		rep.ComponentMismatch = true
 		return nil, rep, PlayerEntityScan{}
 	}
-	c := &canalDesEquipes{rep: rep, arch: arch, ctx: fc.ContexteDeLecture(), entites: nouvelAccumulateurDEntites(),
+	c := &canalDesEquipes{rep: rep, arch: arch, ctx: fc.ContexteDeLecture(), fc: fc, entites: nouvelAccumulateurDEntites(),
 		parIndex: map[int]map[int]int{}}
 	distribuerLaDemande(fc, demandeDImagesCles{marche: &marche}, []Canal{c})
 	c.rep.Entities = len(c.entites.entites)
@@ -178,7 +178,9 @@ type canalDesEquipes struct {
 	arch Archetype
 	// ctx est le contexte de lecture du film sous lequel l'etat par defaut de ti=9 se relit (cadre,
 	// controle de corruption) : celui du balayage, pris avant la phase.
-	ctx      ContexteDeLecture
+	ctx ContexteDeLecture
+	// fc est le contexte du film, dont le memo rend les en-tetes exacts d'un payload deja releves.
+	fc       *FilmContext
 	entites  *accumulateurDEntites
 	parIndex map[int]map[int]int // index de joueur -> designateur -> compte
 }
@@ -230,7 +232,7 @@ func (c *canalDesEquipes) ImageCle(p *lecture.Paquet, _ *MarcheDistribuee) {
 		}
 	}
 	if rang >= 0 {
-		c.entites.douterDe(rang, lus, slotsDEntetesExacts(p.Payload))
+		c.entites.douterDe(rang, lus, c.fc.entetesExactsDe(p.Payload))
 	}
 }
 

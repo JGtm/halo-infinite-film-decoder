@@ -22,7 +22,7 @@ managedPropertiesMarche	256	baf6b383befb62d005c2996a0b63566dce2425bcc480deec8b02
 objectives_ti11	-1	f7d5dbed66d7463ee2e5d71a9585905f9175625ea45a3759f1d67f3a621de46b	ERREUR: aucun slot d'archetype ti=11 dans les keyframes du film
 navpointRadial	0	ebac416024f8c10876dc39e7c9941f98a40431ece0bc38257ae3d468dee4f630	(population vide)
 fireEvents	51	35e0a76ed1829b566ec7891591472be383c3823d0b89e4190cf8e778e16cbb26	{Chunk:2 PacketIndex:1666 TimestampUS:4551737292 FilmIndex:4 HasShooter:true FireNumber:0 Unit:{Present:true Slot:516 Gen:1 Probe:true} Shor...
-grenadeThrows	10	40158cec7a4d35b9b031b87cf766bfd6d9ebd26cdd1d2c0a5562953bbb29cc96	{TimestampUS:4554940701 Chunk:2 PacketIndex:2050 BitPos:195 FilmIndex:4 TypeID:3236121668}
+grenadeThrows	10	e4d98207a936e1001768042712faae304f4c86fc5d7a164b754b8615f0b2468b	{TimestampUS:4554940701 Chunk:2 PacketIndex:2050 BitPos:195 FilmIndex:4 TypeID:3236121668 Life:{Slot:1029 Gen:1} HasLife:true}
 bipedPickups	21	47cccac009159d6193ee2fff1a12cb6782e877f4021fdbb91cbe76141ed2957e	{TimestampUS:4521524430 Chunk:1 Slot:512 CatalogID:31913 Class:0}
 zoomEvents	37	d2686333cb17a0d976c69cbaf1650eb000c84924a23c9562321c23d08e2dbf51	{TimestampUS:4551203771 Slot:517 Level:1}
 translocatorTeleports	0	4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945	(population vide)

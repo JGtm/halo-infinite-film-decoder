@@ -82,22 +82,35 @@ type Grenade struct {
 	// valide, un int l'omettrait exactement comme une absence de lien. Nil quand aucun
 	// projectile n'apparie, ou quand celui qui appariait n'est pas publié (trop court).
 	Proj *int `json:"proj,omitempty"`
+	// Deto est l'EXPLOSION d'un lancer qui n'a pas de `Proj` : le message de détonation du projectile
+	// créé par le lancer (grenades_detonation.go). Un projectile qui colle à bout portant ne publie
+	// aucun vol mais explose quand même ; l'explosion d'un lancer qui a un `Proj` est celle de ce
+	// projectile (`Projectile.DetoT`), jamais répétée ici. Nil quand le lancer a un `Proj`, ou quand
+	// le film n'écrit aucune détonation pour son projectile.
+	Deto *GrenadeDetonation `json:"deto,omitempty"`
+}
+
+// volsDeGrenades porte ce que les lancers consomment des projectiles : les pistes brutes, la
+// traduction de leur index vers l'index publié, et les messages de détonation.
+type volsDeGrenades struct {
+	// Tracks sont les pistes brutes de projectile ; PubByRaw traduit l'index BRUT d'une piste (rang
+	// dans `Tracks`) vers son index PUBLIÉ (cf. buildProjectiles) : c'est lui qui alimente
+	// Grenade.Proj. Nil = aucun projectile publié, les lancers sortent sans lien — jamais un index
+	// qui ne pointe rien.
+	Tracks   []types.ProjectileTrack
+	PubByRaw map[int]int
+	// Detonations sont les messages de détonation et d'impact lus, d'où sort Grenade.Deto.
+	Detonations []types.ProjectileDetonation
 }
 
 // buildGrenades situe les lancers et rend la couverture.
-//
-// `pubProjByRaw` traduit l'index BRUT d'une piste de projectile (rang dans `proj`) vers son
-// index PUBLIÉ (cf. buildProjectiles) : c'est lui qui alimente Grenade.Proj. Nil = aucun
-// projectile publié, les lancers sortent sans lien — jamais un index qui ne pointe rien.
-func buildGrenades(pos []grammar.BipedPosition, throws []grammar.GrenadeThrow,
-	origin, step uint64, occ occupantsDesSlots, proj []types.ProjectileTrack,
-	pubProjByRaw map[int]int) ([]Grenade, LayerCoverage) {
+func buildGrenades(tracks map[uint32]slotTrack, throws []grammar.GrenadeThrow,
+	origin, step uint64, occ occupantsDesSlots, vols volsDeGrenades) ([]Grenade, LayerCoverage) {
 	cov := LayerCoverage{Available: len(throws)}
 	if len(throws) == 0 {
 		return nil, cov
 	}
-	births := projectileBirths(proj)
-	tracks := indexBySlot(pos)
+	births := projectileBirths(vols.Tracks)
 	var out []Grenade
 	for _, g := range throws {
 		rank, known := g.Rank()
@@ -114,10 +127,13 @@ func buildGrenades(pos []grammar.BipedPosition, throws []grammar.GrenadeThrow,
 			continue
 		}
 		if rawProj >= 0 {
-			if pub, published := pubProjByRaw[rawProj]; published {
+			if pub, published := vols.PubByRaw[rawProj]; published {
 				p := pub
 				gr.Proj = &p
 			}
+		}
+		if gr.Proj == nil {
+			gr.Deto = grenadeDetonation(g, vols.Detonations, origin, step)
 		}
 		cov.count(reasonAttached)
 		gr.T = int((g.TimestampUS - origin) / step)

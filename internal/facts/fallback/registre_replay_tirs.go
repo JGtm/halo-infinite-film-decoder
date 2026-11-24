@@ -1,6 +1,7 @@
 package fallback
 
-// registre_replay_tirs.go — le repli de LA VISEE D UN TIR publiee au rejeu (`replay/shots_visee.go`).
+// registre_replay_tirs.go — les replis du TIREUR et de LA VISEE D UN TIR publies au rejeu
+// (`replay/tirs_par_place.go`, `replay/shots_visee.go`).
 //
 // LA LECTURE QUE CE REPLI REMPLACE QUAND ELLE MANQUE. La direction d un tir est la visee i21 de son
 // tireur, la derniere lecture du slot au plus tard a l instant du tir, dans la meme vie. Le champ de
@@ -25,6 +26,30 @@ var registreReplayTirs = []Repli{
 		CibleRetrait: "sans objet pour l instant : le repli ne couvre que les tirs dont le tireur ne replique aucune visee i21 tenable",
 		CritereRetrait: "coverage.shots.aim.record mesure a 0 sur le parc complet une fois recuit : alors le repli " +
 			"n est plus jamais le chemin d un tir",
+		CompteurBranche: true,
+	},
+	{
+		Nom:  NomTireurParLeSiegeDeLaPlace,
+		Fait: "le joueur qui tient la place de controle d un tir ou d une rafale (`FireEvent.FilmIndex`, `ContinuousFireBurst.PlayerIndex`)",
+		Mecanisme: "le siege du roster (l entree unique dont un intervalle de presence tenu a la place " +
+			"couvre l instant, `tireursParPlace.occupant`) rend le tireur quand la lecture des places " +
+			"dans les tirs ne tient la place a personne a cet instant ; a defaut d occupant unique, la " +
+			"place elle-meme, comme avant la lecture des places ; le repli ne compte que les tirs et rafales dont le tireur " +
+			"est effectivement rendu par le siege : un tir sans tenant garde l index du record, hors repli",
+		// LA LECTURE QUI TOURNE ET NE TRANCHE PAS : les tirs dont l unite nomme un occupant lient la
+		// place a un joueur ; une frame hors des tenues que ces liaisons bornent n est tenue par
+		// personne (place jamais liee, ecart que deux presences se disputent, film dont l index de
+		// tireur n est pas la place).
+		Condition: CondNonResolu,
+		Ordre:     OrdreApresLecture,
+		Sites: []Site{
+			{Fichier: pkgReplay + "tirs_par_place.go", Ancre: "horloge.fb.DeclencheN(fallback.NomTireurParLeSiegeDeLaPlace, parLeSiege)"},
+			{Fichier: pkgReplay + "fire_bursts.go", Ancre: "clock.fb.Declenche(fallback.NomTireurParLeSiegeDeLaPlace)"},
+		},
+		DatePose:     "2026-11-23",
+		CibleRetrait: "la pose des sieges du roster par les liaisons lues dans les tirs, qui rendrait la lecture des places et le siege identiques",
+		CritereRetrait: "coverage.controlPlaces.shotsBySeat, shotsUnheld, burstsBySeat et burstsUnheld a 0 sur le corpus du " +
+			"gate de rejeu, hors les films dont l index de tireur n est pas la place (un temoin par build)",
 		CompteurBranche: true,
 	},
 }

@@ -239,7 +239,7 @@ func seatOccupations(recs []types.StatRecord, thread map[string][]int,
 				continue
 			}
 			if deaths == nil {
-				deaths = rawSeriesByRound(recs, DeathsComponent().key(), false, nil)
+				deaths = rawSeriesByRound(recs, DeathsComponent().key(), nil)
 			}
 			occ := occupationsBetween(changes)
 			for i := range occ {

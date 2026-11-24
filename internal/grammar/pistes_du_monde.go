@@ -49,6 +49,10 @@ type pistesRelevees struct {
 	entier bool
 	// finales : les pistes rendues pour chaque archetype demande ([FilmContext.pistesDerriereLaMarche]).
 	finales map[int][]types.ProjectileTrack
+	// recuperes : pour chaque archetype de `finales`, ce que son rendu a compte au repli
+	// `repli_pistes_du_monde_apres_la_marche`, pour que [FilmContext.Fusionner] ne le recompte pas quand le
+	// contexte parent portait deja ce rendu.
+	recuperes map[int]int
 }
 
 // pistesDeLaBande rend une copie des pistes de l archetype `ti` sur la bande `band`, aux bornes `wr`
@@ -81,7 +85,7 @@ func (c *FilmContext) pistesDeLaBande(wr profile.Vec3Range, lg profile.Precision
 		}
 		for i, brut := range releverLesPistes(c.Film(), wr, lg, bandes, fin) {
 			c.recup.pistes = append(c.recup.pistes, &pistesRelevees{wr: wr, lg: lg, slots: bandes[i], brut: brut, entier: entier,
-				finales: map[int][]types.ProjectileTrack{}})
+				finales: map[int][]types.ProjectileTrack{}, recuperes: map[int]int{}})
 		}
 		p, _ = c.recup.pistesDe(wr, lg, demandee)
 	}
@@ -90,6 +94,7 @@ func (c *FilmContext) pistesDeLaBande(wr profile.Vec3Range, lg profile.Precision
 	}
 	pistes, recuperes := c.pistesDerriereLaMarche(wr, lg, ti, band, p.brut)
 	p.finales[ti] = pistes
+	p.recuperes[ti] = recuperes
 	// Repli `repli_pistes_du_monde_apres_la_marche` : les echantillons que la passe rend derriere la
 	// marche (2.7.d3).
 	c.NoterReplis(ComptesDesReplis{PistesDuMondeApresLaMarche: recuperes})
@@ -186,7 +191,12 @@ func echantillonsDesBandes(pay []byte, appartenance []uint32, n int, wr *profile
 	posBits := projPosBits(lg)
 	limit := len(pay)*8 - (worldObjectHeaderBits + worldObjectIndexBits + posBits)
 	var curseurs [maxBandesParPasse]int
-	for p := 0; p <= limit && p < fin; p++ {
+	lim := min(fin, limit+1) // positions jugees : p <= limit et p < fin
+	for p := 0; p < lim; p++ {
+		// Les positions que le prefixe, la porte ou le compteur de masque ecartent ne se jugent pas.
+		if p = prochainEnteteDelta(pay, p, lim, 1); p >= lim {
+			break
+		}
 		h, ok := enteteDObjetDuMonde(pay, p)
 		if !ok || int(h.Slot) >= len(appartenance) || appartenance[h.Slot] == 0 {
 			continue

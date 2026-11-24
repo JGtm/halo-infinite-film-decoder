@@ -47,10 +47,9 @@ func buildVehicleRides(
 	}
 	b := &vehicleRideBuild{in: in, out: map[types.LifeKey][]VehicleRide{}}
 	b.boards, b.exits = vehicleEventsByOccupant(in.events)
-	b.bySlot = in.bipedsBySlot
-	if b.bySlot == nil {
-		b.bySlot = vehiclePositionsBySlot(in.bipeds)
-	}
+	b.bySlot = in.bipedsParSlot()
+	// Les episodes lus (`buildVehicleFilmRides`) et les trous relisent ce MEME index, en lecture seule.
+	b.in.bipedsBySlot = b.bySlot
 	b.parLaLecture()
 	b.parLesTrous(b.parLesEvenements())
 	// LE SIEGE D UN EPISODE DE REPLI SE POSE ICI, ET EN UN SEUL ENDROIT : les episodes LUS
@@ -102,7 +101,7 @@ func (b *vehicleRideBuild) parLesEvenements() []vehicleEpisode {
 // que le trou, lui, savait rattacher (mesure du 2026-09-03 : 12 -> 11 sur `0d76e8f1` avec la
 // regle naive).
 func (b *vehicleRideBuild) parLesTrous(kept []vehicleEpisode) {
-	for _, g := range vehicleGaps(b.in.bipeds) {
+	for _, g := range vehicleGaps(b.bySlot) {
 		if vehicleEpisodeCovers(kept, g) {
 			continue
 		}

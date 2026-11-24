@@ -225,7 +225,7 @@ func v6EtatsTrous(
 			kept = append(kept, resolved)
 		}
 	}
-	gaps := vehicleGaps(in.bipeds)
+	gaps := vehicleGaps(vehiclePositionsBySlot(in.bipeds))
 	couverts, rattaches := 0, 0
 	for _, g := range gaps {
 		if vehicleEpisodeCovers(kept, g) {

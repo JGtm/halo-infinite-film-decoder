@@ -47,6 +47,10 @@ type Coverage struct {
 	// AU PLUS EN MÊME TEMPS face au nombre d'entrées du roster. Absente quand le roster est
 	// vide : il n'y a alors aucun siège à couvrir.
 	Seats *SeatCoverage `json:"seats,omitempty"`
+	// ControlPlaces est CE QUE LA LECTURE DES PLACES DE CONTROLE A LU DANS LES TIRS et la source de
+	// chaque tireur decide (cf. ControlPlaceCoverage, places_de_controle.go). Absente sur un document
+	// anterieur a la lecture des places.
+	ControlPlaces *ControlPlaceCoverage `json:"controlPlaces,omitempty"`
 	// Projectiles est la couverture des TRAJECTOIRES DE PROJECTILE (cf. projectiles.go) :
 	// pistes décodées, trajectoires publiées, et celles qu'un PAS IMPOSSIBLE a coupées.
 	//
@@ -180,6 +184,17 @@ type Coverage struct {
 	ScoreActions *ScoreActionCoverage `json:"scoreActions,omitempty"`
 	// Reloads dit ce que le calque des rechargements a lu, publie et ecarte ; absent quand la marche des trames n a lu aucune trame.
 	Reloads *ReloadCoverage `json:"reloads,omitempty"`
+	// Appearance dit ce que la lecture de l'apparence des joueurs a rencontre ; absent quand la lecture n'a pas eu lieu.
+	Appearance *AppearanceCoverage `json:"appearance,omitempty"`
+	// Chatter et Announcements disent ce que les calques des repliques et des annonces ont lu, publie et ecarte ; absents quand la marche des trames n a lu aucune trame.
+	Chatter       *ChatterCoverage      `json:"chatter,omitempty"`
+	Announcements *AnnouncementCoverage `json:"announcements,omitempty"`
+	// Gestures dit ce que le calque des gestes a lu, retenu, publie et ecarte ; absent quand la marche des trames n a lu aucune trame.
+	Gestures *GestureCoverage `json:"gestures,omitempty"`
+	// DrawnWeapons dit ce que le calque de l arme tiree a lu, publie et ecarte ; absent quand la marche des trames n a pas ete jouee.
+	DrawnWeapons *DrawnWeaponCoverage `json:"drawnWeapons,omitempty"`
+	// Vitals dit ce que le calque de la sante et du bouclier a lu, publie et ecarte ; absent quand la marche des trames n a pas ete jouee.
+	Vitals *VitalCoverage `json:"vitals,omitempty"`
 	// Eliminations dit ce que le calque des éliminations a posé et sait marquer (tirs à la tête, frags parfaits) ; absent sans tableau des scores.
 	Eliminations *EliminationCoverage `json:"eliminations,omitempty"`
 	// Hits dit ce que le calque des touches a lu, pose et ecarte ; absent quand les messages de degat n ont pas ete lus.
@@ -267,6 +282,8 @@ type Coverage struct {
 	// GrenadeReads dit ce que chaque canal a apporte a l'axe des grenades portees, et si le
 	// canal MUNITIONS du film a ete refuse en bloc (cf. grenade_reads.go).
 	GrenadeReads *GrenadeReadCoverage `json:"grenadeReads,omitempty"`
+	// AmmoReads dit ce que le calque des munitions portees a lu, publie par canal et ecarte ; absent quand l inventaire n a pas ete lu.
+	AmmoReads *AmmoReadCoverage `json:"ammoReads,omitempty"`
 	// Abilities est la couverture du calque IDENTITE DE CAPACITE PORTEE (cf. abilities.go) :
 	// lectures i48/image-cle disponibles, celles ecartees comme BRUIT DE BALAYAGE (rang hors
 	// domaine plausible, RAPPORT_E0_2026-09-10 §3), celles sans trajectoire publiee, et

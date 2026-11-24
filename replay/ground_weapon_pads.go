@@ -140,6 +140,13 @@ type GroundWeaponCoverage struct {
 	HorsEmprise    int `json:"horsEmprise"`
 	Releves        int `json:"releves"`
 	PlusieursLieux int `json:"plusieursLieux"`
+	// Candidates et PowerupCandidates : les grappes à UNE seule apparition que chaque voie met de
+	// côté, publiées sous `padCandidates` (ground_weapon_pad_candidates.go). Ils ne sont PAS
+	// compris dans `Pads` ni `PowerupPads` : ce ne sont pas des socles, et `len(weaponPads) ==
+	// Pads + PowerupPads` reste vrai. Armes et power-ups sont comptés à part, pour la même
+	// raison que les autres compteurs de la voie `ti=37`.
+	Candidates        int `json:"candidates"`
+	PowerupCandidates int `json:"powerupCandidates"`
 }
 
 // Balanced vérifie les deux invariants du calque : toute création acceptée est retenue ou
@@ -176,6 +183,8 @@ type padChainCounts struct {
 	accepted, kept, rejected, objectives int
 	dropped, spawned, atRest             int
 	clusters, pads                       int
+	// candidates : les grappes à une seule apparition que la voie met de côté ([gwPadCandidates]).
+	candidates []WeaponPad
 }
 
 // buildWeaponPads assemble les socles du match — LES DEUX NATURES — et les occupations achevées.
@@ -194,33 +203,55 @@ type padChainCounts struct {
 func buildWeaponPads(
 	scans PadScans, positions []grammar.BipedPosition, clock replayClock, cat padCatalogs,
 ) ([]WeaponPad, []PadPickup, *GroundWeaponCoverage, []gwPickupObject) {
+	c := buildPadsAndCandidates(scans, positions, clock, cat)
+	return c.Pads, c.Picks, c.Cov, c.Objs
+}
+
+// padChain est ce que la chaîne des socles rend : les socles et leurs occupations (ce que rendait
+// `buildWeaponPads` seul), la couverture, les objets individuels de la voie des armes, et les
+// CANDIDATS de socle ([gwPadCandidates]), armes d'abord puis power-ups.
+type padChain struct {
+	Pads       []WeaponPad
+	Picks      []PadPickup
+	Cov        *GroundWeaponCoverage
+	Objs       []gwPickupObject
+	Candidates []WeaponPad
+}
+
+// buildPadsAndCandidates est la chaîne complète ; [buildWeaponPads] en est la projection sans les
+// candidats, qui rend exactement ce qu'elle rendait avant eux.
+func buildPadsAndCandidates(
+	scans PadScans, positions []grammar.BipedPosition, clock replayClock, cat padCatalogs,
+) padChain {
 	cov := &GroundWeaponCoverage{
 		Scanned: scans.Weapons.Scanned, Slots: scans.Weapons.Stats.Slots,
 		Anchors: scans.Weapons.Stats.Anchors, Accepted: scans.Weapons.Stats.Accepted,
 		PowerupScanned: scans.Powerups.Scanned, PowerupAccepted: scans.Powerups.Stats.Accepted,
 	}
 	if clock.step == 0 {
-		return nil, nil, cov, nil
+		return padChain{Cov: cov}
 	}
 	in := padChainInputs{lives: equipmentLives(positions), positions: positions, clock: clock}
 	pads, picks, wc, wObjs := buildPadChain(scans.Weapons, weaponPadRule(cat.ObjectiveObjects), in, cov)
 	cov.Kept, cov.Rejected, cov.Objectives = wc.kept, wc.rejected, wc.objectives
 	cov.Dropped, cov.Spawned, cov.AtRest = wc.dropped, wc.spawned, wc.atRest
 	cov.Clusters, cov.Pads = wc.clusters, wc.pads
-	pu, puPicks, pc, _ := buildPadChain(
-		scans.Powerups, powerupPadRule(cat.EquipmentFamilies), in, cov)
+	cov.Candidates = len(wc.candidates)
+	pu, puPicks, pc, _ := buildPadChain(scans.Powerups, powerupPadRule(cat), in, cov)
 	cov.PowerupKept, cov.PowerupPads = pc.kept, pc.pads
+	cov.PowerupCandidates = len(pc.candidates)
 	// L ORIGINE `dropped` DES DEUX VOIES EST DECIDEE PAR LA FENETRE DE FIN DE VIE ([gwPadsClass]) :
 	// un repli nomme, compte ici une fois par apparition ainsi classee (lot J8.3, constat RB2-8).
 	clock.fb.DeclencheN(fallback.NomOrigineAuSolLacheeParFenetre, wc.dropped+pc.dropped)
 	for i := range puPicks {
 		puPicks[i].Pad += len(pads)
 	}
+	cands := append(wc.candidates, pc.candidates...)
 	out := append(pads, pu...)
 	if len(out) == 0 {
-		return nil, nil, cov, wObjs
+		return padChain{Cov: cov, Objs: wObjs, Candidates: cands}
 	}
-	return out, append(picks, puPicks...), cov, wObjs
+	return padChain{Pads: out, Picks: append(picks, puPicks...), Cov: cov, Objs: wObjs, Candidates: cands}
 }
 
 // buildPadChain déroule UNE voie : identité, classement, grappes, socles, occupations.
@@ -260,6 +291,8 @@ func buildPadChain(
 		out, picks = append(out, pad), append(picks, padPicks...)
 	}
 	n.pads = len(out)
+	aside, asideSrc := gwPadsSetAside(pads)
+	n.candidates = gwPadCandidates(aside, asideSrc, objs, members, in.clock)
 	return out, picks, n, objs
 }
 
@@ -403,7 +436,8 @@ func logGroundWeaponCoverage(ctx context.Context, c *GroundWeaponCoverage) {
 	// dit si la lecture a réussi — acceptées contre retenues par l'identité.
 	slog.InfoContext(ctx, "rejeu : socles de power-up",
 		"balaye", c.PowerupScanned, "acceptees", c.PowerupAccepted,
-		"retenues", c.PowerupKept, "socles", c.PowerupPads)
+		"retenues", c.PowerupKept, "socles", c.PowerupPads,
+		"candidatsArmes", c.Candidates, "candidatsPowerups", c.PowerupCandidates)
 	// LE SILENCE QU'IL FAUT ROMPRE : des créations acceptées dont AUCUNE ne résout d'arme n'est
 	// pas « un film sans socle », c'est une lecture qui a échoué en bloc — largeurs du bloc MPP
 	// non réinstallées, ou grammaire de l'état par défaut qui a bougé. Sans ce warn, un film BTB

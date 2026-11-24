@@ -187,7 +187,7 @@ func v2cDatePadDeparture(pad *v2cPad, tracks map[uint32]slotTrack) {
 		if hi == 0 {
 			hi = ^uint64(0)
 		}
-		for _, p := range tr.pts {
+		for _, p := range tr.pts() {
 			if p.TimestampUS < l.birthUS || p.TimestampUS > hi || !p.HasWorld {
 				continue
 			}

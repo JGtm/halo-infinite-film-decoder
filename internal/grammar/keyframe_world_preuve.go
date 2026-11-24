@@ -100,6 +100,9 @@ func (c *FilmContext) MarcheDImageCle() MarcheDImageCle {
 	}
 	if c.marches == nil {
 		c.marches = &memoireDesMarches{preuve: c.PreuveDImageCle(), parPayload: map[clePayload]MarcheDePayload{}}
+		// La preuve vient de se figer ; le pre-passage (a plusieurs fils seulement) range les ancres
+		// de tous les payloads dans le memo avant que ce premier acces ne rende la main.
+		c.predecoderLesImagesCles(c.marches.preuve)
 	}
 	return MarcheDImageCle{preuve: c.marches.preuve, memoire: c.marches}
 }

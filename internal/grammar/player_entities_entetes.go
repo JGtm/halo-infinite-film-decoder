@@ -34,12 +34,26 @@ import (
 // hasard dans le corps d'un autre record : il ne fait jamais conclure un depart, il le DIFFERE, et
 // il se compte (`coverage.seats.imagesClesDouteuses`, `bornesDifferees`).
 
+// entetesExactsDe rend [slotsDEntetesExacts] du payload `pay` : la table posee par le pre-passage si elle
+// y est, sinon le calcul direct, qui n'est PAS memorise (a un fil rien ne se range d'avance). La table
+// rendue se lit, elle ne se modifie pas ([accumulateurDEntites.douterDe] la lit seulement).
+func (c *FilmContext) entetesExactsDe(pay []byte) map[int]bool {
+	if c != nil && len(pay) > 0 {
+		if m, ok := c.recup.entetes[clePayload{debut: &pay[0], n: len(pay)}]; ok {
+			return m
+		}
+	}
+	return slotsDEntetesExacts(pay)
+}
+
 // slotsDEntetesExacts rend les slots dont l'en-tete EXACT d'un record de JOUEUR GERE (`ti=9`)
 // apparait a au moins une position de bit du payload d'image-cle `pay` (cf. l'en-tete du fichier).
 func slotsDEntetesExacts(pay []byte) map[int]bool {
 	out := map[int]bool{}
 	total := len(pay) * 8
-	for q := 0; q+64 <= total; q++ {
+	// [prochainEnteteDeTable] ne saute que des positions dont l eid echoue aux deux gardes ci-dessous.
+	limite := total - 63
+	for q := prochainEnteteDeTable(pay, 0, limite, false); q < limite; q = prochainEnteteDeTable(pay, q+1, limite, false) {
 		id := source.BitsBourres(pay, q, 32)
 		if id>>30 == 0 {
 			continue

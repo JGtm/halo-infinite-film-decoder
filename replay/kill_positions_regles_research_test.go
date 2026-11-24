@@ -62,7 +62,7 @@ func (c *contexteFilm) aBordLu(slot uint32, tUS uint64) string {
 	if !derniere.Attached {
 		return "lecture-libre"
 	}
-	pts := c.pistes[slot].pts
+	pts := c.pistes[slot].pts()
 	i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > derniere.TimestampUS })
 	if i < len(pts) && pts[i].TimestampUS <= tUS {
 		return "retour-au-flux-avant"
@@ -76,7 +76,7 @@ func (c *contexteFilm) aBordLu(slot uint32, tUS uint64) string {
 	if len(v) == 0 {
 		return "a-bord:parent-sans-echantillon"
 	}
-	tr := slotTrack{pts: v}
+	tr := pisteTrieeDeTest(v)
 	if _, d := tr.at(tUS); d <= killPosToleranceUS {
 		return "a-bord:parent-a-120ms"
 	}
@@ -121,7 +121,7 @@ func (c *contexteFilm) verdictOccupation(xuid uint64, tUS uint64) string {
 	best := ""
 	var bestT uint64
 	for _, s := range sieges {
-		pts := c.pistes[s].pts
+		pts := c.pistes[s].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
 		if i > 0 && (best == "" || pts[i-1].TimestampUS > bestT) {
 			bestT, best = pts[i-1].TimestampUS, c.aBordLu(s, tUS)
@@ -212,4 +212,13 @@ func (b *occBilan) exemple(c *contexteFilm, qui string, r cote, verdict string, 
 	}
 	b.exemples = append(b.exemples, fmt.Sprintf("%s %s t=%d ms %s avant=%d apres=%d saut=%.2f/%v",
 		qui, c.nom, tMS, r.cause, r.avantMS, r.apresMS, r.saut, r.aSaut))
+}
+
+// pisteTrieeDeTest pose une piste sur une tranche DEJA triee par instant, sans la reordonner.
+func pisteTrieeDeTest(v []grammar.BipedPosition) slotTrack {
+	idx := make([]int32, len(v))
+	for i := range idx {
+		idx[i] = int32(i)
+	}
+	return slotTrack{all: v, idx: idx}
 }

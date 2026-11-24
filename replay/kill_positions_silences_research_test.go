@@ -54,7 +54,7 @@ func (c *contexteFilm) classerLeSilence(xuid uint64, tUS uint64, estTueur bool) 
 	var slot uint32
 	avecPoint, exAequo := 0, false
 	for _, s := range sieges {
-		pts := c.pistes[s].pts
+		pts := c.pistes[s].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
 		if i == 0 {
 			continue
@@ -89,7 +89,7 @@ func (c *contexteFilm) classerLeSilence(xuid uint64, tUS uint64, estTueur bool) 
 	if !estTueur {
 		return classe, 0, false
 	}
-	pts := c.pistes[slot].pts
+	pts := c.pistes[slot].pts()
 	j := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > tUS })
 	if j < len(pts) && pts[j].HasWorld && dernier.HasWorld {
 		return classe, distPos(pts[j], dernier), true
@@ -112,7 +112,7 @@ func (c *contexteFilm) occupationDuSilence(slot uint32, dernierUS, tUS uint64) s
 	}
 	switch {
 	case monte && !descend:
-		pts := c.pistes[slot].pts
+		pts := c.pistes[slot].pts()
 		i := sort.Search(len(pts), func(k int) bool { return pts[k].TimestampUS > monteeA+1_000_000 })
 		if i < len(pts) && pts[i].TimestampUS <= tUS {
 			return "montee-puis-retour-au-flux"
@@ -240,7 +240,7 @@ func (c *contexteFilm) natureDuParent(slot uint32, dernierUS, tUS uint64) string
 	switch {
 	case c.g.Vehicles.Keyframes.Band[parent]:
 		return "parent-vehicule"
-	case len(c.pistes[parent].pts) > 0:
+	case len(c.pistes[parent].pts()) > 0:
 		return "parent-bipede"
 	}
 	return "parent-autre"

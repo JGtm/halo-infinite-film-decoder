@@ -151,7 +151,7 @@ func victimsInWindow(deaths []types.Death, off int64, fromUS, lo, hi int64) []ui
 // besoin : son identité vient du fil des morts, pas de l'unicité d'un candidat.
 //
 // LA MESURE SE PREND SUR LA VIE DESIGNEE, PAS SUR LE NUAGE DU SLOT ENTIER (correctif du
-// 2026-09-06, constat P1-6). `tracks[slot].pts` est le nuage COMPLET du slot, toutes vies
+// 2026-09-06, constat P1-6). la piste `tracks[slot]` est le nuage COMPLET du slot, toutes vies
 // confondues : depuis le schema 36 un slot recycle en porte plusieurs, et sur un slot dont deux
 // vies sont eloignees (30 s puis 600 s) l'intervalle teste couvrait les 570 s qui les separent.
 // N'importe quelle vie nommee du joueur candidat y tombait, la deduction sortait `refused`,
@@ -165,7 +165,7 @@ func victimsInWindow(deaths []types.Death, off int64, fromUS, lo, hi int64) []ui
 // rendrait le garde-fou plus permissif sans rien prouver de plus.
 func overlapsNamedLife(tracks map[uint32]slotTrack, owner map[uint32]int, vie lifeSpan, pi int) bool {
 	slot := vie.slot
-	if len(tracks[slot].pts) == 0 {
+	if tracks[slot].n() == 0 {
 		return false
 	}
 	from, to := uint64(vie.from), uint64(vie.to)
@@ -173,11 +173,11 @@ func overlapsNamedLife(tracks map[uint32]slotTrack, owner map[uint32]int, vie li
 		if p != pi || s == slot {
 			continue
 		}
-		pts := tracks[s].pts
-		if len(pts) == 0 {
+		tr := tracks[s]
+		if tr.n() == 0 {
 			continue
 		}
-		if pts[0].TimestampUS <= to && from <= pts[len(pts)-1].TimestampUS {
+		if tr.ts(0) <= to && from <= tr.ts(tr.n()-1) {
 			return true
 		}
 	}

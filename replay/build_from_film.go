@@ -98,6 +98,7 @@ func BuildFromFilmAvecFaits(ctx context.Context, matchID, titleSlug string, film
 	if fc == nil || fc.Film() != film || decoupageForce(opt) != nil || !fc.PrendrePourLaCuisson() {
 		fc = grammar.NewFilmContextForMap(film, opt.MapQuant, decoupageForce(opt))
 	}
+	poserLesFils(fc, opt.Vitesse)
 	poserProfilPuisCarte(ctx, fc, matchID, opt)
 	// LA SECTION 2 DE `chunk_00`, POUR L ARTEFACT (schema 61, lot 2.6.3). Le profil du contexte
 	// l a DEJA lue a sa resolution : la reprendre ici ne relit pas un octet. Elle porte la cle du
@@ -216,6 +217,10 @@ type filmScan struct {
 	// ([filmScan.lireLaMarcheDesTrames]) et prise par les etats de mouvement ; errMarche, son echec.
 	marche    grammar.MarcheDesTrames
 	errMarche error
+	// fond est la tache de fond des lectures qui ne dependent que du film (film_scan_fond.go) ; nil a un fil.
+	fond *fondDuFilm
+	// voies sont les voies du balayage (film_scan_voies.go) ; nil a un fil, ou sans contexte chaud.
+	voies *voiesDuBalayage
 	// etats porte ce que la marche UNIQUE des images-cles dit des bipedes (armes, inventaire, marques,
 	// lot D1.1 de 2.7.d1), jouee une fois par [filmScan.balayerPositions] ; errEtats, son echec.
 	etats    grammar.EtatsDesImagesCles
@@ -304,7 +309,17 @@ func scanFilmInputs(ctx context.Context, matchID string, film *source.Film, fc *
 	// LA MARCHE DES TRAMES PRECEDE TOUT LE RESTE : elle recueille les records bipedes que les
 	// positions et les huit lecteurs du portage et des capacites lisent ensuite, l ancrage d en-tete
 	// passant derriere elle (`grammar/lectures_bipedes.go`, `grammar/positions_lues.go`).
+	//
+	// A PLUS D UN FIL, LES LECTURES QUI NE DEPENDENT QUE DU FILM PARTENT ICI, pendant la marche
+	// (film_scan_fond.go) ; le balayage rend la main par n importe quelle sortie, et la tache est
+	// toujours attendue.
+	s.fond = s.demarrerLeFond()
+	defer s.fond.joindre()
 	s.lireLaMarcheDesTrames()
+	// A PLUS D UN FIL, LES BALAYAGES DU MONDE ET DES SIEGES PARTENT ICI, sur des contextes de voie, et la chaine
+	// ci-dessous les attend a l endroit exact ou elle les lisait (film_scan_voies.go). Sans voie, rien ne change.
+	s.voies = s.demarrerLesVoies()
+	defer s.voies.joindre()
 	if err := s.balayerPositions(); err != nil {
 		return nil, err
 	}
@@ -313,5 +328,7 @@ func scanFilmInputs(ctx context.Context, matchID string, film *source.Film, fc *
 	s.balayerPortage()
 	s.balayerCapacites()
 	s.balayerPont()
+	// Toutes les valeurs des voies sont publiees : leurs replis, diagnostics et memos du monde passent au contexte.
+	s.voies.fusionner()
 	return s, nil
 }

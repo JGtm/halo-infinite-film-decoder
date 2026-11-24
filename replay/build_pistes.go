@@ -43,7 +43,7 @@ func (a *assemblage) poserLesPistes() {
 	// positions sortent avant le registre (cf. pistes_sans_creation.go).
 	a.reg = a.construireLeRegistre(func(fb *fallback.Compteur) IdentityInput {
 		return IdentityInput{
-			Positions: a.sorted, BipedCreations: a.opt.BipedCreations,
+			Positions: a.sorted, pistes: a.pistes(), BipedCreations: a.opt.BipedCreations,
 			Deaths: a.opt.Deaths, PlayerIndices: a.opt.PlayerIndices, FilmTable: a.opt.FilmTable,
 			Bots: a.opt.Bots, Entities: a.opt.PlayerEntities, Presences: a.opt.Presences, Fire: refs, RosterXUIDs: a.opt.RosterXUIDs,
 			Participants: a.opt.Participants,
@@ -62,7 +62,7 @@ func (a *assemblage) poserLesPistes() {
 	// découpe vient des VIES du registre, et ce fichier-ci est déjà au-delà du seuil de 500 L.
 	a.trackCov = poserLesTraces(a.ctx, &a.doc, a.sorted, decoupeDesTraces{
 		origin: a.origin, step: a.step, minPoints: a.opt.minPoints(), scoped: a.opt.Scoped,
-		vies: a.reg.Vies(), fb: a.opt.Fallbacks,
+		vies: a.reg.Vies(), fb: a.opt.Fallbacks, sansPleineCadence: a.opt.documentInterne, viseesSeules: a.opt.Vehicles.Aims,
 		fin: nouvelleClotureParMort(a.opt.Deaths, a.reg.CalageSiConnu(), a.reg.Vies(), a.opt.Participants, a.horloge()),
 	})
 	// CE QUE LA PORTE DES POSITIONS A ECARTE se publie avec la couverture des traces : un point
@@ -155,6 +155,8 @@ func (a *assemblage) poserLesEquipesEtLeRoster() {
 		tailleDEquipe: a.opt.TeamSize})
 	// LE BOT SANS VIE NI PLACE SORT DU ROSTER PUBLIE (sieges_bots_sans_place.go) : une tuile de trop sinon.
 	a.doc.Roster = sansLesBotsEcartes(a.doc.Roster, a.siegeCov)
+	// L'APPARENCE se pose sur le roster publie, par xuid (document_apparence.go).
+	a.poserLesApparences()
 	a.siegeCov.BotsSuccesseurs = botsSuccesseurs + botsParDeclaration
 	a.siegeCov.TirsIndexNonPlace = !a.indexTireur.estLaPlace()
 	// LE JOURNAL DES PLACES DIT UN DEFAUT DU ROSTER PUBLIE : un document interne le tait (cf.
@@ -178,10 +180,24 @@ func (a *assemblage) tirsDuCombat() []grammar.FireEvent {
 	}
 	a.tirsAttribues = sansIndexDeTireur(a.fire)
 	if a.indexTireur.estLaPlace() {
-		a.tirsAttribues, a.siegeCov.TirsParPlace = nouveauxTireursParPlace(a.doc.Roster).tirsParPlace(a.fire, a.horloge())
+		a.tirsAttribues, a.siegeCov.TirsParPlace = a.tireursDesPlaces().tirsParPlace(a.fire, a.horloge(), &a.placesCov)
 	}
 	a.tirsAttribuesPoses = true
 	return a.tirsAttribues
+}
+
+// tireursDesPlaces rend le tireur de chaque place : la place lue dans les tirs, le siege du roster a defaut. Pose
+// au premier appel, sur le roster et les pistes publies : les tirs et les rafales lisent les memes places.
+func (a *assemblage) tireursDesPlaces() tireursDesPlaces {
+	if !a.tireursPoses {
+		occ := a.reg.Occupants()
+		lues := lirePlacesDeControle(a.fire, occ, a.horloge(), viesParJoueur(a.doc.Tracks, a.doc.Roster, occ, a.horloge()),
+			a.indexTireur.estLaPlace())
+		a.placesCov = lues.cov
+		a.tireurs = tireursDesPlaces{lues: lues, sieges: nouveauxTireursParPlace(a.doc.Roster)}
+		a.tireursPoses = true
+	}
+	return a.tireurs
 }
 
 // poserTirsProjectilesEtGrenades publie les trois calques du combat, chacun avec sa couverture.
@@ -198,7 +214,7 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	// vehicule cesse de repliquer la sienne) ; le champ du record ne sert qu en repli, compte.
 	var orphelins []orphanShot
 	viseur := nouveauViseur(a.sorted, a.opt.Vehicles.Aims, a.opt.Fallbacks)
-	shots, orphelins, a.shotCov = buildShots(a.sorted, fire, a.horloge(), a.reg.Occupants(), viseur)
+	shots, orphelins, a.shotCov = buildShots(a.pistes(), fire, a.horloge(), a.reg.Occupants(), viseur)
 	a.shotOrphans = orphelinsDesTirs{tirs: orphelins, viseur: viseur}
 	a.doc.Shots = keepShotsOfPublishedTracks(shots, a.doc.Tracks)
 	a.shotCov.Unpublished = countUnpublished(len(shots), len(a.doc.Shots))
@@ -219,12 +235,19 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	var projTronquees int
 	a.doc.Projectiles, pubProjByRaw, projTronquees = buildProjectiles(a.opt.Projectiles, a.origin, a.step,
 		a.opt.Detonations, a.opt.Fallbacks)
+	a.projParPiste = pubProjByRaw
+	// LA HAUTEUR ET LE VOL AU DEBIT DU FILM DES PROJECTILES : sur tout document publie, pas sur le document interne du sync.
+	projEchantillons := 0
+	if !a.opt.documentInterne {
+		projEchantillons = poserLaPleineCadenceDesProjectiles(a.doc.Projectiles, a.opt.Projectiles, pubProjByRaw, a.origin, a.step)
+	}
 	// LA COUVERTURE DES PROJECTILES EST CONSTRUITE ICI mais POSEE plus bas : `doc.Coverage`
 	// n'existe qu'apres `buildCoverage`. Nil quand aucune piste n'est fournie — un film sans
 	// projectile ne publie pas trois zeros.
 	if len(a.opt.Projectiles) > 0 {
 		a.projCov = &ProjectileCoverage{
 			Tracks: len(a.opt.Projectiles), Published: len(a.doc.Projectiles), Truncated: projTronquees,
+			FullRateSamples: projEchantillons,
 		}
 		if projTronquees > 0 {
 			// JOURNALISE, JAMAIS AVALE (regle n°3) : une coupure protege le rendu, elle ne
@@ -236,7 +259,8 @@ func (a *assemblage) poserTirsProjectilesEtGrenades() {
 	}
 
 	var gren []Grenade
-	gren, a.grenCov = buildGrenades(a.sorted, a.opt.Grenades, a.origin, a.step, a.reg.Occupants(), a.opt.Projectiles, pubProjByRaw)
+	gren, a.grenCov = buildGrenades(a.pistes(), a.opt.Grenades, a.origin, a.step, a.reg.Occupants(),
+		volsDeGrenades{Tracks: a.opt.Projectiles, PubByRaw: pubProjByRaw, Detonations: a.opt.Detonations})
 	a.doc.Grenades = keepGrenadesOfPublishedTracks(gren, a.doc.Tracks)
 	a.grenCov.Unpublished = countUnpublished(len(gren), len(a.doc.Grenades))
 	a.grenCov.Attached = len(a.doc.Grenades)
@@ -318,6 +342,10 @@ func (a *assemblage) composerLaCouverture() {
 	a.doc.Coverage.Stances = &a.stanceCov
 	// CE QUE LA POSE DES SIEGES A LU ET APPARIE (lot 1.9.14) : mesure faite ci-dessus, posee ici.
 	a.doc.Coverage.Seats = &a.siegeCov
+	// L'APPARENCE (document_apparence.go) : lue avant la couverture, posee ici.
+	a.doc.Coverage.Appearance = a.apparenceCov
+	// LA LECTURE DES PLACES DE CONTROLE (places_de_controle.go) : posee par les tirs, completee par les rafales.
+	a.doc.Coverage.ControlPlaces = &a.placesCov
 	// La version du film est une DIMENSION du décodage : elle voyage avec l'artefact plutôt que
 	// d'exiger une relecture du film pour la retrouver (cf. Coverage.FilmMajorVersion).
 	a.doc.Coverage.FilmMajorVersion = a.opt.FilmMajorVersion

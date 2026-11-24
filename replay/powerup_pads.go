@@ -49,24 +49,34 @@ import "strings"
 // du littéral dans ce paquet (`powerup_pads_guard_test.go`).
 const padPowerupPrefix = "powerup_"
 
-// powerupPadRule est la règle des SOCLES DE POWER-UP : identité résolue dans les familles `eqip`
-// du manifeste du titre, et retenue seulement si cette famille est un power-up.
+// powerupPadRule est la règle de la voie `ti=37` : l'identité résolue dans les familles `eqip` du
+// manifeste du titre, et retenue si cette famille peut se trouver sur un socle.
+//
+// UN SOCLE D'ÉQUIPEMENT N'EST PAS QUE LE POWER-UP. Le même archétype `ti=37` porte les objets
+// d'équipement que la carte pose sur ses socles (répulseur, détecteur, mur, grappin, propulseur,
+// écran occultant...). Le filtre par le préfixe `powerup_` les écartait, et le calque des socles ne
+// montrait jamais un socle d'équipement. La règle retient donc toute famille du manifeste sauf
+// celles qui ne se posent jamais sur un socle (cf. [padItemFamily]) et les FORMES DÉPLOYÉES que
+// l'hôte désigne ([padCatalogs.DeployedEquipment]) : un mur posé par un joueur est au repos, et
+// deux murs posés au même endroit feraient un faux socle.
+//
+// MESURE QUI LA FONDE (43 films, 28 cartes ; un lieu est juste s'il tombe à moins d'un mètre d'un
+// point d'apparition ou d'un socle de la carte) : 117 socles de plus qu'avec le seul préfixe
+// `powerup_`, tous justes. Quatre ne sont pas sur un point d'apparition mais sur un socle de la
+// carte de type power-up : des objets de translocateur qui réapparaissent en cycle sur ce socle. Le
+// film les écrit créés ATTACHÉS À L'ENTITÉ DU SOCLE (un seul parent, qui n'est pas un bipède), comme
+// tout objet de socle : rien ne les distingue d'un équipement ramassé sur un autre socle, et rien ne
+// permet de les écarter sans écarter les autres.
 //
 // AUCUNE TABLE D'OBJETS D'OBJECTIF ICI, et c'est mesuré, pas oublié : les objets qui font le
 // mode (le drapeau) vivent dans l'archétype des armes au sol (`ti=42`) et portent des
-// identifiants du catalogue `weap` ; le catalogue `eqip` n'en contient aucun. La table serait
-// vide, et une table vide qui prétend filtrer est pire qu'une absence assumée.
-//
-// LE FILTRE EST UN PRÉFIXE, PAS UNE LISTE DE DEUX IDENTIFIANTS. Le manifeste NOMME les familles
-// (`powerup_overshield` `0xb781197a`, `powerup_camo` `0xe7be9f5c`) ; câbler les deux
-// identifiants ici en ferait une troisième écriture de ce que le TOML dit déjà, et un power-up
-// ajouté au manifeste resterait invisible sans que rien ne le signale.
-func powerupPadRule(families map[uint32]string) padRule {
+// identifiants du catalogue `weap` ; le catalogue `eqip` n'en contient aucun.
+func powerupPadRule(cat padCatalogs) padRule {
 	return padRule{
 		Kind: gwPadKindPowerup,
 		Family: func(id uint32) (string, bool) {
-			f := families[id]
-			if !strings.HasPrefix(f, padPowerupPrefix) {
+			f := cat.EquipmentFamilies[id]
+			if !padItemFamily(f) || cat.DeployedEquipment[id] {
 				return "", false
 			}
 			return f, true
@@ -74,17 +84,31 @@ func powerupPadRule(families map[uint32]string) padRule {
 	}
 }
 
-// padCatalogs porte les DEUX tables d'identité que la chaîne des socles consomme — une par voie.
-// Elles voyagent ensemble parce que l'assemblage les prend ensemble (règle des 5 paramètres).
+// padItemFamily dit qu'une famille `eqip` du manifeste peut se trouver sur un socle : toute famille
+// nommée, sauf la grenade (`grenade_*`), qui gît au sol à un point d'apparition de grenade et non
+// sur un socle.
+func padItemFamily(f string) bool {
+	return f != "" && !strings.HasPrefix(f, padGrenadePrefix)
+}
+
+// padGrenadePrefix est le préfixe des familles de grenade du manifeste (`grenade_frag`, ...).
+const padGrenadePrefix = "grenade_"
+
+// padCatalogs porte les tables d'identité que la chaîne des socles consomme, une par voie. Elles
+// voyagent ensemble parce que l'assemblage les prend ensemble (règle des 5 paramètres).
 type padCatalogs struct {
 	// ObjectiveObjects est la table GlobalID `weap` -> NOM du drapeau : les objets d'objectif que la
 	// voie des ARMES doit reconnaître pour NE PAS les publier comme des socles.
 	ObjectiveObjects map[uint32]Label
 	// EquipmentFamilies est la table GlobalID `eqip` -> FAMILLE du manifeste. C'est elle qui
-	// fait toute la sélectivité de la voie des POWER-UPS : sans elle, aucune création `ti=37`
-	// ne se résout, et le calque publie zéro socle de power-up en silence (le compteur
-	// `powerupKept` de la couverture est le témoin qui rompt ce silence).
+	// fait toute la sélectivité de la voie `ti=37` : sans elle, aucune création ne se résout, et le
+	// calque publie zéro socle de ce genre en silence (le compteur `powerupKept` de la couverture
+	// est le témoin qui rompt ce silence).
 	EquipmentFamilies map[uint32]string
+	// DeployedEquipment est l'ensemble des GlobalID `eqip` qui sont la forme POSÉE d'un objet (un
+	// panneau de mur déployé) : ils ne sont jamais sur un socle. Fourni par l'hôte, comme
+	// EquipmentFamilies. Vide = aucune forme déployée connue.
+	DeployedEquipment map[uint32]bool
 }
 
 // PadScans porte les DEUX lectures du film que la chaîne des socles consomme : les ARMES AU SOL

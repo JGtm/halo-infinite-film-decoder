@@ -31,33 +31,6 @@ const statMaxModeScore = 250
 // la contiguite des manches ([contiguousRounds]) ne cherche pas au-dela.
 const statMaxRound = signaux.StatborgMancheMax
 
-// RecordsDeLaBandeSure rend les enregistrements des equipes et des huit premiers joueurs : la bande
-// que les calques d'objectif ont ete mesures sur. Au-dela, un slot de joueur n'est lu que pour le
-// tableau des scores. Ouvrir cette bande au drapeau donne un total de portage par film plus juste, mais
-// attribue a un joueur le portage d'un autre quand un siege change d'occupant : le calque du drapeau ne
-// lit les sieges au-dela qu'une fois chaque ligne associee a son joueur.
-func RecordsDeLaBandeSure(recs []types.StatRecord) []types.StatRecord {
-	out := make([]types.StatRecord, 0, len(recs))
-	for _, r := range recs {
-		if r.Slot <= signaux.StatborgSlotBandeSure {
-			out = append(out, r)
-		}
-	}
-	return out
-}
-
-// SiegesAuDelaDeLaBandeSure compte les slots de joueur que le statborg porte au-dela de la bande
-// ([RecordsDeLaBandeSure]) : les sieges que les calques d'objectif ne lisent pas.
-func SiegesAuDelaDeLaBandeSure(recs []types.StatRecord) int {
-	vus := map[int]bool{}
-	for _, r := range recs {
-		if r.Slot > signaux.StatborgSlotBandeSure {
-			vus[r.Slot] = true
-		}
-	}
-	return len(vus)
-}
-
 // IsTeamSlot dit si un slot designe une entite d'equipe (par opposition a un joueur).
 func IsTeamSlot(slot int) bool { return slot <= signaux.StatborgSlotEquipeMax }
 
@@ -277,11 +250,23 @@ const statMinRoundRecords = 25
 
 // materialRounds rend les manches MATERIELLES : celles qui portent au moins
 // [statMinRoundRecords] enregistrements de slot JOUEUR ET au moins [statMinRoundRecordShare] %
-// de ceux de la manche la plus fournie.
+// de ceux de la manche la plus fournie, OU que le film annonce par une remise a zero simultanee des
+// scores de tous ses joueurs ([simultaneousResetRounds]).
 //
 // Les slots d'EQUIPE sont exclus du comptage : ils emettent sur un rythme propre, independant
 // du nombre de joueurs, et deux slots suffiraient a faire passer un ancrage.
 func materialRounds(recs []types.StatRecord) map[int]bool {
+	out := simultaneousResetRounds(recs)
+	for round := range roundsByShare(recs) {
+		out[round] = true
+	}
+	return out
+}
+
+// roundsByShare rend les manches que le critere de la matiere admet seul (plancher absolu et part de la manche
+// la plus fournie), sans la remise a zero simultanee.
+func roundsByShare(recs []types.StatRecord) map[int]bool {
+	out := map[int]bool{}
 	parRound := map[int]int{}
 	for _, r := range recs {
 		if IsTeamSlot(r.Slot) {
@@ -295,7 +280,6 @@ func materialRounds(recs []types.StatRecord) map[int]bool {
 			ref = n
 		}
 	}
-	out := map[int]bool{}
 	if ref == 0 {
 		return out
 	}

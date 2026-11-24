@@ -193,7 +193,8 @@ type SeatCoverage struct {
 	// lot M4b (quatre avant : les places 16 a 31 d un BTB se confondaient avec 0 a 15).
 	TirsIndexTronque bool `json:"tirsIndexTronque,omitempty"`
 	// TirsParPlace : les tirs rendus a l OCCUPANT de leur place quand il n est pas l index de la
-	// table — le remplacant d un partant (lot M4b.4, `tirs_par_place.go`).
+	// table — le remplacant d un partant (lot M4b.4, `tirs_par_place.go`) : la place lue dans les tirs,
+	// a defaut le siege du roster (`coverage.controlPlaces` dit lequel).
 	TirsParPlace int `json:"tirsParPlace"`
 	// TirsIndexNonPlace : sur ce film, l index de tireur ne s accorde pas avec l unite tireuse (build
 	// HI_1_4_1) — il n est pas la place ; les places ne se lisent pas dans les tirs, et seule la

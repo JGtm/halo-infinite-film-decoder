@@ -214,9 +214,7 @@ func TestLesReplisHorsBalayageNeSeComptentQuUneFoisDepuisLesFaits(t *testing.T) 
 			}
 		}
 	}
-	if renderAssembly(direct) != renderAssembly(rejoue) {
-		t.Error("les deux chemins de la cuisson ne publient pas le meme document")
-	}
+	exigerDocumentsIdentiques(t, "les deux chemins de la cuisson ne publient pas le meme document", direct, rejoue)
 }
 
 // grammarContexteAvec rend un contexte de film (sans film) dont le rapport vaut `r`.

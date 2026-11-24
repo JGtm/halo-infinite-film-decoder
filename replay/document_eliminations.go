@@ -12,7 +12,12 @@ package replay
 //     jeu, et chaque unité d'un pas est une élimination ; un pas de n unités donne n lignes à la même image ;
 //   - la victime : l'action de score `killPersonalScore` du même joueur, à une image près (`scoreActions[]`). Le jeu ne
 //     l'écrit pas pour toutes les éliminations (absente ou partielle sur les anciennes versions) : `victim` est alors
-//     absent, jamais deviné ;
+//     absent, jamais deviné. Il l'est aussi quand plusieurs victimes restent possibles pour l'élimination (plusieurs
+//     actions candidates de noms différents dans la fenêtre, ou une action que deux images réclament) : aucun appariement
+//     « au plus proche » ; le nombre de ces éliminations est `coverage.eliminations.victimAmbiguous` ;
+//   - le tueur BOT : un bot n'a pas d'identifiant et le tableau ne nomme pas sa ligne ; son élimination se lit sur l'action de score
+//     `killPersonalScore` qu'il reçoit (posée à sa place, cf. document_score_actions.go), une ligne par action, à l'image de
+//     l'action. Sans compteur de tirs à la tête ni médaille rattachée : `headshot` et `perfect` sont absents ;
 //   - `headshot` : la montée du compteur `stats.headshots` du même joueur dans la MÊME IMAGE que la montée du compteur
 //     d'éliminations. Le tableau écrit les deux compteurs dans un même enregistrement ; l'identité de l'enregistrement
 //     n'est pas portée par les courbes publiées, l'image est donc la clé ;
@@ -43,10 +48,17 @@ package replay
 type Elimination struct {
 	// T est l'index de frame où le compteur d'éliminations du joueur monte, sur le même axe que Point.T.
 	T int `json:"t"`
-	// XUID est le tueur, en décimal — même forme que Track.XUID.
-	XUID string `json:"xuid"`
-	// Victim est la victime, en décimal. Absente quand le film ne la donne pas pour cette élimination.
+	// XUID est le tueur humain, en décimal — même forme que Track.XUID. Absent quand le tueur est un bot : Place le désigne.
+	XUID string `json:"xuid,omitempty"`
+	// Place est l'index de joueur du film du tueur quand c'est un bot, qui n'a pas d'identifiant : le même espace que
+	// `roster[].filmIndex` et que `reloads[].place`. Absent pour un tueur humain ; XUID et Place s'excluent.
+	Place *int `json:"place,omitempty"`
+	// Victim est la victime humaine, en décimal. Absente quand le film ne la donne pas pour cette élimination, ou quand
+	// la victime est un bot (VictimPlace).
 	Victim string `json:"victim,omitempty"`
+	// VictimPlace est l'index de joueur du film de la victime quand c'est un bot (même espace que Place) ; Victim et
+	// VictimPlace s'excluent.
+	VictimPlace *int `json:"victimPlace,omitempty"`
 	// Headshot : l'élimination est un tir à la tête (vrai), n'en est pas un (faux), ou on ne sait pas (absent). Cf. l'en-tête.
 	Headshot *bool `json:"headshot,omitempty"`
 	// Perfect : l'élimination est un frag parfait (vrai) ou on ne sait pas (absent) ; jamais faux. Cf. l'en-tête.
@@ -61,6 +73,15 @@ type EliminationCoverage struct {
 	// Eliminations est le nombre de lignes publiées ; WithVictim, celles dont la victime est donnée.
 	Eliminations int `json:"eliminations"`
 	WithVictim   int `json:"withVictim"`
+	// BotEliminations est la part de `eliminations` dont le tueur est un bot (lignes à `place`, sans xuid) : lues sur les
+	// actions de score du bot, jamais sur le tableau, qui ne nomme pas ses lignes. VictimPlaces, la part de `withVictim` dont
+	// la victime est un bot (`victimPlace`). Absents à zéro.
+	BotEliminations int `json:"botEliminations,omitempty"`
+	VictimPlaces    int `json:"victimPlaces,omitempty"`
+	// VictimAmbiguous compte les éliminations sans victime parce que plusieurs victimes restaient possibles (plusieurs
+	// actions de score candidates de noms différents, ou une action réclamée par deux images) : la victime n'est alors
+	// jamais appariée « au plus proche ». Absent à zéro.
+	VictimAmbiguous int `json:"victimAmbiguous,omitempty"`
 	// HeadYes, HeadNo, HeadUnknown : les trois états de `headshot`.
 	HeadYes     int `json:"headYes"`
 	HeadNo      int `json:"headNo"`
