@@ -62,7 +62,7 @@ func etatDeParenteCapture(t *testing.T) ObjectParentState {
 	t.Helper()
 	br := lecteurDeRecordCapture(t, "f18a002c1f75a12420445e4404f0732b20")
 	const debutI10, debutI18, fin = 2, 113, 134
-	for _, nom := range []string{"object-translational-velocity-component", "object-angular-velocity-component"} {
+	for _, nom := range []string{composanteVitesseTranslation, "object-angular-velocity-component"} {
 		if !composantDeProjectileLu(br, nom) {
 			t.Fatalf("%s n est pas porte", nom)
 		}
@@ -109,20 +109,20 @@ func enregistrementColle(typ int, slot, gen uint32, st ObjectParentState, desali
 
 // TestLeCanalDesProjectilesCollesNeRetientQueLesCollagesAlignes : un delta ou une creation dont i10 ouvre la porte
 // « attache » est une lecture, brute ; un i10 libre n est qu un record compte ; un record desaligne est ecarte et
-// compte ; un autre archetype est ignore ; une seconde lecture de la meme cle est un repeat. La sortie est triee par
+// compte ; un autre archetype est ignore ; une seconde lecture de la meme vie est un repeat, non rendu. La sortie est triee par
 // instant puis par projectile. MUTATIONS : la garde du desalignement retiree, les creations ignorees, le tri
 // retire -> ROUGE.
 func TestLeCanalDesProjectilesCollesNeRetientQueLesCollagesAlignes(t *testing.T) {
 	colle := etatDeParenteCapture(t)
 	libre := ObjectParentState{Attached: false}
-	c := &canalDesProjectilesColles{vues: map[types.LifeKey]struct{}{}, naissances: map[types.LifeKey]naissanceDeProjectile{}}
+	c := &canalDesProjectilesColles{vies: map[uint32]vieDeProjectile{}}
 	lire := func(ts uint64, r FrameRecord) { c.lire(&lecture.Paquet{TS: ts}, &r) }
 
 	lire(50, enregistrementColle(recNew, 1133, 1, libre, -1)) // la creation de la vie qui se colle plus tard
 	lire(300, enregistrementColle(recDelta, 1133, 1, colle, -1))
 	lire(100, enregistrementColle(recNew, 1200, 2, colle, -1))
 	lire(100, enregistrementColle(recDelta, 1100, 0, libre, -1))
-	lire(150, enregistrementColle(recDelta, 1133, 3, colle, 40)) // desaligne : rien ne prouve ce qu il porte
+	lire(150, enregistrementColle(recDelta, 1133, 1, colle, 40)) // desaligne : rien ne prouve ce qu il porte
 	lire(150, FrameRecord{Type: recDelta, TypeIndex: BipedTypeIndex, ID: 7, Slot: 7, DesyncAt: -1,
 		Trace: EntityTrace{Comps: []CompResult{{Payload: colle, Ported: true}}}}) // pas un projectile
 	lire(400, enregistrementColle(recDelta, 1133, 1, colle, -1)) // une seconde lecture de la meme vie
@@ -133,12 +133,11 @@ func TestLeCanalDesProjectilesCollesNeRetientQueLesCollagesAlignes(t *testing.T)
 	want := []types.ProjectileAttachRead{
 		{TimestampUS: 100, Life: types.LifeKey{Slot: 1200, Gen: 2}, BornUS: 100, HasBirth: true, Created: true, Parent: parent, Node: 22, Pose: pose},
 		{TimestampUS: 300, Life: types.LifeKey{Slot: 1133, Gen: 1}, BornUS: 50, HasBirth: true, Parent: parent, Node: 22, Pose: pose},
-		{TimestampUS: 400, Life: types.LifeKey{Slot: 1133, Gen: 1}, BornUS: 50, HasBirth: true, Parent: parent, Node: 22, Pose: pose},
 	}
 	if !slices.Equal(c.out, want) {
 		t.Errorf("lectures %+v, attendu %+v", c.out, want)
 	}
-	attendu := types.ProjectileAttachStats{Scanned: true, Records: 5, Read: 3, Created: 1, Desynced: 1, Repeats: 1, NoTag: 3, NoCreator: 3}
+	attendu := types.ProjectileAttachStats{Scanned: true, Records: 5, Read: 2, Created: 1, Desynced: 1, Repeats: 1, NoTag: 2, NoCreator: 2}
 	if c.st != attendu {
 		t.Errorf("comptes %+v, attendu %+v", c.st, attendu)
 	}
@@ -195,5 +194,45 @@ func TestLaMarcheDesTramesRendLesMemesProjectilesCollesAUnEtAQuatreFils(t *testi
 		if l.HasCreator && l.Creator.Slot < parentHandleBase {
 			t.Errorf("le createur n est pas dans l espace des slots d unites : %+v", l)
 		}
+	}
+}
+
+// TestUneCleReutiliseNeHeriteJamaisDeLaNaissanceDUneVieAncienne : la cle (slot, generation) revient apres quatre vies. Quand la
+// creation de la vie courante n a pas ete lue, son collage sort sans naissance ; la suppression du slot et la creation d un autre
+// type sous ce slot finissent aussi la vie. MUTATIONS : la suppression ignoree, la creation d un autre type ignoree, la vie
+// non remplacee a la creation -> ROUGE.
+func TestUneCleReutiliseNeHeriteJamaisDeLaNaissanceDUneVieAncienne(t *testing.T) {
+	colle := etatDeParenteCapture(t)
+	libre := ObjectParentState{Attached: false}
+	c := &canalDesProjectilesColles{vies: map[uint32]vieDeProjectile{}}
+	lire := func(ts uint64, r FrameRecord) { c.lire(&lecture.Paquet{TS: ts}, &r) }
+	autre := func(typ int, slot, gen uint32) FrameRecord {
+		return FrameRecord{Type: typ, ID: gen<<30 | slot, Slot: slot, TypeIndex: BipedTypeIndex, DesyncAt: -1}
+	}
+
+	lire(10, enregistrementColle(recNew, 1133, 1, libre, -1)) // vie A, creation lue
+	lire(20, FrameRecord{Type: recDel, ID: 1<<30 | 1133, Slot: 1133, DesyncAt: -1})
+	lire(900, enregistrementColle(recDelta, 1133, 1, colle, -1)) // meme cle, creation jamais lue : sans naissance
+	lire(910, autre(recNew, 1133, 2))                            // un autre type prend le slot
+	lire(920, enregistrementColle(recDelta, 1133, 1, colle, -1)) // la vie de la cle n existe plus : vie inconnue, sans naissance
+	lire(930, enregistrementColle(recNew, 1200, 3, libre, -1))
+	lire(940, enregistrementColle(recDelta, 1200, 3, colle, -1)) // creation lue : naissance
+	lire(950, enregistrementColle(recNew, 1200, 3, libre, 40))   // creation desalignee de la cle suivante, meme generation
+	lire(960, enregistrementColle(recDelta, 1200, 3, colle, -1)) // vie nouvelle sans naissance, pas celle de 930
+	c.Clore(BilanDeMarche{})
+
+	var sans, avec int
+	for _, l := range c.out {
+		if l.HasBirth {
+			avec++
+			if l.BornUS != 930 {
+				t.Errorf("naissance %d, attendue 930 : %+v", l.BornUS, l)
+			}
+		} else {
+			sans++
+		}
+	}
+	if avec != 1 || sans != 3 || c.st.NoBirth != 3 {
+		t.Errorf("avec naissance %d, sans %d, NoBirth %d ; attendus 1, 3 et 3", avec, sans, c.st.NoBirth)
 	}
 }

@@ -1,6 +1,7 @@
 package replay
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
@@ -183,15 +184,13 @@ func TestLaCouvertureDesCollagesClasseChaqueLecture(t *testing.T) {
 	}
 }
 
-// TestSansLectureDesCollagesLeCalqueRestePasPose : marche non jouee, archetype sans i10 ou aucune piste de projectile : ni
-// collage ni couverture.
+// TestSansLectureDesCollagesLeCalqueRestePasPose : marche non jouee, archetype sans i10 ou aucun collage lu : ni collage ni couverture.
 func TestSansLectureDesCollagesLeCalqueRestePasPose(t *testing.T) {
 	vols := []types.ProjectileTrack{volDeProjectile(1133, 1, 2_000_000, 10)}
 	lectures := []types.ProjectileAttachRead{collageDeTest(2_230_000)}
 	cas := map[string]func(a *assemblage){
 		"marche non jouee": func(a *assemblage) { a.opt.ProjectileAttaches.Stats.Scanned = false },
 		"i10 absent":       func(a *assemblage) { a.opt.ProjectileAttaches.Stats.Absent = true },
-		"sans piste":       func(a *assemblage) { a.projCov = nil },
 	}
 	for nom, f := range cas {
 		a := assemblageDeCollage(vols, lectures)
@@ -227,5 +226,62 @@ func TestLeCollageSePublieEnJSONAvecSaPoseBrute(t *testing.T) {
 	}
 	if _, ok := vide["attach"]; ok {
 		t.Errorf("un projectile sans collage publie `attach` : %s", sans)
+	}
+}
+
+// TestSansPisteDeProjectileLesCollagesSontPublieEtComptes : la lecture des trajectoires est vide ou en echec alors que des collages sont
+// lus : chacun est publie dans `attachments[]`, compte dans la couverture, et `noTracks` dit qu aucun vol n a pu le porter. Les
+// repetitions du canal sont publiees dans la couverture. MUTATIONS : la sortie anticipee sans piste rendue, `noTracks` non pose -> ROUGE.
+func TestSansPisteDeProjectileLesCollagesSontPublieEtComptes(t *testing.T) {
+	a := assemblageDeCollage(nil, []types.ProjectileAttachRead{collageDeTest(2_230_000), collageDeTest(2_500_000)})
+	a.projCov = nil
+	a.opt.ProjectileAttaches.Stats.Repeats = 3
+	a.poserLesProjectilesColles()
+	if a.projCov == nil || a.projCov.Attach == nil {
+		t.Fatal("collages lus et aucune couverture : silence")
+	}
+	c := a.projCov.Attach
+	if c.Read != 2 || c.Listed != 2 || c.NoTracks != 2 || c.OnFlight != 0 || c.Repeats != 3 || len(a.doc.Attachments) != 2 {
+		t.Errorf("couverture %+v, %d collages publies ; attendu 2 lus, 2 listes, 2 sans piste, 3 repetitions", *c, len(a.doc.Attachments))
+	}
+}
+
+// TestSansPisteLaCouvertureDesCollagesAtteintLeDocumentPublie : PAR LE VRAI ASSEMBLAGE, sur le JSON du document. Des collages lus et
+// aucune piste de projectile : `attachments[]` sort ET `coverage.projectiles.attach` sort avec `noTracks` et `repeats` justes (le bloc de
+// couverture cree apres la recopie de `composerLaCouverture` se perdait). MUTATION : la pose sur le document retiree -> ROUGE.
+func TestSansPisteLaCouvertureDesCollagesAtteintLeDocumentPublie(t *testing.T) {
+	c := collageDeTest(10_000_000)
+	doc := BuildFromPositions(context.Background(), "m", "halo_infinite", positionsPourVersion(), nil, Options{
+		FrameIntervalMS: 100,
+		ProjectileAttaches: ProjectileAttachInput{Reads: []types.ProjectileAttachRead{c, c},
+			Stats: types.ProjectileAttachStats{Scanned: true, Records: 5, Read: 2, Repeats: 3}},
+	})
+	b, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var pub struct {
+		Attachments []json.RawMessage `json:"attachments"`
+		Coverage    struct {
+			Projectiles *struct {
+				Tracks int `json:"tracks"`
+				Attach *struct {
+					Read     int `json:"read"`
+					Listed   int `json:"listed"`
+					NoTracks int `json:"noTracks"`
+					Repeats  int `json:"repeats"`
+				} `json:"attach"`
+			} `json:"projectiles"`
+		} `json:"coverage"`
+	}
+	if err := json.Unmarshal(b, &pub); err != nil {
+		t.Fatal(err)
+	}
+	p := pub.Coverage.Projectiles
+	if p == nil || p.Attach == nil {
+		t.Fatalf("collages lus sans piste : `coverage.projectiles.attach` absent du document publie (%d attachments)", len(pub.Attachments))
+	}
+	if len(pub.Attachments) != 2 || p.Tracks != 0 || p.Attach.Read != 2 || p.Attach.Listed != 2 || p.Attach.NoTracks != 2 || p.Attach.Repeats != 3 {
+		t.Errorf("document publie : %d attachments, couverture %+v", len(pub.Attachments), *p.Attach)
 	}
 }

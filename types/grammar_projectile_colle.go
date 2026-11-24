@@ -58,10 +58,10 @@ type ProjectileAttachStats struct {
 	// Desynced : les records de projectile dont l etat de parente a ete lu avant un desalignement du
 	// record, et que la lecture ecarte : rien ne prouve l alignement de ce qu ils portent.
 	Desynced int
-	// Repeats : les lectures dont la cle (slot, generation) avait deja un collage lu : une seconde lecture de la meme
-	// vie, ou une cle reutilisee (la generation tient sur deux bits, donc une cle revient).
+	// Repeats : les records « attache » d une vie qui avait deja un collage lu ; le canal ne rend que le premier collage de chaque vie, une vie
+	// finissant a la suppression de son slot ou a la creation suivante sous ce slot. Ils ne comptent pas dans Read.
 	Repeats int
-	// NoBirth : les lectures dont la cle n avait aucun record de creation lu (la creation precede le film, ou n a pas ete lue jusqu au bout) ;
+	// NoBirth : les lectures dont la VIE n avait aucun record de creation lu (la creation precede le film, ou n a pas ete lue jusqu au bout) ;
 	// NoTag : celles dont le tag du projectile n est pas lu (creation absente, ou film sans deserialiseur d etat de creation) ; NoCreator :
 	// celles dont la creation ne nomme pas de createur.
 	NoBirth, NoTag, NoCreator int

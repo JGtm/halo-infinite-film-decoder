@@ -61,6 +61,12 @@ type ProjectileAttachCoverage struct {
 	UnreadFrames int `json:"unreadFrames"`
 	// WideLocations : les listes de records que la marche n avait pas localisees et que le canal a recuperees a largeur libre.
 	WideLocations int `json:"wideLocations"`
+	// Repeats : les records « attache » d une vie de projectile deja lue collee (le canal ne rend que le premier de chaque vie) ; ils ne
+	// comptent pas dans Read.
+	Repeats int `json:"repeats"`
+	// NoTracks : parmi les lectures publiees dans `attachments[]`, celles que rien ne peut poser sur un vol parce qu aucune trajectoire de
+	// projectile n est lue (lecture des trajectoires en echec, ou aucune piste) ; absent quand des trajectoires sont lues.
+	NoTracks int `json:"noTracks,omitempty"`
 	// OutOfMatch : les lectures avant l origine de l axe ou apres sa derniere frame.
 	OutOfMatch int `json:"outOfMatch"`
 	// OnFlight : les lectures posees sur un projectile publie, dont le vol se termine par elles. Listed : les lectures qu aucun projectile
@@ -145,14 +151,18 @@ func (cov *ProjectileAttachCoverage) compterLaCible(cible cibleDuCollage) {
 
 // poserLesProjectilesColles pose `attach` sur les projectiles publies dont le vol se termine par un collage, publie les autres lectures
 // dans `attachments[]`, et pose la couverture du calque. Sans lecture des projectiles colles (marche des trames non jouee, archetype sans
-// `i10`) ou sans piste de projectile, rien ne se pose et la couverture reste absente.
+// `i10`), rien ne se pose et la couverture reste absente. Sans piste de projectile, aucune lecture ne peut se poser sur un vol : toutes se
+// publient dans `attachments[]` et la couverture les compte (`noTracks`) ; le calque annonce dans `layers` est celui que le document porte.
 func (a *assemblage) poserLesProjectilesColles() {
 	in := a.opt.ProjectileAttaches
-	if a.projCov == nil || !in.Stats.Scanned || in.Stats.Absent {
+	if !in.Stats.Scanned || in.Stats.Absent {
 		return
 	}
+	if a.projCov == nil {
+		a.projCov = &ProjectileCoverage{} // aucune trajectoire lue : le bloc existe pour porter la couverture des collages
+	}
 	st := in.Stats
-	cov := ProjectileAttachCoverage{Records: st.Records, Read: st.Read, Created: st.Created,
+	cov := ProjectileAttachCoverage{Records: st.Records, Read: st.Read, Created: st.Created, Repeats: st.Repeats,
 		Desynced: st.Desynced, UnreadFrames: st.UnreadFrames, WideLocations: st.WideLocations}
 	cadre := cadreDesCollages{pistes: a.doc.Tracks, vehicules: a.doc.Vehicles}
 	axe := axeDeFrames{a.origin, a.step, a.doc.FrameCount}
@@ -184,5 +194,13 @@ func (a *assemblage) poserLesProjectilesColles() {
 		cov.compterLaCible(cibleDuParent(l.Parent, frames[i], cadre.pistes, cadre.vehicules))
 	}
 	a.doc.Attachments = publierLesCollagesSansVol(in.Reads, frames, prises, cadre, &cov)
+	if len(a.opt.Projectiles) == 0 {
+		cov.NoTracks = cov.Listed
+	}
 	a.projCov.Attach = &cov
+	// Le bloc a pu etre cree ci-dessus, apres la recopie de `composerLaCouverture` : il se pose sur le document ici, ce qui est sans effet
+	// quand la recopie a deja porte le meme pointeur.
+	if a.doc.Coverage != nil {
+		a.doc.Coverage.Projectiles = a.projCov
+	}
 }

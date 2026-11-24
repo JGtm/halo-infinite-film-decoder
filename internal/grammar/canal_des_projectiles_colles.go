@@ -11,7 +11,7 @@ package grammar
 // vehicules et l equipement porte), un noeud de ce parent, et trois valeurs de 16 bits qui placent le
 // projectile dans le repere de ce noeud. Un projectile lance a bout portant peut aussi NAITRE colle : son record de
 // creation ouvre alors la meme porte. Le film peut ecrire d autres records de la meme vie apres un collage (un i10
-// libre, un detachement) : ce canal rend chaque collage lu, il ne suit pas la vie.
+// libre, un detachement) : ce canal rend le PREMIER collage de chaque vie et compte les suivants ([types.ProjectileAttachStats.Repeats]).
 //
 // # CE QUE CE CANAL REND, ET CE QU IL NE DIT PAS
 //
@@ -22,6 +22,11 @@ package grammar
 // 32 bits de son tag) et son createur ([canal_des_projectiles_colles_naissance.go]). Le canal ne dit pas quel
 // tir ou quelle arme a produit le projectile : le film ne l ecrit pas.
 //
+// UNE VIE EST BORNEE PAR LE FLUX, PAS PAR LE TEMPS. La cle d un projectile (slot, generation sur deux bits) revient apres quatre vies ;
+// le canal suit donc la vie de chaque slot : la suppression du slot, ou une creation sous ce slot (de n importe quel type), la finit. La
+// naissance lue ne vaut que pour la vie qui l a posee ; une vie dont la creation n a pas ete lue rend ses collages SANS naissance, tag ni
+// createur (`NoBirth`), jamais ceux d une vie ancienne.
+//
 // # LES LARGEURS SONT CELLES DE i10, ET LE FILM LES PROUVE
 //
 // La lecture de la branche « attache » est celle que le deserialiseur de i10 applique a tout archetype
@@ -29,7 +34,7 @@ package grammar
 // (`DesyncAt == -1`) : un record lu a la bonne largeur laisse la suite de la trame se lire, et celui qui
 // s est desaligne avant sa fin est ecarte et compte ([types.ProjectileAttachStats.Desynced]).
 //
-// Le canal ne marche rien lui-meme, ne lance aucun fil et ne tient qu une table des vies deja vues : la
+// Le canal ne marche rien lui-meme, ne lance aucun fil et ne tient que la table des vies courantes : la
 // sortie ne depend ni du nombre de fils ni des voies.
 
 import (
@@ -42,21 +47,28 @@ import (
 
 // canalDesProjectilesColles est le canal des projectiles colles de la marche des trames ([CanalDesTrames]).
 type canalDesProjectilesColles struct {
-	m    *MarcheDistribuee
-	st   types.ProjectileAttachStats
-	out  []types.ProjectileAttachRead
-	vues map[types.LifeKey]struct{}
-	// id relit l etat de creation de chaque projectile ; nil quand le profil du film ne le deroule pas. naissances tient la creation
-	// courante de chaque cle (slot, generation) : la derniere lue.
-	id         *lecteurDeNaissance
-	naissances map[types.LifeKey]naissanceDeProjectile
+	m   *MarcheDistribuee
+	st  types.ProjectileAttachStats
+	out []types.ProjectileAttachRead
+	// id relit l etat de creation de chaque projectile ; nil quand le profil du film ne le deroule pas. vies tient, par slot, la vie
+	// courante que le flux a montree : sa generation, sa creation quand elle a ete lue, et si son collage est deja rendu.
+	id   *lecteurDeNaissance
+	vies map[uint32]vieDeProjectile
+}
+
+// vieDeProjectile est la vie qu un slot porte a cet instant du flux. Une vie finit a la suppression de son slot ou a la creation
+// suivante sous ce slot, quel que soit son type : la naissance qu elle porte ne vaut que pour elle.
+type vieDeProjectile struct {
+	gen        uint32
+	naissance  naissanceDeProjectile
+	aNaissance bool
+	colle      bool
 }
 
 // nouveauCanalDesProjectilesColles prepare le canal du film `fc` dont le registre est `reg` : un archetype
 // projectile qui ne declare pas `i10` ne transmet aucun collage, ce que `Absent` publie.
 func nouveauCanalDesProjectilesColles(fc *FilmContext, reg *Registry) *canalDesProjectilesColles {
-	c := &canalDesProjectilesColles{vues: map[types.LifeKey]struct{}{}, naissances: map[types.LifeKey]naissanceDeProjectile{},
-		id: nouveauLecteurDeNaissance(fc)}
+	c := &canalDesProjectilesColles{vies: map[uint32]vieDeProjectile{}, id: nouveauLecteurDeNaissance(fc)}
 	arch, ok := reg.Archetype(ProjectileTypeIndex)
 	c.st.Absent = !ok || len(arch.indicesOf(compObjectParentState)) == 0
 	return c
@@ -80,7 +92,7 @@ func (c *canalDesProjectilesColles) Clore(BilanDeMarche) {
 		return cmp.Or(cmp.Compare(a.TimestampUS, b.TimestampUS), cmp.Compare(a.Life.Slot, b.Life.Slot),
 			cmp.Compare(a.Life.Gen, b.Life.Gen))
 	})
-	c.vues, c.naissances = nil, nil
+	c.vies = nil
 }
 
 // Trame lit les records delta de projectile de la trame `p`. Une liste que la marche n a pas localisee se
@@ -109,16 +121,24 @@ func (c *canalDesProjectilesColles) Trame(p *lecture.Paquet) {
 	}
 }
 
-// lire range la lecture du record `r` s il est la creation ou le delta d un projectile dont i10 ouvre la porte
-// « attache ». Une creation qui s ouvre sur cette porte est un projectile qui nait colle, a bout portant. Toute
-// creation lue jusqu au bout est retenue, collee ou non : c est elle qui dit le type et le createur de la vie.
+// lire suit la vie que le record `r` montre sous son slot, puis range la lecture du record s il est la creation ou le delta d un projectile
+// dont i10 ouvre la porte « attache ». Une creation qui s ouvre sur cette porte est un projectile qui nait colle, a bout portant.
 func (c *canalDesProjectilesColles) lire(p *lecture.Paquet, r *FrameRecord) {
+	switch r.Type {
+	case recDel:
+		delete(c.vies, r.Slot)
+		return
+	case recNew:
+		c.naitre(p, r)
+	case recDelta:
+		if r.TypeIndex == ProjectileTypeIndex {
+			if v, ok := c.vies[r.Slot]; !ok || v.gen != r.ID>>30 {
+				c.vies[r.Slot] = vieDeProjectile{gen: r.ID >> 30}
+			}
+		}
+	}
 	if r.TypeIndex != ProjectileTypeIndex || (r.Type != recDelta && r.Type != recNew) {
 		return
-	}
-	vie := types.LifeKey{Slot: r.Slot, Gen: r.ID >> 30}
-	if r.Type == recNew && r.DesyncAt == -1 {
-		c.naissances[vie] = c.id.lire(p, r)
 	}
 	st, ok := parentDuRecord(r)
 	if !ok {
@@ -132,16 +152,21 @@ func (c *canalDesProjectilesColles) lire(p *lecture.Paquet, r *FrameRecord) {
 	if !st.Attached {
 		return
 	}
-	if _, deja := c.vues[vie]; deja {
+	v := c.vies[r.Slot]
+	if v.colle {
 		c.st.Repeats++
+		return
 	}
-	c.vues[vie] = struct{}{}
+	v.colle = true
+	c.vies[r.Slot] = v
 	c.st.Read++
 	c.st.Created += unSi(r.Type == recNew)
+	vie := types.LifeKey{Slot: r.Slot, Gen: r.ID >> 30}
 	l := types.ProjectileAttachRead{TimestampUS: p.TS, Life: vie, Created: r.Type == recNew,
 		Parent: types.LifeKey{Slot: (st.Quant16 & parentHandleValueMask) + parentHandleBase, Gen: st.Quant16 >> 30},
 		Node:   st.Word16, Pose: st.Mtx}
-	if n, ok := c.naissances[vie]; ok {
+	if v.aNaissance {
+		n := v.naissance
 		l.BornUS, l.HasBirth = n.us, true
 		l.Tag, l.HasTag = n.tag, n.aTag
 		l.Creator, l.HasCreator = n.createur, n.aCreateur
@@ -150,4 +175,19 @@ func (c *canalDesProjectilesColles) lire(p *lecture.Paquet, r *FrameRecord) {
 	c.st.NoTag += unSi(!l.HasTag)
 	c.st.NoCreator += unSi(!l.HasCreator)
 	c.out = append(c.out, l)
+}
+
+// naitre ouvre la vie que la creation `r` pose sous son slot, de n importe quel type : la vie qui s y trouvait est finie. Une creation de
+// projectile lue jusqu au bout porte sa naissance ; une creation desalignee ou d un autre type n en porte aucune, et un collage de cette
+// vie sort sans naissance plutot qu avec celle d une vie ancienne de la meme cle.
+func (c *canalDesProjectilesColles) naitre(p *lecture.Paquet, r *FrameRecord) {
+	if r.TypeIndex != ProjectileTypeIndex {
+		delete(c.vies, r.Slot)
+		return
+	}
+	v := vieDeProjectile{gen: r.ID >> 30}
+	if r.DesyncAt == -1 {
+		v.naissance, v.aNaissance = c.id.lire(p, r), true
+	}
+	c.vies[r.Slot] = v
 }
