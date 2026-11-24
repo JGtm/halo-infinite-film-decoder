@@ -513,8 +513,8 @@ neutralDeaths : n=0 · 74234e98afe7
 medals : n=21 · 346567d2bd19
 medalLabels : n=0 · 74234e98afe7
 scoreActions : n=80 · 901aa70a9e5e
-hits : n=617 · a779abe100c1
-damage : n=842 · 445d69cf5481
+hits : n=617 · 966901fb2ba5
+damage : n=842 · d183739bb026
 shotStats : n=11 · 55222ac1ea3c
 reloads : n=0 · 74234e98afe7
 chatter : n=0 · 74234e98afe7
@@ -540,7 +540,7 @@ skullCarries : n=0 · 74234e98afe7
 bombCarries : n=0 · 74234e98afe7
 bombStats : absent
 bombEvents : n=0 · 74234e98afe7
-coverage : 78b40858874f
+coverage : 3df40fac23a1
 coverage.shots : e37ea9212424
 coverage.shots.available : 1209 · fd68fcf88c30
 coverage.shots.attached : 1177 · 66c2e6dd7fe3
@@ -642,7 +642,7 @@ coverage.seats.rameneesALaTaille : 0 · 5feceb66ffc8
 coverage.seats.botsRelevesALaTaille : 0 · 5feceb66ffc8
 coverage.seats.botsRelevesEnJeu : 0 · 5feceb66ffc8
 coverage.seats.absencesTenuesParUnBot : 0 · 5feceb66ffc8
-coverage.controlPlaces : 7e9c15af29d5
+coverage.controlPlaces : c64defd9a920
 coverage.controlPlaces.read : true · b5bea41b6c62
 coverage.controlPlaces.bindings : 1197 · f343a80aafa1
 coverage.controlPlaces.players : 10 · 4a44dc153642
@@ -650,6 +650,7 @@ coverage.controlPlaces.multiPlace : 0 · 5feceb66ffc8
 coverage.controlPlaces.handovers : 2 · d4735e3a265e
 coverage.controlPlaces.returns : 0 · 5feceb66ffc8
 coverage.controlPlaces.contested : 0 · 5feceb66ffc8
+coverage.controlPlaces.unitContradicted : 0 · 5feceb66ffc8
 coverage.controlPlaces.shotsByPlace : 1199 · 7123d367e354
 coverage.controlPlaces.shotsBySeat : 0 · 5feceb66ffc8
 coverage.controlPlaces.shotsUnheld : 0 · 5feceb66ffc8

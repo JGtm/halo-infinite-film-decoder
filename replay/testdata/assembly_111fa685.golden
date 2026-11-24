@@ -1186,7 +1186,7 @@ première : t=1266 xuid=2623439693412443 assistPersonalScore 50 cible="" · dern
   2790774467870121 : 63 tir(s) dont 66 écrit(s) · 40 message(s) · 28 touche(s) · couverture 1.05 · doublons 1.43 · infligé 2331.7 · subi 1255.2 · suffisant false
   2798998857433625 : 259 tir(s) dont 193 écrit(s) · 79 message(s) · 64 touche(s) · couverture 0.75 · doublons 1.23 · infligé 1535.6 · subi 1427.2 · suffisant false
   2805892453496669 : 50 tir(s) dont 49 écrit(s) · 18 message(s) · 12 touche(s) · couverture 0.98 · doublons 1.50 · infligé 505.5 · subi 1617.0 · suffisant false
-première : t=1100 2602956977960643 -> 2668839413788202 35e75533 w=0xF5C335DFE7232C0B · dernière : t=15894 2661033160009544 -> 2668839413788202 ec919da5 w=
+première : t=1100 2602956977960643 -> 2668839413788202 35e75533 w=0xF5C335DFE7232C0B · dernière : t=15894 2661033160009544 -> 2668839413788202 ec919da5 w=0xB533957E42C9679F
 dégât, première : t=1100 2602956977960643 -> 2668839413788202 35e75533 bouclier 9.0 corps 0.0 · dernière : t=15937 2798998857433625 -> 2668839413788202 ee2d686d bouclier 33.1 corps 0.0
 
 ## DOCUMENT COMPLET — chaque champ publie, son compte et l empreinte de son contenu
@@ -1249,8 +1249,8 @@ neutralDeaths : n=0 · 74234e98afe7
 medals : n=85 · c8f436e0b052
 medalLabels : n=0 · 74234e98afe7
 scoreActions : n=207 · 5a3297d4aa14
-hits : n=1182 · f91a972539ba
-damage : n=2919 · 860ed3acfba5
+hits : n=1182 · 484306076602
+damage : n=2919 · d0d26903796c
 shotStats : n=24 · dca3274e8987
 reloads : n=0 · 74234e98afe7
 chatter : n=0 · 74234e98afe7
@@ -1276,7 +1276,7 @@ skullCarries : n=0 · 74234e98afe7
 bombCarries : n=0 · 74234e98afe7
 bombStats : absent
 bombEvents : n=0 · 74234e98afe7
-coverage : ff5239b177c3
+coverage : 41d891d5462d
 coverage.shots : c8d7a994054b
 coverage.shots.available : 3540 · 1df8153c919b
 coverage.shots.attached : 3458 · ee43ec7cc83b
@@ -1378,7 +1378,7 @@ coverage.seats.rameneesALaTaille : 0 · 5feceb66ffc8
 coverage.seats.botsRelevesALaTaille : 0 · 5feceb66ffc8
 coverage.seats.botsRelevesEnJeu : 0 · 5feceb66ffc8
 coverage.seats.absencesTenuesParUnBot : 0 · 5feceb66ffc8
-coverage.controlPlaces : 0146467ee4ed
+coverage.controlPlaces : 0dfa302d41a2
 coverage.controlPlaces.read : true · b5bea41b6c62
 coverage.controlPlaces.bindings : 3445 · 8a835b9bf9c1
 coverage.controlPlaces.players : 24 · c2356069e9d1
@@ -1386,6 +1386,7 @@ coverage.controlPlaces.multiPlace : 0 · 5feceb66ffc8
 coverage.controlPlaces.handovers : 0 · 5feceb66ffc8
 coverage.controlPlaces.returns : 0 · 5feceb66ffc8
 coverage.controlPlaces.contested : 0 · 5feceb66ffc8
+coverage.controlPlaces.unitContradicted : 0 · 5feceb66ffc8
 coverage.controlPlaces.shotsByPlace : 3538 · 112b89e61925
 coverage.controlPlaces.shotsBySeat : 0 · 5feceb66ffc8
 coverage.controlPlaces.shotsUnheld : 0 · 5feceb66ffc8

@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee a7c4a8c93c6c3217
-empreinte-servie a7c4a8c93c6c3217
-empreinte-cuite ac9af54e9951b2d8
+empreinte-stockee a7693cbf05155b8c
+empreinte-servie a7693cbf05155b8c
+empreinte-cuite 8437343973ceb72f
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -398,6 +398,7 @@ ControlPlaceCoverage
   ShotsByPlace json:"shotsByPlace" int
   ShotsBySeat json:"shotsBySeat" int
   ShotsUnheld json:"shotsUnheld" int
+  UnitContradicted json:"unitContradicted" int
 Coverage
   Abilities json:"abilities,omitempty" *AbilityCoverage
   AbilityCharges json:"abilityCharges,omitempty" *AbilityChargeCoverage
@@ -665,8 +666,14 @@ FlagCarriesCoverage
   GaugePaired json:"gaugePaired" int
   GaugePoints json:"gaugePoints" int
   GaugeReads json:"gaugeReads" int
+  GaugeReadsAmbiguous json:"gaugeReadsAmbiguous" int
+  GaugeReadsOffDrops json:"gaugeReadsOffDrops" int
+  GaugeReadsUnpublished json:"gaugeReadsUnpublished" int
   GaugeScanned json:"gaugeScanned" bool
   GaugeSlots json:"gaugeSlots" int
+  GaugeSlotsFewReads json:"gaugeSlotsFewReads" int
+  GaugeSlotsOffDrops json:"gaugeSlotsOffDrops" int
+  GaugeSlotsTeamTaken json:"gaugeSlotsTeamTaken" int
   GaugeSpans json:"gaugeSpans" int
   GaugeWalkReads json:"gaugeWalkReads" int
   GaugeWalkSpans json:"gaugeWalkSpans" int

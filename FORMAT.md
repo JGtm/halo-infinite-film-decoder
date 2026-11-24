@@ -465,7 +465,7 @@ the record binds the place to that player at that frame. The place a player hold
 nobody. The player a shot, a burst, a hit or a shot tally is given to is the one the place read designates, not the occupant of the roster seat; the seat stays the fallback, named `repli_tireur_par_le_siege_de_la_place` and counted, and the
 place itself the last resort. `coverage.controlPlaces`: `read` (the reading took place: the shooter index is the place on this film, otherwise nothing is read, `repli_index_de_tireur_hors_place`), `bindings` (distinct bindings of a place to a player, one per (place, frame, player): two shots of the same player at the same place in the same frame make ONE binding, so this is not a shot count; the contested ones are apart),
 `players` and `multiPlace` (players bound, players read at several places), `handovers` and `returns` (hand-overs read on a place, and hand-overs where a player takes back a place another held meanwhile), `contested` (bindings dropped because two
-players share a place at the same frame), `shotsByPlace` and `burstsByPlace` (shooter is the one the place read designates), `shotsBySeat` and `burstsBySeat` (the reading holds the place for nobody and the roster seat gives the shooter: the named
+players share a place at the same frame), `unitContradicted` (shot records whose unit is not the body the registry reads on that slot at that instant, a later generation of a reused slot: they bind nothing and are counted), `shotsByPlace` and `burstsByPlace` (shooter is the one the place read designates), `shotsBySeat` and `burstsBySeat` (the reading holds the place for nobody and the roster seat gives the shooter: the named
 fallback), `shotsUnheld` and `burstsUnheld` (neither the reading nor the seat holds it: the record's index stays); the three shot counts and the three burst counts partition the shots and bursts whose shooter was decided. Measured on 28 films
 (90,160 shots): 99.94 % of the shots are given by the place read, 53 by the seat, 3 to nobody. `shotStats[].shots` estimates a player's shots from the game's per-player numbering (modulo 256): a number the SAME unit already wrote, behind the head by less
 than half a turn, that the time since the head does not allow as a full turn at the titles's maximum fire rate (`256 - lag` rounds at the fastest weapon's cadence, 60 rounds per second), is a re-read of an event already written; it adds nothing and
@@ -730,6 +730,8 @@ at 0.95 or more) and has 35 that the pass lacks, so the publication takes, for e
 one and the pass's otherwise. The values of a zone's state (owner, capture gauge) are read by the pass and not by the walk: on 9
 Strongholds films the pass finds all of the 335 captures that the statborg names, within three frames, the walk 333.
 
+The gauge is one per TEAM, not one per flag: the property carries no flag identifier nor position. A slot is matched to a team by the share of its samples that fall in a drop of ANY flag of that team (0.80 minimum, 8 samples minimum), then each sample is placed on the flag of the team that is on the ground at its instant; when two flags of the team are on the ground at once the sample belongs to neither and is counted (`gaugeReadsAmbiguous`). Every series read and not published is counted under its reason, over the two readings (the pass and the walk, each matched on its own): `gaugeSlotsFewReads` (slot under the sample floor), `gaugeSlotsOffDrops` (no team holds the share), `gaugeSlotsTeamTaken` (holds the share for a team whose slot is another one, or for another team), with their samples in `gaugeReadsUnpublished`; `gaugeReadsOffDrops` counts the samples of a matched slot that fall outside every drop of its team. `gaugePaired` counts the flags whose team has a matched slot. For each reading, the samples of its slots are exactly those unpublished, off drops, ambiguous, and those placed on a flag (of which the published points are a thinned subset).
+
 **Status.** Read: record type, id, mask, and the components with a ported reader, in NEW and DELTA records. Recovered: the
 archetype of a slot with no NEW in view, from the bindings above; records anchored by header patterns where a body cannot be
 read: biped records, world-object tracks and creations (bit passes after the walk), scoreboard records, and kills of a view A that
@@ -893,7 +895,7 @@ map in the catalogue:
 Closure says whether packet widths are right, not whether every field is decoded to a fact: a closed packet may hold components
 skipped by width. The profile holds values read from the executable only for `HI_1_12_0` and `HI_1_13_0`; for the other builds
 they are measured on witness films. Fallbacks and recoveries still fire on films of every build. The fallback registry
-(`internal/facts/fallback/`) holds about 130 entries across all layers (127 declarations at the time of writing); each fallback
+(`internal/facts/fallback/`) holds about 130 entries across all layers (128 declarations at the time of writing); each fallback
 that fired is counted in the replay document.
 
 **Open questions**, as the code leaves them:
