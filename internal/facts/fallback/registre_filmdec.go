@@ -42,7 +42,7 @@ var registreFilmdec = []Repli{
 			Fichier: "replay/build_ground_weapons.go",
 			Ancre:   "return calibrees",
 		}, {
-			Fichier: "replay/build_ground_weapons.go",
+			Fichier: "replay/lecture_monde.go",
 			Ancre:   "fc.NoterReplis(grammar.ComptesDesReplis{LargeursMPPCalibrees: 1})",
 		}, siteDeVersement("NomLargeursMppCalibreesSurLeFilm")},
 		DatePose:     dateVague2,
