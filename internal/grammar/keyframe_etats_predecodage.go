@@ -82,7 +82,7 @@ func (c *canalDeLEtatCompletBipede) predecoderLesMots() {
 	}
 	marche, jeux := c.fc.MarcheDImageCle(), c.jeuxDeMots()
 	calcules := make([]*motsDuPayload, len(charges))
-	executerEnParallele(n, len(charges), func(i int) {
+	executerEnParallele(c.fc.suivi, n, len(charges), func(i int) {
 		calcules[i] = motsDuPayloadDe(charges[i], marche, jeux)
 	})
 	// Depuis le fil appelant, apres la jointure : aucune ecriture partagee pendant le calcul.

@@ -23,3 +23,22 @@ func (c *FilmContext) Fils() int {
 	}
 	return c.fils
 }
+
+// SuivreLeCalcul signale au suivi du contexte, s'il y en a un, qu'un fil de calcul commence (delta = 1)
+// ou finit (-1). Chaque point de lancement du decodeur (l'assistant [executerEnParallele], la tache de
+// fond et les voies du balayage de `replay`) l'appelle : +1 quand un fil commence a calculer, -1 quand il
+// s'arrete ; l'appelant d'une jointure se compte -1 pendant qu'il attend. Sans suivi (le cas de la
+// production), le cout est un test de nullite ; le suivi appartient au contexte, donc a UNE cuisson, et
+// aucun etat de paquet n'y concourt.
+func (c *FilmContext) SuivreLeCalcul(delta int) {
+	if c != nil && c.suivi != nil {
+		c.suivi(delta)
+	}
+}
+
+// PoserLeSuiviDuCalcul installe `f` comme suivi du contexte (nil le retire). Reserve aux tests, qui
+// comptent les fils : a poser avant la cuisson qu'il observe, depuis le fil qui possede le contexte. Les
+// voies derivees ([FilmContext.Deriver]) ne le recoivent pas : elles ne lancent aucun fil.
+func (c *FilmContext) PoserLeSuiviDuCalcul(f func(delta int)) {
+	c.suivi = f
+}

@@ -154,7 +154,8 @@ type FilmContext struct {
 	// rendu a l orchestrateur qui l a ouvert ([FilmContext.Diagnostics]).
 	diag constat.Diagnostics
 	// fils : nombre de fils permis a ce decodage, au moins 1 ([FilmContext.PoserFils]).
-	fils int
+	fils  int
+	suivi func(delta int) // observateur des fils qui calculent ([FilmContext.PoserLeSuiviDuCalcul]), nul en production
 	// voie : non nil sur un contexte de voie ([FilmContext.Deriver]), qui garde le lien vers son parent.
 	voie *etatDeVoie
 }

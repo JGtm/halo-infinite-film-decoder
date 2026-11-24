@@ -263,10 +263,10 @@ func TestCompteursDeModeDuTableau(t *testing.T) {
 	prisN, slots := map[string]bool{}, map[[2]int]bool{}
 	for _, st := range base {
 		prisN[st.Name] = true
-		slots[[2]int{st.Component.Comp, b2i(st.Component.SideB)}] = true
+		slots[[2]int{st.Component.Comp, boolVersCompte(st.Component.SideB)}] = true
 	}
 	for _, st := range vip[len(base):] {
-		k := [2]int{st.Component.Comp, b2i(st.Component.SideB)}
+		k := [2]int{st.Component.Comp, boolVersCompte(st.Component.SideB)}
 		if prisN[st.Name] || slots[k] || !st.Component.HoldOnClear {
 			t.Errorf("%s : nom ou emplacement deja pris, ou lu sans les regles des compteurs nommes", st.Name)
 		}
@@ -276,11 +276,4 @@ func TestCompteursDeModeDuTableau(t *testing.T) {
 			t.Errorf("famille %q : %d compteurs, attendu la table de base (%d)", famille, len(got), len(base))
 		}
 	}
-}
-
-func b2i(b bool) int {
-	if b {
-		return 1
-	}
-	return 0
 }

@@ -399,7 +399,7 @@ package grammar
 // Les lectures portent le parent, le noeud et la pose brute (trois entiers de 16 bits). Aucun bit deja lu ne change de largeur ; les listes illisibles se recuperent a largeur libre et se comptent.
 //
 // SEPTIEME APPORT : LA TABLE DES REPONSES DE JEU ENTRE DANS L EMPREINTE. `reponsesdejeu/data/reponses.tsv` nomme et chiffre les actions de score que la couche fait lire (`scoreActions`) mais n etait importee que par la publication : une ligne de plus ne changeait aucune revision. La couche la declare desormais comme paquet associe
-// (`revision.Couche.Associes`, `internal/games/halo_infinite/film/reponsesdejeu`). AUCUNE SORTIE NE CHANGE : l empreinte change, et c est ce qui rend un rejeu `redecoder` quand la table change. Le golden de perimetre de la couche gagne la ligne `paquet`.
+// (`revision.Couche.Associes`, `reponsesdejeu`). AUCUNE SORTIE NE CHANGE : l empreinte change, et c est ce qui rend un rejeu `redecoder` quand la table change. Le golden de perimetre de la couche gagne la ligne `paquet`.
 //
 // HUITIEME APPORT : L APPARENCE DES SPARTANS EN CODES BRUTS. `ScanRosterAppearances` (`roster_apparences.go`) lit, dans les paquets de type 8 (le roster), le bloc de personnalisation de chaque humain, de la largeur du profil du build ; le bloc de la table de `chunk_00` est nul. Elle ne touche a aucune lecture existante : le meme corps d enregistrement ([DecodeRoster]), un passage de plus sur les memes paquets. Les codes sont opaques (paires cle, valeur de 32 bits puis un reste), le dernier bloc non nul de chaque joueur fait foi ; elle est publiee sous `roster[].appearance` et `coverage.appearance`. AUCUNE LECTURE EXISTANTE NE CHANGE : l empreinte change parce que la couche gagne un fichier.
 //

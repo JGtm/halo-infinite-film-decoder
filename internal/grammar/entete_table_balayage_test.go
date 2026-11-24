@@ -304,7 +304,7 @@ func comparerLesDeuxRecherches(t *testing.T, nom string, pay []byte, bilan *bila
 			t.Fatalf("%s len=%d genNulle=%v : candidats %v, reference %v", nom, len(pay), genNulle, got, want)
 		}
 		bilan.positions += total
-		bilan.candidats[b2i(genNulle)] += len(got)
+		bilan.candidats[unSi(genNulle)] += len(got)
 	}
 	bilan.payloads++
 	bilan.entrees += len(wantE)
@@ -387,11 +387,4 @@ func TestLesRecherchesDeTableEgalentLeurFormeAuxBords(t *testing.T) {
 	t.Logf("%d payloads, %d positions jugees (par generation), dont %d gardees par le rejet (generation non nulle), %d (generation nulle) ; "+
 		"%d entrees de table, %d emplacements ecartes, %d en-tetes de joueur", bilan.payloads, bilan.positions/2,
 		bilan.candidats[0], bilan.candidats[1], bilan.entrees, bilan.ecartes, bilan.joueurs)
-}
-
-func b2i(b bool) int {
-	if b {
-		return 1
-	}
-	return 0
 }

@@ -27,7 +27,7 @@ var registreFilmdecMarche = []Repli{
 			Fichier: pkgFilmdec + "keyframe_world.go",
 			Ancre:   "iss.dec = kfElection // repli nomme `repli_ancre_d_image_cle_par_election`",
 		}, {
-			Fichier: "replay/film_scan.go",
+			Fichier: "replay/film_scan_images_cles.go",
 			Ancre:   "s.opt.Fallbacks.DeclencheN(fallback.NomAncreDImageCleParElection, marche.Elections)",
 		}},
 		DatePose: "2026-09-23",
@@ -65,7 +65,7 @@ var registreFilmdecMarche = []Repli{
 			Fichier: pkgFilmdec + "generations_vivantes.go",
 			Ancre:   "func (g *GenerationsVivantes) SlotsEnRepli(pos []BipedPosition) int {",
 		}, {
-			Fichier: "replay/film_scan.go",
+			Fichier: "replay/film_scan_positions.go",
 			Ancre:   "s.opt.Fallbacks.DeclencheN(fallback.NomGenerationVivanteInconnueTag1,",
 		}},
 		DatePose:        date0927,
@@ -214,6 +214,10 @@ var registreFilmdecMarche = []Repli{
 		Sites: []Site{{
 			Fichier: pkgFilmdec + "creations_du_monde.go",
 			Ancre:   "c.NoterReplis(ComptesDesReplis{CreationsDuMondeApresLaMarche: recuperees})",
+		}, {
+			// LE COMPTE QUE LE RENDU RANGE, pour que la fusion d une voie ne le recompte pas.
+			Fichier: pkgFilmdec + "creations_du_monde.go",
+			Ancre:   "r.fondues, r.repli = true, recuperees",
 		}, siteDeVersement("NomCreationsDuMondeApresLaMarche")},
 		DatePose: date1007,
 		CibleRetrait: "la marche des trames qui lit la vue B de chaque paquet : listes localisees par la fin de la vue A " +

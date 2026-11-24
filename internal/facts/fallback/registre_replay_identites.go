@@ -268,8 +268,8 @@ var registreReplayIdentites = []Repli{
 		}, {
 			// COMPTE = chunks sautes (illisibles ET a resolution vide), rendu par la lecture et note au
 			// rapport du contexte par l etage du pont d identite (lot J8.7).
-			Fichier: pkgFilmdec + "pont_identite.go",
-			Ancre:   "fc.NoterReplis(ComptesDesReplis{ChunksDeReplicationSautes: sautes})",
+			Fichier: pkgFilmdec + "pont_faits_film_seul.go",
+			Ancre:   "fc.NoterReplis(ComptesDesReplis{ChunksDeReplicationSautes: f.chunksDeReplicationSautes})",
 		}, siteDeVersement("NomChunkDeReplicationSaute")},
 		DatePose:        dateAudit0E,
 		CibleRetrait:    "la table de chunk_00 est le lien direct partout ; a defaut, " + retraitRegle4,

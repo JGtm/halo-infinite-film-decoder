@@ -593,7 +593,7 @@ balaye=true · bande 857 slot(s) · 232 ancre(s) -> 232 acceptee(s) -> 220 reten
 181 lachee(s) a une mort · 39 apparue(s) sans mort a proximite, dont 0 AU REPOS (jamais bougee : le seul jeu qui fait des socles)
 0 grappe(s) -> 0 socle(s) publie(s) · 0 occupation(s) : 0 datee(s) · 0 sans passage · 0 jamais videe(s)
 0 cycle(s) ETABLI(s) — un cycle instable publie `null`, jamais un chiffre
-POWER-UPS (voie ti=37) — balaye=true · 303 creation(s) acceptee(s) -> 110 retenue(s) par l IDENTITE `powerup_*` -> 0 socle(s) publie(s)
+POWER-UPS (voie ti=37) — balaye=true · 303 creation(s) acceptee(s) -> 95 retenue(s) par l IDENTITE `powerup_*` -> 0 socle(s) publie(s)
 0 occupation(s) achevee(s) publiee(s) · 0 datee(s) a l instant exact par l evenement natif · 0 avec un ramasseur nomme
 
 ## ARMES PORTEES — l inventaire, pas la main : le loadout ne dit pas QUELLE arme est degainee
@@ -815,7 +815,7 @@ skullCarries : n=0 · 74234e98afe7
 bombCarries : n=0 · 74234e98afe7
 bombStats : absent
 bombEvents : n=0 · 74234e98afe7
-coverage : 231289d2ff2f
+coverage : 63801a8726bd
 coverage.shots : b25d7813ba0a
 coverage.shots.available : 605 · 90b5bc7f03c8
 coverage.shots.attached : 589 · fbe697429f16
@@ -1043,7 +1043,7 @@ coverage.placements.byCause : n=5 · 75dde878de28
 coverage.placements.lifeLinked : 15 · e629fa6598d7
 coverage.placements.lifeAmbiguous : 0 · 5feceb66ffc8
 coverage.placements.lifeEnds : 14 · 8527a891e224
-coverage.groundWeapons : 1ba486d76b5d
+coverage.groundWeapons : 40805d0e52e2
 coverage.groundWeapons.scanned : true · b5bea41b6c62
 coverage.groundWeapons.slots : 857 · 22cdd352056c
 coverage.groundWeapons.anchors : 232 · 835d5e831434
@@ -1063,7 +1063,7 @@ coverage.groundWeapons.never : 0 · 5feceb66ffc8
 coverage.groundWeapons.cycles : 0 · 5feceb66ffc8
 coverage.groundWeapons.powerupScanned : true · b5bea41b6c62
 coverage.groundWeapons.powerupAccepted : 303 · 8bd9c0d45353
-coverage.groundWeapons.powerupKept : 110 · 9bdb2af67992
+coverage.groundWeapons.powerupKept : 95 · ad48ff99415b
 coverage.groundWeapons.powerupPads : 0 · 5feceb66ffc8
 coverage.groundWeapons.horsEmprise : 0 · 5feceb66ffc8
 coverage.groundWeapons.releves : 0 · 5feceb66ffc8

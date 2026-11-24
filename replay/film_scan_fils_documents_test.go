@@ -32,14 +32,24 @@ var bobinesCuitesDeBoutEnBout = []string{
 // fils demande, sur un contexte neuf.
 func cuireLaBobine(t *testing.T, dossier string, fils int) (doc, faits []byte) {
 	t.Helper()
+	return cuireLaBobineSuivie(t, dossier, fils, nil)
+}
+
+// cuireLaBobineSuivie est [cuireLaBobine] avec, si `suivi` n est pas nul, l observateur des fils porte par le
+// contexte de la cuisson ([suiviDuCalculDe]) : il observe CETTE cuisson et aucune autre.
+func cuireLaBobineSuivie(t *testing.T, dossier string, fils int, suivi func(delta int)) (doc, faits []byte) {
+	t.Helper()
+	ctx := context.Background()
+	if suivi != nil {
+		ctx = context.WithValue(ctx, cleDuSuiviDuCalcul{}, suivi)
+	}
 	film, err := source.LoadDir(dossier, nil)
 	if err != nil {
 		t.Fatalf("chargement de %s : %v", dossier, err)
 	}
 	entry := goldenEntryPourTest(t)
-	d, f, err := BuildFromFilmAvecFaits(context.Background(), "bobine", "halo_infinite", film, Options{
-		MapQuant: &entry, Vitesse: OptionsVitesse{Fils: fils},
-	})
+	opt := Options{MapQuant: &entry, Vitesse: OptionsVitesse{Fils: fils}}
+	d, f, err := BuildFromFilmAvecFaits(ctx, "bobine", "halo_infinite", film, opt)
 	if err != nil {
 		t.Fatalf("cuisson de %s a %d fils : %v (la bobine ne prouve rien)", dossier, fils, err)
 	}

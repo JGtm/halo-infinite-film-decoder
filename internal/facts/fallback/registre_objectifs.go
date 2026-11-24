@@ -296,7 +296,7 @@ var registreObjectifsEtConstruction = []Repli{
 		Ordre:     OrdreApresLecture,
 		Sites: []Site{
 			{Fichier: pkgFilmdec + "deaths_source.go", Ancre: "return nums[len(nums)-1], true, nil"},
-			{Fichier: pkgFilmdec + "pont_identite.go", Ancre: "fc.NoterReplis(ComptesDesReplis{TempsFortsAuDernierNumero: unSi(tf.auDernierNumero)})"},
+			{Fichier: pkgFilmdec + "pont_faits_film_seul.go", Ancre: "fc.NoterReplis(ComptesDesReplis{TempsFortsAuDernierNumero: unSi(f.tempsFortsAuDernierNumero)})"},
 			siteDeVersement("NomTempsFortsDernierNumero"),
 		},
 		CompleteeParLHote: true,

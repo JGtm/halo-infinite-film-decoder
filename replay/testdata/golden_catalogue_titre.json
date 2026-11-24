@@ -410,6 +410,10 @@
     "695517747": "wall",
     "853112664": "repair_field"
   },
+  "DeployedEquipment": {
+    "1385156166": true,
+    "1751859401": true
+  },
   "ObjectiveObjects": {
     "708387624": {
       "en": "Flag",

@@ -241,7 +241,7 @@ var registreReplayEquipement = []Repli{
 		// production, `replay`, le COMPTE sur la meme condition (plafond non fourni).
 		Sites: []Site{
 			{Fichier: pkgFilmdec + "keyframe_etats_scan.go", Ancre: "grenMax = DefaultGrenadeMax"},
-			{Fichier: pkgReplay + "film_scan.go", Ancre: "s.opt.Fallbacks.Declenche(fallback.NomPlafondGrenadeParDefaut)"},
+			{Fichier: pkgReplay + "film_scan_portage.go", Ancre: "s.opt.Fallbacks.Declenche(fallback.NomPlafondGrenadeParDefaut)"},
 		},
 		DatePose:        dateAudit0E,
 		CibleRetrait:    "un plafond lu comme une donnee de mode (profil par build et par carte), pas une constante ; a defaut, " + retraitRegle4,
