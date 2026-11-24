@@ -155,6 +155,12 @@ Both typed errors are exported by the facade, `decfilm.ErrUnknownBuild` and `dec
 the error the table opposes to it; `decfilm/erreurs_typees_test.go` plays it on a build and a format that
 the table does not know.
 
+## Credits
+
+- **Den** (libfilmshell, OpenSpartan, MIT): the tables of the score responses, of the medals and of the damage effects, the width of several view A messages and two methods (how a life ends, how a hit is applied). The credit header and the licence text sit next to each table; see [`NOTICE.md`](NOTICE.md).
+- **llampwall** (GitHub, repository `llampwall/installation-08`): the readings of the player's gestures and of the crouch and jump commands, of the shooter by control place, of the aims without a position, of the weapon in hand, of the ammunition carried, of the positions and aim at full rate, of the projectiles that stick to another entity, of the pad candidates and equipment pads, of the offset of a shot in its frame and of the slots on a damage line, all written again under this module's rules, and the 3D replay reader built on this decoder.
+- **nuzzles** (the Rust parser `halo_api`): the method of reading a film's chunks on several threads, behind the parallelism of `replay.Options.Vitesse`; no code taken.
+
 ## License
 
 AGPL-3.0, the repository license (`LICENSE`, `NOTICE` at the repository root). The module itself imports
