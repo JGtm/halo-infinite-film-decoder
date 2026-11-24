@@ -11,7 +11,7 @@
 //	DUREE_CATALOGUE  map_quant_bounds.json (entree de carte retrouvee par module = colonne niveau)
 //	DUREE_SORTIE     dossier de sortie, HORS de data/ : `duree.tsv` et un rejeu `<id>.replay.json` par film
 //
-//	cd libs/film && DUREE_FILMS=... DUREE_RACINE=... DUREE_CATALOGUE=... DUREE_SORTIE=C:\t\marche\A0\duree \
+//	cd <racine du depot> && DUREE_FILMS=... DUREE_RACINE=... DUREE_CATALOGUE=... DUREE_SORTIE=<dossier>/duree \
 //	  go test -tags=research ./research/duree/ -run TestDureeDesTemoins -v -timeout 30m
 //
 // CE QUI EST MESURE, PAR LES SEULS POINTS D ENTREE PUBLICS : `replay.BuildFromFilmAvecFaits` rend

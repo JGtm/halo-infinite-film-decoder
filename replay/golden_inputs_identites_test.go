@@ -74,6 +74,12 @@ func xuidsDesEntrees(g *FilmFacts) []uint64 {
 	for _, m := range g.Medals {
 		out = append(out, m.XUID)
 	}
+	for _, l := range g.RosterListings {
+		out = append(out, l.XUID)
+	}
+	for _, a := range g.Appearances {
+		out = append(out, a.XUID)
+	}
 	return out
 }
 
@@ -158,7 +164,7 @@ func retraduireLeRoster(roster []uint64, table map[uint64]uint64) []uint64 {
 	return out
 }
 
-// remplacerXuidsDesEntrees applique la table aux morts, aux medailles, a la table des index et a celle des sieges ;
+// remplacerXuidsDesEntrees applique la table aux morts, aux medailles, aux listages du roster, aux apparences, a la table des index et a celle des sieges ;
 // un xuid que la table ne connait pas reste tel quel (le garde-rail le refusera ensuite). Rend le
 // nombre de xuids remplaces.
 func remplacerXuidsDesEntrees(g *FilmFacts, table map[uint64]uint64) int {
@@ -183,6 +189,12 @@ func remplacerXuidsDesEntrees(g *FilmFacts, table map[uint64]uint64) int {
 	}
 	for i := range g.Medals {
 		g.Medals[i].XUID = chg(g.Medals[i].XUID)
+	}
+	for i := range g.RosterListings {
+		g.RosterListings[i].XUID = chg(g.RosterListings[i].XUID)
+	}
+	for i := range g.Appearances {
+		g.Appearances[i].XUID = chg(g.Appearances[i].XUID)
 	}
 	return n
 }

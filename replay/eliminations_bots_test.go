@@ -10,11 +10,6 @@ import (
 // eliminations_bots_test.go — LES ÉLIMINATIONS DONT UN BOT EST L'AUTEUR OU LA VICTIME : tout est synthétique. Un bot n'a pas
 // d'identifiant ; il se désigne par sa place (l'index de joueur du film, `roster[].filmIndex`).
 
-// actionDeBot : une action de score posée à la place d'un bot.
-func actionDeBot(name string, t, place int) ScoreAction {
-	return ScoreAction{T: t, Place: placeDeTest(place), Name: name, Points: 100}
-}
-
 // TestActionsDeScoreDUnBot : un frag de bot est posé à sa place, sans xuid ; sa cible humaine garde son xuid, sa cible bot
 // prend sa place ; une action de bot n'entre pas dans la comparaison au tableau.
 //

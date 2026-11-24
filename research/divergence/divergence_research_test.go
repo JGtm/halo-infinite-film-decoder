@@ -16,8 +16,8 @@
 // Sorties : `<sortie>/<id>/divergence_paquets.tsv` et `divergence_resume.md` par film,
 // `<sortie>/resume_global.md` pour l ensemble.
 //
-//	cd libs/film && DIVERGENCE_RACINE=... DIVERGENCE_FILMS=... DIVERGENCE_TEMOIN=C:\t\marche\A0\oracle \
-//	  DIVERGENCE_SORTIE=C:\t\marche\A0\divergence \
+//	cd <racine du depot> && DIVERGENCE_RACINE=... DIVERGENCE_FILMS=... DIVERGENCE_TEMOIN=<dossier>/oracle \
+//	  DIVERGENCE_SORTIE=<dossier>/divergence \
 //	  go test -tags=research ./research/divergence/ -run TestDivergence -v -timeout 60m
 //
 // LE CONTROLE DE L INSTRUMENT est la porte du test : sur 100 paquets tires au hasard parmi ceux que

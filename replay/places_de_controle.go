@@ -52,7 +52,9 @@ import (
 type ControlPlaceCoverage struct {
 	// Read : la lecture a eu lieu (l index de tireur est la place sur ce film).
 	Read bool `json:"read"`
-	// Bindings : tirs qui lient une place a un joueur, hors ceux que P1 conteste ; Players : joueurs
+	// Bindings : liaisons DISTINCTES (place, frame, joueur) entre une place et un joueur, hors celles
+	// que P1 conteste. Deux tirs du meme joueur, a la meme place, dans la meme frame, font UNE liaison :
+	// ce n est pas un compte de tirs (`shotsByPlace` et ses deux voisins comptent les tirs). Players : joueurs
 	// lies ; MultiPlace : joueurs lus a plusieurs places ; Handovers : relais lus (deux tenues
 	// consecutives de joueurs differents sur une place) ; Returns : relais ou un joueur reprend une
 	// place qu un autre a tenue entre-temps ; Contested : liaisons que P1 conteste.

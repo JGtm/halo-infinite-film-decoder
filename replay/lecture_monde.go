@@ -108,6 +108,11 @@ func decodeFilmSpawnEventsLecture(fc *grammar.FilmContext) lectureEvenementsPiec
 }
 
 // journaliserEvenementsPiece ecrit le journal des evenements 103 et rend ce que le balayage publie.
+//
+// UN FILM SANS AUCUN EVENEMENT N'EST PAS UNE ERREUR, ET CE N'EST PAS NON PLUS UN SILENCE : les
+// builds les plus anciens du corpus n'en rendent aucun, la ou les recents en rendent des dizaines.
+// Le journal publie donc les DEUX denominateurs (listes traversees et evenements lus), et la
+// couverture de l'artefact les publie tous deux (`coverage.placements.spawnLists` et `.spawnEvents`).
 func journaliserEvenementsPiece(ctx context.Context, matchID string, lu lectureEvenementsPiece,
 ) ([]types.EquipmentSpawnEvent, types.EquipmentSpawnStats) {
 	st := lu.stats

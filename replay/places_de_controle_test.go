@@ -56,6 +56,20 @@ func TestLaPlaceLueEstTenueSurToutePresence(t *testing.T) {
 	})
 }
 
+// TestBindingsCompteDesLiaisonsDistinctesEtPasDesTirs : `coverage.controlPlaces.bindings` compte les
+// liaisons (place, frame, joueur) distinctes. Deux tirs du meme joueur, a la meme place, dans la
+// meme frame, n en font qu une ; un tir a la frame suivante en fait une seconde.
+func TestBindingsCompteDesLiaisonsDistinctesEtPasDesTirs(t *testing.T) {
+	fire := []grammar.FireEvent{tirDePlace(3, 10, 100), tirDePlace(3, 10, 100), tirDePlace(3, 10, 101)}
+	p := lecturePlaces(fire, map[uint32]int{10: 3}, nil)
+	if p.cov.Bindings != 2 {
+		t.Errorf("bindings = %d pour trois tirs dont deux dans la meme frame, attendu 2 liaisons distinctes", p.cov.Bindings)
+	}
+	if p.cov.Players != 1 || p.cov.Contested != 0 {
+		t.Errorf("couverture = %+v : un seul joueur, rien de conteste", p.cov)
+	}
+}
+
 // TestLaPlaceLueSansPresenceNEtendPas — P2 seul : sans presence connue du joueur, la tenue est celle
 // de ses liaisons.
 func TestLaPlaceLueSansPresenceNEtendPas(t *testing.T) {

@@ -105,12 +105,3 @@ func (s slotTrack) pts() []grammar.BipedPosition {
 	}
 	return out
 }
-
-// pisteTrieeDeTest pose une piste sur une tranche DEJA triee par instant, sans la reordonner.
-func pisteTrieeDeTest(v []grammar.BipedPosition) slotTrack {
-	idx := make([]int32, len(v))
-	for i := range idx {
-		idx[i] = int32(i)
-	}
-	return slotTrack{all: v, idx: idx}
-}

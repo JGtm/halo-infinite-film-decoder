@@ -1,9 +1,9 @@
 # EMPREINTE DE FORME DU DOCUMENT DE REJEU — fige par document_shape_test.go.
 # Ne s'edite JAMAIS a la main : regeneration decrite en tete de ce test.
 schema 127
-empreinte-stockee e5829f2f7547b060
-empreinte-servie e5829f2f7547b060
-empreinte-cuite 2811e1df33f2e8ef
+empreinte-stockee a7c4a8c93c6c3217
+empreinte-servie a7c4a8c93c6c3217
+empreinte-cuite ac9af54e9951b2d8
 empreinte-cuite-regle 4
 
 AbilityCharge
@@ -1193,11 +1193,13 @@ ProjectileAttachCoverage
   Created json:"created" int
   Desynced json:"desynced" int
   Listed json:"listed" int
+  NoTracks json:"noTracks,omitempty" int
   OnFlight json:"onFlight" int
   OutOfMatch json:"outOfMatch" int
   Player json:"player" int
   Read json:"read" int
   Records json:"records" int
+  Repeats json:"repeats" int
   Tagged json:"tagged" int
   UnreadFrames json:"unreadFrames" int
   Unresolved json:"unresolved" int
@@ -1388,6 +1390,8 @@ ScoreCoverage
   Oracle json:"oracle" string
   Points json:"points" int
   Rounds json:"rounds" int
+  RoundsAdmittedByReset json:"roundsAdmittedByReset,omitempty" []int
+  RoundsAdmittedByShare json:"roundsAdmittedByShare,omitempty" []int
   RoundsContradicted json:"roundsContradicted,omitempty" []int
   RoundsContradictedRecords json:"roundsContradictedRecords,omitempty" int
   RoundsDecreed json:"roundsDecreed,omitempty" bool

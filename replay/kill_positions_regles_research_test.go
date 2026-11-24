@@ -213,3 +213,12 @@ func (b *occBilan) exemple(c *contexteFilm, qui string, r cote, verdict string, 
 	b.exemples = append(b.exemples, fmt.Sprintf("%s %s t=%d ms %s avant=%d apres=%d saut=%.2f/%v",
 		qui, c.nom, tMS, r.cause, r.avantMS, r.apresMS, r.saut, r.aSaut))
 }
+
+// pisteTrieeDeTest pose une piste sur une tranche DEJA triee par instant, sans la reordonner.
+func pisteTrieeDeTest(v []grammar.BipedPosition) slotTrack {
+	idx := make([]int32, len(v))
+	for i := range idx {
+		idx[i] = int32(i)
+	}
+	return slotTrack{all: v, idx: idx}
+}

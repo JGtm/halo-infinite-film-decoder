@@ -26,19 +26,3 @@ func decodeFilmPlacements(ctx context.Context,
 ) ([]types.EquipmentPlacement, grammar.EquipmentPlacementStats) {
 	return journaliserPoses(ctx, matchID, decodeFilmPlacementsLecture(fc, worldRange))
 }
-
-// decodeFilmSpawnEvents lit les evenements 103 « une PIECE a ete engendree » et JOURNALISE ce
-// que le balayage a vu.
-//
-// UN FILM SANS AUCUN EVENEMENT N'EST PAS UNE ERREUR, ET CE N'EST PAS NON PLUS UN SILENCE : les
-// builds les plus anciens du corpus n'en rendent aucun (`a521164d`, HI_1_4_1 : 0 sur 4 956
-// listes non vides) la ou les recents en rendent des dizaines. Le journal publie donc les DEUX
-// denominateurs — listes traversees et evenements lus —, et la couverture de l'artefact les
-// publie TOUS DEUX (`coverage.placements.spawnLists` et `.spawnEvents`).
-//
-// HORS LIGNE — appelee par le balayage, sous le meme verrou que le reste de la cuisson.
-func decodeFilmSpawnEvents(ctx context.Context,
-	fc *grammar.FilmContext, matchID string,
-) ([]types.EquipmentSpawnEvent, types.EquipmentSpawnStats) {
-	return journaliserEvenementsPiece(ctx, matchID, decodeFilmSpawnEventsLecture(fc))
-}
