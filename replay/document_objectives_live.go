@@ -420,6 +420,20 @@ type FlagCarriesCoverage struct {
 	// intervalles dont la serie est celle de la marche (les autres portent celle de la passe).
 	GaugeWalkReads int `json:"gaugeWalkReads"`
 	GaugeWalkSpans int `json:"gaugeWalkSpans"`
+	// Ce que la jauge a LU SANS LE PUBLIER, sur les deux voies (passe et marche) ; une serie lue ne disparait jamais sans motif.
+	// GaugeSlotsFewReads : slots de moins d'echantillons que le plancher, non juges. GaugeSlotsOffDrops : slots juges dont aucune equipe
+	// ne tient le seuil (la jauge n'est pas celle d'un drapeau). GaugeSlotsTeamTaken : slots qui tiennent le seuil pour une equipe dont
+	// un autre slot, de meilleure part, est deja apparie (ou qui l'est pour une autre equipe). GaugeReadsUnpublished : les echantillons
+	// de ces trois familles de slots.
+	GaugeSlotsFewReads    int `json:"gaugeSlotsFewReads"`
+	GaugeSlotsOffDrops    int `json:"gaugeSlotsOffDrops"`
+	GaugeSlotsTeamTaken   int `json:"gaugeSlotsTeamTaken"`
+	GaugeReadsUnpublished int `json:"gaugeReadsUnpublished"`
+	// GaugeReadsAmbiguous : echantillons d'un slot apparie a une equipe dont deux drapeaux sont au sol a cet instant, que rien ne pose
+	// sur l'un ou l'autre. GaugeReadsOffDrops : echantillons d'un slot apparie qui tombent hors de tout lacher de son equipe (la
+	// jauge se vide ou se tait quand le drapeau est a sa base).
+	GaugeReadsAmbiguous int `json:"gaugeReadsAmbiguous"`
+	GaugeReadsOffDrops  int `json:"gaugeReadsOffDrops"`
 }
 
 // Balanced verifie les TROIS invariants du calque : toute prise de l'oracle est soit publiee, soit
